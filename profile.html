@@ -178,7 +178,6 @@
     </style>
 </head>
 <body>
-    <!-- Header will be injected here by your script -->
     <div id="header-placeholder"></div>
 
     <div class="profile-container-wrapper">
@@ -192,7 +191,6 @@
                 </ul>
             </nav>
             <main class="profile-content">
-                <!-- Profile Information View -->
                 <div id="profile-view" class="profile-view active">
                     <h2>My Profile</h2>
                     <form id="profileForm">
@@ -208,7 +206,6 @@
                         <div id="profileMessage" class="message"></div>
                     </form>
                 </div>
-                <!-- Security View -->
                 <div id="security-view" class="profile-view">
                     <h2>Security Settings</h2>
                     <div class="form-group">
@@ -222,7 +219,6 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="firebase-init.js"></script>
@@ -303,7 +299,10 @@
                 signOutBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     auth.signOut().then(() => {
-                        window.location.href = 'home.html';
+                        // Clear the cached user data to ensure the header updates
+                        localStorage.removeItem('cachedUser');
+                        // Redirect to the correct main page
+                        window.location.href = 'index.html';
                     });
                 });
 
