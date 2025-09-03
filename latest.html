@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Articles</title>
+    <!-- External CSS files -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu.css">
+    <link rel="stylesheet" href="login.css">
+    <script>
+        function resizeIframe(iframe) {
+            // Hide loading overlay when iframe content is loaded
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden');
+            }
+            
+            // Set a small timeout to ensure content like images has rendered before calculating height
+            setTimeout(() => {
+                if (iframe && iframe.contentWindow && iframe.contentWindow.document.body) {
+                    iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+                }
+            }, 150);
+        }
+
+        // Add a listener to resize the iframe if the window is resized (e.g., phone orientation change)
+        window.addEventListener('resize', () => {
+            const iframe = document.getElementById('articleFrame');
+            if (iframe) {
+                resizeIframe(iframe);
+            }
+        });
+    </script>
+</head>
+<body>
+<header>
+    <div id="header-placeholder"></div> 
+</header>
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+</div>
+
+<iframe id="articleFrame" src="articleMiddle.html" width="100%" style="border:none; overflow:hidden;" scrolling="no" onload="resizeIframe(this)"></iframe>
+
+<!-- JS files for dynamic components -->
+ <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+ <!-- 2. Your Firebase Initializer -->
+<script src="firebase-init.js"></script>  
+
+<script src="header-injector.js"></script>
+
+<div id="bottom-nav-placeholder"></div>
+<script src="bottom-nav.js"></script>
+
+</body>
+</html>

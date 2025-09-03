@@ -1,0 +1,776 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+}
+
+.header {
+    border-bottom: 1px solid #e2e2e2;
+    padding: 5px 0;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* --- REVISED HEADER LAYOUT STYLES --- */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    padding: 0 1rem;
+    position: relative;
+}
+
+.header-left, .header-center, .header-right {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.header-left { 
+    justify-content: flex-start; 
+}
+
+.header-center { 
+    justify-content: center;
+    /* This keeps the logo perfectly centered */
+    position: absolute;
+    width: 100%;
+    left: 0;
+    pointer-events: none; /* Allows clicking "through" this container */
+}
+
+.header-right { 
+    justify-content: flex-end; 
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #000;
+    text-decoration: none;
+    pointer-events: all; /* Ensures the logo itself is clickable */
+}
+
+/* --- PROFILE ICON STYLES --- */
+.user-icon-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Login Icon Position Adjustment (More Specific) --- */
+
+.header-right .user-actions {
+  transform: translate(-10px, -20px); 
+}
+/* --- Login Icon Position Adjustment --- */
+
+#profile-pic-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee8e8;
+
+    /* --- Add these lines for positioning --- */
+    position: relative;
+    top: 0px;  /* Use a negative value (e.g., -5px) to move up */
+    left: 0px; /* Use a negative value (e.g., -5px) to move left */
+}
+
+#profile-initial-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #0073e6; /* This is the default, but JS will override it */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: 2px solid #ddd;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    
+    /* --- Add these lines for positioning --- */
+    position: relative;
+    top: -2px;  /* Use a negative value (e.g., -5px) to move up */
+    left: 4px; /* Use a negative value (e.g., -5px) to move left */
+}
+
+/* --- Other existing styles from your file --- */
+
+.main-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.hamburger {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: black;
+    cursor: pointer;
+    margin-right: 15px; 
+}
+
+.nav-links {
+    position: fixed;
+    top: 61px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    background: white;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.nav-links li {
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+}
+.nav-links a {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    color: black;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.nav-links.active {
+    display: flex;
+}
+
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+}
+
+.header {  
+    border-bottom: 1px solid;  
+    padding: 5px 0;
+    background-color: #fff;  
+    position: sticky;  
+    top: 0;  
+    z-index: 100;  
+}  
+  
+/* --- REVISED HEADER LAYOUT STYLES START HERE --- */
+.header-content {  
+    display: flex;  
+    justify-content: space-between; /* Aligns items to the ends and center */
+    align-items: center;  
+    height: 50px;
+    padding: 0 1rem; /* Adds some space on the sides */
+    position: relative;
+}  
+
+.header-left, .header-center, .header-right {
+    display: flex;
+    align-items: center;
+    flex: 1; /* Each section takes up equal space initially */
+}
+
+.header-left {
+    justify-content: flex-start; /* Aligns hamburger to the left */
+}
+
+.header-center {
+    justify-content: center; /* Aligns logo to the center */
+    position: absolute;
+    width: 100%;
+    left: 0;
+    pointer-events: none; /* Allows clicking through the center div */
+}
+
+.header-right {
+    justify-content: flex-end; /* Aligns user icon to the right */
+}
+  
+.logo {  
+  font-family: 'Playfair Display', serif;  
+  font-size: 28px;  
+  font-weight: 600;  
+  color: #000;  
+  text-decoration: none;  
+  pointer-events: all; /* Makes the logo clickable */
+}
+
+.user-actions {
+    position: relative;
+}
+
+.profile-container {
+    display: block;
+}
+
+#profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    cursor: pointer;
+}
+/* --- REVISED HEADER LAYOUT STYLES END HERE --- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+}
+
+.header {  
+    border-bottom: 1px solid;  
+    padding: 5px 0;
+    background-color: #fff;  
+    position: sticky;  
+    top: 0;  
+    z-index: 100;  
+}  
+  
+.header-content {  
+    position: relative;  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    height: 40px;
+}  
+  
+.logo {  
+    white-space: nowrap;  
+    position: absolute;  
+    left: 50%;  
+    transform: translateX(-50%);  
+    font-family: 'Playfair Display', serif;  
+    font-size: 28px;  
+    font-weight: 600;  
+    color: #000;  
+    text-decoration: none;  
+    line-height: 1;
+}
+
+/* --- NEW AND UPDATED STYLES START HERE --- */
+
+/* This container holds the login icon OR the user profile */
+.user-actions {
+    position: absolute;
+    right: 1px; 
+    top: 60%; /* Changed from 50% to move it down */
+    transform: translateY(-50%);
+}
+
+/* Styles for the logged-in user profile container */
+.profile-container {
+    position: relative;
+    cursor: pointer;
+}
+
+#profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+}
+
+/* The dropdown menu itself */
+.dropdown-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    z-index: 101;
+    width: 120px;
+}
+
+.dropdown-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-menu ul li a {
+    display: block;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 1rem;
+}
+
+.dropdown-menu ul li a:hover {
+    background-color: #f0f2f5;
+}
+
+/* This class will be added by JavaScript to show the dropdown */
+.dropdown-menu.show {
+    display: block;
+}
+
+/* --- NEW AND UPDATED STYLES END HERE --- */
+
+
+/* Other existing styles */
+.main-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+}
+
+.header {  
+    border-bottom: 1px solid;  
+    padding: 5px 0;    /* Reduced vertical padding */
+    background-color: #fff;  
+    position: sticky;  
+    top: 0;  
+    z-index: 100;  
+    margin-bottom: 0;  /* Remove negative margin */
+}  
+  
+.header-content {  
+    position: relative;  
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    height: 40px; /* You can set explicit smaller height if needed */
+    
+}  
+  
+.logo {  
+  white-space: nowrap;  
+  position: absolute;  
+  left: 50%;  
+  transform: translateX(-50%);  
+  font-family: 'Playfair Display', serif;  
+  font-size: 28px;  
+  font-weight: 600;  
+  color: #000;  
+  text-decoration: none;  
+  line-height: 1; /* reduce line height */
+}
+
+
+.nav-menu {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.nav-menu a:hover {
+    color: #000;
+}
+
+/* Main */
+.main-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.breadcrumb a {
+    color: #666;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Article */
+.article-header {
+    margin-bottom: 40px;
+}
+
+.article-title {
+    font-size: 42px;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+.article-subtitle {
+    font-size: 20px;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 30px;
+    font-weight: normal;
+}
+
+.article-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e2e2;
+    margin-bottom: 30px;
+}
+
+.author-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.author-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px; /* Reduced gap before the image */
+}
+
+.author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ddd;
+    overflow: hidden; /* Ensures image stays within circular bounds */
+}
+
+.author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.author-details h4 {
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.author-details p {
+    font-size: 12px;
+    color: #666;
+}
+
+.article-date {
+    font-size: 12px;
+    color: #666;
+    margin-left: auto; /* Push date to the right */
+}
+
+.hero-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    margin-bottom: 15px;
+    max-height: 80vh; /* Limits height on large screens */
+}
+
+.image-caption {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 30px;
+    line-height: 1.4;
+}
+
+.article-content {
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+.article-content p {
+    margin-bottom: 20px;
+    text-transform: lowercase; /* Ensures all paragraphs are lowercase */
+}
+
+/* Target only the first paragraph */
+.article-content p:first-child {
+    text-transform: none; /* Keeps original case for the first paragraph */
+}
+
+.article-content p:first-child:first-letter {
+    font-size: 70px;
+    float: left;
+    line-height: 60px;
+    padding-right: 8px;
+    margin-top: 4px;
+    font-weight: bold;
+}
+
+.article-content blockquote {
+    border-left: 3px solid #000;
+    padding-left: 20px;
+    margin: 30px 0;
+    font-style: italic;
+    color: #555;
+}
+/* Related Articles */
+.related-articles {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid #e2e2e2;
+}
+
+.related-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.related-list {
+    list-style: none;
+}
+
+.related-list li {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.related-list a {
+    color: #000;
+    text-decoration: none;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.related-list a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f8f8;
+    padding: 40px 0;
+    margin-top: 60px;
+    border-top: 1px solid #e2e2e2;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.footer p {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .article-title {
+        font-size: 32px;
+    }
+
+    .article-subtitle {
+        font-size: 18px;
+    }
+
+    .article-content {
+        font-size: 16px;
+    }
+
+    .nav-menu {
+        display: none;
+    }
+
+    .main-container {
+        padding: 20px 15px;
+    }
+}
+
+.tags {
+    margin-top: 0;        /* No top margin */
+    margin-bottom: 15px;  /* You can adjust this as needed */
+}
+
+.tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #0073e6, #005bb5);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin: 4px 3px 0 0;  /* Reduce margin between tags, top margin to 0 */
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hamburger {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: black;
+    cursor: pointer;
+    margin-left: 0px; /* move hamburger to the right */
+}
+
+
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin: 20px;
+}
+
+
+.social-share {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: -32px; /* Reduce this value */
+}
+
+.social-share a {
+    color: #333;
+    font-size: 16px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-share a:hover {
+    color: #007bff;
+}
+
+ .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+
+        
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.bottom-nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #8e8e8e;
+    font-size: 12px;
+    flex-grow: 1;
+    height: 100%;
+}
+
+.bottom-nav-link svg {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+}
+
+.bottom-nav-link.active {
+    color: #000000;
+}

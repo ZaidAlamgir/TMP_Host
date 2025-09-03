@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Hub - The Muslim Post</title>
+    <!-- Main Stylesheets -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu.css">
+    <link rel="stylesheet" href="login.css">
+    <style>
+        /* Styles specific to the news hub page layout */
+        body { 
+            background-color: #f8f9fa; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        }
+        main { 
+            padding: 2rem 1rem 80px 1rem; 
+            max-width: 900px; 
+            margin: 0 auto; 
+        }
+        .page-header { 
+            text-align: center; 
+            margin-bottom: 2.5rem; 
+        }
+        .page-header h1 { 
+            font-size: 2.5rem; 
+            color: #1c1e21; 
+        }
+        .page-header p { 
+            font-size: 1.1rem; 
+            color: #606770; 
+            margin-top: 0.5rem;
+        }
+        /* Styles for the news grid, adapted from home.html */
+        .news-grid-full {
+            display: grid;
+            grid-template-columns: 1fr; /* A single column feed */
+            gap: 1.5rem;
+        }
+        .news-card { 
+            background-color: #fff; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            overflow: hidden; 
+            text-decoration: none; 
+            color: inherit; 
+            display: flex;
+            /* On mobile, stack image on top of text */
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        }
+        .news-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12); 
+        }
+        .news-card .news-card-image-wrapper { 
+            overflow: hidden;
+            width: 100%;
+            height: 220px;
+        }
+        .news-card-image { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.4s ease; 
+        }
+        .news-card:hover .news-card-image { transform: scale(1.05); }
+        .news-card-text { padding: 1.5rem; }
+        .news-card-headline { 
+            font-size: 1.3rem; 
+            font-weight: 600; 
+            color: #1c1e21; 
+            margin-bottom: 0.5rem; 
+        }
+        .news-card-subheadline { 
+            font-size: 1rem; 
+            color: #606770; 
+            line-height: 1.5; 
+        }
+
+        /* On larger screens, show image and text side-by-side */
+        @media (min-width: 768px) {
+            .news-card {
+                flex-direction: row;
+            }
+            .news-card .news-card-image-wrapper {
+                width: 300px; /* Fixed width for the image */
+                height: auto;
+                flex-shrink: 0;
+            }
+            .news-card-text {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<main>
+    <div class="page-header">
+        <h1>News Hub</h1>
+        <p>The latest trends, research, and important discussions from around the world.</p>
+    </div>
+
+    <!-- The container where all news articles will be displayed -->
+    <div id="newsGridFull" class="news-grid-full">
+        <!-- News articles will be injected here -->
+         <a href="#" class="news-card">
+            <div class="news-card-image-wrapper">
+               <img src="https://placehold.co/600x400/3498db/ffffff?text=AI+Innovation" alt="Technology News" class="news-card-image">
+            </div>
+            <div class="news-card-text">
+                <h3 class="news-card-headline">The Future of AI in Everyday Life</h3>
+                <p class="news-card-subheadline">Analysts predict a massive shift as artificial intelligence becomes more integrated into our homes and workplaces.</p>
+            </div>
+        </a>
+        <a href="#" class="news-card">
+             <div class="news-card-image-wrapper">
+                <img src="https://placehold.co/600x400/2ecc71/ffffff?text=Medical+Science" alt="Health News" class="news-card-image">
+            </div>
+            <div class="news-card-text">
+                <h3 class="news-card-headline">Breakthroughs in Personalized Medicine</h3>
+                <p class="news-card-subheadline">New research opens doors to treatments tailored to an individual's genetic makeup, promising higher efficacy.</p>
+            </div>
+        </a>
+        <a href="#" class="news-card">
+             <div class="news-card-image-wrapper">
+                <img src="https://placehold.co/600x400/f1c40f/ffffff?text=Global+Economy" alt="Finance News" class="news-card-image">
+            </div>
+            <div class="news-card-text">
+                <h3 class="news-card-headline">Global Markets React to Economic Shifts</h3>
+                <p class="news-card-subheadline">Investors watch closely as central banks around the world signal new directions in monetary policy.</p>
+            </div>
+        </a>
+        <a href="#" class="news-card">
+             <div class="news-card-image-wrapper">
+                <img src="https://placehold.co/600x400/e74c3c/ffffff?text=Art+%26+Culture" alt="Culture News" class="news-card-image">
+            </div>
+            <div class="news-card-text">
+                <h3 class="news-card-headline">The Resurgence of Classic Cinema</h3>
+                <p class="news-card-subheadline">A new generation discovers the magic of old films, leading to a revival of historic theaters and film festivals.</p>
+            </div>
+        </a>
+        <!-- Add more news articles here in the same format -->
+    </div>
+</main>
+
+<div id="bottom-nav-placeholder"></div>
+
+<!-- Firebase and App Scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="firebase-init.js"></script>
+<script src="header-injector.js"></script>
+<script src="bottom-nav.js"></script>
+
+</body>
+</html>
