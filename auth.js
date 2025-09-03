@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             auth.createUserWithEmailAndPassword(email, password)
                 .then(() => {
                     // If successful, redirect the user to the main page
-                    window.location.href = 'index.html'; 
+                    window.location.href = 'home.html'; 
                 })
                 .catch((error) => {
                     // If there's an error, display it to the user
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
                     // If successful, redirect the user to the main page
-                    window.location.href = 'index.html';
+                    window.location.href = 'home.html';
                 })
                 .catch((error) => {
                     // If there's an error, display it to the user
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             auth.signInWithPopup(provider)
                 .then(() => {
                     // If successful, redirect the user to the main page
-                    window.location.href = 'index.html'; 
+                    window.location.href = 'home.html'; 
                 })
                 .catch((error) => {
                     // If there's an error, display it to the user
@@ -105,4 +105,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
