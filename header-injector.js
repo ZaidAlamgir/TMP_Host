@@ -27,7 +27,15 @@ function renderHeader(user) {
     if (!headerPlaceholder) return;
 
     const isUserLoggedIn = !!user;
-    const mainIconLink = isUserLoggedIn ? 'profile.html' : 'auth.html';
+    let mainIconLink;
+
+    if (isUserLoggedIn) {
+        mainIconLink = 'profile.html';
+    } else {
+        const currentPage = window.location.pathname.split("/").pop();
+        // Add the current page as a redirectUrl parameter
+        mainIconLink = `auth.html?redirectUrl=${encodeURIComponent(currentPage || 'home.html')}`;
+    }
 
     const headerHTML = `
         <div class="header-content">
@@ -35,8 +43,8 @@ function renderHeader(user) {
                 <nav class="navbar">
                     <button class="hamburger" id="hamburger-btn">&#9776;</button>
                     <ul id="nav-menu" class="nav-links">
-                        <li><a href="home.html">Home</a></li>
-                        <li><a href="index.html">Articles</a></li>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="news-hub.html">Articles</a></li>
                         <li><a href="about.html">About</a></li>
                     </ul>
                 </nav>
