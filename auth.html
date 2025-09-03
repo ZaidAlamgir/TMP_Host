@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account - The Muslim Post</title>
-    <!-- We will use an icon library for the checkmarks and eye icon -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
@@ -26,6 +25,20 @@
             max-width: 450px;
             text-align: center;
             box-sizing: border-box;
+            position: relative; /* Added for positioning the close button */
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            color: #8a8d91;
+            text-decoration: none;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        .close-btn:hover {
+            color: #1c1e21;
         }
         .auth-step {
             display: none; /* All steps are hidden by default */
@@ -142,7 +155,7 @@
 </head>
 <body>
     <main class="auth-container">
-        <!-- Step 1: Sign Up (Email Entry) -->
+        <a id="closeBtn" href="index.html" class="close-btn" aria-label="Close">&times;</a>
         <div id="stepSignUp1" class="auth-step active">
             <h1>Create your account</h1>
             <p>Enter your email to get started.</p>
@@ -164,7 +177,6 @@
             </div>
         </div>
 
-        <!-- Step 2: Sign Up (Name and Password Entry) -->
         <div id="stepSignUp2" class="auth-step">
             <h1>Complete your profile</h1>
             <p>Just a few more details to create your account.</p>
@@ -191,7 +203,6 @@
             <a href="#" id="backToStep1" class="back-link">Go Back</a>
         </div>
 
-        <!-- Step 3: Sign In -->
         <div id="stepSignIn" class="auth-step">
             <h1>Sign in to your account</h1>
             <p>Welcome back! Please enter your details.</p>
@@ -222,7 +233,6 @@
         
     </main>
 
-    <!-- Firebase SDK Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="firebase-init.js"></script>
@@ -231,6 +241,19 @@
         document.addEventListener('DOMContentLoaded', () => {
             const auth = firebase.auth();
             
+            // --- Logic for the dynamic close button ---
+            const closeBtn = document.getElementById('closeBtn');
+            if (closeBtn) {
+                const params = new URLSearchParams(window.location.search);
+                const redirectUrl = params.get('redirectUrl');
+                if (redirectUrl) {
+                    closeBtn.href = decodeURIComponent(redirectUrl);
+                } else {
+                    // Fallback if no redirect URL is provided
+                    closeBtn.href = 'index.html';
+                }
+            }
+
             // --- View/Step Elements ---
             const stepSignUp1 = document.getElementById('stepSignUp1');
             const stepSignUp2 = document.getElementById('stepSignUp2');
@@ -304,7 +327,7 @@
                 registerError.textContent = '';
                 auth.createUserWithEmailAndPassword(userEmail, password)
                     .then(cred => cred.user.updateProfile({ displayName: fullName }))
-                    .then(() => { window.location.href = 'home.html'; })
+                    .then(() => { window.location.href = 'index.html'; })
                     .catch(error => { registerError.textContent = error.message; });
             });
 
@@ -315,7 +338,7 @@
                 const password = signInPasswordInput.value;
                 signInError.textContent = '';
                 auth.signInWithEmailAndPassword(email, password)
-                    .then(() => { window.location.href = 'home.html'; })
+                    .then(() => { window.location.href = 'index.html'; })
                     .catch(error => { signInError.textContent = error.message; });
             });
 
@@ -323,7 +346,7 @@
             const handleGoogleSignIn = () => {
                 const provider = new firebase.auth.GoogleAuthProvider();
                 auth.signInWithPopup(provider)
-                    .then(() => { window.location.href = 'home.html'; })
+                    .then(() => { window.location.href = 'index.html'; })
                     .catch(error => {
                         signInError.textContent = error.message;
                         emailError.textContent = error.message;
