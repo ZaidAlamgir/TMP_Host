@@ -774,3 +774,23 @@ body {
 .bottom-nav-link.active {
     color: #000000;
 }
+
+/* Add this CSS to your website's stylesheet */
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212; /* Dark background */
+  color: #e0e0e0; /* Lighter text for readability */
+}
+
+/* Make links visible in dark mode */
+body.dark-mode a {
+  color: #bb86fc; /* A nice, visible purple for links */
+}
+
+/* Style other specific elements as needed */
+/* For example, if you have containers with light backgrounds */
+body.dark-mode .your-container-class {
+  background-color: #1e1e1e;
+  border-color: #333333;
+}
