@@ -50,7 +50,7 @@ function renderHeader(user) {
                 </nav>
             </div>
             <div class="header-center">
-                <a href="home.html" class="logo">The Muslim Post</a>
+                <a href="index.html" class="logo">The Muslim Post</a>
             </div>
             <div class="header-right">
                 <div class="user-actions">
@@ -152,3 +152,4 @@ async function initializeInstantHeader() {
 // --- MAIN EXECUTION ---
 // Run the new initialization process.
 initializeInstantHeader();
+
