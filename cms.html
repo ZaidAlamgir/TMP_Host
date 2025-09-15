@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Website CMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen">
+
+    <div id="app" class="w-full max-w-4xl mx-auto p-4">
+        
+        <!-- Login View -->
+        <div id="login-view" class="bg-white p-8 rounded-lg shadow-lg text-center">
+            <h1 class="text-3xl font-bold mb-2">News CMS Login</h1>
+            <p class="text-slate-600 mb-6">Please log in with your GitHub account to continue.</p>
+            <button id="login-button" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center w-full max-w-xs mx-auto">
+                <i class="fab fa-github mr-3"></i>
+                Sign in with GitHub
+            </button>
+        </div>
+
+        <!-- Editor View -->
+        <div id="editor-view" class="hidden bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">Create New Article</h1>
+                <button id="logout-button" class="text-sm text-slate-500 hover:text-slate-800">Logout</button>
+            </div>
+            
+            <div class="mb-4">
+                <label for="article-title" class="block text-sm font-medium text-slate-700 mb-1">Article Title</label>
+                <input type="text" id="article-title" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., The Future of Web Development">
+            </div>
+
+            <div class="mb-6">
+                <label for="article-content" class="block text-sm font-medium text-slate-700 mb-1">Content (Markdown supported)</label>
+                <textarea id="article-content" rows="15" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your amazing article here..."></textarea>
+            </div>
+
+            <button id="publish-button" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-500 transition-colors w-full flex items-center justify-center">
+                <span id="publish-text">Publish Article</span>
+                <span id="publish-spinner" class="hidden">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Publishing...
+                </span>
+            </button>
+            <p id="status-message" class="text-center mt-4 text-sm"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // IMPORTANT: Replace these values with your own.
+        const GITHUB_CONFIG = {
+            clientId: 'YOUR_GITHUB_OAUTH_APP_CLIENT_ID', // <-- PASTE YOUR CLIENT ID HERE
+            redirectUri: 'http://127.0.0.1:5500/index.html', // <-- MUST MATCH YOUR OAUTH APP CALLBACK URL
+            
+            // The repository where articles will be saved.
+            repoOwner: 'YOUR_GITHUB_USERNAME', // e.g., 'octocat'
+            repoName: 'YOUR_NEWS_WEBSITE_REPO', // e.g., 'my-awesome-blog'
+            repoBranch: 'main',
+
+            // The folder within the repo to save articles.
+            // For example, '_posts/' is common for Jekyll blogs.
+            articlesPath: '_posts'
+        };
+
+        // --- DOM ELEMENTS ---
+        const loginView = document.getElementById('login-view');
+        const editorView = document.getElementById('editor-view');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const publishButton = document.getElementById('publish-button');
+        const articleTitle = document.getElementById('article-title');
+        const articleContent = document.getElementById('article-content');
+        const statusMessage = document.getElementById('status-message');
+        const publishText = document.getElementById('publish-text');
+        const publishSpinner = document.getElementById('publish-spinner');
+        
+        // --- APP LOGIC ---
+        let accessToken = null;
+
+        // On page load, check for OAuth code or existing token
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            // If we have a code from GitHub, we need to exchange it for a token.
+            if (code) {
+                // Remove code from URL
+                window.history.pushState({}, document.title, window.location.pathname);
+                
+                // In a REAL app, you would send this 'code' to a secure backend/serverless function
+                // to exchange it for an access token. NEVER expose your Client Secret in the frontend.
+                // We will simulate this by asking the user to paste their token for this demo.
+                // To generate a personal access token for testing: https://github.com/settings/tokens
+                const personalAccessToken = prompt('SECURITY NOTICE: In a real app, this step would be automated.\n\nFor this demo, please paste a GitHub Personal Access Token with `repo` scope.');
+                if (personalAccessToken) {
+                    accessToken = personalAccessToken;
+                    localStorage.setItem('githubAccessToken', accessToken);
+                    showEditor();
+                } else {
+                    alert("Authentication failed. Token is required.");
+                    showLogin();
+                }
+
+            } else {
+                // If no code, check if we already have a token in local storage
+                const storedToken = localStorage.getItem('githubAccessToken');
+                if (storedToken) {
+                    accessToken = storedToken;
+                    // You might want to verify the token is still valid here with a simple API call
+                    showEditor();
+                } else {
+                    showLogin();
+                }
+            }
+        };
+
+        const showLogin = () => {
+            loginView.classList.remove('hidden');
+            editorView.classList.add('hidden');
+        };
+
+        const showEditor = () => {
+            loginView.classList.add('hidden');
+            editorView.classList.remove('hidden');
+        };
+
+        // Event Listeners
+        loginButton.addEventListener('click', () => {
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${GITHUB_CONFIG.redirectUri}&scope=repo`;
+            window.location.href = authUrl;
+        });
+
+        logoutButton.addEventListener('click', () => {
+            accessToken = null;
+            localStorage.removeItem('githubAccessToken');
+            showLogin();
+        });
+
+        publishButton.addEventListener('click', async () => {
+            const title = articleTitle.value.trim();
+            const content = articleContent.value.trim();
+
+            if (!title || !content) {
+                updateStatus('Title and content cannot be empty.', 'red');
+                return;
+            }
+
+            setPublishingState(true);
+
+            // Create a filename from the title (e.g., "My Awesome Post" -> "2025-09-15-my-awesome-post.md")
+            const date = new Date().toISOString().split('T')[0];
+            const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const filename = `${date}-${slug}.md`;
+            const filePath = `${GITHUB_CONFIG.articlesPath}/${filename}`;
+
+            // Jekyll and other generators use "frontmatter" at the top of the file.
+            const fileContent = `---\nlayout: post\ntitle: "${title}"\ndate: ${new Date().toISOString()}\n---\n\n${content}`;
+            
+            // Content must be Base64 encoded
+            const encodedContent = btoa(unescape(encodeURIComponent(fileContent)));
+
+            const commitMessage = `feat: Add new article "${title}"`;
+
+            const url = `https://api.github.com/repos/${GITHUB_CONFIG.repoOwner}/${GITHUB_CONFIG.repoName}/contents/${filePath}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${accessToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                    },
+                    body: JSON.stringify({
+                        message: commitMessage,
+                        content: encodedContent,
+                        branch: GITHUB_CONFIG.repoBranch,
+                    }),
+                });
+
+                if (response.status === 201 || response.status === 200) {
+                    updateStatus(`Successfully published article: ${filename}`, 'green');
+                    articleTitle.value = '';
+                    articleContent.value = '';
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || `GitHub API returned status ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error publishing article:', error);
+                updateStatus(`Error: ${error.message}`, 'red');
+            } finally {
+                setPublishingState(false);
+            }
+        });
+
+        // Helper functions
+        const updateStatus = (message, color) => {
+            statusMessage.textContent = message;
+            statusMessage.style.color = color;
+            setTimeout(() => statusMessage.textContent = '', 5000);
+        };
+
+        const setPublishingState = (isPublishing) => {
+            if (isPublishing) {
+                publishButton.disabled = true;
+                publishText.classList.add('hidden');
+                publishSpinner.classList.remove('hidden');
+            } else {
+                publishButton.disabled = false;
+                publishText.classList.remove('hidden');
+                publishSpinner.classList.add('hidden');
+            }
+        };
+
+    </script>
+</body>
+</html>
