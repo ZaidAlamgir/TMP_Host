@@ -1,0 +1,35 @@
+# deploy.yml
+
+# 1. When to Wake Up
+on:
+  push:
+    branches: [ "main" ] # Wake up on any push to the 'main' branch
+
+# 2. The Job to Do
+jobs:
+  deploy: # We'll call this job "deploy"
+    runs-on: ubuntu-latest # Use a standard computer (Ubuntu Linux)
+    permissions:
+      # Give the robot permission to write to GitHub Pages
+      pages: write
+      id-token: write
+
+    # 3. The Sequence of Tasks
+    steps:
+      # Task A: Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Task B: Set up the GitHub Pages feature
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # Task C: "Upload" the entire website folder to be published
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './' # The root directory of your website
+
+      # Task D: Deploy the uploaded files to your live URL
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
