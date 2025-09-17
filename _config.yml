@@ -1,9 +1,9 @@
-# Welcome to Jekyll!
-# ... (the other lines) ...
+# Site settings
+title: The Muslim Post
+description: "News and analysis from around the world."
+baseurl: "/TMP_Host" # The subpath of your site
 
-# Exclude your CMS file from being processed by Jekyll
 exclude:
   - cms.html
 
-# Add this line to disable the default theme
 theme: null
