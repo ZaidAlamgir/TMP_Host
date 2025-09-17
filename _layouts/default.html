@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: site.title }}</title>
 
-    <!-- Using Jekyll's baseurl variable to create correct paths -->
-    <link rel="stylesheet" href="{{ site.baseurl }}/style/style.css">
-    <link rel="stylesheet" href="{{ site.baseurl }}/style/menu.css">
-    <link rel="stylesheet" href="{{ site.baseurl }}/style/login.css">
-
+    <!-- Using Jekyll's robust relative_url filter -->
+    <link rel="stylesheet" href="{{ '/style/style.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/style/menu.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/style/login.css' | relative_url }}">
     <style>
         body { 
             background-color: #f8f9fa; 
@@ -30,9 +29,9 @@
 
     <div id="bottom-nav-placeholder"></div>
 
-    <!-- Using Jekyll's baseurl variable for the scripts as well -->
-    <script src="{{ site.baseurl }}/header-injector.js"></script>
-    <script src="{{ site.baseurl }}/bottom-nav.js"></script>
+    <!-- Using Jekyll's robust relative_url filter -->
+    <script src="{{ '/header-injector.js' | relative_url }}"></script>
+    <script src="{{ '/bottom-nav.js' | relative_url }}"></script>
 
 </body>
 </html>
