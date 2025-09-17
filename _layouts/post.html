@@ -1,0 +1,36 @@
+---
+layout: default
+---
+<style>
+    /* Paste the same <style> block from latest.html here */
+    main { padding: 2rem 1rem; max-width: 740px; margin: 0 auto; }
+    .article-header { margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; }
+    .article-headline { font-size: 2.8rem; font-weight: bold; line-height: 1.2; margin-bottom: 0.5rem; }
+    .article-subheadline { font-size: 1.4rem; color: #606770; margin-top: 0; }
+    .article-meta { font-size: 0.9rem; color: #606770; margin-top: 1rem; }
+    .article-figure { margin: 2rem 0; }
+    .article-image { width: 100%; height: auto; border-radius: 8px; }
+    .article-image-caption { font-size: 0.9rem; color: #606770; text-align: center; margin-top: 0.5rem; }
+    .article-content { font-size: 1.1rem; line-height: 1.8; }
+</style>
+
+<article>
+    <header class="article-header">
+        <h1 class="article-headline">{{ page.title }}</h1>
+        <p class="article-subheadline">{{ page.subheadline }}</p>
+        <div class="article-meta">
+            <span>By {{ page.author | default: 'Staff Writer' }}</span> | <span>Published on {{ page.date | date: "%B %d, %Y" }}</span>
+        </div>
+    </header>
+
+    {% if page.image %}
+    <figure class="article-figure">
+        <img src="{{ page.image }}" alt="{{ page.image_description | default: 'Article main image' }}" class="article-image">
+        <figcaption class="article-image-caption">{{ page.image_description }}</figcaption>
+    </figure>
+    {% endif %}
+
+    <section class="article-content">
+        {{ content }}
+    </section>
+</article>
