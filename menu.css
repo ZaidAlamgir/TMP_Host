@@ -1,0 +1,63 @@
+/* Hamburger styling with positioning controls */
+.hamburger {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: black;
+    z-index: 1001;
+
+    /* --- Add these lines for positioning --- */
+    position: relative;
+    top: -2px;  /* Use a negative value (e.g., -5px) to move up */
+    left: -5px; /* Use a negative value (e.g., -5px) to move left */
+}
+/* Fullscreen left-aligned menu */
+.nav-links {
+    position: fixed;
+    top: 51px; /* Leaves space for header */
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    background: white;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start; /* left align */
+}
+
+/* Each item with a bottom border */
+.nav-links li {
+    width: 100%;
+    border-bottom: 1px solid #ccc; /* light black/gray line */
+}
+
+.nav-links a {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    color: black;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+/* Show menu when active */
+.nav-links.active {
+    display: flex;
+}
+
+/* Style for the cross icon */
+.hamburger.active {
+    font-size: 32px;
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
+/* Style when menu is closed (hamburger icon) */
+.hamburger {
+    font-size: 32px;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+}
