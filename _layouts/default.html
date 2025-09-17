@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: site.title }}</title>
 
-    <!-- Correctly link to your CSS files inside the 'style' folder -->
-    <link rel="stylesheet" href="/TMP_Host/style/style.css">
-    <link rel="stylesheet" href="/TMP_Host/style/menu.css">
+    <!-- Using Jekyll's baseurl variable to create correct paths -->
+    <link rel="stylesheet" href="{{ site.baseurl }}/style/style.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/style/menu.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/style/login.css">
 
     <style>
         body { 
             background-color: #f8f9fa; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             margin: 0;
-            padding-top: 60px; /* Adjust if your header is taller */
-            padding-bottom: 60px; /* Adjust if your footer is taller */
+            padding-top: 60px; 
+            padding-bottom: 60px; 
         }
     </style>
 </head>
@@ -29,8 +30,9 @@
 
     <div id="bottom-nav-placeholder"></div>
 
-    <script src="/TMP_Host/header-injector.js"></script>
-    <script src="/TMP_Host/bottom-nav.js"></script>
+    <!-- Using Jekyll's baseurl variable for the scripts as well -->
+    <script src="{{ site.baseurl }}/header-injector.js"></script>
+    <script src="{{ site.baseurl }}/bottom-nav.js"></script>
 
 </body>
 </html>
