@@ -1,10 +1,8 @@
 # Site settings
 title: The Muslim Post
 description: "News and analysis from around the world."
-baseurl: "/TMP_Host" # The subpath of your site
 
 exclude:
   - cms.html
 
 theme: null
-
