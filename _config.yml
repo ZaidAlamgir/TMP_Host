@@ -1,0 +1,12 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that.
+
+# Site settings
+title: The Muslim Post
+description: "News and analysis from around the world."
+
+# Exclude your CMS file from being processed by Jekyll
+exclude:
+  - cms.html
