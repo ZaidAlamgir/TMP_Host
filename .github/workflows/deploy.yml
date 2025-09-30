@@ -1,5 +1,5 @@
-# Sample workflow for building and deploying a Jekyll site to GitHub Pages
-name: Deploy Jekyll with GitHub Pages dependencies preinstalled
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy Jekyll site to Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -28,13 +28,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
+
+      - name: Checkout Live Content Repo
+        uses: actions/checkout@v4
         with:
-          source: ./
-          destination: ./_site
+          # Replace with your other account and repo name
+          repository: 'AmmarKhanAlamgirOfficial/live-content' 
+          token: ${{ secrets.CONTENT_PULL_TOKEN }}
+          # This places the content into a folder named `_live_updates`
+          path: '_live_updates'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1' # Or your preferred version
+          bundler-cache: true # runs 'bundle install' and caches installed gems
+      - name: Build with Jekyll
+        run: bundle exec jekyll build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
