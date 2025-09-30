@@ -1,0 +1,65 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #1c1e21;
+}
+.main-content-area {
+    flex-grow: 1;
+}
+
+/* --- Master Header Styles --- */
+
+/* This provides the main 3-column layout for the header */
+.header {
+    border-bottom: 1px solid #0a0909;
+    padding: 5px 0;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    padding: 0 1rem;
+    position: relative;
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.header-left { 
+    justify-content: flex-start; 
+}
+
+.header-right { 
+    justify-content: flex-end; 
+}
+
+.header-center { 
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    pointer-events: none;
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #000;
+    text-decoration: none;
+    pointer-events: all;
+}

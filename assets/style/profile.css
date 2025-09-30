@@ -1,0 +1,36 @@
+/* All the specific styles from your original profile.html */
+.profile-container-wrapper { max-width: 900px; margin: 2rem auto; padding: 2rem; display: none; /* Hidden by default to prevent flicker */ }
+.profile-layout { display: flex; background-color: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); overflow: hidden; }
+.profile-nav { width: 250px; border-right: 1px solid #dddfe2; padding: 1.5rem; flex-shrink: 0; }
+.profile-nav h3 { font-size: 1.2rem; margin: 0 0 1rem 0; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+.profile-nav ul { list-style: none; padding: 0; margin: 0; }
+.profile-nav li a { display: flex; align-items: center; padding: 0.9rem 1rem; text-decoration: none; color: #606770; font-weight: 600; border-radius: 8px; transition: background-color 0.2s, color 0.2s; }
+.profile-nav li a .fa-fw { margin-right: 12px; width: 20px; }
+.profile-nav li a:hover { background-color: #f0f2f5; }
+.profile-nav li a.active { background-color: #0073e6; color: #fff; }
+.profile-content { flex-grow: 1; padding: 2rem 2.5rem; }
+.profile-view { display: none; }
+.profile-view.active { display: block; }
+.profile-view h2 { font-size: 1.8rem; margin: 0 0 2rem 0; }
+.form-group { margin-bottom: 1.5rem; }
+label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+input[type="text"], input[type="email"] { width: 100%; padding: 12px; border: 1px solid #dddfe2; border-radius: 8px; font-size: 1rem; box-sizing: border-box; background-color: #f5f6f7; }
+input[disabled] { cursor: not-allowed; color: #8a8d91; }
+.btn-primary { padding: 12px 20px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; background-color: #0073e6; color: #fff; }
+.message { padding: 1rem; border-radius: 8px; margin-top: 1.5rem; font-weight: 500; display: none; }
+.message.success { background-color: #e9f6eb; color: #42b72a; }
+.message.error { background-color: #fbe9e9; color: #fa383e; }
+@media (max-width: 768px) { .profile-container-wrapper { margin: 0; padding: 0; } .profile-layout { flex-direction: column; border-radius: 0; } .profile-nav { width: 100%; border-right: none; border-bottom: 1px solid #dddfe2; padding: 1rem; box-sizing: border-box; } .profile-nav h3 { text-align: center; } .profile-nav ul { display: flex; justify-content: space-around; } .profile-nav li a { padding: 0.7rem 0.5rem; flex-direction: column; gap: 5px; justify-content: center; } .profile-nav li a span { display: block; font-size: 0.7rem; } .profile-nav li a .fa-fw { margin-right: 0; font-size: 1.2rem; } .profile-content { padding: 1.5rem 1rem; } .profile-view h2 { font-size: 1.5rem; } }
+
+/* --- Styles for "My Posts" View --- */
+.user-post-item { border: 1px solid #dddfe2; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+.user-post-item .post-content { margin: 0 0 1rem 0; color: #1c1e21; }
+.user-post-item .post-details { display: flex; justify-content: space-between; align-items: center; }
+.user-post-item .post-date { font-size: 0.8rem; color: #606770; }
+.user-post-item .post-actions { display: flex; gap: 0.5rem; }
+.btn-edit, .btn-delete { padding: 5px 10px; border: 1px solid #dddfe2; background-color: #fff; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+.btn-edit:hover { background-color: #f0f2f5; }
+.btn-delete { color: #fa383e; }
+.btn-delete:hover { background-color: #fbe9e9; }
+.loader { display: block; margin: 20px auto; border: 4px solid #f3f3f3; border-top: 4px solid #0073e6; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }

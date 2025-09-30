@@ -1,0 +1,52 @@
+/* --- Master Hamburger Menu Styles with Animation --- */
+
+.hamburger {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: black;
+    z-index: 1001;
+    padding: 5px; /* Increase clickable area */
+    
+    /* NEW: Add a smooth transition for the rotation */
+    transition: transform 0.4s ease-in-out;
+}
+
+/* NEW: When the 'active' class is added, rotate 360 degrees */
+.hamburger.active {
+    transform: rotate(360deg);
+}
+
+.nav-links {
+    position: fixed;
+    top: 61px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 61px);
+    background: white;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.nav-links li {
+    width: 100%;
+    border-bottom: 1px solid #eee;
+}
+
+.nav-links a {
+    display: block;
+    width: 100%;
+    padding: 18px 25px;
+    color: black;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.nav-links.active {
+    display: flex;
+}
