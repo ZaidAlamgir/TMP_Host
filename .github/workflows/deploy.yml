@@ -43,9 +43,11 @@ jobs:
         with:
           ruby-version: '3.1'
           bundler-cache: true # runs 'bundle install' and caches installed gems
-        working-directory: ./ # Run this step in the root directory
       - name: Build with Jekyll
+        working-directory: ./ # Explicitly run in the root directory
         # This will tell Jekyll to build the site, placing the output in ./_site
+        run: bundle exec jekyll build
+      - name: Build with Jekyll
         run: bundle exec jekyll build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
