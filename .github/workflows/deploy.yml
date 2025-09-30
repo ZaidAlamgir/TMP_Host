@@ -41,17 +41,15 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1' # Or your preferred version
+          ruby-version: '3.1'
           bundler-cache: true # runs 'bundle install' and caches installed gems
+        working-directory: ./ # Run this step in the root directory
       - name: Build with Jekyll
-        run: bundle exec jekyll build
-        working-directory: ./ # Explicitly run in the root directory
-      - name: Build with Jekyll
+        # This will tell Jekyll to build the site, placing the output in ./_site
         run: bundle exec jekyll build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload from the default Jekyll build directory
           path: ./_site
 
   # Deployment job
