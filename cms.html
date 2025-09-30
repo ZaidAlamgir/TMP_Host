@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Website CMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hidden { display: none; }
+        /* Style for the dynamically added content blocks */
+        .dynamic-content-block {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            background-color: #f8fafc;
+        }
+        /* --- NEW: Styles for tag suggestions --- */
+        .tag-suggestions {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem;
+        }
+        .tag-chip {
+            background-color: #e2e8f0; color: #475569; font-size: 0.8rem; padding: 0.25rem 0.75rem; border-radius: 9999px; cursor: pointer; transition: background-color 0.2s;
+        }
+        .tag-chip:hover {
+            background-color: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen py-12">
+
+    <div id="app" class="w-full max-w-4xl mx-auto p-4">
+        
+        <!-- Login View -->
+        <div id="login-view" class="bg-white p-8 rounded-lg shadow-lg text-center">
+            <h1 class="text-3xl font-bold mb-2">News CMS Login</h1>
+            <p class="text-slate-600 mb-6">Please log in with your GitHub account to continue.</p>
+            <button id="login-button" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center w-full max-w-xs mx-auto">
+                <i class="fab fa-github mr-3"></i>
+                Sign in with GitHub
+            </button>
+        </div>
+
+        <!-- MODIFIED Editor View -->
+        <div id="editor-view" class="hidden bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold">Create New Article</h1>
+                <button id="logout-button" class="text-sm text-slate-500 hover:text-slate-800">Logout</button>
+            </div>
+            
+            <!-- Headline -->
+            <div class="mb-4">
+                <label for="article-headline" class="block text-sm font-medium text-slate-700 mb-1">Headline</label>
+                <input type="text" id="article-headline" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="The main title of the article">
+            </div>
+
+            <!-- Subheadline -->
+            <div class="mb-6">
+                <label for="article-subheadline" class="block text-sm font-medium text-slate-700 mb-1">Subheadline</label>
+                <input type="text" id="article-subheadline" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="A brief, engaging summary">
+            </div>
+
+            <hr class="my-6">
+
+            <!-- Main Image -->
+            <div class="mb-4">
+                <label for="article-main-image-url" class="block text-sm font-medium text-slate-700 mb-1">Main Image URL</label>
+                <input type="text" id="article-main-image-url" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="mb-6">
+                <label for="article-main-image-desc" class="block text-sm font-medium text-slate-700 mb-1">Main Image Description</label>
+                <input type="text" id="article-main-image-desc" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="A short description of the main image (for accessibility)">
+            </div>
+            
+            <hr class="my-6">
+
+            <!-- Paragraph 1 -->
+            <div class="mb-4">
+                <label for="article-p1" class="block text-sm font-medium text-slate-700 mb-1">Article Paragraph 1</label>
+                <textarea id="article-p1" rows="10" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="The first paragraph of your article..."></textarea>
+            </div>
+            
+            <!-- Container for dynamic blocks -->
+            <div id="dynamic-content-blocks"></div>
+
+            <!-- REFINED: Add More Blocks Controls with Dropdown -->
+            <div class="my-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                 <select id="block-type-select" class="p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="paragraph">Paragraph</option>
+                    <option value="image">Image</option>
+                    <option value="quote">Quote</option>
+                 </select>
+                 <button id="add-block-button" class="bg-slate-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-500 transition-colors text-sm">
+                    <i class="fas fa-plus mr-2"></i>Add Block
+                </button>
+            </div>
+           
+            <hr class="my-6">
+            
+            <!-- Tags -->
+            <div class="mb-6">
+                <label for="article-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags</label>
+                <input type="text" id="article-tags" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., technology, politics, health (comma-separated)">
+                <!-- NEW: Predefined tag suggestions -->
+                <div id="tag-suggestions-container" class="tag-suggestions">
+                    <div class="tag-chip" data-tag="world-politics">World Politics</div>
+                    <div class="tag-chip" data-tag="indian-politics">Indian Politics</div>
+                    <div class="tag-chip" data-tag="muslim-world">Muslim World</div>
+                    <div class="tag-chip" data-tag="technology">Technology</div>
+                    <div class="tag-chip" data-tag="medical-science">Medical Science</div>
+                    <div class="tag-chip" data-tag="global-economy">Global Economy</div>
+                    <div class="tag-chip" data-tag="art-culture">Art & Culture</div>
+                </div>
+            </div>
+            
+            <!-- Publish Button -->
+            <button id="publish-button" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-500 transition-colors w-full flex items-center justify-center">
+                <span id="publish-text">Publish Article</span>
+                <span id="publish-spinner" class="hidden">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Publishing...
+                </span>
+            </button>
+            <p id="status-message" class="text-center mt-4 text-sm"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const GITHUB_CONFIG = {
+            clientId: 'Ov23liQdWxdci4yccEie', // Your GitHub OAuth App's Client ID
+            redirectUri: 'http://127.0.0.1:4000/TMP_Host/auth-callback.html',
+            repoOwner: 'zaidalamgir',
+            repoName: 'TMP_Host',
+            repoBranch: 'main',
+            articlesPath: '_posts',
+            tokenExchangeUrl: 'https://github-auth-proxy.zaidkhan137782.workers.dev' // <-- PASTE YOUR WORKER URL HERE
+        };
+
+        // --- DOM ELEMENTS ---
+        const loginView = document.getElementById('login-view');
+        const editorView = document.getElementById('editor-view');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const publishButton = document.getElementById('publish-button');
+        const statusMessage = document.getElementById('status-message');
+        const publishText = document.getElementById('publish-text');
+        const publishSpinner = document.getElementById('publish-spinner');
+        const addBlockButton = document.getElementById('add-block-button');
+        const dynamicBlocksContainer = document.getElementById('dynamic-content-blocks');
+        const blockTypeSelect = document.getElementById('block-type-select');
+        const tagsInput = document.getElementById('article-tags');
+
+        // --- APP INITIALIZATION ---
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            // Handle OAuth redirect state
+            const state = urlParams.get('state');
+            const redirectInfo = JSON.parse(localStorage.getItem('auth_redirect_info'));
+            if (state && redirectInfo && state !== redirectInfo.cms_id) return; // Mismatch, do nothing.
+
+            if (code) {
+                window.history.pushState({}, document.title, window.location.pathname);
+                try {
+                    // Securely exchange the code for an access token via our serverless function
+                    const response = await fetch(GITHUB_CONFIG.tokenExchangeUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: code })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.access_token) {
+                        accessToken = data.access_token;
+                        localStorage.setItem('githubAccessToken', accessToken);
+                        showEditor();
+                    } else {
+                        // This provides a much more useful error message from the worker/GitHub
+                        const errorDetails = data.details || data.error || `The server responded with status ${response.status}.`;
+                        throw new Error(errorDetails);
+                    }
+                } catch (error) {
+                    // Use a more readable alert format
+                    alert(`Authentication Failed:\n\n${error.message}`);
+                    showLogin();
+                }
+            } else {
+                const storedToken = localStorage.getItem('githubAccessToken');
+                if (storedToken) {
+                    accessToken = storedToken;
+                    showEditor();
+                } else {
+                    showLogin();
+                }
+            }
+        };
+
+        const showLogin = () => {
+            loginView.classList.remove('hidden');
+            editorView.classList.add('hidden');
+        };
+
+        const showEditor = () => {
+            loginView.classList.add('hidden');
+            editorView.classList.remove('hidden');
+        };
+
+        // --- EVENT LISTENERS ---
+        loginButton.addEventListener('click', () => {
+            // Store the current page's full URL so auth-callback.html knows where to return
+            const finalDestination = window.location.origin + window.location.pathname;
+            localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'main_cms' }));
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${GITHUB_CONFIG.redirectUri}&scope=repo,user:email&state=main_cms`;
+       window.location.href = authUrl;
+   });
+
+
+        logoutButton.addEventListener('click', async () => {
+            if (!accessToken) {
+                localStorage.removeItem('githubAccessToken');
+                showLogin();
+                return;
+            }
+
+            try {
+                // Call the worker to revoke the token on GitHub's side
+                await fetch(GITHUB_CONFIG.tokenExchangeUrl, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: accessToken }),
+                });
+            } catch (error) {
+                console.error("Failed to revoke token, but logging out locally anyway:", error);
+            } finally {
+                // Always log the user out of the local session
+                accessToken = null;
+                localStorage.removeItem('githubAccessToken');
+                showLogin();
+            }
+        });
+
+        addBlockButton.addEventListener('click', () => {
+            const blockType = blockTypeSelect.value;
+            const newBlock = document.createElement('div');
+            newBlock.className = 'dynamic-content-block';
+            newBlock.dataset.blockType = blockType;
+
+            let blockHTML = `<h3 class="text-lg font-semibold mb-4 text-slate-600">${blockType.charAt(0).toUpperCase() + blockType.slice(1)}</h3>`;
+
+            switch (blockType) {
+                case 'paragraph':
+                    blockHTML += `<textarea class="dynamic-paragraph w-full p-2 border border-slate-300 rounded-md" rows="8" placeholder="Continue your article..."></textarea>`;
+                    break;
+                case 'image':
+                    blockHTML += `
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
+                            <input type="text" class="dynamic-image-url w-full p-2 border border-slate-300 rounded-md" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Image Description (for accessibility)</label>
+                            <input type="text" class="dynamic-image-desc w-full p-2 border border-slate-300 rounded-md" placeholder="A short description of this image">
+                        </div>`;
+                    break;
+                case 'quote':
+                    blockHTML += `<textarea class="dynamic-quote w-full p-2 border border-slate-300 rounded-md" rows="4" placeholder="Enter the quote here..."></textarea>`;
+                    break;
+            }
+
+            newBlock.innerHTML = blockHTML;
+            dynamicBlocksContainer.appendChild(newBlock);
+        });
+
+        // --- NEW: Logic for tag suggestion chips ---
+        document.getElementById('tag-suggestions-container').addEventListener('click', (e) => {
+            if (e.target.classList.contains('tag-chip')) {
+                const newTag = e.target.dataset.tag;
+                const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
+
+                // Add the new tag only if it's not already present
+                if (!currentTags.includes(newTag)) {
+                    if (tagsInput.value.trim() === '') {
+                        tagsInput.value = newTag;
+                    } else {
+                        tagsInput.value += `, ${newTag}`;
+                    }
+                }
+            }
+        });
+
+        publishButton.addEventListener('click', async () => {
+            // 1. GATHER DATA
+            const headline = document.getElementById('article-headline').value.trim();
+            const subheadline = document.getElementById('article-subheadline').value.trim();
+            const mainImageUrl = document.getElementById('article-main-image-url').value.trim();
+            const mainImageDesc = document.getElementById('article-main-image-desc').value.trim();
+            const paragraph1 = document.getElementById('article-p1').value.trim();
+            const tags = tagsInput.value.trim();
+
+            if (!headline || !paragraph1) {
+                updateStatus('Headline and Paragraph 1 are required.', 'red');
+                return;
+            }
+            setPublishingState(true);
+
+            // 2. BUILD FRONTMATTER (METADATA)
+            let frontmatter = `---\n`;
+            frontmatter += `title: "${headline.replace(/"/g, '\\"')}"\n`;
+            if (subheadline) frontmatter += `subheadline: "${subheadline.replace(/"/g, '\\"')}"\n`;
+            frontmatter += `date: ${new Date().toISOString()}\n`;
+            if (mainImageUrl) frontmatter += `image: "${mainImageUrl}"\n`;
+            if (mainImageDesc) frontmatter += `image_description: "${mainImageDesc.replace(/"/g, '\\"')}"\n`;            
+            // REFINED: Ensure tags are formatted correctly as a YAML list
+            const tagList = tags.split(',').map(tag => tag.trim().toLowerCase().replace(/\s+/g, '-')).filter(t => t);
+            if (tagList.length > 0) frontmatter += `tags: [${tagList.join(', ')}]\n`;
+            frontmatter += `author: "Journalist"\n`; // You can make this dynamic later
+            frontmatter += `---\n\n`;
+
+            // 3. BUILD ARTICLE BODY
+            let body = `${paragraph1}\n\n`;
+            const dynamicBlocks = document.querySelectorAll('.dynamic-content-block');
+            dynamicBlocks.forEach(block => {
+                const blockType = block.dataset.blockType;
+                if (blockType === 'paragraph') {
+                    const paragraph = block.querySelector('.dynamic-paragraph').value.trim();
+                    if (paragraph) body += `${paragraph}\n\n`;
+                } else if (blockType === 'image') {
+                    const imageUrl = block.querySelector('.dynamic-image-url').value.trim();
+                    const imageDesc = block.querySelector('.dynamic-image-desc').value.trim();
+                    if (imageUrl) {
+                        body += `!${imageDesc || 'Article image'}\n\n`;
+                    }
+                } else if (blockType === 'quote') {
+                    const quote = block.querySelector('.dynamic-quote').value.trim();
+                    // Format as a Markdown blockquote
+                    if (quote) body += `> ${quote.replace(/\n/g, '\n> ')}\n\n`;
+                }
+            });
+
+            // 4. PREPARE FOR GITHUB
+            const fileContent = frontmatter + body;
+            const date = new Date().toISOString().split('T')[0];
+            const slug = headline.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const filename = `${date}-${slug}.md`;
+            const filePath = `${GITHUB_CONFIG.articlesPath}/${filename}`;
+            const commitMessage = `feat: Add new article "${headline}"`;
+            const url = `https://api.github.com/repos/${GITHUB_CONFIG.repoOwner}/${GITHUB_CONFIG.repoName}/contents/${filePath}`;
+
+            // 5. SEND TO GITHUB API
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${accessToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                    },
+                    body: JSON.stringify({
+                        message: commitMessage,
+                        content: btoa(unescape(encodeURIComponent(fileContent))), // A more direct and robust method for UTF-8 to Base64
+                        branch: GITHUB_CONFIG.repoBranch,
+                    }),
+                });
+
+                if (response.status === 201) {
+                    updateStatus(`Successfully published: ${filename}`, 'green');
+                    // Simple form reset
+                    editorView.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                    dynamicBlocksContainer.innerHTML = '';
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || `GitHub API returned status ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, 'red');
+            } finally {
+                setPublishingState(false);
+            }
+        });
+
+        // --- HELPER FUNCTIONS ---
+        const updateStatus = (message, color) => {
+            statusMessage.textContent = message;
+            statusMessage.style.color = color;
+            setTimeout(() => statusMessage.textContent = '', 5000);
+        };
+
+        const setPublishingState = (isPublishing) => {
+            publishButton.disabled = isPublishing;
+            publishText.classList.toggle('hidden', !isPublishing);
+            publishSpinner.classList.toggle('hidden', isPublishing);
+        };
+    </script>
+</body>
+</html>
