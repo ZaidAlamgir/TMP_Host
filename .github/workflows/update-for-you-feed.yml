@@ -1,0 +1,37 @@
+# This GitHub Action runs on a schedule, fetches top posts from Supabase,
+# and pushes them as Markdown files to a separate "for-you-posts" repository.
+
+name: Generate "For You" Feed
+
+on:
+  # Run this workflow every hour
+  schedule:
+    - cron: '0 * * * *'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js simple-git
+
+      - name: Run generation script
+        env:
+          # These secrets must be configured in your repository settings
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+          TARGET_REPO_OWNER: 'AmmarKhanAlamgirOfficial' # The owner of the 'for-you-posts' repo
+          TARGET_REPO_NAME: 'for-you-posts'      # The name of the 'for-you-posts' repo
+        run: node scripts/generate-for-you-posts.js
