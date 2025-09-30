@@ -45,8 +45,8 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems
         working-directory: ./ # Explicitly run in the root directory
       - name: Build with Jekyll
-        run: bundle exec jekyll build
         working-directory: ./ # Explicitly run in the root directory
+        run: bundle exec jekyll build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
