@@ -13,6 +13,11 @@
         .content-block h3 { font-size: 1rem; font-weight: 600; color: #475569; margin-bottom: 1rem; text-transform: uppercase; }
         .remove-block-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2rem; }
         .remove-block-btn:hover { color: #ef4444; }
+        /* --- NEW: Style for the image description placeholder --- */
+        .image-desc-input::placeholder {
+            color: #94a3b8;
+            font-style: italic;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen py-12">
@@ -38,10 +43,8 @@
             <div class="my-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
                  <select id="block-type-select" class="p-2 border border-slate-300 rounded-md">
                     <option value="content">Paragraph</option>
-                    <option value="image">Image URL</option>
+                    <option value="image">Image</option>
                     <option value="quote">Quote</option>
-                    <option value="twitter">Twitter Embed</option>
-                    <option value="instagram">Instagram Embed</option>
                  </select>
                  <button id="add-block-button" class="bg-slate-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-500 transition-colors text-sm">
                     <i class="fas fa-plus mr-2"></i>Add Block
@@ -82,8 +85,6 @@
         const logoutButton = document.getElementById('logout-button');
         const publishButton = document.getElementById('publish-button');
         const statusMessage = document.getElementById('status-message');
-        const publishText = document.getElementById('publish-text');
-        const publishSpinner = document.getElementById('publish-spinner');
         const addBlockButton = document.getElementById('add-block-button');
         const blockTypeSelect = document.getElementById('block-type-select');
         const blocksContainer = document.getElementById('content-blocks-container');
@@ -99,9 +100,12 @@
             switch (type) {
                 case 'headline': innerHTML += `<input type="text" class="w-full p-2 border border-slate-300 rounded-md" placeholder="Main title of the update">`; break;
                 case 'content': innerHTML += `<textarea rows="5" class="w-full p-2 border border-slate-300 rounded-md" placeholder="Write the update details..."></textarea>`; break;
-                case 'image': innerHTML += `<input type="text" class="w-full p-2 border border-slate-300 rounded-md" placeholder="https://example.com/image.jpg">`; break;
+                case 'image': 
+                    // --- NEW: Image block now includes URL and Description fields ---
+                    innerHTML += `<input type="text" class="image-url-input w-full p-2 border border-slate-300 rounded-md mb-2" placeholder="Paste any image link or markdown here">`;
+                    innerHTML += `<input type="text" class="image-desc-input w-full p-2 border border-slate-300 rounded-md" placeholder="Image description (optional)">`;
+                    break;
                 case 'quote': innerHTML += `<textarea rows="3" class="w-full p-2 border border-slate-300 rounded-md" placeholder="Enter the quote here..."></textarea>`; break;
-                default: innerHTML += `<input type="text" class="w-full p-2 border border-slate-300 rounded-md" placeholder="Paste the full embed link or URL">`; break;
             }
             blockWrapper.innerHTML = innerHTML;
             blocksContainer.appendChild(blockWrapper);
@@ -110,10 +114,6 @@
         window.onload = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-            const state = urlParams.get('state');
-            const redirectInfo = JSON.parse(localStorage.getItem('auth_redirect_info'));
-            if (state && redirectInfo && state !== redirectInfo.cms_id) return;
-
             if (code) {
                 window.history.pushState({}, document.title, window.location.pathname);
                 try {
@@ -123,8 +123,8 @@
                         accessToken = data.access_token;
                         localStorage.setItem('githubLiveCmsToken', accessToken);
                         showEditor();
-                    } else { throw new Error(data.details || data.error || 'Token exchange failed.'); }
-                } catch (error) { alert(`Authentication Failed:\n\n${error.message}`); showLogin(); }
+                    } else { throw new Error(data.details || 'Token exchange failed.'); }
+                } catch (error) { alert(`Authentication Failed: ${error.message}`); showLogin(); }
             } else {
                 const storedToken = localStorage.getItem('githubLiveCmsToken');
                 if (storedToken) { accessToken = storedToken; showEditor(); } else { showLogin(); }
@@ -138,8 +138,7 @@
         };
 
         loginButton.addEventListener('click', () => {
-            const finalDestination = window.location.origin + window.location.pathname;
-            localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'live_cms' }));
+            localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: window.location.href, cms_id: 'live_cms' }));
             window.location.href = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&redirect_uri=${GITHUB_CONFIG.redirectUri}&scope=repo,user:email&state=live_cms`;
         });
 
@@ -154,36 +153,54 @@
         addBlockButton.addEventListener('click', () => createBlock(blockTypeSelect.value));
 
         publishButton.addEventListener('click', async () => {
-            setPublishingState(true);
+            setPublishingState(true, 'Publishing...');
 
-            // ******** FINAL, CORRECTED DATA GATHERING LOGIC ********
+            // --- NEW: Helper function to extract a clean image URL ---
+            function extractImageUrl(input) {
+                if (!input) return null;
+                // Regex to find a URL inside markdown's parentheses `( ... )`
+                const markdownUrlMatch = input.match(/\((https?:\/\/[^\s)]+)\)/);
+                if (markdownUrlMatch && markdownUrlMatch[1]) {
+                    return markdownUrlMatch[1];
+                }
+                // Regex to find a standard URL
+                const plainUrlMatch = input.match(/https?:\/\/[^\s]+/);
+                if (plainUrlMatch && plainUrlMatch[0]) {
+                    return plainUrlMatch[0];
+                }
+                return null;
+            }
+
             const blocks = Array.from(document.querySelectorAll('.content-block'));
             let headline = '';
             let bodyParts = [];
 
             blocks.forEach(block => {
                 const type = block.dataset.blockType;
-                const input = block.querySelector('input, textarea');
-                const value = input.value.trim();
-                if (!value) return;
+                if (type === 'image') {
+                    const urlInput = block.querySelector('.image-url-input').value.trim();
+                    const descInput = block.querySelector('.image-desc-input').value.trim() || 'Live update image';
+                    const cleanUrl = extractImageUrl(urlInput);
+                    if (cleanUrl) {
+                        bodyParts.push(`![${descInput.replace(/]/g, '')}](${cleanUrl})`);
+                    }
+                } else {
+                    const input = block.querySelector('input, textarea');
+                    const value = input.value.trim();
+                    if (!value) return;
 
-                switch (type) {
-                    case 'headline': headline = value; break;
-                    case 'content': bodyParts.push(value); break;
-                    case 'image':
-                        // Only add to the body content, not the frontmatter
-                        bodyParts.push(`![Live update image](${value})`);
-                        break;
-                    case 'quote': bodyParts.push(`> ${value.replace(/\n/g, '\n> ')}`); break;
-                    default: bodyParts.push(value); break;
+                    switch (type) {
+                        case 'headline': headline = value; break;
+                        case 'content': bodyParts.push(value); break;
+                        case 'quote': bodyParts.push(`> ${value.replace(/\n/g, '\n> ')}`); break;
+                    }
                 }
             });
             const body = bodyParts.join('\n\n');
-            // ******** END OF FIX ********
             
             if (!body && !headline) {
                 updateStatus('Cannot publish an empty update.', 'red');
-                setPublishingState(false);
+                setPublishingState(false, 'Publish Live Update');
                 return;
             }
             
@@ -216,7 +233,7 @@
                     showEditor();
                 } else { const error = await response.json(); throw new Error(error.message || `GitHub API returned status ${response.status}`); }
             } catch (error) { updateStatus(`Error: ${error.message}`, 'red');
-            } finally { setPublishingState(false); }
+            } finally { setPublishingState(false, 'Publish Live Update'); }
         });
         
         const updateStatus = (message, color) => {
@@ -224,10 +241,10 @@
             statusMessage.style.color = color;
             setTimeout(() => statusMessage.textContent = '', 7000);
         };
-        const setPublishingState = (isPublishing) => {
-            publishButton.disabled = isPublishing;
-            publishText.classList.toggle('hidden', isPublishing);
-            publishSpinner.classList.toggle('hidden', !isPublishing);
+        const setPublishingState = (isBusy, text) => {
+            publishButton.disabled = isBusy;
+            document.getElementById('publish-text').textContent = text;
+            document.getElementById('publish-spinner').classList.toggle('hidden', !isBusy);
         };
     </script>
 </body>

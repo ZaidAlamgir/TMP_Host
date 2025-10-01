@@ -25,8 +25,15 @@ title: Live Updates
     .post-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f2f5; }
     .share-container { position: relative; display: flex; align-items: center; }
     .social-links { display: flex; list-style: none; gap: 8px; margin-right: 8px; padding: 0;}
+    /* --- SHARE ANIMATION FIX --- */
     .social-link { opacity: 0; transform: translateX(10px) scale(0.8); transition: all 0.3s ease-in-out; }
     .share-container.active .social-link { opacity: 1; transform: translateX(0) scale(1); }
+    .share-container.active .social-link:nth-child(1) { transition-delay: 0.05s; }
+    .share-container.active .social-link:nth-child(2) { transition-delay: 0.1s; }
+    .share-container.active .social-link:nth-child(3) { transition-delay: 0.15s; }
+    .share-container.active .social-link:nth-child(4) { transition-delay: 0.2s; }
+    .share-container.active .social-link:nth-child(5) { transition-delay: 0.25s; }
+    /* --- END SHARE ANIMATION FIX --- */
     .social-link a { display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; text-decoration: none; }
     .social-link.facebook a { background-color: #1877F2; }
     .social-link.x-twitter a { background-color: #000000; }
@@ -34,7 +41,11 @@ title: Live Updates
     .social-link.reddit a { background-color: #FF4500; }
     .social-link.copy-link a { background-color: #606770; }
     .share-btn-main { background: none; border: none; font-size: 1rem; color: #606770; cursor: pointer; padding: 5px; border-radius: 50%; width: 32px; height: 32px; position: relative; overflow: hidden;}
-    .share-btn-main i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .share-btn-main:hover { background-color: #f0f2f5; }
+    .share-btn-main i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+    .share-btn-main .close-icon { opacity: 0; transform: translate(-50%, -50%) rotate(180deg) scale(0.5); }
+    .share-container.active .share-btn-main .share-icon { opacity: 0; transform: translate(-50%, -50%) rotate(-180deg) scale(0.5); }
+    .share-container.active .share-btn-main .close-icon { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
     #load-more-container { text-align: center; margin-top: 2rem; }
     #load-more-btn { background-color: #1c1e21; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
     #load-more-btn:disabled { background-color: #ccc; }
@@ -94,7 +105,7 @@ title: Live Updates
 
 <div id="bottom-nav-placeholder"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
 <script src="{{ '/assets/header-injector.js' | relative_url }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -104,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let loadedCount = 10;
     const perPage = 10;
     let latestPostFilename = liveFeed.querySelector('.live-post')?.dataset.filename || '';
+    // --- AUTO-REFRESH FIX: Initialize showdown converter ---
+    const showdownConverter = new showdown.Converter();
 
     const GITHUB_API_CONFIG = {
         owner: 'AmmarKhanAlamgirOfficial',
@@ -131,12 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPost(postData, insertAtTop = false) {
         let headlineHTML = postData.headline ? `<h2 class="live-post-headline">${postData.headline}</h2>` : '';
 
-        // ******** FINAL JAVASCRIPT RENDER FIX ********
-        // This JavaScript now uses the same markdownify logic as Jekyll for consistency.
-        // It converts markdown to HTML.
-        const showdown = new showdown.Converter();
-        const contentHTML = showdown.makeHtml(postData.content);
-        // ******** END OF FIX ********
+        // --- AUTO-REFRESH FIX: Use the showdown converter instance ---
+        const contentHTML = showdownConverter.makeHtml(postData.content);
 
         const postElement = document.createElement('div');
         postElement.className = 'live-post';
@@ -148,9 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="live-post-time">${postData.timestamp}</span>
             </div>
             ${headlineHTML}
-            <div class="live-post-content">
-                ${contentHTML}
-            </div>
+            <div class="live-post-content">${contentHTML}</div>
             <div class="post-footer">
                 <div class="share-container">
                     <ul class="social-links">
@@ -170,35 +177,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (insertAtTop) { liveFeed.prepend(postElement); } 
         else { liveFeed.appendChild(postElement); }
     }
-   
-    async function loadMorePosts() {
+    
+    async function loadMorePosts(){
         loadMoreBtn.disabled = true;
         loadMoreBtn.textContent = 'Loading...';
-
         try {
             if (allFiles.length === 0) {
-                const url = `https://api.github.com/repos/${GITHUB_API_CONFIG.owner}/${GITHUB_API_CONFIG.repo}/contents/${GITHUB_API_CONFIG.path}`;
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Failed to fetch file list from GitHub.');
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_API_CONFIG.owner}/${GITHUB_API_CONFIG.repo}/contents/${GITHUB_API_CONFIG.path}`);
+                if (!response.ok) throw new Error('Failed to fetch file list');
                 const data = await response.json();
                 allFiles = data.filter(file => file.name.endsWith('.md')).sort((a, b) => b.name.localeCompare(a.name));
             }
-
             const filesToFetch = allFiles.slice(loadedCount, loadedCount + perPage);
-
             if (filesToFetch.length === 0) {
                 loadMoreBtn.textContent = 'No more updates';
                 return;
             }
-
             const postPromises = filesToFetch.map(file => fetch(file.download_url).then(res => res.text()));
             const rawPosts = await Promise.all(postPromises);
-            
-            rawPosts.forEach(rawPost => {
-                const postData = parseMarkdown(rawPost);
-                renderPost(postData);
-            });
-
+            rawPosts.forEach(rawPost => renderPost(parseMarkdown(rawPost)));
             loadedCount += filesToFetch.length;
             if (loadedCount >= allFiles.length) {
                 loadMoreBtn.textContent = 'You have reached the end';
@@ -207,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadMoreBtn.textContent = 'Read More';
             }
         } catch (error) {
-            console.error("Error loading more posts:", error);
+            console.error("Error loading posts:", error);
             loadMoreBtn.textContent = 'Failed to load';
             loadMoreBtn.style.backgroundColor = 'red';
         }
@@ -215,23 +212,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function checkForNewUpdates() {
         try {
-            const url = `https://api.github.com/repos/${GITHUB_API_CONFIG.owner}/${GITHUB_API_CONFIG.repo}/contents/${GITHUB_API_CONFIG.path}`;
-            const response = await fetch(url, { cache: "no-store" });
+            const response = await fetch(`https://api.github.com/repos/${GITHUB_API_CONFIG.owner}/${GITHUB_API_CONFIG.repo}/contents/${GITHUB_API_CONFIG.path}`, { cache: "no-store" });
             if (!response.ok) return;
-            
             const files = await response.json();
             const sortedFiles = files.filter(file => file.name.endsWith('.md')).sort((a, b) => b.name.localeCompare(a.name));
             const newestFilenameOnServer = sortedFiles[0]?.name;
-
             if (newestFilenameOnServer && newestFilenameOnServer !== latestPostFilename) {
                 const newPosts = [];
                 for (const file of sortedFiles) {
                     if (file.name === latestPostFilename) break;
                     newPosts.push(file);
                 }
-
                 for (const file of newPosts.reverse()) {
-                    const postRes = await fetch(file.download_url);
+                    const postRes = await fetch(file.download_url, { cache: "no-store" });
                     const rawPost = await postRes.text();
                     const postData = parseMarkdown(rawPost);
                     postData.filename = file.name;
@@ -239,55 +232,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 latestPostFilename = newestFilenameOnServer;
             }
-        } catch (error) {
-            console.error("Auto-refresh failed:", error);
-        }
+        } catch (error) { console.error("Auto-refresh failed:", error); }
     }
     
-    liveFeed.addEventListener('click', (e) => {
+    liveFeed.addEventListener("click", e => {
         const shareBtn = e.target.closest('.share-btn-main');
         const socialLink = e.target.closest('.social-link a');
         const postElement = e.target.closest('.live-post');
 
         if (shareBtn) {
-            const shareContainer = shareBtn.closest('.share-container');
-            shareContainer.classList.toggle('active');
+            shareBtn.closest('.share-container').classList.toggle('active');
             return;
         }
 
         if (socialLink && postElement) {
             e.preventDefault();
-            const postHeadline = postElement.querySelector('.live-post-headline')?.textContent || 'Live Update';
-            const postUrl = `${window.location.origin}${window.location.pathname}?post=${postElement.dataset.filename}`;
-            const encodedText = encodeURIComponent(postHeadline);
-            const encodedUrl = encodeURIComponent(postUrl);
-            
+            const headline = postElement.querySelector('.live-post-headline')?.textContent || 'Live Update';
+            const url = `${window.location.origin}${window.location.pathname}?post=${postElement.dataset.filename}`;
+            const text = encodeURIComponent(headline);
+            const encodedUrl = encodeURIComponent(url);
             let shareUrl;
-            if (socialLink.parentElement.classList.contains('facebook')) {
-                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
-            } else if (socialLink.parentElement.classList.contains('x-twitter')) {
-                shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
-            } else if (socialLink.parentElement.classList.contains('whatsapp')) {
-                shareUrl = `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`;
-            } 
-            // --- NEW: Reddit Share Logic ---
-            else if (socialLink.parentElement.classList.contains('reddit')) {
-                shareUrl = `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedText}`;
-            } else if (socialLink.parentElement.classList.contains('copy-link')) {
-                navigator.clipboard.writeText(postUrl).then(() => {
+            if (socialLink.parentElement.classList.contains('facebook')) shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${text}`;
+            else if (socialLink.parentElement.classList.contains('x-twitter')) shareUrl = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${text}`;
+            else if (socialLink.parentElement.classList.contains('whatsapp')) shareUrl = `https://api.whatsapp.com/send?text=${text}%20${encodedUrl}`;
+            else if (socialLink.parentElement.classList.contains('reddit')) shareUrl = `https://www.reddit.com/submit?url=${encodedUrl}&title=${text}`;
+            else if (socialLink.parentElement.classList.contains('copy-link')) {
+                navigator.clipboard.writeText(url).then(() => {
                     socialLink.innerHTML = '<i class="fas fa-check"></i>';
                     setTimeout(() => { socialLink.innerHTML = '<i class="fas fa-copy"></i>'; }, 1500);
                 });
                 return;
             }
-
-            if(shareUrl) {
-                window.open(shareUrl, '_blank', 'noopener,noreferrer');
-            }
+            if (shareUrl) window.open(shareUrl, '_blank', 'noopener,noreferrer');
         }
     });
 
-    loadMoreBtn.addEventListener('click', loadMorePosts);
+    loadMoreBtn.addEventListener("click", loadMorePosts);
     setInterval(checkForNewUpdates, 30000);
 });
 </script>
