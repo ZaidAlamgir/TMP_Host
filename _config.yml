@@ -1,4 +1,3 @@
-
 title: The Muslim Post
 description: "Join a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective."
 
@@ -12,10 +11,10 @@ kramdown:
   hard_wrap: false
   syntax_highlighter: rouge
 
-# Define collections
+# Tell Jekyll to process the _live_updates folder as a collection
 collections:
   live_updates:
-    output: false # We will render these on a single page
+    output: true # This ensures each document becomes its own page
 
 # Tell Jekyll to include these files/folders in the final build
 include:
