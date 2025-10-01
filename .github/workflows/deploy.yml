@@ -3,7 +3,11 @@ name: Deploy Jekyll site to Pages
 on:
   push:
     branches: ["main"]
+  # Allows the workflow to be triggered manually from the Actions tab
   workflow_dispatch:
+  # Allows the workflow to be triggered by an external repository
+  repository_dispatch:
+    types: [new-live-content]
 
 permissions:
   contents: read
