@@ -322,7 +322,7 @@
             const date = now.toISOString().split('T')[0];
             const timeForFile = now.toTimeString().split(' ')[0].replace(/:/g, '-');
             const filename = `${date}-${timeForFile}.md`;
-            const filePath = `${GITHUB_CONFIG.articlesPath}/${filename}`;
+            const filePath = GITHUB_CONFIG.articlesPath ? `${GITHUB_CONFIG.articlesPath}/${filename}` : filename;
             const commitMessage = `live: Add update for ${date} at ${time}`;
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.repoOwner}/${GITHUB_CONFIG.repoName}/contents/${filePath}`;
 
