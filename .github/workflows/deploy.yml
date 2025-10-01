@@ -23,34 +23,38 @@ concurrency:
 
 jobs:
   # Build job
- build:
-  runs-on: ubuntu-latest
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Checkout Live Content Repo
-      uses: actions/checkout@v4
-      with:
-        repository: 'AmmarKhanAlamgirOfficial/live-content'
-        token: ${{ secrets.CONTENT_PULL_TOKEN }}
-        path: '_live_updates'
-    - name: Setup Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.1'
-        bundler-cache: true
-    - name: Build with Jekyll
-      # Tell Jekyll to build in production mode
-      run: bundle exec jekyll build
-      env:
-        JEKYLL_ENV: production
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: ./_site
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout Live Content Repo
+        uses: actions/checkout@v4
+        with:
+          # Replace with your other account and repo name
+          repository: 'AmmarKhanAlamgirOfficial/live-content' 
+          token: ${{ secrets.CONTENT_PULL_TOKEN }}
+          # This places the content into a folder named `_live_updates`
+          path: '_live_updates'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true # runs 'bundle install' and caches installed gems
+        working-directory: ./ # Run bundler in the root directory
+      - name: Build with Jekyll
+        working-directory: ./ # Explicitly run in the root directory
+        # This will tell Jekyll to build the site, placing the output in ./_site
+        run: bundle exec jekyll build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
 
   # Deployment job
- deploy:
+  deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
