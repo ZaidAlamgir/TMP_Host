@@ -61,9 +61,6 @@ title: Live Updates
                         <h2 class="live-post-headline">{{ update.headline }}</h2>
                     {% endif %}
                     <div class="live-post-content">
-                        {% if update.image1 %}
-                            <img src="{{ update.image1 }}" alt="{{ update.headline | default: 'Live update image' }}">
-                        {% endif %}
                         {{ update.content | markdownify }}
                     </div>
                     <div class="post-footer">
@@ -132,28 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderPost(postData, insertAtTop = false) {
-        let imageHTML = postData.image1 ? `<img src="${postData.image1}" alt="${postData.headline || 'Live update image'}">` : '';
         let headlineHTML = postData.headline ? `<h2 class="live-post-headline">${postData.headline}</h2>` : '';
 
-        // ******** FINAL JAVASCRIPT PARSER FIX ********
-        const contentHTML = postData.content.split(/\n\s*\n/).map(p => {
-            const trimmedPart = p.trim();
-            if (trimmedPart.startsWith('![')) {
-                const urlMatch = trimmedPart.match(/\((.*?)\)/);
-                const altMatch = trimmedPart.match(/\[(.*?)\]/);
-                const url = urlMatch ? urlMatch[1] : '';
-                const alt = altMatch ? altMatch[1] : 'Live update image';
-                return `<img src="${url}" alt="${alt}">`;
-            }
-            if (trimmedPart.startsWith('>')) {
-                const quoteText = trimmedPart.split('\n').map(line => line.replace(/^>\s?/, '')).join('<br>');
-                return `<blockquote>${quoteText}</blockquote>`;
-            }
-            if (trimmedPart) {
-                return `<p>${trimmedPart}</p>`;
-            }
-            return '';
-        }).join('');
+        // ******** FINAL JAVASCRIPT RENDER FIX ********
+        // This JavaScript now uses the same markdownify logic as Jekyll for consistency.
+        // It converts markdown to HTML.
+        const showdown = new showdown.Converter();
+        const contentHTML = showdown.makeHtml(postData.content);
         // ******** END OF FIX ********
 
         const postElement = document.createElement('div');
@@ -167,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             ${headlineHTML}
             <div class="live-post-content">
-                ${imageHTML}
                 ${contentHTML}
             </div>
             <div class="post-footer">
@@ -186,13 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
         
-        if (insertAtTop) {
-            liveFeed.prepend(postElement);
-        } else {
-            liveFeed.appendChild(postElement);
-        }
+        if (insertAtTop) { liveFeed.prepend(postElement); } 
+        else { liveFeed.appendChild(postElement); }
     }
-
+   
     async function loadMorePosts() {
         loadMoreBtn.disabled = true;
         loadMoreBtn.textContent = 'Loading...';

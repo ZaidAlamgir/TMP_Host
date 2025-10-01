@@ -159,7 +159,6 @@
             // ******** FINAL, CORRECTED DATA GATHERING LOGIC ********
             const blocks = Array.from(document.querySelectorAll('.content-block'));
             let headline = '';
-            let image1 = '';
             let bodyParts = [];
 
             blocks.forEach(block => {
@@ -172,7 +171,7 @@
                     case 'headline': headline = value; break;
                     case 'content': bodyParts.push(value); break;
                     case 'image':
-                        if (!image1) image1 = value;
+                        // Only add to the body content, not the frontmatter
                         bodyParts.push(`![Live update image](${value})`);
                         break;
                     case 'quote': bodyParts.push(`> ${value.replace(/\n/g, '\n> ')}`); break;
@@ -194,7 +193,6 @@
 
             let frontmatter = `---\n`;
             if (headline) frontmatter += `headline: "${headline.replace(/"/g, '\\"')}"\n`;
-            if (image1) frontmatter += `image1: "${image1}"\n`;
             frontmatter += `timestamp: "${time}"\n`;
             if (tags) frontmatter += `tags: [${tags.split(',').map(tag => `"${tag.trim()}"`).join(', ')}]\n`;
             frontmatter += `authorName: "Live Team"\n---\n\n`;
