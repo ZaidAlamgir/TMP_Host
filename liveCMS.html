@@ -278,6 +278,8 @@
                         if (!image1) {
                             image1 = value;
                         }
+                        // ALSO, add it to the body as a markdown image
+                        body += `![Live update image](${value})\n\n`;
                         break;
                     case 'quote':
                         body += `> ${value.replace(/\n/g, '\n> ')}\n\n`;

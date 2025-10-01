@@ -191,11 +191,22 @@ document.addEventListener('DOMContentLoaded', () => {
         let imageHTML = postData.image1 ? `<img src="${postData.image1}" alt="${postData.headline || 'Live update image'}">` : '';
         let headlineHTML = postData.headline ? `<h2 class="live-post-headline">${postData.headline}</h2>` : '';
         const contentHTML = postData.content.split('\n\n').map(p => {
-            if (p.startsWith('>')) return `<blockquote>${p.substring(1).trim()}</blockquote>`;
-            if (p.trim()) return `<p>${p}</p>`;
-            return '';
+            const trimmedPart = p.trim();
+            if (trimmedPart.startsWith('>')) { // It's a blockquote
+                return `<blockquote>${trimmedPart.substring(1).trim()}</blockquote>`;
+            } else if (trimmedPart.startsWith('![')) { // It's an image
+                const urlMatch = trimmedPart.match(/\((.*?)\)/);
+                if (urlMatch) {
+                    const altTextMatch = trimmedPart.match(/\[(.*?)\]/);
+                    const altText = altTextMatch ? altTextMatch[1] : 'Live update image';
+                    return `<img src="${urlMatch[1]}" alt="${altText}">`;
+                }
+            } else if (trimmedPart) { // It's a paragraph
+                return `<p>${trimmedPart}</p>`;
+            }
+            return ''; // It's an empty line
         }).join('');
-
+        
         const postElement = document.createElement('div');
         postElement.className = 'live-post';
         if (insertAtTop) {
