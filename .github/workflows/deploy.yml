@@ -42,6 +42,7 @@ jobs:
     - name: Build with Jekyll
       # Tell Jekyll to build in production mode
       run: bundle exec jekyll build --verbose
+      working-directory: ./ # Force the command to run in the root directory
       env:
         JEKYLL_ENV: production
     - name: Upload artifact
