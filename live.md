@@ -5,33 +5,13 @@ title: Live Updates
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f3f4f6;
-    }
-    .live-container {
-        max-width: 700px; 
-        margin: 0 auto;
-        padding: 0 1rem 2rem 1rem;
-    }
-    @media (min-width: 768px) {
-        .live-container { max-width: 1100px; }
-    }
-    .live-header {
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .live-post {
-        background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        overflow: hidden; padding: 1.5rem; border-left: 4px solid #e42626; margin-bottom: 1.5rem;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    .live-container { max-width: 700px; margin: 0 auto; padding: 0 1rem 2rem 1rem; }
+    @media (min-width: 768px) { .live-container { max-width: 1100px; } }
+    .live-header { margin-bottom: 2rem; display: flex; justify-content: center; align-items: center; }
+    .live-post { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; padding: 1.5rem; border-left: 4px solid #e42626; margin-bottom: 1.5rem; }
     .new-post-animation { animation: fadeInSlideDown 0.7s ease-out forwards; }
-    @keyframes fadeInSlideDown {
-        from { opacity: 0; transform: translateY(-30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeInSlideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
     .live-post-headline { font-size: 1.75rem; font-weight: 700; color: #1c1e21; margin-bottom: 0.75rem; }
     .live-post-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
     .live-post-author { font-size: 0.9rem; font-weight: 600; color: #606770; }
@@ -47,23 +27,17 @@ title: Live Updates
     .social-links { display: flex; list-style: none; gap: 8px; margin-right: 8px; padding: 0;}
     .social-link { opacity: 0; transform: translateX(10px) scale(0.8); transition: all 0.3s ease-in-out; }
     .share-container.active .social-link { opacity: 1; transform: translateX(0) scale(1); }
-    .social-link a { display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; text-decoration: none; transition: transform 0.2s ease; }
-    .social-link a:hover { transform: scale(1.1); }
+    .social-link a { display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; border-radius: 50%; color: #fff; text-decoration: none; }
     .social-link.facebook a { background-color: #1877F2; }
     .social-link.x-twitter a { background-color: #000000; }
     .social-link.whatsapp a { background-color: #25D366; }
     .social-link.reddit a { background-color: #FF4500; }
     .social-link.copy-link a { background-color: #606770; }
-    .share-btn-main { background: none; border: none; font-size: 1rem; color: #606770; cursor: pointer; padding: 5px; border-radius: 50%; width: 32px; height: 32px; transition: background-color 0.2s, color 0.2s; position: relative; overflow: hidden;}
-    .share-btn-main:hover { background-color: #f0f2f5; color: #0073e6; }
-    .share-btn-main i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
-    .share-btn-main .close-icon { opacity: 0; transform: translate(-50%, -50%) rotate(180deg) scale(0.5); }
-    .share-container.active .share-btn-main .share-icon { opacity: 0; transform: translate(-50%, -50%) rotate(-180deg) scale(0.5); }
-    .share-container.active .share-btn-main .close-icon { opacity: 1; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+    .share-btn-main { background: none; border: none; font-size: 1rem; color: #606770; cursor: pointer; padding: 5px; border-radius: 50%; width: 32px; height: 32px; position: relative; overflow: hidden;}
+    .share-btn-main i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
     #load-more-container { text-align: center; margin-top: 2rem; }
-    #load-more-btn { background-color: #1c1e21; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
-    #load-more-btn:hover { background-color: #333; }
-    #load-more-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+    #load-more-btn { background-color: #1c1e21; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    #load-more-btn:disabled { background-color: #ccc; }
 </style>
 
 <div id="header-placeholder"></div>
@@ -90,24 +64,8 @@ title: Live Updates
                         {% if update.image1 %}
                             <img src="{{ update.image1 }}" alt="{{ update.headline | default: 'Live update image' }}">
                         {% endif %}
-                        
-                        {% assign content_parts = update.content | split: "
-
-" %}
-                        {% for part in content_parts %}
-                            {% assign trimmed_part = part | strip %}
-                            {% if trimmed_part == "" %}{% continue %}{% endif %}
-
-                            {% if trimmed_part contains "![" %}
-                                {% assign image_url = trimmed_part | split: "(" | last | remove: ")" %}
-                                <img src="{{ image_url }}" alt="Live update image">
-                            {% elsif trimmed_part contains ">" %}
-                                <blockquote>{{ trimmed_part | remove: ">" | strip }}</blockquote>
-                            {% else %}
-                                <p>{{ part }}</p>
-                            {% endif %}
-                        {% endfor %}
-                        </div>
+                        {{ update.content | markdownify }}
+                    </div>
                     <div class="post-footer">
                         <div class="share-container">
                              <ul class="social-links">
@@ -169,9 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     post[key] = value;
                 }
             });
-        } else {
-            post.content = text;
-        }
+        } else { post.content = text; }
         return post;
     }
 
@@ -179,29 +135,30 @@ document.addEventListener('DOMContentLoaded', () => {
         let imageHTML = postData.image1 ? `<img src="${postData.image1}" alt="${postData.headline || 'Live update image'}">` : '';
         let headlineHTML = postData.headline ? `<h2 class="live-post-headline">${postData.headline}</h2>` : '';
 
-        // ******** JAVASCRIPT FIX STARTS HERE ********
-        // This is a more robust parser that correctly handles images and paragraphs.
+        // ******** FINAL JAVASCRIPT PARSER FIX ********
         const contentHTML = postData.content.split(/\n\s*\n/).map(p => {
             const trimmedPart = p.trim();
             if (trimmedPart.startsWith('![')) {
                 const urlMatch = trimmedPart.match(/\((.*?)\)/);
-                if (urlMatch && urlMatch[1]) {
-                    return `<img src="${urlMatch[1]}" alt="Live update image">`;
-                }
-            } else if (trimmedPart.startsWith('>')) {
-                return `<blockquote>${trimmedPart.substring(1).trim()}</blockquote>`;
-            } else if (trimmedPart) {
+                const altMatch = trimmedPart.match(/\[(.*?)\]/);
+                const url = urlMatch ? urlMatch[1] : '';
+                const alt = altMatch ? altMatch[1] : 'Live update image';
+                return `<img src="${url}" alt="${alt}">`;
+            }
+            if (trimmedPart.startsWith('>')) {
+                const quoteText = trimmedPart.split('\n').map(line => line.replace(/^>\s?/, '')).join('<br>');
+                return `<blockquote>${quoteText}</blockquote>`;
+            }
+            if (trimmedPart) {
                 return `<p>${trimmedPart}</p>`;
             }
             return '';
         }).join('');
-        // ******** JAVASCRIPT FIX ENDS HERE ********
+        // ******** END OF FIX ********
 
         const postElement = document.createElement('div');
         postElement.className = 'live-post';
-        if (insertAtTop) {
-            postElement.classList.add('new-post-animation');
-        }
+        if (insertAtTop) postElement.classList.add('new-post-animation');
         postElement.dataset.filename = postData.filename;
         postElement.innerHTML = `
             <div class="live-post-meta">
