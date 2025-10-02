@@ -113,122 +113,68 @@ title: Live Updates
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const liveFeed = document.getElementById('live-feed');
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    let allFiles = [];
-    let loadedCount = 10;
-    const perPage = 10;
     let latestPostFilename = liveFeed.querySelector('.live-post')?.dataset.filename || '';
-    let showdownConverter;
-
-    const GITHUB_API_CONFIG = {
-        owner: 'AmmarKhanAlamgirOfficial',
-        repo: 'live-content',
-        path: ''
-    };
-
-    function parseMarkdown(text) {
-        const post = {};
-        const frontmatterMatch = text.match(/---([\s\S]*?)---/);
-        if (frontmatterMatch) {
-            post.content = text.substring(frontmatterMatch[0].length).trim();
-            frontmatterMatch[1].split('\n').forEach(line => {
-                const parts = line.split(':');
-                if (parts.length >= 2) {
-                    const key = parts[0].trim();
-                    const value = parts.slice(1).join(':').trim().replace(/"/g, '');
-                    post[key] = value;
-                }
-            });
-        } else { post.content = text; }
-        return post;
-    }
-
+    
+    // This will be your Cloudflare URL later. For now, we use the GitHub Pages URL.
+    const UPDATES_URL = 'https://live-api.tmpnews.com/live-content/live-updates.json';
     function renderPost(postData, insertAtTop = false) {
-        if (!showdownConverter) showdownConverter = new showdown.Converter();
         let headlineHTML = postData.headline ? `<h2 class="live-post-headline">${postData.headline}</h2>` : '';
-        const contentHTML = showdownConverter.makeHtml(postData.content);
+        
+        // Simple markdown to HTML conversion for the content
+        let contentHTML = postData.content
+            .replace(/!\[.*?\]\((.*?)\)/g, '<img src="$1" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;">')
+            .replace(/^> (.*$)/gm, '<blockquote style="border-left: 3px solid #ccc; padding-left: 1rem; margin: 1rem 0; font-style: italic;">$1</blockquote>')
+            .replace(/\n/g, '<br>');
 
         const postElement = document.createElement('div');
         postElement.className = 'live-post';
-        if (insertAtTop) postElement.classList.add('new-post-animation');
+        if (insertAtTop) {
+            postElement.classList.add('new-post-animation');
+        }
         postElement.dataset.filename = postData.filename;
         postElement.innerHTML = `
             <div class="live-post-meta">
-                <span class="live-post-author">By ${postData.authorName || 'TMP Live Team'}</span>
+                <span class="live-post-author">By ${postData.authorName}</span>
                 <span class="live-post-time">${postData.timestamp}</span>
             </div>
             ${headlineHTML}
             <div class="live-post-content">${contentHTML}</div>
             <div class="post-footer">
-                <div class="share-container">
-                    <ul class="social-links">
-                        <li class="social-link facebook"><a href="#" title="Share on Facebook"><i class="fab fa-facebook-f"></i></a></li>
-                        <li class="social-link x-twitter"><a href="#" title="Share on X"><i class="fa-brands fa-x-twitter"></i></a></li>
-                        <li class="social-link whatsapp"><a href="#" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a></li>
-                        <li class="social-link reddit"><a href="#" title="Share on Reddit"><i class="fab fa-reddit-alien"></i></a></li>
-                        <li class="social-link copy-link"><a href="#" title="Copy Link"><i class="fas fa-copy"></i></a></li>
-                    </ul>
-                    <button class="share-btn-main" title="Share Post">
-                        <i class="fas fa-share-alt share-icon"></i>
-                        <i class="fas fa-times close-icon"></i>
-                    </button>
-                </div>
-            </div>`;
+                </div>`;
         
-        if (insertAtTop) { liveFeed.prepend(postElement); } 
-        else { liveFeed.appendChild(postElement); }
+        if (insertAtTop) {
+            liveFeed.prepend(postElement);
+        } else {
+            liveFeed.appendChild(postElement);
+        }
     }
-    
-    async function loadMorePosts(){ /* ... existing logic ... */ }
 
     async function checkForNewUpdates() {
         try {
-            const response = await fetch(`https://api.github.com/repos/${GITHUB_API_CONFIG.owner}/${GITHUB_API_CONFIG.repo}/contents/${GITHUB_API_CONFIG.path}?t=${new Date().getTime()}`, { cache: "no-store" });
-            if (!response.ok) return;
-            const files = await response.json();
-            // --- AUTO-REFRESH FIX: Filter out .gitkeep ---
-            const sortedFiles = Array.isArray(files) ? files.filter(file => file.name && file.name.endsWith('.md') && file.name !== '.gitkeep').sort((a, b) => b.name.localeCompare(a.name)) : [];
-            
-            if (sortedFiles.length === 0) return;
+            // Add a timestamp to the URL to prevent browser caching
+            const response = await fetch(`${UPDATES_URL}?t=${new Date().getTime()}`);
+            if (!response.ok) {
+                console.error('Failed to fetch updates.');
+                return;
+            }
 
-            const newestFilenameOnServer = sortedFiles[0].name;
-            if (newestFilenameOnServer && newestFilenameOnServer !== latestPostFilename) {
-                const newPosts = [];
-                for (const file of sortedFiles) {
-                    if (file.name === latestPostFilename) break;
-                    newPosts.push(file);
-                }
-                for (const file of newPosts.reverse()) {
-                    const postRes = await fetch(`${file.download_url}?t=${new Date().getTime()}`, { cache: "no-store" });
-                    const rawPost = await postRes.text();
-                    const postData = parseMarkdown(rawPost);
-                    postData.filename = file.name;
-                    renderPost(postData, true);
-                }
-                latestPostFilename = newestFilenameOnServer;
+            const updates = await response.json();
+
+            if (updates.length > 0 && updates[0].filename !== latestPostFilename) {
+                console.log('New content found. Refreshing feed.');
+                liveFeed.innerHTML = ''; // Clear the entire feed
+                updates.forEach(post => renderPost(post, false)); // Render all new posts
+                latestPostFilename = updates[0].filename; // Update the latest filename
             }
-        } catch (error) { console.error("Auto-refresh failed:", error); }
-    }
-    
-    liveFeed.addEventListener("click", e => {
-        const shareBtn = e.target.closest('.share-btn-main');
-        if (shareBtn) {
-            shareBtn.closest('.share-container').classList.toggle('active');
-            // This is the simplest animation fix: reset rotation on close
-            if (!shareBtn.closest('.share-container').classList.contains('active')) {
-                shareBtn.style.transform = 'rotate(0deg)';
-            }
-            return;
+        } catch (error) {
+            console.error("Error fetching or processing live updates:", error);
         }
-        // ... rest of the click listener for social links ...
-        const socialLink = e.target.closest('.social-link a');
-        const postElement = e.target.closest('.live-post');
-        if(socialLink&&postElement){e.preventDefault();const t=postElement.querySelector(".live-post-headline")?.textContent||"Live Update",o=window.location.origin+window.location.pathname+`?post=${postElement.dataset.filename}`,n=encodeURIComponent(t),a=encodeURIComponent(o);let s;socialLink.parentElement.classList.contains("facebook")?s=`https://www.facebook.com/sharer/sharer.php?u=${a}&quote=${n}`:socialLink.parentElement.classList.contains("x-twitter")?s=`https://twitter.com/intent/tweet?url=${a}&text=${n}`:socialLink.parentElement.classList.contains("whatsapp")?s=`https://api.whatsapp.com/send?text=${n}%20${a}`:socialLink.parentElement.classList.contains("reddit")?s=`https://www.reddit.com/submit?url=${a}&title=${n}`:socialLink.parentElement.classList.contains("copy-link")&&(navigator.clipboard.writeText(o).then(()=>{socialLink.innerHTML='<i class="fas fa-check"></i>',setTimeout(()=>{socialLink.innerHTML='<i class="fas fa-copy"></i>'},1500)}),s=void 0),s&&window.open(s,"_blank","noopener,noreferrer")}
-    });
-    
-    loadMoreBtn.addEventListener("click", loadMorePosts);
+    }
+
+    // Load initial posts immediately
+    checkForNewUpdates();
+
+    // Set an interval to check for new updates every 30 seconds
     setInterval(checkForNewUpdates, 30000);
-    // Minified unchanged JS to save space
-    async function loadMorePosts(){loadMoreBtn.disabled=!0,loadMoreBtn.textContent="Loading...";try{if(0===allFiles.length){const e=await fetch(`https://api.github.com/repos/${GITHUB_API_CONFIG.owner}/${GITHUB_API_CONFIG.repo}/contents/${GITHUB_API_CONFIG.path}`);if(!e.ok)throw new Error("Failed to fetch file list");const t=await e.json();allFiles=t.filter(e=>e.name.endsWith(".md")).sort((e,t)=>t.name.localeCompare(a.name))}const e=allFiles.slice(loadedCount,loadedCount+perPage);if(0===e.length)return void(loadMoreBtn.textContent="No more updates");const t=e.map(e=>fetch(e.download_url).then(e=>e.text())),o=await Promise.all(t);o.forEach(e=>renderPost(parseMarkdown(e))),loadedCount+=e.length,loadedCount>=allFiles.length?loadMoreBtn.textContent="You have reached the end":(loadMoreBtn.disabled=!1,loadMoreBtn.textContent="Read More")}catch(e){console.error("Error loading posts:",e),loadMoreBtn.textContent="Failed to load",loadMoreBtn.style.backgroundColor="red"}}
 });
 </script>
