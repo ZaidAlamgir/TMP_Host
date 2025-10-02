@@ -7,194 +7,250 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .hidden { display: none; }
-        .content-block { border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin-top: 1.5rem; background-color: #f8fafc; position: relative; }
-        .content-block h3 { font-size: 1rem; font-weight: 600; color: #475569; margin-bottom: 1rem; text-transform: uppercase; }
-        .remove-block-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.2rem; }
-        .remove-block-btn:hover { color: #ef4444; }
-        .optional-desc-input::placeholder {
-            color: #9ca3af; /* Faded black (gray-400) */
-            font-style: italic;
-        }
-        textarea { resize: none; overflow: hidden; min-height: 50px; }
+        .auth-toggle-link:hover { text-decoration: underline; }
+        #edit-modal.open { display: flex; }
+        #edit-modal-content { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        textarea { resize: none; overflow: hidden; }
+        textarea.quote-input { font-style: italic; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen py-8 md:py-12">
+<body class="bg-slate-100 text-slate-800">
 
-    <div id="app" class="w-full max-w-4xl mx-auto p-2 md:p-4">
-        
-        <div id="login-view" class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md mx-auto">
-            <h1 class="text-3xl font-bold mb-2">Live CMS Login</h1>
-            <p class="text-slate-600 mb-6">Log in with GitHub to post live updates.</p>
-            <button id="login-button" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center w-full max-w-xs mx-auto">
-                <i class="fab fa-github mr-3"></i> Sign in with GitHub
-            </button>
+    <div id="app" class="w-full min-h-screen">
+        <!-- AUTHENTICATION VIEW -->
+        <div id="auth-view" class="flex items-center justify-center min-h-screen p-4">
+             <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
+                <form id="sign-in-form">
+                    <h1 class="text-3xl font-bold mb-6 text-center">Writer CMS Login</h1>
+                    <div class="mb-4"><label for="sign-in-email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label><input type="email" id="sign-in-email" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                    <div class="mb-6"><label for="sign-in-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label><input type="password" id="sign-in-password" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                    <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign In</button>
+                    <p class="text-sm text-center text-slate-600 mt-4">Don't have an account? <a href="#" id="show-sign-up" class="font-semibold text-blue-600 hover:underline">Sign Up</a></p>
+                </form>
+                <form id="sign-up-form" class="hidden">
+                    <h1 class="text-3xl font-bold mb-6 text-center">Create Writer Account</h1>
+                    <div class="mb-4"><label for="sign-up-email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label><input type="email" id="sign-up-email" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                    <div class="mb-6"><label for="sign-up-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label><input type="password" id="sign-up-password" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                    <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign Up</button>
+                    <p class="text-sm text-center text-slate-600 mt-4">Already have an account? <a href="#" id="show-sign-in" class="font-semibold text-blue-600 hover:underline">Sign In</a></p>
+                </form>
+                <p id="auth-message" class="text-center mt-4 text-sm font-medium"></p>
+            </div>
         </div>
 
-        <div id="editor-view" class="hidden bg-white p-4 md:p-8 rounded-lg shadow-lg">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold">Create Live Update</h1>
-                <button id="logout-button" class="text-sm text-slate-500 hover:text-slate-800">Logout</button>
+        <!-- EDITOR VIEW -->
+        <div id="editor-view" class="hidden">
+             <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-20">
+                <h1 class="text-xl font-bold">Live CMS</h1>
+                <div class="flex items-center gap-4"><span id="writer-email" class="text-sm text-slate-500 hidden md:block"></span><button id="logout-button" class="text-sm font-semibold text-slate-600 hover:text-red-500">Logout</button></div>
+            </header>
+            <main class="w-full max-w-screen-2xl mx-auto p-4 md:p-8 lg:grid lg:grid-cols-12 lg:gap-8">
+                <div class="lg:col-span-7 mb-8 lg:mb-0">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl font-bold mb-6">Create New Update</h2>
+                        <div id="content-blocks-container"></div>
+                        <div class="mt-6"><label for="tags-input" class="block text-sm font-medium text-slate-700 mb-1">Tags (optional)</label><input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg" placeholder="e.g. politics, sports, breaking-news"></div>
+                        <div class="mt-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
+                             <select id="block-type-select" class="flex-grow p-3 border border-slate-300 rounded-lg"><option value="headline">Headline</option><option value="content">Paragraph</option><option value="image">Image</option><option value="twitter">Twitter</option><option value="instagram">Instagram</option><option value="quote">Quote</option></select>
+                             <button id="add-block-button" class="bg-slate-600 text-white font-bold p-3 rounded-lg hover:bg-slate-500"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <button id="publish-button" class="mt-6 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-500 w-full flex items-center justify-center text-lg"><span id="publish-text">Publish</span><span id="publish-spinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Publishing...</span></button>
+                        <p id="status-message" class="text-center mt-4 text-sm"></p>
+                    </div>
+                </div>
+                <div class="lg:col-span-5">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-24"><h2 class="text-2xl font-bold mb-4">Your Recent Posts</h2><div id="recent-posts-feed" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2"></div></div>
+                </div>
+            </main>
+        </div>
+        
+        <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 items-center justify-center p-4">
+            <div id="edit-modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-2xl flex flex-col max-h-[95vh]">
+                <h2 class="text-2xl font-bold mb-4 p-8 pb-0 flex-shrink-0">Edit Post</h2>
+                <div class="px-8 pb-6 overflow-y-auto">
+                    <div class="mb-4"><label for="edit-headline" class="block text-sm font-medium text-slate-700 mb-1">Headline</label><input type="text" id="edit-headline" class="w-full p-3 border border-slate-300 rounded-lg"></div>
+                    <div class="mb-4"><label for="edit-content" class="block text-sm font-medium text-slate-700 mb-1">Content (Markdown)</label><textarea id="edit-content" class="w-full p-3 border border-slate-300 rounded-lg min-h-[250px] font-mono text-sm"></textarea></div>
+                    <div class="mb-6"><label for="edit-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags</label><input type="text" id="edit-tags" class="w-full p-3 border border-slate-300 rounded-lg"></div>
+                </div>
+                <div class="flex justify-end gap-4 p-8 pt-0 mt-auto border-t border-slate-200 flex-shrink-0"><button id="cancel-edit-btn" class="bg-slate-200 text-slate-800 font-bold py-2 px-6 rounded-lg">Cancel</button><button id="save-edit-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Save Changes</button></div>
             </div>
-            
-            <div id="content-blocks-container"></div>
-
-            <div class="my-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-                 <select id="block-type-select" class="p-2 border border-slate-300 rounded-md">
-                    <option value="content">Paragraph</option>
-                    <option value="image">Image</option>
-                    <option value="quote">Quote</option>
-                    <option value="twitter">Twitter Embed</option>
-                    <option value="instagram">Instagram Embed</option>
-                 </select>
-                 <button id="add-block-button" class="bg-slate-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-500 transition-colors text-sm">
-                    <i class="fas fa-plus mr-2"></i>Add Block
-                </button>
-            </div>
-           
-            <hr class="my-6">
-            
-            <div class="mb-6">
-                <label for="article-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags (Optional)</label>
-                <input type="text" id="article-tags" class="w-full p-2 border border-slate-300 rounded-md" placeholder="e.g., politics, breaking, update (comma-separated)">
-            </div>
-            
-            <button id="publish-button" class="bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-500 transition-colors w-full flex items-center justify-center">
-                <span id="publish-text">Publish Live Update</span>
-                <span id="publish-spinner" class="hidden">
-                    <i class="fas fa-spinner fa-spin mr-2"></i> Publishing...
-                </span>
-            </button>
-            <p id="status-message" class="text-center mt-4 text-sm"></p>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const GITHUB_CONFIG = {
-            clientId: 'Ov23liQdWxdci4yccEie',
-            redirectUri: 'https://www.tmpnews.com/auth-callback.html',
-            repoOwner: 'AmmarKhanAlamgirOfficial',
-            repoName: 'live-content',
-            repoBranch: 'main',
-            tokenExchangeUrl: 'https://github-auth-proxy.zaidkhan137782.workers.dev',
-            articlesPath: ''
-        };
-        const loginView = document.getElementById('login-view'), editorView = document.getElementById('editor-view'), loginButton = document.getElementById('login-button'), logoutButton = document.getElementById('logout-button'), publishButton = document.getElementById('publish-button'), statusMessage = document.getElementById('status-message'), addBlockButton = document.getElementById('add-block-button'), blockTypeSelect = document.getElementById('block-type-select'), blocksContainer = document.getElementById('content-blocks-container');
-        let accessToken = null;
-
-        function autoExpand(element) { element.style.height = 'auto'; element.style.height = (element.scrollHeight) + 'px'; }
-
-        function createBlock(type) {
-            const blockId = `block-${Date.now()}`;
-            const blockWrapper = document.createElement('div');
-            blockWrapper.className = 'content-block';
-            blockWrapper.id = blockId;
-            blockWrapper.dataset.blockType = type;
-            let innerHTML = `<h3>${type.charAt(0).toUpperCase() + type.slice(1)}</h3><button class="remove-block-btn" onclick="document.getElementById('${blockId}').remove()">&times;</button>`;
-            switch (type) {
-                case 'headline': innerHTML += `<textarea rows="1" class="w-full p-2 border border-slate-300 rounded-md font-bold text-lg" placeholder="Main title of the update"></textarea>`; break;
-                case 'content': innerHTML += `<textarea rows="5" class="w-full p-2 border border-slate-300 rounded-md" placeholder="Write the update details..."></textarea>`; break;
-                case 'image': 
-                    innerHTML += `<input type="text" class="url-input w-full p-2 border border-slate-300 rounded-md mb-2" placeholder="Paste any image link or markdown here">`;
-                    innerHTML += `<input type="text" class="desc-input w-full p-2 border border-slate-300 rounded-md optional-desc-input" placeholder="Image description (optional)">`;
-                    break;
-                case 'quote': innerHTML += `<textarea rows="3" class="w-full p-2 border border-slate-300 rounded-md" placeholder="Enter the quote here..."></textarea>`; break;
-                case 'twitter':
-                case 'instagram':
-                    innerHTML += `<textarea rows="4" class="url-input w-full p-2 border border-slate-300 rounded-md mb-2" placeholder="Paste the full embed code from ${type}"></textarea>`;
-                    innerHTML += `<input type="text" class="desc-input w-full p-2 border border-slate-300 rounded-md optional-desc-input" placeholder="Description / Caption (optional)">`;
-                    break;
-            }
-            blockWrapper.innerHTML = innerHTML;
-            blocksContainer.appendChild(blockWrapper);
-            blockWrapper.querySelectorAll('textarea').forEach(el => { el.addEventListener('input', () => autoExpand(el)); autoExpand(el); });
-        }
-        
-        window.onload = async () => { /* ... existing unchanged onload logic ... */ };
-        const showLogin = () => { /* ... existing unchanged showLogin logic ... */ };
-        const showEditor = () => {
-            loginView.classList.add('hidden'); editorView.classList.remove('hidden');
-            if (blocksContainer.children.length === 0) { createBlock('headline'); createBlock('content'); }
-        };
-        loginButton.addEventListener('click', () => { /* ... existing unchanged login logic ... */ });
-        logoutButton.addEventListener('click', async () => { /* ... existing unchanged logout logic ... */ });
-        addBlockButton.addEventListener('click', () => createBlock(blockTypeSelect.value));
-
-        publishButton.addEventListener('click', async () => {
-            setPublishingState(true, 'Publishing...');
-
-            function extractImageUrl(input) {
-                const markdownUrlMatch = input.match(/\((https?:\/\/[^\s)]+)\)/);
-                if (markdownUrlMatch && markdownUrlMatch[1]) return markdownUrlMatch[1];
-                const plainUrlMatch = input.match(/https?:\/\/[^\s]+/);
-                return plainUrlMatch ? plainUrlMatch[0] : null;
+        // --- SCRIPT VERSION 13.1 (STABLE & COMPLETE) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION ---
+        const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';       // <-- PASTE YOUR NEW 'LIVE' PROJECT URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA'; // <-- PASTE YOUR NEW 'LIVE' PROJECT ANON KEY
+            
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+                document.getElementById('app').innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-8" role="alert"><p class="font-bold">Configuration Error</p><p>Please enter your Supabase URL and Anon Key in the script.</p></div>`;
+                return;
             }
 
-            const blocks = Array.from(document.querySelectorAll('.content-block'));
-            let headline = '', bodyParts = [];
+            const { createClient } = supabase;
+            const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            blocks.forEach(block => {
-                const type = block.dataset.blockType;
-                const urlInput = block.querySelector('.url-input');
-                const descInput = block.querySelector('.desc-input');
-                const mainInput = block.querySelector('textarea, input:not(.desc-input)');
-                const value = mainInput?.value.trim();
-                const descValue = descInput?.value.trim();
-                if (!value) return;
+            const authView = document.getElementById('auth-view');
+            const editorView = document.getElementById('editor-view');
+            const signInForm = document.getElementById('sign-in-form');
+            const signUpForm = document.getElementById('sign-up-form');
+            const showSignUpLink = document.getElementById('show-sign-up');
+            const showSignInLink = document.getElementById('show-sign-in');
+            const logoutButton = document.getElementById('logout-button');
+            const authMessage = document.getElementById('auth-message');
+            const writerEmailSpan = document.getElementById('writer-email');
+            const blocksContainer = document.getElementById('content-blocks-container');
+            const publishButton = document.getElementById('publish-button');
+            const statusMessage = document.getElementById('status-message');
+            const addBlockBtn = document.getElementById('add-block-button');
+            const blockTypeSelect = document.getElementById('block-type-select');
+            const tagsInput = document.getElementById('tags-input');
+            const recentPostsFeed = document.getElementById('recent-posts-feed');
+            const editModal = document.getElementById('edit-modal');
+            const editHeadline = document.getElementById('edit-headline');
+            const editContent = document.getElementById('edit-content');
+            const editTags = document.getElementById('edit-tags');
+            const saveEditBtn = document.getElementById('save-edit-btn');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            let currentEditingPostId = null;
 
+            // --- Auth Logic ---
+            showSignUpLink.addEventListener('click', (e) => { e.preventDefault(); signInForm.classList.add('hidden'); signUpForm.classList.remove('hidden'); authMessage.textContent = ''; });
+            showSignInLink.addEventListener('click', (e) => { e.preventDefault(); signUpForm.classList.add('hidden'); signInForm.classList.remove('hidden'); authMessage.textContent = ''; });
+            signInForm.addEventListener('submit', async (e) => { e.preventDefault(); authMessage.textContent = ''; const email = document.getElementById('sign-in-email').value; const password = document.getElementById('sign-in-password').value; const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) { authMessage.textContent = error.message; authMessage.style.color = 'red'; } });
+            signUpForm.addEventListener('submit', async (e) => { e.preventDefault(); authMessage.textContent = ''; const email = document.getElementById('sign-up-email').value; const password = document.getElementById('sign-up-password').value; const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) { authMessage.textContent = error.message; authMessage.style.color = 'red'; } else { authMessage.textContent = 'Success! Please check your email for a verification link.'; authMessage.style.color = 'green'; } });
+            logoutButton.addEventListener('click', async () => { await supabaseClient.auth.signOut(); });
+
+            // --- UI State Management ---
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (session) {
+                    authView.classList.add('hidden');
+                    editorView.classList.remove('hidden');
+                    writerEmailSpan.textContent = session.user.email;
+                    if (blocksContainer.children.length === 0) createBlock('headline');
+                    fetchRecentPosts();
+                } else {
+                    authView.classList.remove('hidden');
+                    editorView.classList.add('hidden');
+                }
+            });
+            
+            function autoExpand(textarea) { if (textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; } }
+
+            function createBlock(type) {
+                document.getElementById('no-blocks-msg')?.classList.add('hidden');
+                const blockId = `block-${Date.now()}`;
+                const blockWrapper = document.createElement('div');
+                blockWrapper.className = 'content-block bg-slate-50 border border-slate-200 p-6 rounded-xl relative mt-6';
+                blockWrapper.id = blockId;
+                blockWrapper.dataset.blockType = type;
+                let innerHTML = `<h3 class="font-bold text-slate-600 uppercase text-sm mb-3">${type}</h3><button class="absolute top-4 right-4 text-slate-400 hover:text-red-500" onclick="document.getElementById('${blockId}').remove()"><i class="fas fa-times"></i></button>`;
+                const inputClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
+                const textareaClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
+                const descInput = `<input type="text" class="${inputClasses} mt-2 text-sm" placeholder="Description or Caption (optional)">`;
+                let mainEl;
                 switch (type) {
-                    case 'headline': headline = value; break;
-                    case 'content': bodyParts.push(value); break;
-                    case 'image':
-                        const cleanUrl = extractImageUrl(value);
-                        if (cleanUrl) bodyParts.push(`![${(descValue || 'Live update image').replace(/]/g, '')}](${cleanUrl})`);
-                        break;
-                    case 'quote': bodyParts.push(`> ${value.replace(/\n/g, '\n> ')}`); break;
-                    case 'twitter':
-                    case 'instagram':
-                        if (descValue) bodyParts.push(`_${descValue}_`);
-                        bodyParts.push(value);
-                        break;
+                    case 'headline': mainEl = `<textarea rows="1" class="${textareaClasses} font-bold text-2xl" placeholder="Main title of the update"></textarea>`; break;
+                    case 'content': mainEl = `<textarea rows="3" class="${textareaClasses}" placeholder="Write the update details..."></textarea>`; break;
+                    case 'image': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste any image URL">${descInput}`; break;
+                    case 'twitter': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full Twitter post URL">${descInput}`; break;
+                    case 'instagram': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full Instagram post URL">${descInput}`; break;
+                    case 'quote': mainEl = `<textarea rows="2" class="${textareaClasses} quote-input" placeholder="Enter the quote here..."></textarea>`; break;
+                }
+                innerHTML += mainEl;
+                blockWrapper.innerHTML = innerHTML;
+                blocksContainer.appendChild(blockWrapper);
+                blockWrapper.querySelectorAll('textarea').forEach(textarea => { textarea.addEventListener('input', () => autoExpand(textarea)); setTimeout(() => autoExpand(textarea), 0); });
+            }
+            
+            async function fetchRecentPosts() {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+                const { data, error } = await supabaseClient.from('live_posts').select('*').eq('user_id', user.id).order('timestamp', { ascending: false }).limit(15);
+                if (error) { console.error("Error fetching recent posts:", error); return; }
+                recentPostsFeed.innerHTML = '';
+                if(data) data.forEach(post => renderRecentPost(post));
+            }
+            
+            function renderRecentPost(post, prepend = false) {
+                const postEl = document.createElement('div');
+                const isPinned = post.is_pinned;
+                postEl.className = `p-4 border rounded-lg flex justify-between items-center ${isPinned ? 'border-yellow-400 bg-yellow-50' : 'border-slate-200'}`;
+                postEl.id = `recent-post-${post.id}`;
+                const pinButtonHTML = isPinned ? `<button class="pin-btn text-sm font-semibold text-yellow-600" data-post-id="${post.id}"><i class="fas fa-thumbtack mr-1"></i> Unpin</button>` : `<button class="pin-btn text-sm font-semibold text-slate-500 hover:text-slate-800" data-post-id="${post.id}"><i class="fas fa-thumbtack"></i></button>`;
+                postEl.innerHTML = `<div><p class="font-semibold">${post.headline || 'Update'}</p><p class="text-xs text-slate-500">${new Date(post.timestamp).toLocaleString()}</p></div><div class="flex items-center gap-3">${pinButtonHTML}<button class="edit-btn text-sm font-semibold text-blue-600" data-post-id="${post.id}">Edit</button><button class="delete-btn text-sm font-semibold text-red-600" data-post-id="${post.id}">Delete</button></div>`;
+                if (prepend) { recentPostsFeed.prepend(postEl); } else { recentPostsFeed.appendChild(postEl); }
+            }
+            
+            addBlockBtn.addEventListener('click', () => createBlock(blockTypeSelect.value));
+            
+            recentPostsFeed.addEventListener('click', async (e) => {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+
+                const target = e.target.closest('.pin-btn, .edit-btn, .delete-btn');
+                if (!target) return;
+
+                const postId = target.dataset.postId;
+
+                if (target.classList.contains('pin-btn')) {
+                    const { data, error } = await supabaseClient.rpc('toggle_pin', { post_id_to_toggle: postId, user_id_of_pinner: user.id });
+                    if (error) { alert(`RPC Error: ${error.message}`); } 
+                    else if (data && data.startsWith('Error:')) { alert(data); }
+                } else if (target.classList.contains('delete-btn')) {
+                    if (confirm('Are you sure you want to delete this post?')) {
+                        const { error } = await supabaseClient.from('live_posts').delete().match({ id: postId, user_id: user.id });
+                        if (error) alert(`Error deleting post: ${error.message}`);
+                    }
+                } else if (target.classList.contains('edit-btn')) {
+                    const { data, error } = await supabaseClient.from('live_posts').select('*').eq('id', postId).single();
+                    if (data) { currentEditingPostId = postId; editHeadline.value = data.headline; editContent.value = data.content; editTags.value = data.tags ? data.tags.join(', ') : ''; editModal.classList.add('open'); setTimeout(() => autoExpand(editContent), 50); }
                 }
             });
 
-            const body = bodyParts.join('\n\n');
-            if (!body && !headline) { /* ... existing empty check ... */ }
-            const tags = document.getElementById('article-tags').value.trim();
-            const now = new Date();
-            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            editContent.addEventListener('input', () => autoExpand(editContent));
+            cancelEditBtn.addEventListener('click', () => editModal.classList.remove('open'));
+            
+            saveEditBtn.addEventListener('click', async () => {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!currentEditingPostId || !user) return;
+                const updatedTags = editTags.value.split(',').map(t => t.trim()).filter(Boolean);
+                const { error } = await supabaseClient.from('live_posts').update({ headline: editHeadline.value, content: editContent.value, tags: updatedTags }).match({ id: currentEditingPostId, user_id: user.id });
+                if (error) { alert(`Error saving changes: ${error.message}`); } else { editModal.classList.remove('open'); }
+            });
 
-            let frontmatter = `---\n`;
-            if (headline) frontmatter += `headline: "${headline.replace(/"/g, '\\"')}"\n`;
-            frontmatter += `timestamp: "${time}"\n`;
-            if (tags) frontmatter += `tags: [${tags.split(',').map(tag => `"${tag.trim()}"`).join(', ')}]\n`;
-            frontmatter += `authorName: "TMP Live Team"\n---\n\n`;
-
-            const toBase64 = str => btoa(unescape(encodeURIComponent(str)));
-            const fileContent = frontmatter + body;
-            const encodedContent = toBase64(fileContent);
-            const date = now.toISOString().split('T')[0];
-            const timeForFile = now.toTimeString().split(' ')[0].replace(/:/g, '-');
-            const filename = `${date}-${timeForFile}.md`;
-            const filePath = GITHUB_CONFIG.articlesPath ? `${GITHUB_CONFIG.articlesPath}/${filename}` : filename;
-            const commitMessage = `live: Add update for ${date} at ${time}`;
-            const url = `https://api.github.com/repos/${GITHUB_CONFIG.repoOwner}/${GITHUB_CONFIG.repoName}/contents/${filePath}`;
-
-            try {
-                const response = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${accessToken}`, 'Accept': 'application/vnd.github.v3+json' }, body: JSON.stringify({ message: commitMessage, content: encodedContent, branch: GITHUB_CONFIG.repoBranch }), });
-                if (response.status === 201) {
-                    updateStatus(`Successfully published: ${filename}`, 'green');
-                    blocksContainer.innerHTML = '';
-                    document.getElementById('article-tags').value = '';
-                    showEditor();
-                } else { const error = await response.json(); throw new Error(error.message || `GitHub API returned status ${response.status}`); }
-            } catch (error) { updateStatus(`Error: ${error.message}`, 'red');
-            } finally { setPublishingState(false, 'Publish Live Update'); }
+            const setPublishingState = (isPublishing) => { publishButton.disabled = isPublishing; document.getElementById("publish-text").classList.toggle("hidden", isPublishing); document.getElementById("publish-spinner").classList.toggle("hidden", !isPublishing); };
+            
+            publishButton.addEventListener('click', async () => {
+                setPublishingState(true);
+                const blocks = Array.from(document.querySelectorAll('.content-block'));
+                let headline = '', bodyParts = [];
+                blocks.forEach(block => {
+                    const type = block.dataset.blockType; const inputs = block.querySelectorAll('textarea, input'); const mainValue = inputs[0]?.value.trim(); const descValue = inputs[1]?.value.trim(); if (!mainValue) return;
+                    switch (type) {
+                        case 'headline': headline = mainValue; break; case 'content': bodyParts.push(mainValue); break; case 'quote': bodyParts.push(`> ${mainValue.replace(/\n/g, '\n> ')}`); break; case 'image': bodyParts.push(`![${descValue || ''}](${mainValue})`); break; case 'twitter': bodyParts.push(`[twitter|${descValue || ''}](${mainValue})`); break; case 'instagram': bodyParts.push(`[instagram|${descValue || ''}](${mainValue})`); break;
+                    }
+                });
+                const tags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+                const content = bodyParts.join('\n\n');
+                if (!content && !headline) { alert("Cannot publish an empty update."); setPublishingState(false); return; }
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
+                if (error) { statusMessage.textContent = `Error: ${error.message}.`; statusMessage.style.color = 'red'; } 
+                else { statusMessage.textContent = 'Successfully published!'; statusMessage.style.color = 'green'; blocksContainer.innerHTML = ''; createBlock('headline'); tagsInput.value = ''; }
+                setPublishingState(false);
+            });
+            
+            supabaseClient.channel('public:live_posts:cms').on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => { fetchRecentPosts(); }).subscribe();
         });
-        
-        // --- Helper functions remain the same ---
-        const updateStatus=(e,t)=>{statusMessage.textContent=e,statusMessage.style.color=t,setTimeout(()=>statusMessage.textContent="",7e3)};const setPublishingState=(e,t)=>{publishButton.disabled=e,document.getElementById("publish-text").textContent=t,document.getElementById("publish-spinner").classList.toggle("hidden",!e)};window.onload=async()=>{const e=new URLSearchParams(window.location.search),t=e.get("code");if(t){window.history.pushState({},document.title,window.location.pathname);try{const e=await fetch(GITHUB_CONFIG.tokenExchangeUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:t})}),o=await e.json();o.access_token?(accessToken=o.access_token,localStorage.setItem("githubLiveCmsToken",accessToken),showEditor()):(()=>{throw new Error(o.details||"Token exchange failed.")})()}catch(e){alert(`Authentication Failed: ${e.message}`),showLogin()}}else{const e=localStorage.getItem("githubLiveCmsToken");e?(accessToken=e,showEditor()):showLogin()}};
     </script>
 </body>
 </html>
+
