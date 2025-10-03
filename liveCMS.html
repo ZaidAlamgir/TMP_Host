@@ -10,7 +10,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .hidden { display: none; }
-        .auth-toggle-link:hover { text-decoration: underline; }
         #edit-modal.open { display: flex; }
         #edit-modal-content { animation: slideUp 0.3s ease-out forwards; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -21,82 +20,96 @@
 <body class="bg-slate-100 text-slate-800">
 
     <div id="app" class="w-full min-h-screen">
-        <!-- AUTHENTICATION VIEW -->
         <div id="auth-view" class="flex items-center justify-center min-h-screen p-4">
              <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
-                <form id="sign-in-form">
-                    <h1 class="text-3xl font-bold mb-6 text-center">Writer CMS Login</h1>
-                    <div class="mb-4"><label for="sign-in-email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label><input type="email" id="sign-in-email" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
-                    <div class="mb-6"><label for="sign-in-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label><input type="password" id="sign-in-password" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
-                    <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign In</button>
-                    <p class="text-sm text-center text-slate-600 mt-4">Don't have an account? <a href="#" id="show-sign-up" class="font-semibold text-blue-600 hover:underline">Sign Up</a></p>
-                </form>
-                <form id="sign-up-form" class="hidden">
-                    <h1 class="text-3xl font-bold mb-6 text-center">Create Writer Account</h1>
-                    <div class="mb-4"><label for="sign-up-email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label><input type="email" id="sign-up-email" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
-                    <div class="mb-6"><label for="sign-up-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label><input type="password" id="sign-up-password" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
-                    <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign Up</button>
-                    <p class="text-sm text-center text-slate-600 mt-4">Already have an account? <a href="#" id="show-sign-in" class="font-semibold text-blue-600 hover:underline">Sign In</a></p>
-                </form>
-                <p id="auth-message" class="text-center mt-4 text-sm font-medium"></p>
-            </div>
+                 <form id="sign-in-form">
+                     <h1 class="text-3xl font-bold mb-6 text-center">Writer CMS Login</h1>
+                     <div class="mb-4"><label for="sign-in-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label><input type="email" id="sign-in-email" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                     <div class="mb-6"><label for="sign-in-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label><input type="password" id="sign-in-password" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                     <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign In</button>
+                     <p class="text-sm text-center text-slate-600 mt-4">Don't have an account? <a href="#" id="show-sign-up" class="font-semibold text-blue-600 hover:underline">Sign Up</a></p>
+                 </form>
+                 <form id="sign-up-form" class="hidden">
+                     <h1 class="text-3xl font-bold mb-6 text-center">Create Writer Account</h1>
+                     <div class="mb-4"><label for="sign-up-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label><input type="email" id="sign-up-email" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                     <div class="mb-6"><label for="sign-up-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label><input type="password" id="sign-up-password" class="w-full p-3 border border-slate-300 rounded-lg" required></div>
+                     <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign Up</button>
+                     <p class="text-sm text-center text-slate-600 mt-4">Already have an account? <a href="#" id="show-sign-in" class="font-semibold text-blue-600 hover:underline">Sign In</a></p>
+                 </form>
+                 <p id="auth-message" class="text-center mt-4 text-sm font-medium"></p>
+             </div>
         </div>
 
-        <!-- EDITOR VIEW -->
         <div id="editor-view" class="hidden">
              <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-20">
-                <h1 class="text-xl font-bold">Live CMS</h1>
-                <div class="flex items-center gap-4"><span id="writer-email" class="text-sm text-slate-500 hidden md:block"></span><button id="logout-button" class="text-sm font-semibold text-slate-600 hover:text-red-500">Logout</button></div>
-            </header>
-            <main class="w-full max-w-screen-2xl mx-auto p-4 md:p-8 lg:grid lg:grid-cols-12 lg:gap-8">
-                <div class="lg:col-span-7 mb-8 lg:mb-0">
-                    <div class="bg-white p-6 rounded-2xl shadow-lg">
-                        <h2 class="text-2xl font-bold mb-6">Create New Update</h2>
-                        <div id="content-blocks-container"></div>
-                        <div class="mt-6"><label for="tags-input" class="block text-sm font-medium text-slate-700 mb-1">Tags (optional)</label><input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg" placeholder="e.g. politics, sports, breaking-news"></div>
-                        <div class="mt-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-                             <select id="block-type-select" class="flex-grow p-3 border border-slate-300 rounded-lg"><option value="headline">Headline</option><option value="content">Paragraph</option><option value="image">Image</option><option value="twitter">Twitter</option><option value="instagram">Instagram</option><option value="quote">Quote</option></select>
+                 <h1 class="text-xl font-bold">Live CMS</h1>
+                 <div class="flex items-center gap-4"><span id="writer-email" class="text-sm text-slate-500 hidden md:block"></span><button id="logout-button" class="text-sm font-semibold text-slate-600 hover:text-red-500">Logout</button></div>
+             </header>
+             <main class="w-full max-w-screen-2xl mx-auto p-4 md:p-8 lg:grid lg:grid-cols-12 lg:gap-8">
+                 <div class="lg:col-span-7 mb-8 lg:mb-0">
+                     <div class="bg-white p-6 rounded-2xl shadow-lg">
+                         <h2 class="text-2xl font-bold mb-6">Create New Update</h2>
+                         <div id="content-blocks-container"></div>
+                         <div class="mt-6"><label for="tags-input" class="block text-sm font-medium text-slate-700 mb-1">Tags (optional)</label><input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg" placeholder="e.g. politics, sports, breaking-news"></div>
+                         <div class="mt-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
+                              <select id="block-type-select" class="flex-grow p-3 border border-slate-300 rounded-lg">
+                                 <option value="headline">Headline</option>
+                                 <option value="content">Paragraph</option>
+                                 <option value="image">Image</option>
+                                 <option value="quote">Quote</option>
+                                 <optgroup label="Social Media">
+                                    <option value="twitter">Twitter</option>
+                                    <option value="twitter-video">Twitter (Cleaner)</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="instagram-video">Instagram (Video Only)</option>
+                                    <option value="facebook">Facebook</option>
+                                    <option value="tiktok">TikTok</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="reddit">Reddit</option>
+                                    <option value="telegram">Telegram</option>
+                                 </optgroup>
+                              </select>
                              <button id="add-block-button" class="bg-slate-600 text-white font-bold p-3 rounded-lg hover:bg-slate-500"><i class="fas fa-plus"></i></button>
-                        </div>
-                        <button id="publish-button" class="mt-6 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-500 w-full flex items-center justify-center text-lg"><span id="publish-text">Publish</span><span id="publish-spinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Publishing...</span></button>
-                        <p id="status-message" class="text-center mt-4 text-sm"></p>
-                    </div>
-                </div>
-                <div class="lg:col-span-5">
-                    <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-24"><h2 class="text-2xl font-bold mb-4">Your Recent Posts</h2><div id="recent-posts-feed" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2"></div></div>
-                </div>
-            </main>
+                         </div>
+                         <button id="publish-button" class="mt-6 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-500 w-full flex items-center justify-center text-lg">
+                             <span id="publish-text">Publish</span><span id="publish-spinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Publishing...</span>
+                         </button>
+                         <p id="status-message" class="text-center mt-4 text-sm"></p>
+                     </div>
+                 </div>
+                 <div class="lg:col-span-5">
+                     <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-24"><h2 class="text-2xl font-bold mb-4">Your Recent Posts</h2><div id="recent-posts-feed" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2"></div></div>
+                 </div>
+             </main>
         </div>
         
         <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 items-center justify-center p-4">
-            <div id="edit-modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-2xl flex flex-col max-h-[95vh]">
-                <h2 class="text-2xl font-bold mb-4 p-8 pb-0 flex-shrink-0">Edit Post</h2>
-                <div class="px-8 pb-6 overflow-y-auto">
-                    <div class="mb-4"><label for="edit-headline" class="block text-sm font-medium text-slate-700 mb-1">Headline</label><input type="text" id="edit-headline" class="w-full p-3 border border-slate-300 rounded-lg"></div>
-                    <div class="mb-4"><label for="edit-content" class="block text-sm font-medium text-slate-700 mb-1">Content (Markdown)</label><textarea id="edit-content" class="w-full p-3 border border-slate-300 rounded-lg min-h-[250px] font-mono text-sm"></textarea></div>
-                    <div class="mb-6"><label for="edit-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags</label><input type="text" id="edit-tags" class="w-full p-3 border border-slate-300 rounded-lg"></div>
-                </div>
-                <div class="flex justify-end gap-4 p-8 pt-0 mt-auto border-t border-slate-200 flex-shrink-0"><button id="cancel-edit-btn" class="bg-slate-200 text-slate-800 font-bold py-2 px-6 rounded-lg">Cancel</button><button id="save-edit-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Save Changes</button></div>
-            </div>
+             <div id="edit-modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-2xl flex flex-col max-h-[95vh]">
+                 <h2 class="text-2xl font-bold mb-4 p-8 pb-0 flex-shrink-0">Edit Post</h2>
+                 <div class="px-8 pb-6 overflow-y-auto">
+                     <div class="mb-4"><label for="edit-headline" class="block text-sm font-medium text-slate-700 mb-1">Headline</label><input type="text" id="edit-headline" class="w-full p-3 border border-slate-300 rounded-lg"></div>
+                     <div class="mb-4"><label for="edit-content" class="block text-sm font-medium text-slate-700 mb-1">Content (Markdown)</label><textarea id="edit-content" class="w-full p-3 border border-slate-300 rounded-lg min-h-[250px] font-mono text-sm"></textarea></div>
+                     <div class="mb-6"><label for="edit-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags</label><input type="text" id="edit-tags" class="w-full p-3 border border-slate-300 rounded-lg"></div>
+                 </div>
+                 <div class="flex justify-end gap-4 p-8 pt-0 mt-auto border-t border-slate-200 flex-shrink-0"><button id="cancel-edit-btn" class="bg-slate-200 text-slate-800 font-bold py-2 px-6 rounded-lg">Cancel</button><button id="save-edit-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Save Changes</button></div>
+             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // --- SCRIPT VERSION 13.1 (STABLE & COMPLETE) ---
         document.addEventListener('DOMContentLoaded', () => {
-            // --- CONFIGURATION ---
-        const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';       // <-- PASTE YOUR NEW 'LIVE' PROJECT URL
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA'; // <-- PASTE YOUR NEW 'LIVE' PROJECT ANON KEY
+            const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
             
-            if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+            if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
                 document.getElementById('app').innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-8" role="alert"><p class="font-bold">Configuration Error</p><p>Please enter your Supabase URL and Anon Key in the script.</p></div>`;
                 return;
             }
 
             const { createClient } = supabase;
             const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
             const authView = document.getElementById('auth-view');
             const editorView = document.getElementById('editor-view');
             const signInForm = document.getElementById('sign-in-form');
@@ -121,14 +134,12 @@
             const cancelEditBtn = document.getElementById('cancel-edit-btn');
             let currentEditingPostId = null;
 
-            // --- Auth Logic ---
             showSignUpLink.addEventListener('click', (e) => { e.preventDefault(); signInForm.classList.add('hidden'); signUpForm.classList.remove('hidden'); authMessage.textContent = ''; });
             showSignInLink.addEventListener('click', (e) => { e.preventDefault(); signUpForm.classList.add('hidden'); signInForm.classList.remove('hidden'); authMessage.textContent = ''; });
             signInForm.addEventListener('submit', async (e) => { e.preventDefault(); authMessage.textContent = ''; const email = document.getElementById('sign-in-email').value; const password = document.getElementById('sign-in-password').value; const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) { authMessage.textContent = error.message; authMessage.style.color = 'red'; } });
             signUpForm.addEventListener('submit', async (e) => { e.preventDefault(); authMessage.textContent = ''; const email = document.getElementById('sign-up-email').value; const password = document.getElementById('sign-up-password').value; const { error } = await supabaseClient.auth.signUp({ email, password }); if (error) { authMessage.textContent = error.message; authMessage.style.color = 'red'; } else { authMessage.textContent = 'Success! Please check your email for a verification link.'; authMessage.style.color = 'green'; } });
             logoutButton.addEventListener('click', async () => { await supabaseClient.auth.signOut(); });
 
-            // --- UI State Management ---
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (session) {
                     authView.classList.add('hidden');
@@ -145,24 +156,24 @@
             function autoExpand(textarea) { if (textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; } }
 
             function createBlock(type) {
-                document.getElementById('no-blocks-msg')?.classList.add('hidden');
                 const blockId = `block-${Date.now()}`;
                 const blockWrapper = document.createElement('div');
                 blockWrapper.className = 'content-block bg-slate-50 border border-slate-200 p-6 rounded-xl relative mt-6';
                 blockWrapper.id = blockId;
                 blockWrapper.dataset.blockType = type;
-                let innerHTML = `<h3 class="font-bold text-slate-600 uppercase text-sm mb-3">${type}</h3><button class="absolute top-4 right-4 text-slate-400 hover:text-red-500" onclick="document.getElementById('${blockId}').remove()"><i class="fas fa-times"></i></button>`;
+                let innerHTML = `<h3 class="font-bold text-slate-600 uppercase text-sm mb-3">${type.replace('-',' ')}</h3><button class="absolute top-4 right-4 text-slate-400 hover:text-red-500" onclick="document.getElementById('${blockId}').remove()"><i class="fas fa-times"></i></button>`;
                 const inputClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
                 const textareaClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
                 const descInput = `<input type="text" class="${inputClasses} mt-2 text-sm" placeholder="Description or Caption (optional)">`;
                 let mainEl;
+
                 switch (type) {
                     case 'headline': mainEl = `<textarea rows="1" class="${textareaClasses} font-bold text-2xl" placeholder="Main title of the update"></textarea>`; break;
                     case 'content': mainEl = `<textarea rows="3" class="${textareaClasses}" placeholder="Write the update details..."></textarea>`; break;
-                    case 'image': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste any image URL">${descInput}`; break;
-                    case 'twitter': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full Twitter post URL">${descInput}`; break;
-                    case 'instagram': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full Instagram post URL">${descInput}`; break;
+                    case 'image': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste image URL">${descInput}`; break;
                     case 'quote': mainEl = `<textarea rows="2" class="${textareaClasses} quote-input" placeholder="Enter the quote here..."></textarea>`; break;
+                    default: // Handles all social media embeds
+                        mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full post URL">${descInput}`; break;
                 }
                 innerHTML += mainEl;
                 blockWrapper.innerHTML = innerHTML;
@@ -194,12 +205,9 @@
             recentPostsFeed.addEventListener('click', async (e) => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return;
-
                 const target = e.target.closest('.pin-btn, .edit-btn, .delete-btn');
                 if (!target) return;
-
                 const postId = target.dataset.postId;
-
                 if (target.classList.contains('pin-btn')) {
                     const { data, error } = await supabaseClient.rpc('toggle_pin', { post_id_to_toggle: postId, user_id_of_pinner: user.id });
                     if (error) { alert(`RPC Error: ${error.message}`); } 
@@ -233,9 +241,20 @@
                 const blocks = Array.from(document.querySelectorAll('.content-block'));
                 let headline = '', bodyParts = [];
                 blocks.forEach(block => {
-                    const type = block.dataset.blockType; const inputs = block.querySelectorAll('textarea, input'); const mainValue = inputs[0]?.value.trim(); const descValue = inputs[1]?.value.trim(); if (!mainValue) return;
+                    const type = block.dataset.blockType;
+                    const inputs = block.querySelectorAll('textarea, input');
+                    const mainValue = inputs[0]?.value.trim();
+                    const descValue = inputs[1]?.value.trim();
+                    if (!mainValue) return;
+
                     switch (type) {
-                        case 'headline': headline = mainValue; break; case 'content': bodyParts.push(mainValue); break; case 'quote': bodyParts.push(`> ${mainValue.replace(/\n/g, '\n> ')}`); break; case 'image': bodyParts.push(`![${descValue || ''}](${mainValue})`); break; case 'twitter': bodyParts.push(`[twitter|${descValue || ''}](${mainValue})`); break; case 'instagram': bodyParts.push(`[instagram|${descValue || ''}](${mainValue})`); break;
+                        case 'headline': headline = mainValue; break;
+                        case 'content': bodyParts.push(mainValue); break;
+                        case 'quote': bodyParts.push(`> ${mainValue.replace(/\n/g, '\n> ')}`); break;
+                        case 'image': 
+                            bodyParts.push(`![${descValue || 'Image'}](${mainValue})`); break;
+                        default: // This handles all social media types by using their 'type' name as the keyword
+                            bodyParts.push(`[${type}|${descValue || ''}](${mainValue})`); break;
                     }
                 });
                 const tags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
@@ -253,4 +272,3 @@
     </script>
 </body>
 </html>
-
