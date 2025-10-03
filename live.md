@@ -12,14 +12,14 @@ title: Live Updates
     .live-post-content { padding: 1.5rem; }
     .new-post-animation { animation: fadeInSlideDown 0.7s ease-out forwards; }
     @keyframes fadeInSlideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-    .live-post-headline { font-size: 1.75rem; font-weight: 800; color: #111827; margin-bottom: 0.75rem; line-height: 1.2; }
+    .live-post-headline { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1rem; line-height: 1.2; }
     .live-post-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: #4b5563; }
     .live-post-author { font-weight: 600; }
     .live-post-time { font-weight: 600; color: #ef4444; }
     .live-indicator { display: flex; align-items: center; gap: 0.5rem; }
     .live-indicator .dot { width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 8px 2px #ef4444; animation: glow 1.5s infinite ease-in-out; }
     @keyframes glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    .post-body p { font-size: 1.05rem; line-height: 1.7; color: #374151; margin-bottom: 1rem; }
+    .post-body p { font-size: 1.125rem; line-height: 1.7; color: #374151; margin-bottom: 1.25rem; }
     .post-body img { max-width: 100%; border-radius: 8px; margin: 1.25rem 0 0.25rem 0; }
     .post-body blockquote { font-style: italic; color: #4b5563; border-left: 3px solid #d1d5db; padding-left: 1.5rem; margin: 1.5rem 0; font-size: 1.1rem; }
     .post-body .media-caption { text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; font-style: italic; }
