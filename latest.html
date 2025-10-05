@@ -8,19 +8,13 @@ title: Latest Article
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
 
-    /* --- Base Wrapper --- */
-    .article-wrapper {
+    /* FIX #1: Removed top padding to eliminate gap below header */
+    .article-container {
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 0 1rem 2rem 1rem; /* Top padding is now 0 */
         background: transparent;
         color: #111827;
-        margin: 0 auto;
-        padding: 0 1rem;
-        max-width: 1200px; /* Sets the maximum width for the entire page content */
-    }
-    
-    /* NEW: Container to keep text at a readable width */
-    .article-text-container {
-        max-width: 740px;
-        margin: 0 auto;
     }
 
     /* =================================================================== */
@@ -30,7 +24,7 @@ title: Latest Article
     /* --- TYPOGRAPHY --- */
     .article-headline {
         font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px;
-        color: #111827; line-height: 1.2; margin-bottom: 0.75rem;
+        color: #111827; line-height: 1.2; margin-bottom: 0.75rem; margin-top: 0.4rem;
     }
     .article-headline.long-headline { font-size: 45px; }
     .article-headline.very-long-headline { font-size: 38px; }
@@ -74,30 +68,26 @@ title: Latest Article
         background-color: #e5e7eb; transform: translateY(-2px);
     }
     
-    /* --- GENERAL ARTICLE ELEMENT STYLES --- */
-    .article-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    /* FIX #2: Reduced bottom margin to close gap between tags and headline */
+    .article-tags { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 0.5rem; 
+        margin-bottom: 0.5rem; /* Reduced from 2rem */
+    }
     .tag {
         background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
         border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
     }
-    
-    /* MODIFIED: Figure styles for the wider image layout */
-    .article-figure {
-        margin: 2rem 0; /* Only vertical margin */
-        width: 100%; /* Take full width of the .article-wrapper */
-    }
-    .article-figure img {
-        width: 100%; /* Make image fill the figure */
-        height: auto;
-        display: block;
-        border-radius: 8px; /* Subtle rounding */
-    }
 
+    .article-figure, .article-body img {
+        max-width: 100%; height: auto;
+        display: block; margin: 2rem auto; border-radius: 8px;
+    }
     .article-image-caption {
         font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280;
-        margin-top: 0.75rem; margin-bottom: 2rem; text-align: center; display: block;
+        margin-top: -1.5rem; margin-bottom: 2rem; text-align: center; display: block;
     }
-    
     .article-body h2 {
         font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem;
         margin-top: 2.5rem; margin-bottom: 1rem;
@@ -106,8 +96,6 @@ title: Latest Article
         border-left: 3px solid #ccc; padding-left: 1.5rem; margin: 2rem 0;
         font-style: italic; color: #606770; font-size: 1.2rem;
     }
-
-    /* Styles for responsive video embeds */
     .embed-container {
         position: relative; padding-bottom: 56.25%; height: 0;
         overflow: hidden; max-width: 100%; margin: 2rem auto; border-radius: 8px;
@@ -131,58 +119,54 @@ title: Latest Article
     }
 </style>
 
-<div class="article-wrapper">
+<div class="article-container">
     {% if latest_post %}
         <article>
-            <div class="article-text-container">
-                <header>
-                    {% if latest_post.tags and latest_post.tags.size > 0 %}
-                    <div class="article-tags">
-                        {% for tag in latest_post.tags %}
-                            <span class="tag">{{ tag }}</span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    
-                    {% assign headline_length = latest_post.title | size %}
-                    <h1 class="article-headline {% if headline_length > 80 %}very-long-headline{% elsif headline_length > 50 %}long-headline{% endif %}">
-                        {{ latest_post.title }}
-                    </h1>
-
-                    {% if latest_post.subheadline %}
-                        {% assign subheadline_length = latest_post.subheadline | size %}
-                        <p class="article-subheadline {% if subheadline_length > 200 %}long-subheadline{% endif %}">
-                            {{ latest_post.subheadline }}
-                        </p>
-                    {% endif %}
-
-                    <div class="article-meta">
-                        <div class="meta-info">
-                            <div class="author-name">By {{ latest_post.author | default: 'Staff Writer' }}</div>
-                            <div class="publish-date">{{ latest_post.date | date: "%B %d, %Y" }}</div>
-                        </div>
-                        <div class="share-container">
-                            <button id="native-share-button" class="share-btn" title="Share article">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </header>
-            </div>
-            
-            {% if latest_post.image %}
-            <figure class="article-figure">
-                <img src="{{ latest_post.image }}" alt="{{ latest_post.image_description | default: 'Article main image' }}">
-                {% if latest_post.image_description %}
-                    <figcaption class="article-image-caption">{{ latest_post.image_description }}</figcaption>
-                {% endif %}
-            </figure>
-            {% endif %}
-
-            <div class="article-text-container">
-                <div class="article-body">
-                    {{ latest_post.content | markdownify }}
+            <header>
+                {% if latest_post.tags and latest_post.tags.size > 0 %}
+                <div class="article-tags">
+                    {% for tag in latest_post.tags %}
+                        <span class="tag">{{ tag }}</span>
+                    {% endfor %}
                 </div>
+                {% endif %}
+                
+                {% assign headline_length = latest_post.title | size %}
+                <h1 class="article-headline {% if headline_length > 80 %}very-long-headline{% elsif headline_length > 50 %}long-headline{% endif %}">
+                    {{ latest_post.title }}
+                </h1>
+
+                {% if latest_post.subheadline %}
+                    {% assign subheadline_length = latest_post.subheadline | size %}
+                    <p class="article-subheadline {% if subheadline_length > 200 %}long-subheadline{% endif %}">
+                        {{ latest_post.subheadline }}
+                    </p>
+                {% endif %}
+
+                <div class="article-meta">
+                    <div class="meta-info">
+                        <div class="author-name">By {{ latest_post.author | default: 'Staff Writer' }}</div>
+                        <div class="publish-date">{{ latest_post.date | date: "%B %d, %Y" }}</div>
+                    </div>
+                    <div class="share-container">
+                        <button id="native-share-button" class="share-btn" title="Share article">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="article-body">
+                {% if latest_post.image %}
+                <figure class="article-figure">
+                    <img src="{{ latest_post.image }}" alt="{{ latest_post.image_description | default: 'Article main image' }}">
+                    {% if latest_post.image_description %}
+                        <figcaption class="article-image-caption">{{ latest_post.image_description }}</figcaption>
+                    {% endif %}
+                </figure>
+                {% endif %}
+
+                {{ latest_post.content | markdownify }}
             </div>
             
         </article>
