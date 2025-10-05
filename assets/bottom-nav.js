@@ -3,10 +3,6 @@
 // This single script creates the HTML, injects the CSS, and handles all the animation logic.
 // It automatically adds padding to the body to prevent content from being hidden and fixes animation glitches.
 
-// IMPORTANT: To fix the extra scrolling on some pages (like post.html), please find and REMOVE any
-// "padding-bottom" rules from the <body> tag in your other CSS files or inline <style> tags.
-// This script will handle the padding automatically.
-
 (function() {
     // 1. CREATE AND INJECT THE CSS STYLES
     const styles = `
@@ -18,8 +14,9 @@
             width: 100%;
             height: 65px;
             background-color: #ffffff;
-            display: flex;
-            justify-content: space-around;
+            /* UPDATED: Switched to grid for precise centering */
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
             align-items: center;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
             z-index: 1000;
@@ -36,16 +33,16 @@
             color: #8e8e8e;
             font-size: 12px;
             font-weight: 500;
-            flex-grow: 1;
             height: 100%;
             position: relative;
             z-index: 1;
             transition: color 0.3s ease;
         }
 
+        /* NEW: Icon size reduced slightly for a cleaner look */
         .bottom-nav-link svg {
-            width: 24px;
-            height: 24px;
+            width: 22px;  /* Was 24px */
+            height: 22px; /* Was 24px */
             margin-bottom: 4px;
             transition: stroke 0.3s ease;
         }
@@ -62,6 +59,13 @@
             transform: scale(0.95);
             transition: transform 0.1s ease;
         }
+        
+        /* NEW: Use order property to visually rearrange items */
+        #nav-live { order: 1; }
+        #nav-news-hub { order: 2; }
+        #nav-home { order: 3; } /* Center item */
+        #nav-articles { order: 4; }
+        #nav-post { order: 5; }
 
         /* --- Animated Glider --- */
         .nav-glider {
@@ -74,7 +78,6 @@
             border-radius: 20px;
             transform: translateY(-50%);
             z-index: 0;
-            /* The transition is now set by JS to prevent the initial glitch */
         }
     `;
 
@@ -83,18 +86,12 @@
     styleSheet.innerText = styles;
     document.head.appendChild(styleSheet);
 
-    // 2. CREATE THE HTML STRUCTURE
+    // 2. CREATE THE HTML STRUCTURE (Order updated for logical flow)
     const navHTML = `
         <nav class="bottom-nav" id="bottom-nav">
             <div class="nav-glider"></div>
             <a href="live.html" class="bottom-nav-link" id="nav-live">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path>
-                    <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path>
-                    <circle cx="12" cy="12" r="2"></circle>
-                    <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path>
-                    <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"></path>
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path><circle cx="12" cy="12" r="2"></circle><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"></path></svg>
                 <span>Live</span>
             </a>
             <a href="news-hub.html" class="bottom-nav-link" id="nav-news-hub">
@@ -116,7 +113,6 @@
         </nav>
     `;
     
-    // Inject the HTML at the end of the body
     document.body.insertAdjacentHTML('beforeend', navHTML);
 
     // 3. ATTACH THE JAVASCRIPT LOGIC
@@ -124,8 +120,6 @@
         const bottomNav = document.getElementById('bottom-nav');
         if (!bottomNav) return;
         
-        // --- FIX FOR SCROLLING PROBLEM ---
-        // Automatically add padding to the body to prevent content from being hidden
         const navHeight = bottomNav.offsetHeight;
         document.body.style.paddingBottom = `${navHeight + 15}px`;
 
@@ -164,22 +158,14 @@
             }
         }
 
-        // --- GLITCH-FREE ANIMATION LOGIC ---
-        // Run instantly on DOM ready WITHOUT transition to prevent initial glitch.
         setActiveLink();
-
-        // Re-run on window resize.
         window.addEventListener('resize', setActiveLink);
 
-        // --- SMOOTH SLIDE ON PAGE LOAD ---
-        // Use a short timeout. This gives the browser a moment to render the initial state
-        // before we enable the transition, resulting in a smooth slide animation on every page load.
         setTimeout(() => {
             glider.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
-        }, 50); // A small delay is all that's needed.
+        }, 50);
     }
     
-    // Run the initialization logic after the DOM is ready.
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeNav);
     } else {

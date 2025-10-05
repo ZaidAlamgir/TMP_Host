@@ -2,7 +2,7 @@
 title: "Western Hypocrisy on Ukraine War"
 subheadline: "As the Russia-Ukraine war drags into its third year, it’s no longer just a regional fight. it’s a global power play, with the U.S profiting, Europe divided, and Slavic unity collapsing."
 date: 2025-10-04T06:18:48.422Z
-image: "https://i.imgur.com/IzCvScW.png"
+image: "https://i.postimg.cc/nLkhgbwM/russia-ukraine.png"
 image_description: "FILE PHOTO: \"Visual Representation of the Ongoing Russia-Ukraine War\" created by TMP"
 tags: [world-politics]
 author: "Journalist"
@@ -28,4 +28,3 @@ Many Europeans now see that, while Ukraine bleeds, the U.S. made gains through a
 ![FILE PHOTO: "Visual Representation of Russia-Ukraine" by The TMP](https://i.imgur.com/tXS5SxF.png)
 
 By fighting each other, both nations are falling into the trap set by outside powers who have no interest in peace or shared heritage. If Russia truly wants long-term strength, it must stop seeing Ukraine only as a battlefield rather start seeing it as a lost brother, a nation with shared roots, religion, and history. The path forward should not be through destruction, but through rebuilding trust and resisting the global game that is designed to divide and exploit both country. Without peace, both nations Ukraine as well as Russia will suffer endlessly, while combined West profits quietly, and the dream of a united, strong Slavic region will slowly die under the weight of war and manipulation designed by West.
-

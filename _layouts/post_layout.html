@@ -1,0 +1,39 @@
+---
+layout: default
+---
+
+<style>
+    .main-article-content {
+        max-width: 900px;
+        margin: 1rem auto; /* Reduced top margin */
+        padding: 0 1rem;    /* Minimal padding for mobile */
+    }
+
+    .site-footer {
+        background-color: #ffffff;
+        padding: 2rem 1rem;
+        text-align: center;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 2rem;
+    }
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .footer-disclaimer {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+</style>
+
+<main class="main-article-content">
+    {{ content }}
+</main>
+
+<footer class="site-footer">
+    <div class="footer-content">
+        <div class="footer-disclaimer">
+            &copy; {{ site.time | date: '%Y' }} The Muslim Post. All rights reserved. Content on this site is protected by copyright law.
+        </div>
+    </div>
+</footer>

@@ -1,50 +1,265 @@
 ---
-layout: default
+layout: post_layout
 title: Latest Article
 ---
 
 {% assign latest_post = site.posts.first %}
 
 <style>
-    /* These styles are for the full article page layout */
-    .article-container { padding: 2rem 1rem; max-width: 740px; margin: 0 auto; }
-    .article-header { margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; text-align: center;}
-    .article-headline { font-size: 2.8rem; font-weight: bold; line-height: 1.2; margin-bottom: 0.5rem; }
-    .article-subheadline { font-size: 1.4rem; color: #606770; margin-top: 0; }
-    .article-meta { font-size: 0.9rem; color: #606770; margin-top: 1rem; }
-    .article-figure { margin: 2rem 0; }
-    .article-image { width: 100%; height: auto; border-radius: 8px; }
-    .article-image-caption { font-size: 0.9rem; color: #606770; text-align: center; margin-top: 0.5rem; display: block; }
-    .article-content { font-size: 1.1rem; line-height: 1.8; }
-    .article-content h1, .article-content h2, .article-content h3 { font-weight: 600; margin-top: 2.5rem; margin-bottom: 1rem; line-height: 1.3; }
-    .article-content p { margin-bottom: 1.5rem; }
-    .article-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 2rem auto; display: block;}
-    .article-content blockquote { border-left: 3px solid #0073e6; padding-left: 1.5rem; margin-left: 0; font-style: italic; color: #606770; }
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
+
+    .article-wrapper {
+        background: transparent;
+        color: #111827;
+    }
+
+    /* =================================================================== */
+    /* DESKTOP STYLES (>= 769px)                                         */
+    /* =================================================================== */
+
+    /* --- TYPOGRAPHY --- */
+    .article-headline {
+        font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px;
+        color: #111827; line-height: 1.2; margin-bottom: 0.75rem;
+    }
+    .article-headline.long-headline { font-size: 45px; }
+    .article-headline.very-long-headline { font-size: 38px; }
+
+    .article-subheadline {
+        font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563;
+        line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400;
+    }
+    .article-subheadline.long-subheadline { font-size: 17px; }
+    
+    .article-body p {
+        font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
+        margin-bottom: 1.5rem; font-weight: 400;
+    }
+    
+    .article-body a {
+        color: #1d4ed8; text-decoration: underline; transition: color 0.2s ease;
+    }
+    .article-body a:hover { color: #1e3a8a; }
+
+    /* --- UPDATED: ARTICLE META & SHARE SECTION --- */
+    .article-meta {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;
+    }
+    .article-meta .author-name {
+        font-weight: 600; color: #111827; font-family: 'Inter', sans-serif;
+    }
+    .article-meta .publish-date {
+        font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif;
+    }
+    .share-container { display: flex; } /* Wrapper for the share button */
+
+    /* NEW: Style for the single, professional share button */
+    .share-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%;
+        background-color: #f3f4f6; /* Neutral light gray */
+        color: #374151; /* Dark gray icon */
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    .share-btn:hover {
+        background-color: #e5e7eb; /* Slightly darker gray on hover */
+        transform: translateY(-2px);
+    }
+    
+    /* --- GENERAL ARTICLE ELEMENT STYLES --- */
+    .article-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .tag {
+        background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
+        border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
+    }
+
+    .article-body img, .article-figure img {
+        max-width: 100%; height: auto; display: block;
+        margin: 2rem auto; border-radius: 4px;
+    }
+    .article-body figcaption, .article-image-caption {
+        font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280;
+        margin-top: -1.5rem; margin-bottom: 2rem; text-align: center; display: block;
+    }
+    
+    .article-body h2 {
+        font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem;
+        margin-top: 2.5rem; margin-bottom: 1rem;
+    }
+    .article-body blockquote {
+        border-left: 3px solid #ccc; padding-left: 1.5rem; margin: 2rem 0;
+        font-style: italic; color: #606770; font-size: 1.2rem;
+    }
+
+    /* Styles for responsive video embeds */
+    .embed-container {
+        position: relative; padding-bottom: 56.25%; height: 0;
+        overflow: hidden; max-width: 100%; margin: 2rem auto; border-radius: 8px;
+    }
+    .embed-container iframe {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    }
+    .embed-caption {
+        font-family: 'Inter', sans-serif; font-size: 14px;
+        color: #6b7280; margin-top: 0.5rem; text-align: center;
+    }
+
+    /* =================================================================== */
+    /* MOBILE STYLES (<= 768px)                                          */
+    /* =================================================================== */
+    @media (max-width: 768px) {
+        .article-headline { font-size: 32px; }
+        .article-headline.long-headline { font-size: 34px; }
+        .article-headline.very-long-headline { font-size: 30px; }
+        .article-subheadline { font-size: 18px; font-weight: 400; }
+    }
 </style>
 
-<div class="article-container">
+<div class="article-wrapper">
     {% if latest_post %}
         <article>
-            <header class="article-header">
-                <h1 class="article-headline">{{ latest_post.title }}</h1>
-                <p class="article-subheadline">{{ latest_post.subheadline }}</p>
+            <header>
+                {% if latest_post.tags and latest_post.tags.size > 0 %}
+                <div class="article-tags">
+                    {% for tag in latest_post.tags %}
+                        <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% assign headline_length = latest_post.title | size %}
+                <h1 class="article-headline {% if headline_length > 80 %}very-long-headline{% elsif headline_length > 50 %}long-headline{% endif %}">
+                    {{ latest_post.title }}
+                </h1>
+
+                {% if latest_post.subheadline %}
+                    {% assign subheadline_length = latest_post.subheadline | size %}
+                    <p class="article-subheadline {% if subheadline_length > 200 %}long-subheadline{% endif %}">
+                        {{ latest_post.subheadline }}
+                    </p>
+                {% endif %}
+
                 <div class="article-meta">
-                    <span>By {{ latest_post.author | default: 'Staff Writer' }}</span> | <span>Published on {{ latest_post.date | date: "%B %d, %Y" }}</span>
+                    <div class="meta-info">
+                        <div class="author-name">By {{ latest_post.author | default: 'Staff Writer' }}</div>
+                        <div class="publish-date">{{ latest_post.date | date: "%B %d, %Y" }}</div>
+                    </div>
+                    <div class="share-container">
+                        <button id="native-share-button" class="share-btn" title="Share article">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </header>
+            
+            <div class="article-body">
+                {% if latest_post.image %}
+                <figure class="article-figure">
+                    <img src="{{ latest_post.image }}" alt="{{ latest_post.image_description | default: 'Article main image' }}">
+                    {% if latest_post.image_description %}
+                        <figcaption class="article-image-caption">{{ latest_post.image_description }}</figcaption>
+                    {% endif %}
+                </figure>
+                {% endif %}
 
-            {% if latest_post.image %}
-            <figure class="article-figure">
-                <img src="{{ latest_post.image }}" alt="{{ latest_post.image_description | default: 'Article main image' }}" class="article-image">
-                <figcaption class="article-image-caption">{{ latest_post.image_description }}</figcaption>
-            </figure>
-            {% endif %}
-
-            <section class="article-content">
-                {{ latest_post.content }}
-            </section>
+                {{ latest_post.content | markdownify }}
+            </div>
+            
         </article>
     {% else %}
         <p style="text-align: center;">No posts have been published yet.</p>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const shareButton = document.getElementById('native-share-button');
+
+    if (shareButton) {
+        shareButton.addEventListener('click', async () => {
+            const postUrl = window.location.href;
+            const postTitle = "{{ latest_post.title | escape }}";
+            const shareData = {
+                title: postTitle,
+                text: `Read the article: "${postTitle}"`,
+                url: postUrl,
+            };
+
+            // Use the Web Share API if available
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    console.error('Share failed:', err.message);
+                }
+            } else {
+                // Fallback for desktop browsers: copy link to clipboard
+                try {
+                    await navigator.clipboard.writeText(postUrl);
+                    
+                    // Provide visual feedback to the user
+                    const originalIcon = shareButton.innerHTML;
+                    shareButton.innerHTML = '<i class="fas fa-check"></i>';
+                    shareButton.title = 'Link copied!';
+                    
+                    setTimeout(() => {
+                        shareButton.innerHTML = originalIcon;
+                        shareButton.title = 'Share article';
+                    }, 2000); // Revert after 2 seconds
+                } catch (err) {
+                    // Final fallback if clipboard fails
+                    alert('Could not copy link. Please copy the URL from the address bar.');
+                }
+            }
+        });
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const articleBody = document.querySelector('.article-body');
+    if (!articleBody) return;
+
+    articleBody.querySelectorAll('p > a:only-child').forEach(link => {
+        const match = link.textContent.match(/^\[(\w+[-\w]*)\|?(.*)\]$/);
+        
+        if (match) {
+            const platform = match[1].toLowerCase();
+            const caption = match[2];
+            const url = link.href;
+            let embedHtml = '';
+
+            switch (platform) {
+                case 'youtube':
+                    const videoId = new URL(url).searchParams.get('v');
+                    if (videoId) {
+                        embedHtml = `<div class="embed-container"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+                    }
+                    break;
+                case 'twitter':
+                case 'twitter-video':
+                     embedHtml = `<blockquote class="twitter-tweet"><a href="${url}"></a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"><\/script>`;
+                    break;
+            }
+
+            if (embedHtml) {
+                const container = document.createElement('div');
+                container.innerHTML = embedHtml;
+                if (caption) {
+                    const captionEl = document.createElement('p');
+                    captionEl.className = 'embed-caption';
+                    captionEl.textContent = caption;
+                    container.appendChild(captionEl);
+                }
+                link.parentElement.parentNode.replaceChild(container, link.parentElement);
+            }
+        }
+    });
+});
+</script>

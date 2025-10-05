@@ -1,194 +1,171 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Hub</title>
-    <link rel="stylesheet" href="assets/style/style.css">
-    <link rel="stylesheet" href="assets/style/header.css">
-    <link rel="stylesheet" href="assets/style/index-menu.css">
-    <style>
-        body { background-color: #f0f2f5; font-family: sans-serif; }
-        .main-container { max-width: 900px; margin: 20px auto; padding: 20px; }
-        .page-header { text-align: center; margin-bottom: 2rem; }
-        .page-header h1 { font-size: 2.5rem; font-weight: bold; color: #1c1e21; }
-        .page-header .tag-highlight { color: #0073e6; }
-        .loader { display: block; margin: 40px auto; border: 5px solid #f3f3f3; border-top: 5px solid #0073e6; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+---
+layout: default
+title: News Hub
+---
 
-        /* Article Card Styles */
-        .articles-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-        .article-card {
-            background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .article-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-        .article-card-image { width: 100%; height: 200px; object-fit: cover; }
-        .article-card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .article-card-content h3 { font-size: 1.4rem; font-weight: bold; margin-bottom: 0.5rem; color: #1c1e21; }
-        .article-card-content p { font-size: 1rem; line-height: 1.6; color: #606770; margin-bottom: 1rem; flex-grow: 1; }
-        .article-card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #8a8d91; border-top: 1px solid #f0f2f5; padding-top: 1rem; margin-top: auto; }
+<style>
+    /* Styles for the News Hub Page */
+    main { padding: 2rem 1rem 80px 1rem; max-width: 900px; margin: 0 auto; }
+    .page-header { text-align: center; margin-bottom: 2.5rem; }
+    .page-header h1 { font-size: 2.5rem; color: #1c1e21; }
+    .page-header .tag-highlight { color: #0073e6; }
+    .page-header p { font-size: 1.1rem; color: #606770; margin-top: 0.5rem; }
 
-        @media (min-width: 768px) {
-            .articles-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-    </style>
-</head>
-<body>
+    .news-grid-full { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
 
-<div id="header-placeholder"></div>
+    .news-card {
+        background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* NEW: Hide cards by default for JS loading */
+        display: none;
+    }
+    .news-card.visible {
+        /* NEW: Use flex for visible cards */
+        display: flex;
+    }
 
-<main class="main-container">
+    .news-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+
+    .news-card .news-card-image-wrapper {
+        overflow: hidden; width: 100%; height: 220px; background-color: #e2e8f0;
+    }
+    .news-card-image {
+        width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;
+    }
+    .news-card:hover .news-card-image { transform: scale(1.05); }
+
+    .news-card-text { padding: 1.5rem; }
+    .news-card-headline { font-size: 1.3rem; font-weight: 600; color: #1c1e21; margin-bottom: 0.5rem; }
+    .news-card-subheadline { font-size: 1rem; color: #606770; line-height: 1.5; }
+
+    .no-results-message { text-align: center; color: #606770; padding: 2rem; }
+
+    /* NEW: Loader for infinite scroll */
+    .loader {
+        display: none; margin: 2rem auto; border: 4px solid #f3f3f3;
+        border-top: 4px solid #0073e6; border-radius: 50%;
+        width: 40px; height: 40px; animation: spin 1s linear infinite;
+    }
+    .loader.visible { display: block; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+    @media (min-width: 768px) {
+        .news-card { flex-direction: row; }
+        .news-card.visible { display: flex; } /* Ensure it works on desktop too */
+        .news-card .news-card-image-wrapper { width: 300px; height: auto; flex-shrink: 0; }
+        .news-card-text { display: flex; flex-direction: column; justify-content: center; }
+    }
+</style>
+
+<main>
     <div class="page-header">
-        <h1 id="page-title">Loading News...</h1>
+        <h1 id="page-title">News Hub</h1>
+        <p id="page-subtitle">The latest trends, research, and important discussions from around the world.</p>
     </div>
-    <div id="articles-container" class="articles-grid">
-        <div id="loader" class="loader"></div>
+
+    <div class="news-grid-full" id="articles-grid">
+        {% assign sorted_posts = site.posts | sort: 'date' | reverse %}
+        {% for post in sorted_posts %}
+            <a href="{{ post.url | relative_url }}" class="news-card" data-tags="{{ post.tags | join: ',' }}">
+                <div class="news-card-image-wrapper">
+                    <img src="{{ post.image | default: 'https://placehold.co/600x400/e2e8f0/64748b?text=No+Image' }}" alt="{{ post.image_description | default: 'Article image' }}" class="news-card-image">
+                </div>
+                <div class="news-card-text">
+                    <h3 class="news-card-headline">{{ post.title }}</h3>
+                    <p class="news-card-subheadline">{{ post.subheadline | default: 'Click to read more.' }}</p>
+                </div>
+            </a>
+        {% endfor %}
     </div>
+
+    <div id="loader" class="loader"></div>
+    <p id="no-results-message" class="no-results-message" style="display: none;"></p>
 </main>
 
-<div id="bottom-nav-placeholder"></div>
-
-<script src="assets/header-injector.js"></script>
-<script src="assets/bottom-nav.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- CONFIGURATION ---
-    const GITHUB_CONFIG = {
-        repoOwner: 'zaidalamgir',
-        repoName: 'TMP_Host',
-        articlesPath: '_posts'
-    };
-
-    const articlesContainer = document.getElementById('articles-container');
+    const articlesGrid = document.getElementById('articles-grid');
+    const allArticleCards = Array.from(document.querySelectorAll('.news-card'));
     const pageTitle = document.getElementById('page-title');
+    const pageSubtitle = document.getElementById('page-subtitle');
+    const noResultsMessage = document.getElementById('no-results-message');
     const loader = document.getElementById('loader');
 
-    // 1. Get the tag from the URL
+    const BATCH_SIZE = 20;
+    let articlesToShow = [];
+    let currentIndex = 0;
+
+    // 1. Get the tag from the URL query parameter
     const urlParams = new URLSearchParams(window.location.search);
     const tagFilter = urlParams.get('tag');
 
-    if (!tagFilter) {
-        pageTitle.textContent = 'No Category Specified';
-        loader.style.display = 'none';
-        articlesContainer.innerHTML = '<p>Please select a category from the homepage.</p>';
-        return;
-    }
+    // 2. Filter articles if a tag is present, otherwise use all articles
+    if (tagFilter) {
+        const formattedTag = tagFilter.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        pageTitle.innerHTML = `News in <span class="tag-highlight">${formattedTag}</span>`;
+        pageSubtitle.style.display = 'none';
 
-    // Update the page title with the selected tag
-    const formattedTag = tagFilter.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    pageTitle.innerHTML = `News in <span class="tag-highlight">${formattedTag}</span>`;
-
-    // 2. Fetch and filter articles
-    async function loadArticles() {
-        try {
-            const url = `https://api.github.com/repos/${GITHUB_CONFIG.repoOwner}/${GITHUB_CONFIG.repoName}/contents/${GITHUB_CONFIG.articlesPath}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`GitHub API error: ${response.statusText}`);
-            
-            const files = await response.json();
-            if (!Array.isArray(files)) {
-                throw new Error("No articles found in the repository path.");
-            }
-
-            const articlePromises = files.map(file => 
-                fetch(file.download_url)
-                    .then(res => res.text())
-                    .then(text => parseFrontmatter(text, file.html_url))
-            );
-
-            const allArticles = await Promise.all(articlePromises);
-
-            // Filter articles that include the specified tag
-            const filteredArticles = allArticles
-                .filter(article => article && article.tags && article.tags.includes(tagFilter))
-                .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by newest first
-
-            renderArticles(filteredArticles);
-
-        } catch (error) {
-            console.error('Error loading articles:', error);
-            articlesContainer.innerHTML = `<p style="color: red;">Could not load articles. ${error.message}</p>`;
-        } finally {
-            loader.style.display = 'none';
-        }
-    }
-
-    // 3. Helper to parse frontmatter from Markdown
-    function parseFrontmatter(text, html_url) {
-        const frontmatterMatch = text.match(/---([\s\S]*?)---/);
-        if (!frontmatterMatch) return null;
-
-        const article = { html_url };
-        const frontmatter = frontmatterMatch[1];
-        
-        frontmatter.split('\n').forEach(line => {
-            const parts = line.split(':');
-            if (parts.length >= 2) {
-                const key = parts[0].trim();
-                let value = parts.slice(1).join(':').trim();
-
-                // Clean up value and parse tags array
-                if (key === 'tags') {
-                    article[key] = value.replace(/[\[\]"]/g, '').split(',').map(t => t.trim());
-                } else {
-                    article[key] = value.replace(/"/g, '');
-                }
-            }
+        articlesToShow = allArticleCards.filter(card => {
+            const cardTags = card.dataset.tags.split(',');
+            return cardTags.includes(tagFilter);
         });
-
-        // Add a snippet of the content
-        const body = text.substring(frontmatterMatch[0].length).trim();
-        article.snippet = body.split('\n\n')[0].replace(/[#>!*]/g, '').substring(0, 150) + '...';
-
-        return article;
+    } else {
+        articlesToShow = allArticleCards;
     }
 
-    // 4. Render the filtered articles
-    function renderArticles(articles) {
-        if (articles.length === 0) {
-            articlesContainer.innerHTML = `<p>No articles found for the category "${formattedTag}".</p>`;
+    // 3. Function to load the next batch of articles
+    function loadNextBatch() {
+        if (currentIndex >= articlesToShow.length) {
+            loader.classList.remove('visible'); // No more articles to load
             return;
         }
 
-        articlesContainer.innerHTML = ''; // Clear loader
-        articles.forEach(article => {
-            const card = document.createElement('a');
-            card.className = 'article-card';
-            // Link to the actual post page, which Jekyll generates
-            const postUrl = article.html_url.replace('github.com', 'zaidalamgir.github.io').replace('/blob/', '/');
-            card.href = postUrl;
+        loader.classList.add('visible');
 
-            const placeholderImage = `https://placehold.co/600x400/3498db/ffffff?text=${encodeURIComponent(article.title || 'Article')}`;
-
-            card.innerHTML = `
-                <img src="${article.image || placeholderImage}" alt="${article.title}" class="article-card-image">
-                <div class="article-card-content">
-                    <h3>${article.title || 'Untitled Article'}</h3>
-                    <p>${article.subheadline || article.snippet}</p>
-                    <div class="article-card-meta">
-                        <span>By ${article.author || 'Staff Writer'}</span>
-                        <span>${new Date(article.date).toLocaleDateString()}</span>
-                    </div>
-                </div>
-            `;
-            articlesContainer.appendChild(card);
-        });
+        // Use a short timeout to simulate loading and prevent UI freezing
+        setTimeout(() => {
+            const nextBatch = articlesToShow.slice(currentIndex, currentIndex + BATCH_SIZE);
+            nextBatch.forEach(card => {
+                card.classList.add('visible');
+            });
+            currentIndex += BATCH_SIZE;
+            loader.classList.remove('visible');
+            
+            // If we've reached the end, hide the loader permanently
+            if (currentIndex >= articlesToShow.length) {
+                observer.disconnect(); // Stop observing
+            }
+        }, 300); // 300ms delay
     }
 
-    loadArticles();
+    // 4. Initial Load and Messages
+    if (articlesToShow.length > 0) {
+        loadNextBatch();
+    } else {
+        const message = tagFilter 
+            ? `No articles found for the category "${tagFilter.replace(/-/g, ' ')}".`
+            : "No articles have been published yet.";
+        noResultsMessage.textContent = message;
+        noResultsMessage.style.display = 'block';
+    }
+
+    // 5. Setup Intersection Observer for infinite scroll
+    const observer = new IntersectionObserver((entries) => {
+        // If the loader is intersecting and we have more posts, load the next batch
+        if (entries[0].isIntersecting) {
+            loadNextBatch();
+        }
+    }, {
+        root: null, // viewport
+        rootMargin: '0px',
+        threshold: 0.1 // Trigger when 10% of the loader is visible
+    });
+
+    // Start observing the loader element
+    if (articlesToShow.length > 0) {
+        observer.observe(loader);
+    }
 });
 </script>
-
-</body>
-</html>
