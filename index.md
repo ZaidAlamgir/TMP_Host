@@ -14,7 +14,6 @@ title: Home - The Muslim Post
 <h2>Latest Posts</h2>
 <p class="section-subtitle">Fresh insights and thoughts from our growing community of contributors.</p>
 
-    <!-- This Jekyll code automatically displays your 3 latest posts from the _posts folder -->
     <div class="posts-grid">
         {% for post in site.posts limit:3 %}
             <a href="{{ post.url | relative_url }}" class="post-card">
@@ -58,7 +57,6 @@ title: Home - The Muslim Post
 <section class="content-section news-section reveal-on-scroll">
     <h2>In the News</h2>
     <p class="section-subtitle">Stay updated with the latest trends, research, and important discussions.</p>
-    <!-- REVISED: These cards are now categories that link to a filtered news hub -->
     <div class="news-grid">
         <a href="news-hub.html?tag=world-politics" class="news-card">
             <div class="news-card-image-wrapper">
@@ -128,7 +126,6 @@ title: Home - The Muslim Post
 
 </div>
 
-<!-- This script adds the "reveal-on-scroll" animations back -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const observer = new IntersectionObserver((entries) => {

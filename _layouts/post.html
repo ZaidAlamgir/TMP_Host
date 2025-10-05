@@ -1,36 +1,112 @@
 ---
 layout: default
 ---
+
 <style>
-    /* Paste the same <style> block from latest.html here */
-    main { padding: 2rem 1rem; max-width: 740px; margin: 0 auto; }
-    .article-header { margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; }
-    .article-headline { font-size: 2.8rem; font-weight: bold; line-height: 1.2; margin-bottom: 0.5rem; }
-    .article-subheadline { font-size: 1.4rem; color: #606770; margin-top: 0; }
-    .article-meta { font-size: 0.9rem; color: #606770; margin-top: 1rem; }
-    .article-figure { margin: 2rem 0; }
-    .article-image { width: 100%; height: auto; border-radius: 8px; }
-    .article-image-caption { font-size: 0.9rem; color: #606770; text-align: center; margin-top: 0.5rem; }
-    .article-content { font-size: 1.1rem; line-height: 1.8; }
+    /* All the necessary styling for your articles, consistent with latest.html */
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
+
+    .article-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem 2rem 1rem;
+        color: #111827;
+    }
+    .article-headline {
+        font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px;
+        line-height: 1.2; margin-bottom: 0.75rem; margin-top: 0.4rem;
+    }
+    .article-subheadline {
+        font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563;
+        line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400;
+    }
+    .article-body p {
+        font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+    .article-body a { color: #1d4ed8; text-decoration: underline; }
+    .article-meta {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;
+    }
+    .author-name { font-weight: 600; font-family: 'Inter', sans-serif; }
+    .publish-date { font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif; }
+    .share-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%; background-color: #f3f4f6;
+        color: #374151; border: none; cursor: pointer; font-size: 1rem;
+    }
+    .article-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .tag {
+        background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
+        border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
+    }
+    .article-figure, .article-body img {
+        max-width: 100%; height: auto; display: block;
+        margin: 2rem auto; border-radius: 8px;
+    }
+    .article-image-caption {
+        font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280;
+        margin-top: -1.5rem; margin-bottom: 2rem; text-align: center;
+    }
+    .article-body h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1rem; }
+    .article-body blockquote { border-left: 3px solid #ccc; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #606770; }
+    @media (max-width: 768px) {
+        .article-headline { font-size: 32px; }
+        .article-subheadline { font-size: 18px; }
+    }
 </style>
 
-<article>
-    <header class="article-header">
-        <h1 class="article-headline">{{ page.title }}</h1>
-        <p class="article-subheadline">{{ page.subheadline }}</p>
-        <div class="article-meta">
-            <span>By {{ page.author | default: 'Staff Writer' }}</span> | <span>Published on {{ page.date | date: "%B %d, %Y" }}</span>
+<div class="article-container">
+    <article>
+        <header>
+            {% if page.tags and page.tags.size > 0 %}
+            <div class="article-tags">
+                {% for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+            </div>
+            {% endif %}
+            <h1 class="article-headline">{{ page.title }}</h1>
+            {% if page.subheadline %}<p class="article-subheadline">{{ page.subheadline }}</p>{% endif %}
+            <div class="article-meta">
+                <div>
+                    <div class="author-name">By {{ page.author | default: 'Staff Writer' }}</div>
+                    <div class="publish-date">{{ page.date | date: "%B %d, %Y" }}</div>
+                </div>
+                <div>
+                    <button id="native-share-button" class="share-btn" title="Share article"><i class="fas fa-share-alt"></i></button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="article-body">
+            {% if page.image %}
+            <figure class="article-figure">
+                <img src="{{ page.image }}" alt="{{ page.image_description | default: 'Article main image' }}">
+                {% if page.image_description %}<figcaption class="article-image-caption">{{ page.image_description }}</figcaption>{% endif %}
+            </figure>
+            {% endif %}
+            {{ content }}
         </div>
-    </header>
+    </article>
+</div>
 
-    {% if page.image %}
-    <figure class="article-figure">
-        <img src="{{ page.image }}" alt="{{ page.image_description | default: 'Article main image' }}" class="article-image">
-        <figcaption class="article-image-caption">{{ page.image_description }}</figcaption>
-    </figure>
-    {% endif %}
-
-    <section class="article-content">
-        {{ content }}
-    </section>
-</article>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const shareButton = document.getElementById('native-share-button');
+    if (shareButton) {
+        shareButton.addEventListener('click', async () => {
+            const shareData = { title: "{{ page.title | escape }}", text: "Read: \"{{ page.title | escape }}\"", url: window.location.href };
+            if (navigator.share) {
+                try { await navigator.share(shareData); } catch (err) { console.error('Share failed:', err.message); }
+            } else {
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    const originalIcon = shareButton.innerHTML;
+                    shareButton.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => { shareButton.innerHTML = originalIcon; }, 2000);
+                } catch (err) { alert('Could not copy link.'); }
+            }
+        });
+    }
+});
+</script>

@@ -1,32 +1,23 @@
 ---
 layout: default
-title: News Hub
 ---
 
 <style>
-    /* Styles for the News Hub Page */
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@900&family=Inter:wght@400&display=swap');
     main { padding: 2rem 1rem 80px 1rem; max-width: 900px; margin: 0 auto; }
     .page-header { text-align: center; margin-bottom: 2.5rem; }
     .page-header h1 { font-size: 2.5rem; color: #1c1e21; }
     .page-header .tag-highlight { color: #0073e6; }
     .page-header p { font-size: 1.1rem; color: #606770; margin-top: 0.5rem; }
-
     .news-grid-full { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
-
     .news-card {
         background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        /* NEW: Hide cards by default for JS loading */
         display: none;
     }
-    .news-card.visible {
-        /* NEW: Use flex for visible cards */
-        display: flex;
-    }
-
+    .news-card.visible { display: flex; }
     .news-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
-
     .news-card .news-card-image-wrapper {
         overflow: hidden; width: 100%; height: 220px; background-color: #e2e8f0;
     }
@@ -34,14 +25,17 @@ title: News Hub
         width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;
     }
     .news-card:hover .news-card-image { transform: scale(1.05); }
-
-    .news-card-text { padding: 1.5rem; }
-    .news-card-headline { font-size: 1.3rem; font-weight: 600; color: #1c1e21; margin-bottom: 0.5rem; }
-    .news-card-subheadline { font-size: 1rem; color: #606770; line-height: 1.5; }
-
+    .news-card-text { padding: 1rem 1.5rem; }
+    .news-card-headline {
+        font-family: 'Merriweather', serif; font-weight: 900;
+        font-size: 1.5rem; color: #1c1e21;
+        margin-bottom: 0.5rem; line-height: 1.3;
+    }
+    .news-card-subheadline {
+        font-family: 'Inter', sans-serif; font-weight: 400;
+        font-size: 1rem; color: #606770; line-height: 1.6;
+    }
     .no-results-message { text-align: center; color: #606770; padding: 2rem; }
-
-    /* NEW: Loader for infinite scroll */
     .loader {
         display: none; margin: 2rem auto; border: 4px solid #f3f3f3;
         border-top: 4px solid #0073e6; border-radius: 50%;
@@ -49,11 +43,9 @@ title: News Hub
     }
     .loader.visible { display: block; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-
     @media (min-width: 768px) {
         .news-card { flex-direction: row; }
-        .news-card.visible { display: flex; } /* Ensure it works on desktop too */
+        .news-card.visible { display: flex; }
         .news-card .news-card-image-wrapper { width: 300px; height: auto; flex-shrink: 0; }
         .news-card-text { display: flex; flex-direction: column; justify-content: center; }
     }
@@ -86,7 +78,6 @@ title: News Hub
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const articlesGrid = document.getElementById('articles-grid');
     const allArticleCards = Array.from(document.querySelectorAll('.news-card'));
     const pageTitle = document.getElementById('page-title');
     const pageSubtitle = document.getElementById('page-subtitle');
@@ -97,11 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let articlesToShow = [];
     let currentIndex = 0;
 
-    // 1. Get the tag from the URL query parameter
     const urlParams = new URLSearchParams(window.location.search);
     const tagFilter = urlParams.get('tag');
 
-    // 2. Filter articles if a tag is present, otherwise use all articles
     if (tagFilter) {
         const formattedTag = tagFilter.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         pageTitle.innerHTML = `News in <span class="tag-highlight">${formattedTag}</span>`;
@@ -115,32 +104,23 @@ document.addEventListener('DOMContentLoaded', () => {
         articlesToShow = allArticleCards;
     }
 
-    // 3. Function to load the next batch of articles
     function loadNextBatch() {
         if (currentIndex >= articlesToShow.length) {
-            loader.classList.remove('visible'); // No more articles to load
+            loader.classList.remove('visible');
             return;
         }
-
         loader.classList.add('visible');
-
-        // Use a short timeout to simulate loading and prevent UI freezing
         setTimeout(() => {
             const nextBatch = articlesToShow.slice(currentIndex, currentIndex + BATCH_SIZE);
-            nextBatch.forEach(card => {
-                card.classList.add('visible');
-            });
+            nextBatch.forEach(card => card.classList.add('visible'));
             currentIndex += BATCH_SIZE;
             loader.classList.remove('visible');
-            
-            // If we've reached the end, hide the loader permanently
             if (currentIndex >= articlesToShow.length) {
-                observer.disconnect(); // Stop observing
+                observer.disconnect();
             }
-        }, 300); // 300ms delay
+        }, 300);
     }
 
-    // 4. Initial Load and Messages
     if (articlesToShow.length > 0) {
         loadNextBatch();
     } else {
@@ -151,19 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
         noResultsMessage.style.display = 'block';
     }
 
-    // 5. Setup Intersection Observer for infinite scroll
     const observer = new IntersectionObserver((entries) => {
-        // If the loader is intersecting and we have more posts, load the next batch
         if (entries[0].isIntersecting) {
             loadNextBatch();
         }
-    }, {
-        root: null, // viewport
-        rootMargin: '0px',
-        threshold: 0.1 // Trigger when 10% of the loader is visible
-    });
+    }, { root: null, rootMargin: '0px', threshold: 0.1 });
 
-    // Start observing the loader element
     if (articlesToShow.length > 0) {
         observer.observe(loader);
     }
