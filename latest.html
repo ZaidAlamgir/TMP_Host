@@ -8,9 +8,19 @@ title: Latest Article
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
 
+    /* --- Base Wrapper --- */
     .article-wrapper {
         background: transparent;
         color: #111827;
+        margin: 0 auto;
+        padding: 0 1rem;
+        max-width: 1200px; /* Sets the maximum width for the entire page content */
+    }
+    
+    /* NEW: Container to keep text at a readable width */
+    .article-text-container {
+        max-width: 740px;
+        margin: 0 auto;
     }
 
     /* =================================================================== */
@@ -41,7 +51,7 @@ title: Latest Article
     }
     .article-body a:hover { color: #1e3a8a; }
 
-    /* --- UPDATED: ARTICLE META & SHARE SECTION --- */
+    /* --- ARTICLE META & SHARE SECTION --- */
     .article-meta {
         display: flex; justify-content: space-between; align-items: center;
         margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;
@@ -52,23 +62,16 @@ title: Latest Article
     .article-meta .publish-date {
         font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif;
     }
-    .share-container { display: flex; } /* Wrapper for the share button */
-
-    /* NEW: Style for the single, professional share button */
+    .share-container { display: flex; }
     .share-btn {
         display: inline-flex; align-items: center; justify-content: center;
         width: 36px; height: 36px; border-radius: 50%;
-        background-color: #f3f4f6; /* Neutral light gray */
-        color: #374151; /* Dark gray icon */
-        border: none;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: all 0.2s;
-        text-decoration: none;
+        background-color: #f3f4f6; color: #374151;
+        border: none; cursor: pointer; font-size: 1rem;
+        transition: all 0.2s; text-decoration: none;
     }
     .share-btn:hover {
-        background-color: #e5e7eb; /* Slightly darker gray on hover */
-        transform: translateY(-2px);
+        background-color: #e5e7eb; transform: translateY(-2px);
     }
     
     /* --- GENERAL ARTICLE ELEMENT STYLES --- */
@@ -77,14 +80,22 @@ title: Latest Article
         background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
         border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
     }
-
-    .article-body img, .article-figure img {
-        max-width: 100%; height: auto; display: block;
-        margin: 2rem auto; border-radius: 4px;
+    
+    /* MODIFIED: Figure styles for the wider image layout */
+    .article-figure {
+        margin: 2rem 0; /* Only vertical margin */
+        width: 100%; /* Take full width of the .article-wrapper */
     }
-    .article-body figcaption, .article-image-caption {
+    .article-figure img {
+        width: 100%; /* Make image fill the figure */
+        height: auto;
+        display: block;
+        border-radius: 8px; /* Subtle rounding */
+    }
+
+    .article-image-caption {
         font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280;
-        margin-top: -1.5rem; margin-bottom: 2rem; text-align: center; display: block;
+        margin-top: 0.75rem; margin-bottom: 2rem; text-align: center; display: block;
     }
     
     .article-body h2 {
@@ -123,51 +134,55 @@ title: Latest Article
 <div class="article-wrapper">
     {% if latest_post %}
         <article>
-            <header>
-                {% if latest_post.tags and latest_post.tags.size > 0 %}
-                <div class="article-tags">
-                    {% for tag in latest_post.tags %}
-                        <span class="tag">{{ tag }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                
-                {% assign headline_length = latest_post.title | size %}
-                <h1 class="article-headline {% if headline_length > 80 %}very-long-headline{% elsif headline_length > 50 %}long-headline{% endif %}">
-                    {{ latest_post.title }}
-                </h1>
-
-                {% if latest_post.subheadline %}
-                    {% assign subheadline_length = latest_post.subheadline | size %}
-                    <p class="article-subheadline {% if subheadline_length > 200 %}long-subheadline{% endif %}">
-                        {{ latest_post.subheadline }}
-                    </p>
-                {% endif %}
-
-                <div class="article-meta">
-                    <div class="meta-info">
-                        <div class="author-name">By {{ latest_post.author | default: 'Staff Writer' }}</div>
-                        <div class="publish-date">{{ latest_post.date | date: "%B %d, %Y" }}</div>
+            <div class="article-text-container">
+                <header>
+                    {% if latest_post.tags and latest_post.tags.size > 0 %}
+                    <div class="article-tags">
+                        {% for tag in latest_post.tags %}
+                            <span class="tag">{{ tag }}</span>
+                        {% endfor %}
                     </div>
-                    <div class="share-container">
-                        <button id="native-share-button" class="share-btn" title="Share article">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            </header>
-            
-            <div class="article-body">
-                {% if latest_post.image %}
-                <figure class="article-figure">
-                    <img src="{{ latest_post.image }}" alt="{{ latest_post.image_description | default: 'Article main image' }}">
-                    {% if latest_post.image_description %}
-                        <figcaption class="article-image-caption">{{ latest_post.image_description }}</figcaption>
                     {% endif %}
-                </figure>
-                {% endif %}
+                    
+                    {% assign headline_length = latest_post.title | size %}
+                    <h1 class="article-headline {% if headline_length > 80 %}very-long-headline{% elsif headline_length > 50 %}long-headline{% endif %}">
+                        {{ latest_post.title }}
+                    </h1>
 
-                {{ latest_post.content | markdownify }}
+                    {% if latest_post.subheadline %}
+                        {% assign subheadline_length = latest_post.subheadline | size %}
+                        <p class="article-subheadline {% if subheadline_length > 200 %}long-subheadline{% endif %}">
+                            {{ latest_post.subheadline }}
+                        </p>
+                    {% endif %}
+
+                    <div class="article-meta">
+                        <div class="meta-info">
+                            <div class="author-name">By {{ latest_post.author | default: 'Staff Writer' }}</div>
+                            <div class="publish-date">{{ latest_post.date | date: "%B %d, %Y" }}</div>
+                        </div>
+                        <div class="share-container">
+                            <button id="native-share-button" class="share-btn" title="Share article">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+            </div>
+            
+            {% if latest_post.image %}
+            <figure class="article-figure">
+                <img src="{{ latest_post.image }}" alt="{{ latest_post.image_description | default: 'Article main image' }}">
+                {% if latest_post.image_description %}
+                    <figcaption class="article-image-caption">{{ latest_post.image_description }}</figcaption>
+                {% endif %}
+            </figure>
+            {% endif %}
+
+            <div class="article-text-container">
+                <div class="article-body">
+                    {{ latest_post.content | markdownify }}
+                </div>
             </div>
             
         </article>
@@ -190,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 url: postUrl,
             };
 
-            // Use the Web Share API if available
             if (navigator.share) {
                 try {
                     await navigator.share(shareData);
@@ -198,21 +212,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Share failed:', err.message);
                 }
             } else {
-                // Fallback for desktop browsers: copy link to clipboard
                 try {
                     await navigator.clipboard.writeText(postUrl);
-                    
-                    // Provide visual feedback to the user
                     const originalIcon = shareButton.innerHTML;
                     shareButton.innerHTML = '<i class="fas fa-check"></i>';
                     shareButton.title = 'Link copied!';
-                    
                     setTimeout(() => {
                         shareButton.innerHTML = originalIcon;
                         shareButton.title = 'Share article';
-                    }, 2000); // Revert after 2 seconds
+                    }, 2000);
                 } catch (err) {
-                    // Final fallback if clipboard fails
                     alert('Could not copy link. Please copy the URL from the address bar.');
                 }
             }
