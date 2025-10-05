@@ -128,9 +128,10 @@ function renderSupabaseHeader(user, base_path) {
     const headerPlaceholder = document.getElementById('header-placeholder');
     if (!headerPlaceholder) return;
     const isUserLoggedIn = !!user;
-    // Use relative paths instead of absolute ones. This works correctly for both
-    // Jekyll-generated pages and static HTML files like post.html.
-    const mainIconLink = isUserLoggedIn ? `profile.html` : `auth.html`;
+    
+    // THIS IS THE FIX: Ensure all links are absolute by prepending the base_path
+    const mainIconLink = isUserLoggedIn ? `${base_path}/profile.html` : `${base_path}/auth.html`;
+    
     const supabaseHeaderHTML = `
         <header class="header">
             <div class="header-content">
@@ -173,7 +174,6 @@ function renderSupabaseHeader(user, base_path) {
     
     headerPlaceholder.innerHTML = supabaseHeaderHTML;
 
-    // --- Safely attach all event listeners for the index menu ---
     const indexMenuBtn = document.getElementById('index-menu-btn');
     const indexMenuOverlay = document.getElementById('index-menu-overlay');
     const searchBox = document.getElementById('index-search-box');
@@ -234,7 +234,7 @@ function renderSupabaseHeader(user, base_path) {
     
     if (isUserLoggedIn && !user.photoURL) {
         const profileInitialCircle = document.getElementById('profile-initial-circle');
-        const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase(); // Supabase user object has displayName in cache
+        const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
         profileInitialCircle.textContent = initial;
         profileInitialCircle.style.backgroundColor = generateColorForUser(user.uid);
         profileInitialCircle.style.width = '35px';
@@ -249,9 +249,8 @@ function renderSupabaseHeader(user, base_path) {
     }
 }
 
-// --- CONTROLLER 2: Initializes the Supabase Header with Caching ---
 function initializeSupabaseHeader(base_path, forceRerender = false) {
-    const basePath = base_path; // Keep a local copy
+    const basePath = base_path;
     const CACHED_USER_KEY = 'cachedUser';
 
     let cachedUser = null;
@@ -265,11 +264,8 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
         localStorage.removeItem(CACHED_USER_KEY);
     }
 
-    // Always render the header immediately.
-    // The render function itself will correctly display a login or profile icon based on the cachedUser.
     renderSupabaseHeader(cachedUser, basePath);
 
-    // VERIFY IN BACKGROUND
     const supabase = window.supabase?.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
     if (supabase) {
         supabase.auth.onAuthStateChange((event, session) => {
@@ -281,56 +277,42 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
                     email: user.email, 
                     photoURL: user.user_metadata?.avatar_url 
                 };
-                 // Re-render if forced, or if the verified user state is different from the cache.
                  if (forceRerender || JSON.stringify(userToCache) !== JSON.stringify(cachedUser)) {
-                    renderSupabaseHeader(userToCache, basePath); // Re-render if state changed
+                    renderSupabaseHeader(userToCache, basePath);
                  }
                  localStorage.setItem(CACHED_USER_KEY, JSON.stringify(userToCache));
-            } else { // User is logged out
-                if (cachedUser) renderSupabaseHeader(null, basePath); // Re-render if state changed to logged out
+            } else {
+                if (cachedUser) renderSupabaseHeader(null, basePath);
                 localStorage.removeItem(CACHED_USER_KEY);
             }
         });
     }
 }
 
-// --- MAIN EXECUTION: The "Traffic Controller" ---
 document.addEventListener('DOMContentLoaded', function() {
     const pathname = window.location.pathname;
     const base_path = document.body.getAttribute('data-base-path') || '';
 
-    // If we are on the auth page, do not render any header.
-    // This provides a clean, modal-like login experience.
     if (pathname.includes('/auth.html')) {
         return;
     }
 
-    // On the profile page, we must wait for the page's own script to initialize the header.
-    // This prevents a race condition where the header might render with stale cached data.
     if (pathname.includes('/profile.html')) {
         return;
     }
 
-    // Check if the current page is one of the writer/admin CMS pages.
     const isWriterPage = pathname.includes('/cms.html') || pathname.includes('/liveCMS.html');
 
     if (isWriterPage) {
-        // On writer-specific pages, show the header with the writer login prompt.
         renderWriterHeader(base_path);
     } else {
-        // On all other public-facing pages, show the universal header for public users.
         initializeSupabaseHeader(base_path);
     }
 });
 
-// --- FIX FOR BROWSER BACK/FORWARD CACHE (bfcache) ---
-// This ensures the header is always correct, even when a user navigates using the back button.
 window.addEventListener('pageshow', function(event) {
-    // The `persisted` property is true if the page was loaded from the bfcache.
     if (event.persisted) {
-        // The page is from the cache, so DOMContentLoaded won't fire again.
-        // We need to manually re-initialize the header to reflect the current login state.
         const base_path = document.body.getAttribute('data-base-path') || '';
-        initializeSupabaseHeader(base_path, true); // Force a re-render
+        initializeSupabaseHeader(base_path, true);
     }
 });

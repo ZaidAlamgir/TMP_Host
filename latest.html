@@ -1,5 +1,9 @@
 ---
-layout: post_layout
+layout: default
+title: Latest Article
+permalink: /latest/
+redirect_to:
+  - "{{ site.posts.first.url }}"
 ---
 
 {% assign latest_post = site.posts.first %}
@@ -9,7 +13,7 @@ layout: post_layout
 
     /* FIX #1: Removed top padding to eliminate gap below header */
     .article-container {
-        max-width: 1500px;
+        max-width: 1000px;
         margin: 0 auto;
         padding: 0 1rem 2rem 1rem; /* Top padding is now 0 */
         background: transparent;
@@ -23,7 +27,7 @@ layout: post_layout
     /* --- TYPOGRAPHY --- */
     .article-headline {
         font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px;
-        color: #111827; line-height: 1.2; margin-bottom: 0.75rem; margin-top: 0.4rem;
+        color: #111827; line-height: 1.2; margin-bottom: 0.75rem; margin-top: 0.2rem;
     }
     .article-headline.long-headline { font-size: 45px; }
     .article-headline.very-long-headline { font-size: 38px; }
@@ -73,6 +77,7 @@ layout: post_layout
         flex-wrap: wrap; 
         gap: 0.5rem; 
         margin-bottom: 0.5rem; /* Reduced from 2rem */
+        margin-top: 0.5rem;
     }
     .tag {
         background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;

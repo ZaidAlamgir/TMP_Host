@@ -9,12 +9,11 @@
     <link rel="stylesheet" href="{{ '/assets/style/home.css' | relative_url }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
-    <!-- This loop will include any extra CSS files defined in a page's front matter -->
     {% for css_file in page.extra_css %}
         <link rel="stylesheet" href="{{ css_file | relative_url }}">
     {% endfor %}
 </head>
-<body class="{{ page.body_class }}" data-base-path="{{ site.baseurl }}">
+<body class="{{ page.body_class }}" data-base-path="{{ site.baseurl }}" data-latest-post-url="{{ site.posts.first.url | relative_url }}">
     <div id="header-placeholder"></div>
     
     {{ content }}
@@ -24,7 +23,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="{{ '/assets/header-injector.js' | relative_url }}"></script>
     <script src="{{ '/assets/bottom-nav.js' | relative_url }}"></script>
-    <!-- This loop will include any extra JS files defined in a page's front matter -->
     {% for js_file in page.extra_js %}
         <script src="{{ js_file | relative_url }}"></script>
     {% endfor %}

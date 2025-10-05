@@ -1,5 +1,6 @@
 title: The Muslim Post
 description: "Join a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective."
+permalink: /:title.html
 
 baseurl: "" 
 url: "https://www.tmpnews.com"

@@ -1,20 +1,22 @@
 ---
+# This is the most important line. It tells Jekyll to use your main
+# default.html file as the base, which includes the header and footer.
 layout: default
 ---
 
 <style>
-    /* All the necessary styling for your articles, consistent with latest.html */
+    /* This styling is copied from latest.html to ensure a consistent design */
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
 
     .article-container {
         max-width: 1000px;
         margin: 0 auto;
-        padding: 0 1rem 2rem 1rem;
+        padding: 0.5rem 1rem 2rem 1rem;
         color: #111827;
     }
     .article-headline {
         font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px;
-        line-height: 1.2; margin-bottom: 0.75rem; margin-top: 0.4rem;
+        line-height: 1.2; margin-bottom: 0.75rem;
     }
     .article-subheadline {
         font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563;
@@ -40,6 +42,7 @@ layout: default
     .tag {
         background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
         border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
+        margin-bottom: -0.8rem;
     }
     .article-figure, .article-body img {
         max-width: 100%; height: auto; display: block;
@@ -54,6 +57,22 @@ layout: default
     @media (max-width: 768px) {
         .article-headline { font-size: 32px; }
         .article-subheadline { font-size: 18px; }
+    }
+    
+    .site-footer {
+        background-color: #ffffff;
+        padding: 2rem 1rem;
+        text-align: center;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 2rem;
+    }
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .footer-disclaimer {
+        color: #6b7280;
+        font-size: 0.875rem;
     }
 </style>
 
@@ -110,3 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+
+<footer class="site-footer">
+    <div class="footer-content">
+        <div class="footer-disclaimer">
+            &copy; {{ site.time | date: '%Y' }} The Muslim Post. All rights reserved. Content on this site is protected by copyright law.
+        </div>
+    </div>
+</footer>

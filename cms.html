@@ -85,6 +85,12 @@
                 <label for="article-main-image-desc" class="block text-sm font-medium text-slate-700 mb-1">Main Image Description</label>
                 <textarea id="article-main-image-desc" rows="1" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="A short description of the main image (for accessibility)"></textarea>
             </div>
+            
+            <div class="mb-6">
+                <label for="article-author" class="block text-sm font-medium text-slate-700 mb-1">Author Name</label>
+                <input type="text" id="article-author" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="By TMP Staff">
+            </div>
+
             <hr class="my-6">
             <div class="mb-4">
                 <label for="article-p1" class="block text-sm font-medium text-slate-700 mb-1">Article Paragraph 1</label>
@@ -227,12 +233,9 @@
 
         // --- EVENT LISTENERS ---
         
-        // LOGIN BUTTON FIX: This version restores the logic to save the return destination.
         loginButton.addEventListener('click', () => {
             const finalDestination = window.location.origin + window.location.pathname;
             localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'main_cms' }));
-            
-            // This URL does not send the redirect_uri, allowing your worker flow to function as intended.
             const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&scope=repo,user:email&state=main_cms`;
             window.location.href = authUrl;
         });
@@ -344,6 +347,10 @@
             const subheadline = document.getElementById('article-subheadline').value.trim();
             const mainImageUrl = document.getElementById('article-main-image-url').value.trim();
             const mainImageDesc = document.getElementById('article-main-image-desc').value.trim();
+            
+            // NEW: Get the author name
+            const authorName = document.getElementById('article-author').value.trim();
+            
             const tags = tagsInput.value.trim();
             let frontmatter = `---\n`;
             frontmatter += `title: "${headline.replace(/"/g, '\\"')}"\n`;
@@ -353,7 +360,10 @@
             if (mainImageDesc) frontmatter += `image_description: "${mainImageDesc.replace(/"/g, '\\"')}"\n`;
             const tagList = tags.split(',').map(tag => tag.trim().toLowerCase().replace(/\s+/g, '-')).filter(t => t);
             if (tagList.length > 0) frontmatter += `tags: [${tagList.join(', ')}]\n`;
-            frontmatter += `author: "Journalist"\n`;
+            
+            // UPDATED: Use the new author name
+            frontmatter += `author: "${authorName.replace(/"/g, '\\"')}"\n`;
+            
             frontmatter += `layout: post\n`;
             frontmatter += `---\n\n`;
             let body = `${paragraph1}\n\n`;
@@ -394,6 +404,7 @@
                     updateStatus(`Successfully published: ${filename}`, 'green');
                     editorView.querySelectorAll('input, textarea').forEach(el => el.value = '');
                     dynamicBlocksContainer.innerHTML = '';
+                    document.getElementById('article-author').value = 'By TMP Staff'; // Reset author field to default
                     document.querySelectorAll('textarea').forEach(autoExpandTextarea);
                 } else {
                     const error = await response.json();
