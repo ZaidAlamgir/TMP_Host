@@ -152,14 +152,17 @@
     padding: 10px 40px;
     position: relative;
     width: 50%;
+    box-sizing: border-box;
 }
 
 .timeline-item.left {
     left: 0;
+    padding-right: 30px;
 }
 
 .timeline-item.right {
     left: 50%;
+    padding-left: 70px;
 }
 
 .timeline-item::after {

@@ -29,7 +29,23 @@ function renderWriterHeader(base_path) {
                     </button>
                 </div>
                 <div class="header-center">
-                    <a href="${base_path}/" class="logo">The Muslim Post</a>
+                    <a href="${base_path}/" class="logo">
+                        <svg class="vector-animation" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+                            <defs>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
+                            <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
+                        </svg>
+                        The Muslim Post
+                    </a>
                 </div>
                 <div class="header-right">
                     <a id="writer-login-btn" class="user-icon-link" href="#" title="Writer Login">
@@ -142,7 +158,23 @@ function renderSupabaseHeader(user, base_path) {
                     </button>
                 </div>
                 <div class="header-center">
-                    <a href="${base_path}/" class="logo">The Muslim Post</a>
+                    <a href="${base_path}/" class="logo">
+                        <svg class="vector-animation" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+                            <defs>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
+                            <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
+                        </svg>
+                        The Muslim Post
+                    </a>
                 </div>
                 <div class="header-right">
                     <a href="${mainIconLink}" class="user-icon-link">
@@ -266,7 +298,7 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
 
     renderSupabaseHeader(cachedUser, basePath);
 
-    const supabase = window.supabase?.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
+    const supabase = window.supabase?.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzIifQ.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
     if (supabase) {
         supabase.auth.onAuthStateChange((event, session) => {
             const user = session?.user;

@@ -1,6 +1,9 @@
-title: The Muslim Post
-description: "Join a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective."
+title: The Muslim Post | TMP News
+description: "The Muslim Post (TMP News) is a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective on World Politics, Indian Politics, and the Muslim World."
 permalink: /:title.html
+
+# Site-wide SEO keywords
+keywords: ["The Muslim Post", "TMP News", "Muslim post", "World Politics", "Indian Politics", "Muslim World", "Technology", "Global Economy"]
 
 # Add this section to explicitly enable the sitemap plugin
 plugins:
@@ -27,9 +30,6 @@ include:
   - liveCMS.html
 
 # Exclude from processing.
-# The following items will not be processed, by default.
-# Exclude from processing.
-# The following items will not be processed.
 exclude:
   - .sass-cache/
   - .jekyll-cache/

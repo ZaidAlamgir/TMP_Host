@@ -62,4 +62,36 @@ body {
     color: #000;
     text-decoration: none;
     pointer-events: all;
+    display: flex;
+    align-items: center;
+}
+
+/* --- NEW styles for your custom SVG logo --- */
+.logo .vector-animation {
+    height: 1.5em; /* Controls the overall size */
+    width: auto;
+    margin-right: 8px;
+    filter: none; /* Removing drop-shadow for a cleaner header look */
+    color: #3498db; /* Default color for the logo elements */
+}
+
+.logo .tmp-text {
+    font-size: 80px;
+    font-weight: bold;
+    fill: #0a0707; /* Your specified text color */
+}
+
+.logo .square {
+    fill: currentColor; /* Use the parent color */
+}
+
+.logo .rotating-circle {
+    transform-origin: center;
+    animation: rotate 10s linear infinite;
+    stroke: currentColor; /* Use the parent color */
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
