@@ -26,7 +26,7 @@ body {
     justify-content: space-between;
     align-items: center;
     height: 40px;
-    padding: 0 1rem;
+    padding: 0 0.75rem; /* Reduced padding to give more space */
 }
 
 .header-left, .header-right {
@@ -48,8 +48,8 @@ body {
 
 .logo {
     font-family: 'Playfair Display', serif;
-    /* Responsive font size that scales with the screen width */
-    font-size: clamp(1.25rem, 4.5vw, 1.75rem); 
+    /* NEW Responsive Font Size: Starts bigger on mobile (1.4rem) and scales up */
+    font-size: clamp(1.4rem, 5vw, 1.75rem); 
     font-weight: 600;
     color: #000;
     text-decoration: none;
@@ -60,7 +60,7 @@ body {
 }
 
 .logo .vector-animation {
-    height: 1.5em; /* Size is relative to the new responsive font size */
+    height: 1.4em; /* Size is relative to the new responsive font size */
     width: auto;
     margin-right: 0.5em;
     flex-shrink: 0; /* Prevents the SVG logo itself from being squished */
