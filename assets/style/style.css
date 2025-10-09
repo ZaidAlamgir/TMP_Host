@@ -12,10 +12,8 @@ body {
 }
 
 /* --- Master Header Styles --- */
-
-/* This provides the main 3-column layout for the header */
 .header {
-    border-bottom: 1px solid #0a0909;
+    border-bottom: 1px solid #e5e7eb;
     padding: 5px 0;
     background-color: #fff;
     position: sticky;
@@ -29,68 +27,60 @@ body {
     align-items: center;
     height: 40px;
     padding: 0 1rem;
-    position: relative;
 }
 
 .header-left, .header-right {
     display: flex;
     align-items: center;
-    /* Allow the side elements to shrink if needed, but have a base size */
-    flex: 1 1 0%;
-}
-
-.header-left { 
-    justify-content: flex-start; 
-}
-
-.header-right { 
-    justify-content: flex-end; 
+    /* Give the sides a basis but allow them to shrink */
+    flex: 0 1 auto;
 }
 
 .header-center { 
     display: flex;
     justify-content: center;
-    /* Allow the center logo to shrink more aggressively than the sides */
-    flex: 2 1 0%;
-    min-width: 0; /* This is crucial for allowing flex items to shrink below their content size */
+    align-items: center;
+    /* Allow the center to grow and shrink */
+    flex: 1 1 auto; 
+    min-width: 0; /* CRUCIAL: Allows the logo container to shrink below its content's natural width */
+    padding: 0 0.5rem; /* Add some space between logo and side icons */
 }
 
 .logo {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(1rem, 4vw, 1.75rem); /* Auto-adjusting font size */
+    /* Responsive font size that scales with the screen width */
+    font-size: clamp(1.25rem, 4.5vw, 1.75rem); 
     font-weight: 600;
     color: #000;
     text-decoration: none;
-    pointer-events: all;
     display: flex;
     align-items: center;
-    white-space: nowrap; /* Prevents text from wrapping */
+    white-space: nowrap; /* Prevents "The Muslim Post" from wrapping to a new line */
+    overflow: hidden; /* Hides any text that might overflow on extreme sizes */
 }
 
-/* --- styles for your custom SVG logo --- */
 .logo .vector-animation {
-    height: 1.5em; /* Controls the overall size */
+    height: 1.5em; /* Size is relative to the new responsive font size */
     width: auto;
-    margin-right: 8px;
-    filter: none; /* Removing drop-shadow for a cleaner header look */
-    color: #3498db; /* Default color for the logo elements */
-    flex-shrink: 0; /* Prevent the SVG from shrinking */
+    margin-right: 0.5em;
+    flex-shrink: 0; /* Prevents the SVG logo itself from being squished */
+    color: #3498db;
 }
 
 .logo .tmp-text {
     font-size: 80px;
     font-weight: bold;
-    fill: #0a0707; /* Your specified text color */
+    fill: #0a0707;
 }
 
 .logo .square {
-    fill: currentColor; /* Use the parent color */
+    fill: currentColor;
 }
 
 .logo .rotating-circle {
     transform-origin: center;
     animation: rotate 10s linear infinite;
-    stroke: currentColor; /* Use the parent color */
+    stroke: currentColor;
 }
 
 @keyframes rotate {
@@ -106,7 +96,7 @@ body {
 }
 
 #profile-pic-img {
-    object-fit: cover; /* Ensures the image covers the circle without distortion */
+    object-fit: cover;
 }
 
 #profile-initial-circle {
@@ -118,13 +108,11 @@ body {
     color: white;
 }
 
-/* --- Responsive Fix for Small Screens --- */
-@media (max-width: 420px) {
+/* --- Final Fallback for extremely small screens --- */
+@media (max-width: 360px) {
     .logo .logo-text {
-        /* On very small screens, hide the text as a final fallback */
-        display: none;
+        display: none; /* Only hide the text on the smallest phones */
     }
-
     .logo .vector-animation {
         margin-right: 0;
     }
