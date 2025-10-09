@@ -35,7 +35,8 @@ body {
 .header-left, .header-right {
     display: flex;
     align-items: center;
-    flex: 1;
+    /* Allow the side elements to shrink if needed, but have a base size */
+    flex: 1 1 0%;
 }
 
 .header-left { 
@@ -49,30 +50,31 @@ body {
 .header-center { 
     display: flex;
     justify-content: center;
-    position: absolute;
-    width: 100%;
-    left: 0;
-    pointer-events: none;
+    /* Allow the center logo to shrink more aggressively than the sides */
+    flex: 2 1 0%;
+    min-width: 0; /* This is crucial for allowing flex items to shrink below their content size */
 }
 
 .logo {
     font-family: 'Playfair Display', serif;
-    font-size: 28px;
+    font-size: clamp(1rem, 4vw, 1.75rem); /* Auto-adjusting font size */
     font-weight: 600;
     color: #000;
     text-decoration: none;
     pointer-events: all;
     display: flex;
     align-items: center;
+    white-space: nowrap; /* Prevents text from wrapping */
 }
 
-/* --- NEW styles for your custom SVG logo --- */
+/* --- styles for your custom SVG logo --- */
 .logo .vector-animation {
     height: 1.5em; /* Controls the overall size */
     width: auto;
     margin-right: 8px;
     filter: none; /* Removing drop-shadow for a cleaner header look */
     color: #3498db; /* Default color for the logo elements */
+    flex-shrink: 0; /* Prevent the SVG from shrinking */
 }
 
 .logo .tmp-text {
@@ -94,4 +96,36 @@ body {
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+/* --- Profile Icon Sizing Fix --- */
+#profile-pic-container, #profile-pic-img, #profile-initial-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+#profile-pic-img {
+    object-fit: cover; /* Ensures the image covers the circle without distortion */
+}
+
+#profile-initial-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+}
+
+/* --- Responsive Fix for Small Screens --- */
+@media (max-width: 420px) {
+    .logo .logo-text {
+        /* On very small screens, hide the text as a final fallback */
+        display: none;
+    }
+
+    .logo .vector-animation {
+        margin-right: 0;
+    }
 }

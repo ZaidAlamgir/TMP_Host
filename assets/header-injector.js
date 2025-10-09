@@ -44,7 +44,7 @@ function renderWriterHeader(base_path) {
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
                             <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
                         </svg>
-                        The Muslim Post
+                        <span class="logo-text">The Muslim Post</span>
                     </a>
                 </div>
                 <div class="header-right">
@@ -145,7 +145,6 @@ function renderSupabaseHeader(user, base_path) {
     if (!headerPlaceholder) return;
     const isUserLoggedIn = !!user;
     
-    // THIS IS THE FIX: Ensure all links are absolute by prepending the base_path
     const mainIconLink = isUserLoggedIn ? `${base_path}/profile.html` : `${base_path}/auth.html`;
     
     const supabaseHeaderHTML = `
@@ -173,7 +172,7 @@ function renderSupabaseHeader(user, base_path) {
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
                             <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
                         </svg>
-                        The Muslim Post
+                        <span class="logo-text">The Muslim Post</span>
                     </a>
                 </div>
                 <div class="header-right">
@@ -183,7 +182,7 @@ function renderSupabaseHeader(user, base_path) {
                                 <circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="10" r="3"></circle><path d="M6 18c0-3 6-3 6-3s6 0 6 3"></path>
                             </svg>
                         </div>
-                        <div id="profile-pic-container" style="display: ${isUserLoggedIn ? 'block' : 'none'};">
+                        <div id="profile-pic-container" style="display: ${isUserLoggedIn ? 'flex' : 'none'};">
                             <img id="profile-pic-img" src="${user?.photoURL || ''}" alt="Profile" style="display: ${user?.photoURL ? 'block' : 'none'};">
                             <div id="profile-initial-circle" style="display: ${isUserLoggedIn && !user?.photoURL ? 'flex' : 'none'};"></div>
                         </div>
@@ -269,15 +268,6 @@ function renderSupabaseHeader(user, base_path) {
         const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
         profileInitialCircle.textContent = initial;
         profileInitialCircle.style.backgroundColor = generateColorForUser(user.uid);
-        profileInitialCircle.style.width = '35px';
-        profileInitialCircle.style.height = '35px';
-        profileInitialCircle.style.borderRadius = '50%';
-        profileInitialCircle.style.color = 'white';
-        profileInitialCircle.style.display = 'flex';
-        profileInitialCircle.style.justifyContent = 'center';
-        profileInitialCircle.style.alignItems = 'center';
-        profileInitialCircle.style.fontSize = '1.2rem';
-        profileInitialCircle.style.fontWeight = 'bold';
     }
 }
 
@@ -298,7 +288,7 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
 
     renderSupabaseHeader(cachedUser, basePath);
 
-    const supabase = window.supabase?.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzIifQ.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
+    const supabase = window.supabase?.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
     if (supabase) {
         supabase.auth.onAuthStateChange((event, session) => {
             const user = session?.user;

@@ -9,7 +9,7 @@ title: Home - The Muslim Post
     <section class="top-story-section">
         <a href="{{ latest_post.url | relative_url }}" class="top-story-card reveal-on-scroll">
             <div class="top-story-image-wrapper">
-                <img src="{{ latest_post.image | default: 'https://placehold.co/1200x800/e2e8f0/64748b?text=Image+Not+Available' }}" alt="{{ latest_post.image_description | default: 'Top story image' }}">
+                <img src="{{ latest_post.image | default: 'https://placehold.co/1200x800/e2e8f0/64748b?text=Image+Not+Available' }}" alt="{{ latest_post.image_description | default: 'Top story image' | escape }}">
             </div>
             <div class="top-story-text">
                 <p class="top-story-kicker">Latest Report</p>
