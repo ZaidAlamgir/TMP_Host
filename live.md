@@ -69,7 +69,6 @@ title: Live Updates
         const pinnedPostContainer = document.getElementById('pinned-post-container');
         const liveFeed = document.getElementById('live-feed');
         
-        // --- FIX: Re-added the missing variable definitions ---
         const loadMoreBtn = document.getElementById('load-more-btn');
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
@@ -115,9 +114,10 @@ title: Live Updates
                             htmlBlock = `<div class="my-4"><div class="fb-post" data-href="${socialUrl}" data-width="auto" data-show-text="true"></div>${caption}</div>`;
                             break;
                         case 'youtube':
-                            const ytMatch = socialUrl.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                            const ytMatch = socialUrl.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
                             if (ytMatch && ytMatch[1]) {
-                                htmlBlock = `<div class="responsive-iframe-container responsive-iframe-container-16x9 my-4"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe></div>${caption}`;
+                                // *** THIS IS THE MODIFIED LINE ***
+                                htmlBlock = `<div class="responsive-iframe-container responsive-iframe-container-16x9 my-4"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}?rel=0&modestbranding=1" allowfullscreen></iframe></div>${caption}`;
                             }
                             break;
                         case 'tiktok':
