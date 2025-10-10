@@ -118,7 +118,7 @@ body {
 
 /* --- NEW RESPONSIVE RULES --- */
 
-/* For devices like Realme 7 (around 390px wide) and up, both logo and text are visible */
+/* For devices (around 390px wide) and up, both logo and text are visible */
 @media (min-width: 381px) {
     .logo .vector-animation {
         display: flex;

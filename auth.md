@@ -168,10 +168,6 @@ title: Account - The Muslim Post
     }
 </style>
 
-<!-- 
-  This wrapper creates the full-screen modal effect. 
-  The header will be behind this, and the auth-container will be centered within it.
--->
 <div class="auth-page-wrapper">
   <main class="auth-container hidden" id="auth-form-container">
     <a id="closeBtn" href="{{ '/' | relative_url }}" class="close-btn" aria-label="Close">&times;</a>
@@ -252,10 +248,8 @@ title: Account - The Muslim Post
   </main>
 </div>
 
-<!-- Add the Supabase JS library -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Add Firebase and Font Awesome for icons -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 
 <script>

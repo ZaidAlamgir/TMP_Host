@@ -315,3 +315,38 @@ body {
     .content-wrapper { padding: 0 1rem; }
     .section-title { font-size: 2rem; }
 }
+
+/* --- NEW: Support CTA Banner at top of page --- */
+.support-cta-banner {
+    background-color: #111827;
+    color: #f3f4f6;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.support-cta-banner p {
+    margin: 0;
+    font-weight: 500;
+}
+
+.support-cta-button {
+    background-color: #FBBF24; /* A standout color like yellow/gold */
+    color: #1c1e21;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.support-cta-button:hover {
+    background-color: #F59E0B;
+    transform: translateY(-2px);
+}

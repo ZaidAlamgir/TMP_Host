@@ -1,0 +1,128 @@
+/* --- Styles for support.html --- */
+
+.support-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1rem;
+    text-align: center;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.support-header {
+    margin-bottom: 3rem;
+}
+
+.support-header h1 {
+    font-family: 'Merriweather', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #1c1e21;
+    margin-bottom: 1rem;
+}
+
+.support-header p {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #606770;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.support-options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.support-card {
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.support-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.card-icon {
+    margin-bottom: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1c1e21;
+    margin-bottom: 1rem;
+}
+
+.card-description {
+    color: #606770;
+    line-height: 1.7;
+    flex-grow: 1;
+    margin-bottom: 2rem;
+}
+
+.card-button {
+    display: inline-block;
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    box-sizing: border-box; /* Ensures padding is included in width */
+}
+
+.razorpay-button {
+    background-color: #3B82F6;
+    color: #fff;
+}
+.razorpay-button:hover {
+    background-color: #2563EB;
+}
+
+.paypal-button {
+    background-color: #009CDE;
+    color: #fff;
+}
+.paypal-button:hover {
+    background-color: #007AB5;
+}
+
+@media (min-width: 768px) {
+    .support-options-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .support-header h1 {
+        font-size: 3.5rem;
+    }
+}
+
+/* --- NEW: Fix for small mobile screens --- */
+@media (max-width: 400px) {
+    .support-header h1 {
+        font-size: 2.2rem;
+    }
+    .support-card {
+        padding: 2rem 1.5rem;
+    }
+    .card-title {
+        font-size: 1.3rem;
+    }
+    .card-button {
+        font-size: 0.9rem;
+        padding: 12px 15px;
+    }
+}

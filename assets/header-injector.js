@@ -63,6 +63,7 @@ function renderWriterHeader(base_path) {
                     <a href="${base_path}/">Home</a>
                     <a href="${base_path}/news-hub.html">Articles</a>
                     <a href="${base_path}/about.html">About</a>
+                    <a href="${base_path}/terms.html">Terms & Conditions</a>
                 </div>
                 <input type="text" id="index-search-box" class="index-search-box" placeholder="Search by tags to find articles">
                 <ul id="index-results-list"></ul>
@@ -196,6 +197,7 @@ function renderSupabaseHeader(user, base_path) {
                     <a href="${base_path}/">Home</a>
                     <a href="${base_path}/news-hub.html">Articles</a>
                     <a href="${base_path}/about.html">About</a>
+                    <a href="${base_path}/terms.html">Terms & Conditions</a>
                 </div>
                 <input type="text" id="index-search-box" class="index-search-box" placeholder="Search by tags to find articles">
                 <ul id="index-results-list"></ul>

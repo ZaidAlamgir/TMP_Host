@@ -46,8 +46,7 @@ title: My Account - The Muslim Post
 <div class="profile-container-wrapper">
     <div class="profile-layout">
         <nav class="profile-nav">
-            <h3 id="welcome-name">Welcome</h3> <!-- CRITICAL FIX: This ID was missing -->
-            <ul>
+            <h3 id="welcome-name">Welcome</h3> <ul>
                 <li><a href="#" class="nav-link active" data-view="profile-view" title="Profile"><i class="fas fa-user fa-fw"></i> <span>Profile</span></a></li>
                 <li><a href="#" class="nav-link" data-view="my-posts-view" title="My Posts"><i class="fas fa-newspaper fa-fw"></i> <span>My Posts</span></a></li>
                 <li><a href="#" class="nav-link" data-view="security-view" title="Security"><i class="fas fa-shield-alt fa-fw"></i> <span>Security</span></a></li>
@@ -76,8 +75,7 @@ title: My Account - The Muslim Post
             <div id="my-posts-view" class="profile-view">
                 <h2>My Posts</h2>
                 <div id="my-posts-list">
-                    <!-- User's posts will be dynamically inserted here -->
-                </div>
+                    </div>
             </div>
         </main>
     </div>
@@ -86,35 +84,31 @@ title: My Account - The Muslim Post
 <script>
     // --- SUPABASE CONFIGURATION ---
     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU'; // <-- PASTE YOUR NEW KEY HERE
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
 
-    // CRITICAL FIX: Wrap the entire logic in DOMContentLoaded.
-    // This ensures that all scripts from the layout (firebase-init.js, supabase.js)
-    // are loaded and ready before this script attempts to use them, preventing a race condition.
     document.addEventListener('DOMContentLoaded', () => {
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const basePath = document.body.getAttribute('data-base-path') || '';
 
-        // --- FIX: Add a guard to prevent re-initialization ---
         let isProfileInitialized = false;
 
         // AUTH GUARD: Use Supabase's onAuthStateChange to react to login/logout events.
         supabase.auth.onAuthStateChange((event, session) => {
             const user = session?.user;
             if (user) {
-                // CRITICAL FIX: After a login redirect, the header might have rendered from an old cache.
-                // We explicitly call the header rendering function again with the correct, fresh user data
-                // to ensure the profile icon appears instantly without needing a manual refresh.
                 if (typeof initializeSupabaseHeader === 'function') {
-                    initializeSupabaseHeader(basePath, true); // This now becomes the one and only call on this page.
+                    initializeSupabaseHeader(basePath, true);
                 }
                 if (!isProfileInitialized) {
                     initializeProfilePage(user, supabase, basePath);
                     isProfileInitialized = true;
                 }
-                document.querySelector('.profile-container-wrapper').style.display = 'block'; // Ensure it's displayed
+                document.querySelector('.profile-container-wrapper').style.display = 'block';
             } else {
-                window.location.href = `${basePath}/auth.html`;
+                // *** THIS IS THE CORRECTED PART ***
+                // This replaces the current page in history, so the back button
+                // will go to the page visited *before* the profile page.
+                window.location.replace(`${basePath}/auth.html`);
             }
         });
 
@@ -130,7 +124,6 @@ title: My Account - The Muslim Post
             const navLinks = document.querySelectorAll('.nav-link');
             const views = document.querySelectorAll('.profile-view');
 
-            // Use Supabase user object structure
             const currentName = user.user_metadata.full_name || user.email;
             welcomeName.textContent = `Welcome, ${currentName}`;
             fullNameInput.value = user.user_metadata.full_name || '';
@@ -141,7 +134,6 @@ title: My Account - The Muslim Post
                 if (link.id === 'sign-out-btn') return;
                 const targetViewId = link.getAttribute('data-view');
 
-                // If the user clicks the "My Posts" tab, reload the posts.
                 if (targetViewId === 'my-posts-view') {
                     loadUserPosts(user, supabase);
                 }
@@ -153,16 +145,14 @@ title: My Account - The Muslim Post
                 link.classList.add('active');
             }));
 
-            // --- Add event listener for delete/edit buttons on the posts list ---
             const myPostsList = document.getElementById('my-posts-list');
             myPostsList.addEventListener('click', async (e) => {
-                const target = e.target; // The element that was clicked
+                const target = e.target;
                 const postItem = target.closest('.user-post-item');
                 if (!postItem) return;
 
                 const postId = postItem.dataset.postId;
 
-                // --- DELETE LOGIC ---
                 if (target.closest('.btn-delete')) {
                     if (!postId) return;
                     if (confirm('Are you sure you want to permanently delete this post?')) {
@@ -176,18 +166,15 @@ title: My Account - The Muslim Post
                         }
                     }
                 }
-                // --- EDIT LOGIC ---
                 else if (target.closest('.btn-edit')) {
                     const contentDisplay = postItem.querySelector('.post-content-display');
-                    if (postItem.querySelector('.post-edit-container')) return; // Already open
+                    if (postItem.querySelector('.post-edit-container')) return;
 
                     const originalContentHTML = contentDisplay.querySelector('.post-content').innerHTML;
                     
-                    // Create the edit container dynamically
                     const editContainer = postItem.querySelector('.post-edit-container');
                     let formHTML = '';
                     
-                    // Deconstruct the rendered HTML into an editable form
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = originalContentHTML;
                     Array.from(tempDiv.children).forEach(node => {
@@ -207,12 +194,10 @@ title: My Account - The Muslim Post
                     contentDisplay.style.display = 'none';
                     editContainer.style.display = 'block';
                 }
-                // --- SAVE LOGIC ---
                 else if (target.closest('.btn-save')) {
                     const contentDisplay = postItem.querySelector('.post-content-display');
                     const editContainer = postItem.querySelector('.post-edit-container');
 
-                    // Rebuild content from the multi-part form
                     const newContent = Array.from(editContainer.querySelectorAll('.dynamic-block')).map(block => {
                         const type = block.dataset.blockType;
                         const value = block.querySelector('input, textarea').value.trim();
@@ -227,16 +212,13 @@ title: My Account - The Muslim Post
                     if (error) {
                         alert(`Error updating post: ${error.message}`);
                     } else {
-                        // Easiest way to show updated content is to reload the list
                         loadUserPosts(user, supabase);
                     }
                 }
-                // --- CANCEL LOGIC ---
                 else if (target.closest('.btn-cancel')) {
                     const contentDisplay = postItem.querySelector('.post-content-display');
                     const editContainer = postItem.querySelector('.post-edit-container');
                     
-                    // Just switch views without saving
                     editContainer.style.display = 'none';
                     contentDisplay.style.display = 'block';
                 }
@@ -244,7 +226,7 @@ title: My Account - The Muslim Post
 
             async function loadUserPosts(user, supabase) {
                 const postsList = document.getElementById('my-posts-list');
-                postsList.innerHTML = '<div class="loader"></div>'; // Show a loader
+                postsList.innerHTML = '<div class="loader"></div>';
 
                 const { data: posts, error } = await supabase
                     .from('posts')
@@ -263,7 +245,6 @@ title: My Account - The Muslim Post
                 }
 
                 postsList.innerHTML = posts.map(post => {
-                    // Parse the markdown content to render it correctly
                     let contentHTML = '';
                     if (post.content) {
                         post.content.split('\n\n').forEach(part => {
@@ -308,7 +289,6 @@ title: My Account - The Muslim Post
                     } else {
                         showMessage(profileMessage, 'Name updated successfully!', 'success');
                         welcomeName.textContent = `Welcome, ${newName}`;
-                        // Update local cache for header
                         const cachedUser = JSON.parse(localStorage.getItem('cachedUser') || '{}');
                         cachedUser.displayName = newName;
                         localStorage.setItem('cachedUser', JSON.stringify(cachedUser));
@@ -330,7 +310,7 @@ title: My Account - The Muslim Post
             signOutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 await supabase.auth.signOut();
-                localStorage.removeItem('cachedUser'); // Clear the header cache
+                localStorage.removeItem('cachedUser');
                 window.location.href = `${basePath}/`;
             });
 
