@@ -1,10 +1,10 @@
-/* --- Styles for support.html --- */
+/* --- Professional Styles for the Support Page --- */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@900&family=Inter:wght@400;500;600;700&display=swap');
 
-.support-container {
-    max-width: 900px;
+.support-page-container {
+    max-width: 1200px;
     margin: 2rem auto;
     padding: 1rem;
-    text-align: center;
     animation: fadeIn 0.8s ease-out;
 }
 
@@ -13,116 +13,183 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- Header Section --- */
 .support-header {
-    margin-bottom: 3rem;
+    text-align: center;
+    margin-bottom: 4rem;
 }
 
-.support-header h1 {
+.main-title {
     font-family: 'Merriweather', serif;
-    font-size: 2.8rem;
+    font-size: 3rem;
     font-weight: 900;
-    color: #1c1e21;
+    color: #111827; /* Darker Gray */
     margin-bottom: 1rem;
 }
 
-.support-header p {
+.subtitle {
+    font-family: 'Inter', sans-serif;
     font-size: 1.15rem;
     line-height: 1.8;
-    color: #606770;
-    max-width: 700px;
+    color: #4B5563; /* Medium Gray */
+    max-width: 750px;
     margin: 0 auto;
 }
 
-.support-options-grid {
+/* --- Subscription Grid --- */
+.subscription-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 2rem;
+    align-items: start; /* Align cards to the top */
 }
 
-.support-card {
-    background-color: #fff;
-    border: 1px solid #e5e7eb;
+.subscription-card {
+    background-color: #ffffff;
+    border: 1px solid #E5E7EB; /* Light Gray Border */
     border-radius: 12px;
-    padding: 2.5rem 2rem;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.support-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+.subscription-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.card-icon {
-    margin-bottom: 1.5rem;
+/* Highlighted "Popular" Card */
+.subscription-card.popular {
+    border-color: #4F46E5; /* Indigo */
+    border-width: 2px;
 }
 
-.card-title {
-    font-size: 1.5rem;
+.popular-badge {
+    position: absolute;
+    top: 15px;
+    right: -45px;
+    background-color: #4F46E5;
+    color: white;
+    padding: 5px 40px;
+    font-size: 0.8rem;
     font-weight: 700;
-    color: #1c1e21;
+    text-transform: uppercase;
+    transform: rotate(45deg);
+}
+
+.card-header { text-align: center; margin-bottom: 2rem; }
+.tier-name { font-size: 1.5rem; font-weight: 700; color: #111827; }
+.tier-price { font-size: 2.5rem; font-weight: 800; color: #111827; margin: 0.5rem 0; }
+.billing-cycle { font-size: 1rem; font-weight: 500; color: #6B7280; }
+.tier-description { font-size: 0.9rem; color: #4B5563; line-height: 1.6; }
+
+/* Features List */
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    flex-grow: 1; /* Pushes the button to the bottom */
+}
+.features-list li {
+    display: flex;
+    align-items: center;
     margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #374151;
 }
+.features-list .fa-check-circle { color: #10B981; /* Green */ margin-right: 10px; }
+.features-list .fa-times-circle { color: #EF4444; /* Red */ margin-right: 10px; }
+.feature-disabled { color: #9CA3AF; /* Lighter Gray for text */ }
 
-.card-description {
-    color: #606770;
-    line-height: 1.7;
-    flex-grow: 1;
-    margin-bottom: 2rem;
-}
-
+/* --- ENHANCED Card Button Styling & Animation --- */
 .card-button {
-    display: inline-block;
+    display: flex; /* Using flexbox for alignment */
+    justify-content: center;
+    align-items: center;
     width: 100%;
     padding: 14px 20px;
+    border: none;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.2s;
-    box-sizing: border-box; /* Ensures padding is included in width */
-}
-
-.razorpay-button {
-    background-color: #3B82F6;
+    text-align: center; /* Ensures text is centered */
+    text-decoration: none; /* Removes underline from <a> tag */
+    cursor: pointer;
+    background-color: #4F46E5; /* Indigo */
     color: #fff;
-}
-.razorpay-button:hover {
-    background-color: #2563EB;
-}
-
-.paypal-button {
-    background-color: #009CDE;
-    color: #fff;
-}
-.paypal-button:hover {
-    background-color: #007AB5;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle starting shadow */
+    transition: all 0.2s ease-in-out; /* Smooth transition for all properties */
 }
 
-@media (min-width: 768px) {
-    .support-options-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    .support-header h1 {
-        font-size: 3.5rem;
-    }
+/* Hover Animation: Button lifts up with a stronger shadow */
+.card-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25); /* Colored glow effect */
+    background-color: #4338CA; /* Slightly darker on hover */
 }
 
-/* --- NEW: Fix for small mobile screens --- */
-@media (max-width: 400px) {
-    .support-header h1 {
-        font-size: 2.2rem;
-    }
-    .support-card {
-        padding: 2rem 1.5rem;
-    }
-    .card-title {
-        font-size: 1.3rem;
-    }
-    .card-button {
-        font-size: 0.9rem;
-        padding: 12px 15px;
-    }
+/* Active/Click Animation: Button presses down */
+.card-button:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Specific color for the Membership button */
+.subscription-card.membership .card-button {
+    background: linear-gradient(90deg, #10B981, #059669);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+.subscription-card.membership .card-button:hover {
+    background: linear-gradient(90deg, #059669, #10B981);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+/* Specific color for the Membership button */
+.subscription-card.membership .card-button {
+    background: linear-gradient(90deg, #10B981, #059669);
+}
+.subscription-card.membership .card-button:hover {
+    background: linear-gradient(90deg, #059669, #10B981);
+}
+
+/* --- Payment Loader --- */
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4F46E5; /* Indigo */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem auto;
+}
+.loader-text { font-size: 1.1rem; font-weight: 500; color: #4B5563; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- FAQ Section --- */
+.faq-section {
+    margin-top: 5rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    border-top: 1px solid #E5E7EB;
+    padding-top: 3rem;
+}
+.section-title { text-align: center; font-size: 2rem; font-weight: 800; color: #111827; margin-bottom: 2.5rem; }
+.faq-item { margin-bottom: 2rem; }
+.faq-question { font-size: 1.2rem; font-weight: 600; color: #111827; margin-bottom: 0.75rem; }
+.faq-answer { font-size: 1rem; color: #4B5563; line-height: 1.7; }
+.faq-answer a { color: #4F46E5; text-decoration: underline; font-weight: 500; }
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    .main-title { font-size: 2.5rem; }
+    .subscription-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .main-title { font-size: 2rem; }
+    .subtitle { font-size: 1rem; }
+    .tier-price { font-size: 2rem; }
 }

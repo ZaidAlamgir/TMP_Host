@@ -5,29 +5,92 @@ extra_css:
   - /assets/style/support.css
 ---
 
-<main class="support-container">
-    <div class="support-header">
-        <h1>Support Independent Journalism</h1>
-        <p>The Muslim Post is a reader-supported publication. Your contribution, however big or small, is invaluable for our future. It allows us to remain independent, continue our in-depth reporting, and bring you the stories that matter.</p>
-    </div>
+<main class="support-page-container">
+    <section class="support-header">
+        <h1 class="main-title">Support Independent Journalism</h1>
+        <p class="subtitle">The Muslim Post is a reader-supported publication. Your contribution empowers us to remain independent, pursue in-depth reporting, and bring you the stories that matter. Choose a plan that works for you.</p>
+    </section>
 
-    <div class="support-options-grid">
-        <div class="support-card">
-            <div class="card-icon">
-                <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512z" fill="#3B82F6"/><path d="m369.3 194.4-113.8-39.4-112.5 39.1c-4.6 1.6-6.6 6.8-5 11.4l34.6 99.5-34.1 98.1c-1.6 4.6.4 9.8 5 11.4l112.5 39.1 113.8-39.4c4.6-1.6 6.6-6.8 5-11.4l-34.6-99.5 34.1-98.1c1.6-4.6-.4-9.8-5-11.4z" fill="#fff"/></svg>
+    <section class="subscription-grid">
+        <div class="subscription-card">
+            <div class="card-header">
+                <h2 class="tier-name">Regular</h2>
+                <p class="tier-price">₹90 <span class="billing-cycle">/ month</span></p>
+                <p class="tier-description">Essential access to support our work and read most of our articles.</p>
             </div>
-            <h2 class="card-title">Contribute via Razorpay</h2>
-            <p class="card-description">For our readers in India. Supports UPI (Google Pay, PhonePe), Wallets, Net Banking, and all major cards.</p>
-            <a href="#" class="card-button razorpay-button">Proceed with Razorpay</a>
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                <li><i class="fas fa-times-circle feature-disabled"></i> Access to premium articles</li>
+                <li><i class="fas fa-times-circle feature-disabled"></i> Suggestion rights</li>
+                <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
+            </ul>
+            <a href="payment-selection.html?plan=Regular&amount=90&cycle=month" class="card-button">Choose Regular</a>
         </div>
 
-        <div class="support-card">
-            <div class="card-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.203 5.599l2.748 11.192c.234.954.983 1.625 1.954 1.625h3.696c.682 0 1.299-.444 1.523-1.096l2.129-6.331c.224-.667.83-1.111 1.503-1.111h1.332c.988 0 1.833-.743 1.954-1.728l.859-7.144C21.042 0 20.93 0 19.39 0H7.915c-.953 0-1.767.682-1.923 1.625L3.203 5.6z" fill="#003087"/><path d="M8.883 5.599l2.748 11.192c.234.954.983 1.625 1.954 1.625h3.696c.682 0 1.299-.444 1.523-1.096l2.129-6.331c.224-.667.83-1.111 1.503-1.111h1.332c.988 0 1.833-.743 1.954-1.728l.859-7.144C26.875 0 26.763 0 25.223 0H13.748c-.953 0-1.767.682-1.923 1.625l-2.942 3.974z" fill="#009CDE"/><path d="M14.717 5.599l2.129 6.331c.224.667.83 1.111 1.503 1.111h1.332c.86 0 1.61.593 1.815 1.426l.78-4.593c.121-.712-.39-1.399-1.112-1.399h-3.93c-.682 0-1.299.444-1.523 1.096l-.994-3.976z" fill="#012169"/></svg>
+        <div class="subscription-card popular">
+            <div class="popular-badge">Most Popular</div>
+            <div class="card-header">
+                <h2 class="tier-name">Gold</h2>
+                <p class="tier-price">₹599 <span class="billing-cycle">/ month</span></p>
+                <p class="tier-description">Unlock exclusive content and get the best value with our annual plan.</p>
             </div>
-            <h2 class="card-title">Contribute via PayPal</h2>
-            <p class="card-description">For our international readers. A secure and trusted way to support us from anywhere in the world.</p>
-            <a href="#" class="card-button paypal-button">Proceed with PayPal</a>
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Access to all premium articles</strong></li>
+                <li><i class="fas fa-times-circle feature-disabled"></i> Suggestion rights</li>
+                <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
+            </ul>
+            <a href="payment-selection.html?plan=Gold&amount=599&cycle=year" class="card-button">Choose Gold</a>
         </div>
-    </div>
+
+        <div class="subscription-card">
+            <div class="card-header">
+                <h2 class="tier-name">Diamond</h2>
+                <p class="tier-price">₹1000 <span class="billing-cycle">/ month</span></p>
+                <p class="tier-description">For dedicated readers who want a deeper involvement in our direction.</p>
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                <li><i class="fas fa-check-circle"></i> Access to all premium articles</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Right to give suggestions for changes</strong></li>
+                <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
+            </ul>
+            <a href="payment-selection.html?plan=Diamond&amount=1000&cycle=year" class="card-button">Choose Diamond</a>
+        </div>
+
+        <div class="subscription-card membership">
+            <div class="card-header">
+                <h2 class="tier-name">Membership</h2>
+                <p class="tier-price">₹5000 <span class="billing-cycle">/ month</span></p>
+                <p class="tier-description">Become a verified contributor and part of our core community.</p>
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                <li><i class="fas fa-check-circle"></i> Access to all premium articles</li>
+                <li><i class="fas fa-check-circle"></i> Right to give suggestions for changes</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Become a writer & post articles (after verification)</strong></li>
+            </ul>
+            <a href="payment-selection.html?plan=Membership&amount=5000&cycle=year" class="card-button">Become a Member</a>
+        </div>
+    </section>
+
+    <section class="faq-section">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <h3 class="faq-question">What payment methods do you accept?</h3>
+            <p class="faq-answer">We accept payments via <strong>PhonePe</strong> for our Indian readers (which includes UPI, Wallets, and Cards) and <strong>PayPal</strong> for our international readers. You will be able to choose your preferred method on the next screen.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Can I cancel my subscription?</h3>
+            <p class="faq-answer">Yes, you can cancel your recurring subscription at any time through your account profile page. Your access will continue until the end of your current billing period. Please see our <a href="refund-policy.html">Cancellation & Refund Policy</a> for more details.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Is my payment information secure?</h3>
+            <p class="faq-answer">Absolutely. All payments are processed by trusted, secure payment gateways (PhonePe and PayPal). We do not collect or store any of your sensitive payment information on our servers. For more information, please read our <a href="privacy.html">Privacy Policy</a>.</p>
+        </div>
+    </section>
 </main>

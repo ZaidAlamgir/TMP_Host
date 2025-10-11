@@ -3,6 +3,11 @@ layout: default
 title: Home - The Muslim Post
 ---
 
+<div class="support-cta-banner">
+    <p>Independent journalism is more important than ever. Please consider supporting The Muslim Post today.</p>
+    <a href="{{ 'support.html' | relative_url }}" class="support-cta-button">Support TMP</a>
+</div>
+
 {% assign latest_post = site.posts.first %}
 <main class="home-main">
     {% if latest_post %}

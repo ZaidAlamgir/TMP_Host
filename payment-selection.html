@@ -1,0 +1,123 @@
+---
+layout: default
+title: Complete Your Subscription
+extra_css:
+  - /assets/style/payment-selection.css
+---
+
+<main class="payment-selection-container">
+    <div class="selection-card">
+        <div class="card-header">
+            <h1 class="main-title">Complete Your Subscription</h1>
+            <p class="subtitle">You have selected the <strong id="selected-plan-name">...</strong> plan. Please choose your preferred payment method below to proceed.</p>
+        </div>
+
+        <div class="plan-summary">
+            <div class="plan-details">
+                <span class="plan-name" id="summary-plan-name">...</span>
+                <span class="plan-cycle" id="summary-plan-cycle">...</span>
+            </div>
+            <div class="plan-price" id="summary-plan-price">₹...</div>
+        </div>
+
+        <div class="payment-methods-grid">
+            <div class="method-card" id="phonepe-card">
+                <div class="logo-container">
+                    <svg class="method-logo phonepe-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="50" fill="#5F259F"/>
+                        <path d="M72.3963 32.748L61.6457 71.0718C61.4285 71.8687 60.7029 72.4332 59.8517 72.4332H40.1481C39.2969 72.4332 38.5714 71.8687 38.3541 71.0718L27.6035 32.748C27.3862 31.9511 28.0202 31.25 28.9493 31.25H71.0505C71.9796 31.25 72.6136 31.9511 72.3963 32.748ZM58.0772 40.8529L51.981 63.3155H48.0188L41.9226 40.8529H58.0772Z" fill="white"/>
+                    </svg>
+                </div>
+                <p class="method-description">Ideal for users in India. Supports UPI, Wallets, Net Banking, and Cards.</p>
+                <button id="phonepe-button" class="payment-button phonepe">Pay with PhonePe</button>
+            </div>
+
+            <div class="method-card" id="paypal-card">
+                <div class="logo-container">
+                    <svg class="method-logo paypal-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78 50">
+                        <path fill="#003087" d="m38 3-1.9.1c-1 .1-1.8 1-2 2L33.5 10c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L43 3.5c0-1.9-1.5-3.4-3.3-3.4H38zm12.2 0c-1.9 0-3.3 1.5-3.3 3.5l-.6 4.3c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L58 3.5c0-1.9-1.5-3.4-3.3-3.4h-1.5zm12.3 0c-1.9 0-3.3 1.5-3.3 3.5l-.6 4.3c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L70.5 3.5c0-1.9-1.5-3.4-3.3-3.4h-1.5z"/>
+                        <path fill="#009CDE" d="m69.3 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6h-12c-.7 0-1.3-.4-1.5-1.1l-3.4-12.2c-.2-.7-.8-1.1-1.5-1.1h-1.3c-1 0-1.8-.7-1.9-1.7l-.9-7.1c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
+                        <path fill="#012169" d="m57.1 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6h-12c-.7 0-1.3-.4-1.5-1.1l-3.4-12.2c-.2-.7-.8-1.1-1.5-1.1h-1.3c-1 0-1.8-.7-1.9-1.7l-.9-7.1c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
+                        <path fill="#003087" d="M26.4 26.1c.2.7.8 1.1 1.5 1.1h1.3c1 0 1.8-.7 1.9-1.7l1-7.1c.1-1-.4-1.8-1.1-1.8H27c-.7 0-1.3.4-1.5 1.1z"/>
+                        <path fill="#009CDE" d="m32.8 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6H15.6c-.7 0-1.3-.4-1.5-1.1L12 34.6c-.2-.7-.8-1.1-1.5-1.1H9.2c-1 0-1.8-.7-1.9-1.7L6.4 24.7c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
+                    </svg>
+                </div>
+                <p class="method-description">Recommended for international users. Pay securely with your PayPal account or credit/debit card.</p>
+                <div id="paypal-button-container"></div>
+            </div>
+        </div>
+        
+        <div class="back-link-container">
+            <a href="support.html" class="back-link">&larr; Change Subscription Plan</a>
+        </div>
+    </div>
+
+    <div id="payment-loader" style="display: none; text-align: center; padding: 3rem 1rem;">
+        <div class="spinner"></div>
+        <p class="loader-text">Connecting securely to the payment gateway...</p>
+    </div>
+</main>
+
+<script src="https://www.paypal.com/sdk/js?client-id=Af7dnbRkin14RvL_d_liM6z83VQ1ALcT0N2L4uMrkUcLU-YN_rPaTjJ8Z7dWCiJTAI97vp76rPfbnXro&currency=USD"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan');
+        const amount = urlParams.get('amount');
+        const cycle = urlParams.get('cycle');
+        
+        // --- DIAGNOSTIC: Check if data is arriving from the URL ---
+        console.log('Plan:', plan, 'Amount:', amount, 'Cycle:', cycle);
+
+        if (!plan || !amount || !cycle) {
+            document.querySelector('.selection-card').innerHTML = '<p class="error-message">Invalid subscription details. Please <a href="support.html">go back</a> and select a plan.</p>';
+            return;
+        }
+
+        const exchangeRate = 83.0;
+        const amountUSD = (amount / exchangeRate).toFixed(2);
+
+        document.getElementById('selected-plan-name').textContent = plan;
+        document.getElementById('summary-plan-name').textContent = plan;
+        document.getElementById('summary-plan-price').textContent = `₹${amount}`;
+        document.getElementById('summary-plan-cycle').textContent = `/ ${cycle}`;
+
+        // PhonePe Button Handler (no changes needed here)
+        const phonepeButton = document.getElementById('phonepe-button');
+        phonepeButton.addEventListener('click', () => {
+            document.querySelector('.selection-card').style.display = 'none';
+            document.getElementById('payment-loader').style.display = 'block';
+            alert(`Initiating PhonePe payment for ₹${amount}.`);
+        });
+
+        // FIX #2: PayPal button logic wrapped in a try...catch block
+        // This will show a helpful error if the Client ID is missing or invalid.
+        try {
+            paypal.Buttons({
+                createOrder: (data, actions) => {
+                    return actions.order.create({
+                        purchase_units: [{
+                            description: `The Muslim Post - ${plan} Subscription`,
+                            amount: { value: amountUSD, currency_code: 'USD' }
+                        }]
+                    });
+                },
+                onApprove: (data, actions) => {
+                    return actions.order.capture().then(details => {
+                        alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                    });
+                },
+                onError: (err) => {
+                    console.error('PayPal Button Error:', err);
+                    alert('An error occurred with the PayPal transaction. Please try again.');
+                },
+                style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' }
+            }).render('#paypal-button-container');
+        } catch (error) {
+            console.error("Failed to render PayPal buttons. This is often due to an invalid or missing Client ID.", error);
+            document.getElementById('paypal-button-container').innerHTML = "<p class='error-message'>Could not load PayPal buttons. Please verify your Client ID.</p>";
+        }
+    });
+</script>
