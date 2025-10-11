@@ -14,9 +14,31 @@ title: Live Updates
     .post-body > * { text-align: left; margin-left: auto; margin-right: auto; }
     .post-body .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
     .live-post-headline { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1rem; line-height: 1.2; }
-    .live-post-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; font-size: 0.875rem; color: #4b5563; }
+    .live-post-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.875rem; color: #4b5563; }
+    .live-post-author-group { display: flex; align-items: center; gap: 0.5rem; }
     .live-post-author { font-weight: 600; }
-    .live-post-time { font-weight: 600; color: #ef4444; }
+    
+    /* --- THIS IS THE MODIFIED LINE --- */
+    .live-post-time { font-weight: 600; color: #ef4444; margin-left: auto; }
+    
+    .post-author-logo {
+        width: 30px;
+        height: 30px;
+        color: #3498db;
+    }
+    .post-author-logo .tmp-text {
+        font-size: 80px;
+        font-weight: bold;
+        fill: #0a0707;
+    }
+    .post-author-logo .square { fill: currentColor; }
+    .post-author-logo .rotating-circle {
+        transform-origin: center;
+        animation: rotate 10s linear infinite;
+        stroke: currentColor;
+    }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
     .live-indicator { display: flex; align-items: center; gap: 0.5rem; }
     .live-indicator .dot { width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 8px 2px #ef4444; animation: glow 1.5s infinite ease-in-out; }
     .post-body p { font-size: 1.125rem; line-height: 1.7; color: #374151; margin-bottom: 1.25rem; }
@@ -116,7 +138,6 @@ title: Live Updates
                         case 'youtube':
                             const ytMatch = socialUrl.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
                             if (ytMatch && ytMatch[1]) {
-                                // *** THIS IS THE MODIFIED LINE ***
                                 htmlBlock = `<div class="responsive-iframe-container responsive-iframe-container-16x9 my-4"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}?rel=0&modestbranding=1" allowfullscreen></iframe></div>${caption}`;
                             }
                             break;
@@ -181,14 +202,30 @@ title: Live Updates
             postElement.id = `post-${postData.id}`;
             if (insertAtTop) postElement.classList.add('new-post-animation');
             if (postData.is_pinned) postElement.classList.add('is-pinned');
+            
             let tagsHTML = postData.tags?.length > 0 ? '<div class="tags-container">' + postData.tags.map(tag => `<a href="#" class="tag-badge">#${tag}</a>`).join('') + '</div>' : '';
             let pinnedBadgeHTML = postData.is_pinned ? `<span class="pinned-badge"><i class="fas fa-thumbtack fa-xs"></i><span class="ml-1.5">PINNED</span></span>` : '';
+            
+            const logoSVG = `
+                <svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true">
+                    <rect x="50" y="50" width="100" height="100" class="square"/>
+                    <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
+                    <circle cx="100" cy="100" r="80" fill="none" stroke-width="2" class="rotating-circle"/>
+                </svg>`;
+
+            const formattedDate = new Date(postData.timestamp).toLocaleString('en-US', { 
+                year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' 
+            });
+
             postElement.innerHTML = `
                 <div class="live-post-content p-4 md:p-6">
                     <div class="live-post-meta">
-                         <span class="live-post-time">${new Date(postData.timestamp).toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</span>
-                         <span class="live-post-author">By ${postData.author_name}</span>
-                         ${pinnedBadgeHTML}
+                        <div class="live-post-author-group">
+                            ${logoSVG}
+                            <span class="live-post-author">By ${postData.author_name}</span>
+                        </div>
+                        <span class="live-post-time">${formattedDate}</span>
+                        ${pinnedBadgeHTML}
                     </div>
                     <h2 class="live-post-headline">${postData.headline || ''}</h2>
                     ${tagsHTML}
