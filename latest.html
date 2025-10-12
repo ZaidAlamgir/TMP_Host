@@ -189,12 +189,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const postTitle = "{{ latest_post.title | escape }}";
             const postText = `Read the article: "${postTitle}"`;
 
-            // *** NEW UNIFIED SHARE LOGIC ***
+            // *** CORRECTED UNIFIED SHARE LOGIC ***
             if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
-                // Use the native Android share function
+                // If the Android interface is available, use it for a native share
                 window.AndroidInterface.share(postTitle, postText, postUrl);
             } else if (navigator.share) {
-                // Use the standard Web Share API
+                // Otherwise, use the standard Web Share API
                 try {
                     await navigator.share({
                         title: postTitle,
@@ -202,10 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         url: postUrl,
                     });
                 } catch (err) {
-                    console.error('Share failed:', err.message);
+                    console.error('Web Share failed:', err.message);
                 }
             } else {
-                // Fallback to copying the link
+                // Fallback to copying the link if no share APIs are available
                 try {
                     await navigator.clipboard.writeText(postUrl);
                     const originalIcon = shareButton.innerHTML;
