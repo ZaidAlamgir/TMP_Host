@@ -187,19 +187,25 @@ document.addEventListener('DOMContentLoaded', () => {
         shareButton.addEventListener('click', async () => {
             const postUrl = window.location.href;
             const postTitle = "{{ latest_post.title | escape }}";
-            const shareData = {
-                title: postTitle,
-                text: `Read the article: "${postTitle}"`,
-                url: postUrl,
-            };
+            const postText = `Read the article: "${postTitle}"`;
 
-            if (navigator.share) {
+            // *** NEW UNIFIED SHARE LOGIC ***
+            if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
+                // Use the native Android share function
+                window.AndroidInterface.share(postTitle, postText, postUrl);
+            } else if (navigator.share) {
+                // Use the standard Web Share API
                 try {
-                    await navigator.share(shareData);
+                    await navigator.share({
+                        title: postTitle,
+                        text: postText,
+                        url: postUrl,
+                    });
                 } catch (err) {
                     console.error('Share failed:', err.message);
                 }
             } else {
+                // Fallback to copying the link
                 try {
                     await navigator.clipboard.writeText(postUrl);
                     const originalIcon = shareButton.innerHTML;
