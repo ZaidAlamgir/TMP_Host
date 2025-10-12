@@ -278,8 +278,23 @@ title: Live Updates
                  const postId = shareBtn.dataset.postId;
                  const postHeadline = shareBtn.dataset.postHeadline;
                  const postUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
-                 const shareData = { title: postHeadline, text: `Live Update: ${postHeadline}`, url: postUrl };
-                 if (navigator.share) navigator.share(shareData); else alert(`Share this link:\n${postUrl}`);
+                 const shareText = `Live Update: ${postHeadline}`;
+
+                 // *** THIS IS THE NEW LOGIC ***
+                 if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
+                     // If the Android interface is available, use it for a native share
+                     window.AndroidInterface.share(postHeadline, shareText, postUrl);
+                 } else if (navigator.share) {
+                     // Otherwise, use the standard Web Share API
+                     navigator.share({
+                         title: postHeadline,
+                         text: shareText,
+                         url: postUrl
+                     });
+                 } else {
+                     // Fallback for browsers that don't support sharing
+                     alert(`Share this link:\n${postUrl}`);
+                 }
              }
         };
 
