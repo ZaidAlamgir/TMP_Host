@@ -181,12 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const postTitle = "{{ latest_post.title | escape }}";
             const postText = `Read the article: "${postTitle}"`;
 
-            // *** CORRECTED UNIFIED SHARE LOGIC TO MATCH live.md ***
+            // This is the unified logic that works everywhere.
             if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
-                // If the Android interface exists, use it for a native share
+                // If the app's native interface is available, use it.
                 window.AndroidInterface.share(postTitle, postText, postUrl);
             } else if (navigator.share) {
-                // Otherwise, use the standard Web Share API
+                // Otherwise, try the standard Web Share API.
                 try {
                     await navigator.share({
                         title: postTitle,
@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Web Share failed:', err.message);
                 }
             } else {
-                // Fallback to copying the link if no share APIs are available
+                // As a last resort, copy the link to the clipboard.
                 try {
                     await navigator.clipboard.writeText(postUrl);
                     const originalIcon = shareButton.innerHTML;
