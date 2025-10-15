@@ -114,12 +114,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const shareButton = document.getElementById('native-share-button');
     if (shareButton) {
         shareButton.addEventListener('click', async () => {
-            const shareData = { title: "{{ page.title | escape }}", text: "Read: \"{{ page.title | escape }}\"", url: window.location.href };
-            if (navigator.share) {
-                try { await navigator.share(shareData); } catch (err) { console.error('Share failed:', err.message); }
-            } else {
+            const postUrl = window.location.href;
+            const postTitle = "{{ page.title | escape }}"; // Uses 'page.title' which is correct for this layout
+            const postText = `Read: "${postTitle}"`;
+
+            // This is the unified logic that works everywhere.
+            if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
+                // If the app's native interface is available, use it.
+                window.AndroidInterface.share(postTitle, postText, postUrl);
+            } else if (navigator.share) {
+                // Otherwise, try the standard Web Share API.
                 try {
-                    await navigator.clipboard.writeText(window.location.href);
+                    await navigator.share({
+                        title: postTitle,
+                        text: postText,
+                        url: postUrl,
+                    });
+                } catch (err) {
+                    console.error('Web Share failed:', err.message);
+                }
+            } else {
+                // As a last resort, copy the link to the clipboard.
+                try {
+                    await navigator.clipboard.writeText(postUrl);
                     const originalIcon = shareButton.innerHTML;
                     shareButton.innerHTML = '<i class="fas fa-check"></i>';
                     setTimeout(() => { shareButton.innerHTML = originalIcon; }, 2000);
