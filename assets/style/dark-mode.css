@@ -1,0 +1,177 @@
+/* --- Enhanced Dark Mode Theme --- */
+/* This is activated when your Android app adds the 'dark-mode' class to the body tag */
+
+:root {
+    --dark-bg-primary: #111827;      /* Deep navy - Main background */
+    --dark-bg-secondary: #1f2937;    /* Dark gray - Cards, headers */
+    --dark-bg-tertiary: #374151;     /* Lighter gray - Borders, hover states */
+    --dark-text-primary: #f9fafb;    /* Off-white - Main text, headlines */
+    --dark-text-secondary: #d1d5db;  /* Light gray - Subtitles, meta text */
+    --dark-accent-primary: #60a5fa;  /* Bright blue - Links, primary actions */
+    --dark-accent-secondary: #facc15;/* Vibrant yellow - Banners, special buttons */
+}
+
+body.dark-mode {
+    background-color: var(--dark-bg-primary);
+    color: var(--dark-text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- General Content & Containers --- */
+body.dark-mode .header,
+body.dark-mode .post-container,
+body.dark-mode .legal-container,
+body.dark-mode .selection-card,
+body.dark-mode .article-container,
+body.dark-mode .live-post,
+body.dark-mode .auth-container,
+body.dark-mode .subscription-card,
+body.dark-mode .news-card,
+body.dark-mode .profile-layout {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-text-secondary);
+    border-color: var(--dark-bg-tertiary);
+}
+
+/* --- Typography --- */
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
+body.dark-mode .logo,
+body.dark-mode .top-story-headline,
+body.dark-mode .news-card-headline,
+body.dark-mode .live-post-headline,
+body.dark-mode .main-title,
+body.dark-mode .article-headline {
+    color: var(--dark-text-primary);
+}
+
+body.dark-mode p,
+body.dark-mode .subtitle,
+body.dark-mode .top-story-subheadline,
+body.dark-mode .news-card-subheadline,
+body.dark-mode .article-subheadline,
+body.dark-mode .footer-disclaimer,
+body.dark-mode .post-card-author {
+    color: var(--dark-text-secondary);
+}
+
+body.dark-mode a {
+    color: var(--dark-accent-primary);
+}
+
+body.dark-mode blockquote {
+    border-left-color: var(--dark-accent-primary);
+    background-color: rgba(96, 165, 250, 0.05);
+}
+
+/* --- Forms & Interactive Elements --- */
+body.dark-mode input[type="text"],
+body.dark-mode input[type="email"],
+body.dark-mode input[type="password"],
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+    border-color: #4b5563;
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+    border-color: var(--dark-accent-primary);
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+body.dark-mode .btn-primary,
+body.dark-mode .cta-button {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+    font-weight: bold;
+}
+
+body.dark-mode .btn-primary:hover,
+body.dark-mode .cta-button:hover {
+    background-color: #3b82f6; /* Brighter blue on hover */
+}
+
+/* --- Specific Component Styling --- */
+
+/* Header & Navigation */
+body.dark-mode .header-content .index-menu-button svg {
+    stroke: var(--dark-text-primary);
+}
+body.dark-mode .bottom-nav {
+    background-color: var(--dark-bg-secondary);
+    border-top: 1px solid var(--dark-bg-tertiary);
+}
+body.dark-mode .bottom-nav-link {
+    color: var(--dark-text-secondary);
+}
+body.dark-mode .bottom-nav-link.active {
+    color: var(--dark-accent-primary);
+}
+body.dark-mode .bottom-nav-link.active svg {
+    stroke: var(--dark-accent-primary);
+}
+body.dark-mode .nav-glider {
+    background-color: rgba(96, 165, 250, 0.15);
+}
+
+/* Homepage */
+body.dark-mode .support-cta-banner {
+    background-color: var(--dark-accent-secondary);
+    color: var(--dark-bg-primary);
+}
+body.dark-mode .support-cta-button {
+    background-color: var(--dark-bg-primary);
+    color: var(--dark-accent-secondary);
+}
+body.dark-mode .top-story-card {
+    background-color: transparent; /* Let the section background show */
+}
+body.dark-mode .feature-item .feature-icon {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-accent-primary);
+}
+
+/* Profile Page */
+body.dark-mode .profile-nav {
+    border-right-color: var(--dark-bg-tertiary);
+}
+body.dark-mode .profile-nav li a {
+    color: var(--dark-text-secondary);
+}
+body.dark-mode .profile-nav li a:hover {
+    background-color: var(--dark-bg-tertiary);
+}
+body.dark-mode .profile-nav li a.active {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+
+/* Live Page */
+body.dark-mode .live-indicator .dot {
+    box-shadow: 0 0 8px 2px #f87171; /* A slightly softer red glow */
+}
+body.dark-mode .tag-badge {
+    background-color: #3730a3; /* Dark indigo for tags */
+    color: #e0e7ff;
+}
+body.dark-mode .pinned-badge {
+    background-color: #78350f; /* Dark orange for pinned */
+    color: #fef3c7;
+}
+
+/* Support & Payment Page */
+body.dark-mode .subscription-card.popular {
+    border-color: var(--dark-accent-primary);
+}
+body.dark-mode .popular-badge {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+body.dark-mode .features-list .fa-check-circle {
+    color: #34d399; /* Green check */
+}
+body.dark-mode .features-list .fa-times-circle {
+    color: #6b7280; /* Muted 'x' */
+}
