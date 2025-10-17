@@ -138,3 +138,57 @@ body {
         padding-left: 0.5rem;
     }
 }
+
+/* --- Dark Mode Trigger --- */
+/* This is activated when your Android app adds the 'dark-mode' class to the body tag */
+
+body.dark-mode {
+    background-color: #111827; /* A dark background */
+    color: #f3f4f6; /* A light text color */
+}
+
+/* --- General Dark Mode Adjustments --- */
+
+/* Invert colors for cards, headers, and other light elements */
+body.dark-mode .subscription-card,
+body.dark-mode .header,
+body.dark-mode .post-container,
+body.dark-mode .legal-container,
+body.dark-mode .selection-card,
+body.dark-mode .article-container {
+    background-color: #1f2937; /* A slightly lighter dark shade for containers */
+    color: #d1d5db;
+    border-color: #374151;
+}
+
+/* Adjust text and headline colors */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode .logo,
+body.dark-mode .top-story-headline,
+body.dark-mode .news-card-headline {
+    color: #ffffff;
+}
+
+/* Adjust sub-text and meta-data colors */
+body.dark-mode p,
+body.dark-mode .top-story-subheadline,
+body.dark-mode .news-card-subheadline,
+body.dark-mode .footer-disclaimer,
+body.dark-mode .article-subheadline {
+    color: #9ca3af;
+}
+
+/* Style links for better visibility */
+body.dark-mode a {
+    color: #60a5fa; /* A brighter blue for links */
+}
+
+/* Invert buttons and special elements */
+body.dark-mode .cta-button,
+body.dark-mode .support-cta-button,
+body.dark-mode .card-button {
+    color: #111827; /* Dark text on light button */
+    background-color: #fbbd23; /* A vibrant color for call-to-action buttons */
+}
