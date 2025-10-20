@@ -5,7 +5,7 @@ date: 2025-10-20T07:30:54.385Z
 image: "https://i.postimg.cc/639DLmVR/IMG-20251020-WA0003.jpg"
 image_description: "File photo: Visual representation of catastrophic situations in Gaza; people are starving."
 tags: [world-politics, muslim-world]
-author: "By TMP Staff"
+author: "TMP Staff"
 layout: post
 ---
 
