@@ -100,6 +100,9 @@
             <div class="my-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300">
                  <select id="block-type-select" class="p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="paragraph">Paragraph</option>
+                    <option value="headline-h2">Headline (H2)</option>
+                    <option value="headline-h3">Headline (H3)</option>
+                    <option value="headline-h4">Headline (H4)</option>
                     <option value="image">Image</option>
                     <option value="quote">Quote</option>
                     <optgroup label="Social Media Embeds">
@@ -269,10 +272,18 @@
             newBlock.dataset.blockType = blockType;
             newBlock.id = blockId;
             let blockTitle = blockType.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            if (blockType.startsWith('headline')) {
+                blockTitle = `Headline (${blockType.slice(-2).toUpperCase()})`;
+            }
             let blockHTML = `<button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button><h3 class="text-lg font-semibold mb-4 text-slate-600">${blockTitle}</h3>`;
             switch (blockType) {
                 case 'paragraph':
                     blockHTML += `<textarea class="dynamic-paragraph w-full p-2 border border-slate-300 rounded-md" rows="6" placeholder="Continue your article..."></textarea>`;
+                    break;
+                case 'headline-h2':
+                case 'headline-h3':
+                case 'headline-h4':
+                    blockHTML += `<input type="text" class="dynamic-headline w-full p-2 border border-slate-300 rounded-md font-bold" placeholder="Enter headline text...">`;
                     break;
                 case 'image':
                     blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2 border border-slate-300 rounded-md" placeholder="https://example.com/image.jpg"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2 border border-slate-300 rounded-md" placeholder="A short description of this image"></textarea></div>`;
@@ -371,6 +382,15 @@
                 const blockType = block.dataset.blockType;
                 switch (blockType) {
                     case 'paragraph': body += `${block.querySelector('.dynamic-paragraph').value.trim()}\n\n`; break;
+                    case 'headline-h2':
+                        body += `## ${block.querySelector('.dynamic-headline').value.trim()}\n\n`;
+                        break;
+                    case 'headline-h3':
+                        body += `### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`;
+                        break;
+                    case 'headline-h4':
+                        body += `#### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`;
+                        break;
                     case 'image':
                         const imageUrl = block.querySelector('.dynamic-image-url').value.trim();
                         const imageDesc = block.querySelector('.dynamic-image-desc').value.trim();
