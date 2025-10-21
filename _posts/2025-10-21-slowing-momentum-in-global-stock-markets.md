@@ -3,7 +3,7 @@ title: "Slowing Momentum in Global Stock Markets"
 date: 2025-10-21T10:25:11.722Z
 image: "https://i.postimg.cc/8CSdSD3C/Background-Eraser-20251021-155307825.jpg"
 tags: [global-economy]
-author: "By TMP Staff"
+author: "TMP Staff"
 layout: post
 ---
 
