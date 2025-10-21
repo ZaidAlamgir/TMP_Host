@@ -1,0 +1,140 @@
+---
+layout: default
+title: Account Deletion - The Muslim Post
+---
+
+<style>
+    .deletion-info-container {
+        max-width: 800px;
+        margin: 2rem auto; /* Default margin for larger screens */
+        padding: 2rem;
+        background-color: #fff; /* White background for the content box */
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        color: #374151; /* Default text color */
+        line-height: 1.7;
+    }
+    .deletion-info-container h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1c1e21; /* Darker heading */
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    .deletion-info-container h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1c1e21;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 0.5rem;
+    }
+    .deletion-info-container p {
+        margin-bottom: 1rem;
+    }
+    .deletion-info-container ol {
+        list-style-type: decimal;
+        padding-left: 25px; /* Indent list */
+        margin-bottom: 1rem;
+    }
+     .deletion-info-container ul {
+        list-style-type: disc;
+        padding-left: 25px;
+        margin-bottom: 1rem;
+    }
+    .deletion-info-container li {
+        margin-bottom: 0.5rem;
+    }
+    .deletion-info-container a {
+        color: #0073e6; /* Link color */
+        text-decoration: underline;
+    }
+    .deletion-info-container strong {
+        font-weight: 600;
+    }
+    .note {
+        background-color: #fee2e2; /* Light red background for warning */
+        color: #991b1b; /* Dark red text */
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #dc2626; /* Red border */
+        margin-top: 1.5rem;
+        font-weight: 500;
+    }
+
+    /* Dark mode adjustments */
+    body.dark-mode .deletion-info-container {
+         background-color: var(--dark-bg-secondary, #1f2937);
+         color: var(--dark-text-secondary, #d1d5db);
+         border-color: var(--dark-bg-tertiary, #374151);
+    }
+     body.dark-mode .deletion-info-container h1,
+     body.dark-mode .deletion-info-container h2 {
+         color: var(--dark-text-primary, #f9fafb);
+         border-bottom-color: var(--dark-bg-tertiary, #374151);
+    }
+     body.dark-mode .deletion-info-container a {
+         color: var(--dark-accent-primary, #60a5fa);
+    }
+     body.dark-mode .note {
+        background-color: rgba(220, 38, 38, 0.15);
+        color: #fca5a5;
+        border-left-color: #ef4444;
+    }
+
+    /* --- MOBILE FIX --- */
+    @media (max-width: 768px) { /* Adjust breakpoint if needed */
+        .deletion-info-container {
+            margin-top: 1rem; /* Reduced top margin for mobile */
+            margin-bottom: 1rem;
+            padding: 1.5rem; /* Optional: reduce padding slightly */
+        }
+        .deletion-info-container h1 {
+             font-size: 1.8rem; /* Optional: smaller title on mobile */
+        }
+         .deletion-info-container h2 {
+             font-size: 1.3rem; /* Optional: smaller subtitle */
+         }
+    }
+    /* --- END MOBILE FIX --- */
+
+</style>
+
+<main class="deletion-info-container">
+    <h1>Account & Data Deletion for The Muslim Post</h1>
+
+    <p>We are committed to protecting your privacy and providing you with control over your data. This page explains how to use our self-service tool to permanently delete your contributor account for The Muslim Post.</p>
+
+    <h2>How to Delete Your Account</h2>
+    <p>We provide a self-service option for all registered contributors to permanently delete their accounts.</p>
+
+    <p>Please follow these steps:</p>
+    <ol>
+        <li>Log in to your contributor account on The Muslim Post app or website (<a href="{{ '/auth.html' | relative_url }}">Login here</a>).</li>
+        <li>Navigate to your 'Profile' section (usually accessible via the profile icon in the header).</li>
+        <li>Click on the 'Security' option within your profile navigation.</li>
+        <li>Find and click the button labeled <strong>"Delete My Account"</strong> at the bottom of the Security section.</li>
+        <li>Follow the on-screen prompts (including confirmation dialogs) to confirm the deletion.</li>
+    </ol>
+
+    <h2>Having Trouble Logging In?</h2>
+    <p>If you have lost access to your account (e.g., forgotten password) and wish to request deletion, please email us from the address you registered with to: <a href="mailto:themuslimpostofficial@gmail.com">themuslimpostofficial@gmail.com</a></p>
+    <ul>
+        <li>Use the subject line: <strong>"Account Deletion Request"</strong></li>
+    </ul>
+
+    <h2>What Data is Deleted?</h2>
+    <p>When your account is deleted, we will permanently remove the following personal information from our database:</p>
+    <ul>
+        <li>Your Name</li>
+        <li>Your Email Address</li>
+        <li>Your hashed (encrypted) password</li>
+        <li>Any other personal details stored in your user profile (e.g., qualification, stored in the `profiles` table)</li>
+        <li>If you have writer access in our app, <strong>all your posts will be deleted permanently</strong> (from the `posts` table).</li>
+    </ul>
+
+    <div class="note">
+        <strong>Note:</strong> After deletion, your account cannot be recovered. All your personal data and associated posts will be permanently lost.
+    </div>
+</main>
