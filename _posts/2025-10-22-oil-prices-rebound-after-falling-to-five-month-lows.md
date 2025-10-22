@@ -3,6 +3,7 @@ title: "Oil Prices Rebound After Falling to Five-Month Lows"
 date: 2025-10-22T12:59:57.739Z
 image: "https://i.postimg.cc/hv9ffF8P/kmc-20251022-182845.png"
 image_description: "A visual representation showing changes in oil prices."
+tags: [global-economy]
 author: "TMP Staff"
 layout: post
 ---
