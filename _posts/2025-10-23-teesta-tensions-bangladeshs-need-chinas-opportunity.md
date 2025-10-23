@@ -1,7 +1,7 @@
 ---
 title: "Teesta Tensions: Bangladesh’s Need, China’s Opportunity"
 date: 2025-10-23T10:26:30.897Z
-image: "https://i.ibb.co/pssSm02/kmc-20251023-152232.png"
+image: "https://i.postimg.cc/QdrZWfLk/kmc-20251023-152232.png"
 image_description: "A map showing the Teesta River’s route from India into Bangladesh, highlighting its strategic significance and ongoing development plans."
 tags: [indian-politics, world-politics]
 author: "TMP Staff"
