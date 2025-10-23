@@ -12,8 +12,6 @@ The revelation of a flying-wing drone shadowing the Chinese sky has led to a flu
 
 These are the only sources open to the public - social media videos, and satellite images of the drone taken from the Malan airbase. The analysts argue that the aircraft in question has a wingspan of about 42 meters, roughly the same as that of the U.S. B-21 Raider stealth bomber. The set-up of the design is such that only one air inlet and exhaust are visible, and the proponents reckon its distance to be somewhere near 7,000 km with an endurance time of 15–20 hours and a potential payload of 2–4 tons—however, these numbers are purely theoretical.
 
-[youtube|](https://youtu.be/zImTIN7XzEI)
-
 The unmanned aerial vehicle possibly uses either Shenyang WC-10 or WC-15 engines, and its total concept is very similar to the CH-7 stealth drone which was presented by China last year, as per some experts. This resemblance may mean that the GJ-X is a development of the CH-7 platform.
 
 The firm grasp of the idea behind the drone is lacking. It may work as a fighter aircraft, a long-range bomber, or simply a trick to confuse the enemy. The fact that it is possible for satellites from other countries to spot the drone at Malan Base lead some experts to the conclusion that the drone is a dummy, a device for misleading China’s enemies.
