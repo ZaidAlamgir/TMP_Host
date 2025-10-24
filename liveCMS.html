@@ -52,7 +52,7 @@
                          <div id="content-blocks-container"></div>
                          <div class="mt-6"><label for="tags-input" class="block text-sm font-medium text-slate-700 mb-1">Tags (optional)</label><input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg" placeholder="e.g. politics, sports, breaking-news"></div>
                          <div class="mt-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-                              <select id="block-type-select" class="flex-grow p-3 border border-slate-300 rounded-lg">
+                             <select id="block-type-select" class="flex-grow p-3 border border-slate-300 rounded-lg">
                                  <option value="headline">Headline</option>
                                  <option value="content">Paragraph</option>
                                  <option value="image">Image</option>
@@ -69,8 +69,8 @@
                                     <option value="reddit">Reddit</option>
                                     <option value="telegram">Telegram</option>
                                  </optgroup>
-                              </select>
-                             <button id="add-block-button" class="bg-slate-600 text-white font-bold p-3 rounded-lg hover:bg-slate-500"><i class="fas fa-plus"></i></button>
+                             </select>
+                            <button id="add-block-button" class="bg-slate-600 text-white font-bold p-3 rounded-lg hover:bg-slate-500"><i class="fas fa-plus"></i></button>
                          </div>
                          <button id="publish-button" class="mt-6 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-500 w-full flex items-center justify-center text-lg">
                              <span id="publish-text">Publish</span><span id="publish-spinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Publishing...</span>
@@ -145,7 +145,17 @@
                     authView.classList.add('hidden');
                     editorView.classList.remove('hidden');
                     writerEmailSpan.textContent = session.user.email;
-                    if (blocksContainer.children.length === 0) createBlock('headline');
+                    
+                    // --- THIS IS THE MODIFIED BLOCK ---
+                    // It now creates all four default blocks in order
+                    if (blocksContainer.children.length === 0) {
+                        createBlock('headline'); // Original
+                        createBlock('image');    // Added: Image + description
+                        createBlock('youtube');  // Added: YouTube + description
+                        createBlock('content');  // Added: Paragraph box
+                    }
+                    // --- END OF MODIFIED BLOCK ---
+
                     fetchRecentPosts();
                 } else {
                     authView.classList.remove('hidden');
@@ -263,8 +273,71 @@
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
                 if (error) { statusMessage.textContent = `Error: ${error.message}.`; statusMessage.style.color = 'red'; } 
-                else { statusMessage.textContent = 'Successfully published!'; statusMessage.style.color = 'green'; blocksContainer.innerHTML = ''; createBlock('headline'); tagsInput.value = ''; }
+                else { 
+                    statusMessage.textContent = 'Successfully published!'; 
+                    statusMessage.style.color = 'green'; 
+                    blocksContainer.innerHTML = ''; 
+                    
+                    // --- ALSO UPDATED HERE ---
+                    // Reset the form to the new default state after publishing
+                    createBlock('headline');
+                    createBlock('image');
+                    createBlock('youtube');
+                    createBlock('content');
+                    // --- END OF UPDATE ---
+
+                    tagsInput.value = ''; 
+                }
                 setPublishingState(false);
+            });
+            
+            // I also modified the publish success logic to reset to the new 4-block default
+            publishButton.addEventListener('click', async () => {
+                setPublishingState(true);
+                const blocks = Array.from(document.querySelectorAll('.content-block'));
+                let headline = '', bodyParts = [];
+                blocks.forEach(block => {
+                    const type = block.dataset.blockType;
+                    const inputs = block.querySelectorAll('textarea, input');
+                    const mainValue = inputs[0]?.value.trim();
+                    const descValue = inputs[1]?.value.trim();
+                    if (!mainValue) return;
+
+                    switch (type) {
+                        case 'headline': headline = mainValue; break;
+                        case 'content': bodyParts.push(mainValue); break;
+                        case 'quote': bodyParts.push(`> ${mainValue.replace(/\n/g, '\n> ')}`); break;
+                        case 'image': 
+                            bodyParts.push(`![${descValue || 'Image'}](${mainValue})`); break;
+                        default: // This handles all social media types by using their 'type' name as the keyword
+                            bodyParts.push(`[${type}|${descValue || ''}](${mainValue})`); break;
+                    }
+                });
+                const tags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+                const content = bodyParts.join('\n\n');
+                if (!content && !headline) { alert("Cannot publish an empty update."); setPublishingState(false); return; }
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
+                if (error) { statusMessage.textContent = `Error: ${error.message}.`; statusMessage.style.color = 'red'; } 
+                else { 
+                    statusMessage.textContent = 'Successfully published!'; 
+                    statusMessage.style.color = 'green'; 
+                    blocksContainer.innerHTML = ''; 
+                    
+                    // --- ALSO UPDATED HERE ---
+                    // Reset the form to the new default state after publishing
+                    createBlock('headline');
+                    createBlock('image');
+                    createBlock('youtube');
+                    createBlock('content');
+                    // --- END OF UPDATE ---
+
+                    tagsInput.value = ''; 
+                }
+                setPublishingState(false);
+                
+                // Clear status message after 3 seconds
+                setTimeout(() => { statusMessage.textContent = ''; }, 3000);
             });
             
             supabaseClient.channel('public:live_posts:cms').on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => { fetchRecentPosts(); }).subscribe();
