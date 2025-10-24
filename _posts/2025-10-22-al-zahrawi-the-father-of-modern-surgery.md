@@ -1,7 +1,7 @@
 ---
 title: "Al-Zahrawi: The Father of Modern Surgery"
 date: 2025-10-22T14:34:19.582Z
-image: "https://i.ibb.co/0ThjRqQ/kmc-20251022-191009.png"
+image: "https://i.ibb.co/BbbBFnd/kmc-20251022-191009.webp"
 image_description: "A depiction of medieval Islamic medicine featuring Al-Zahrawi with surgical manuscripts and illustrated medical instruments from his works."
 tags: [medical-science]
 author: "TMP Staff"
