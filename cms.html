@@ -424,7 +424,7 @@
                     updateStatus(`Successfully published: ${filename}`, 'green');
                     editorView.querySelectorAll('input, textarea').forEach(el => el.value = '');
                     dynamicBlocksContainer.innerHTML = '';
-                    document.getElementById('article-author').value = 'By TMP Staff'; // Reset author field to default
+                    document.getElementById('article-author').value = 'TMP Staff'; // Reset author field to default
                     document.querySelectorAll('textarea').forEach(autoExpandTextarea);
                 } else {
                     const error = await response.json();
