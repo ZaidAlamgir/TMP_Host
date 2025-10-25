@@ -1,7 +1,7 @@
 ---
 title: "Venezuela: The Truth Behind America’s Aggression"
 date: 2025-10-25T06:13:01.508Z
-image: "https://i.ibb.co/6JtWV7Lv/kmc-20251025-113440.webp"
+image: "https://i.ibb.co/xkpgCKT/kmc-20251025-135551.webp"
 image_description: "Illustration showing why America is highly interested in Venezuela."
 tags: [world-politics]
 author: "TMP Staff"
