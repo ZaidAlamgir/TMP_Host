@@ -1,0 +1,182 @@
+---
+layout: default
+title: Join Our App Beta Test
+---
+
+<!-- Specific styles for this form page -->
+<style>
+    /* A simple loader animation */
+    .loader {
+        border-top-color: #3498db;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Ensure the body background is appropriate for the card */
+    body {
+        background-color: #f0f2f5; /* Light gray background */
+    }
+</style>
+
+<!-- Load Tailwind CSS just for this page -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Main Form Content -->
+<div class="container mx-auto max-w-lg px-4 py-12 md:py-24">
+    
+    <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+        <div class="p-8 md:p-10">
+            
+            <!-- Header -->
+            <div class="text-center">
+                <!-- App Icon Placeholder -->
+                <div class="inline-block bg-blue-500 p-3 rounded-full mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Join Our Closed Test</h1>
+                <p class="text-gray-600 mb-6">Get early access to our new Android app and help us make it better!</p>
+            </div>
+
+            <!-- Form -->
+            <form id="tester-form">
+                <!-- Full Name Input -->
+                <div class="mb-5">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" id="name" name="name" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" 
+                           placeholder="Mohammad ..">
+                </div>
+
+                <!-- Email Input -->
+                <div class="mb-5">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Google Play Email</label>
+                    <input type="email" id="email" name="email" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" 
+                           placeholder="you@gmail.com">
+                    <p class="text-xs text-gray-500 mt-1">Must be the email associated with your Google Play account.</p>
+                </div>
+
+                <!-- Privacy Note -->
+                <div class="mb-6">
+                    <p class="text-xs text-gray-500 text-center">
+                        Your email will only be used to add you to the closed testing list on the Google Play Store. We respect your privacy.
+                    </p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" id="submit-button" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-lg">
+                        <span id="button-text">Request Access</span>
+                        <span id="button-loader" class="hidden">
+                            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 mx-auto"></div>
+                        </span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Message Box for Success/Error -->
+            <div id="message-box" class="mt-6 text-center text-sm font-medium hidden"></div>
+
+        </div>
+    </div>
+    
+    <!-- Footer text moved to the layout, but you can add specific page footers here if needed -->
+    <!-- <p class="text-center text-gray-500 text-xs mt-6">&copy; 2025 TMPnewsAgency. All rights reserved.</p> -->
+
+</div>
+
+<!-- JavaScript for form submission -->
+<script>
+    // --- Paste your deployed Google Apps Script URL here ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPuFiaEU3I_tOSkmKKOpY2aFDXl-DtrPQzuhYW_FgJPyGLn2VReCjUjTP7dKlwWN_Lig/exec"; 
+    // --- --- --- ---
+    
+    const form = document.getElementById('tester-form');
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
+    const buttonLoader = document.getElementById('button-loader');
+    const messageBox = document.getElementById('message-box');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); 
+
+        buttonText.classList.add('hidden');
+        buttonLoader.classList.remove('hidden');
+        submitButton.disabled = true;
+        messageBox.classList.add('hidden');
+        messageBox.textContent = '';
+
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => { data[key] = value; });
+
+        // Simple check if the placeholder URL is still there
+        if (SCRIPT_URL.includes("YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
+            console.error("Error: SCRIPT_URL is not set.");
+            showError("Form configuration error. Please contact the administrator.");
+            // Reset button state even on configuration error
+            buttonText.classList.remove('hidden');
+            buttonLoader.classList.add('hidden');
+            submitButton.disabled = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors', 
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8', 
+                },
+                body: JSON.stringify(data)
+            });
+
+            // Check if the response is OK and if it's JSON before parsing
+            if (!response.ok) {
+                 throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                const result = await response.json();
+                if (result.result === "success") {
+                    showSuccess("Thank you! Your request has been received. We'll send your invite soon.");
+                    form.reset();
+                } else {
+                    console.error("Script error:", result.error);
+                    showError(result.message || "An error occurred. Please try again.");
+                }
+            } else {
+                 // Handle cases where the response might not be JSON (e.g., script errors returning HTML)
+                 const textResult = await response.text();
+                 console.error("Non-JSON response received:", textResult);
+                 throw new Error("Received an unexpected response format from the server.");
+            }
+
+        } catch (error) {
+            console.error("Fetch error:", error);
+            showError(`Could not submit form: ${error.message}. Please check your connection and try again.`);
+        } finally {
+            buttonText.classList.remove('hidden');
+            buttonLoader.classList.add('hidden');
+            submitButton.disabled = false;
+        }
+    });
+
+    function showSuccess(message) {
+        messageBox.textContent = message;
+        messageBox.className = 'mt-6 text-center text-sm font-medium text-green-600 p-3 bg-green-50 rounded-lg';
+        messageBox.classList.remove('hidden');
+    }
+
+    function showError(message) {
+        messageBox.textContent = message;
+        messageBox.className = 'mt-6 text-center text-sm font-medium text-red-600 p-3 bg-red-50 rounded-lg';
+        messageBox.classList.remove('hidden');
+    }
+</script>
