@@ -9,7 +9,13 @@ title: Home - The Muslim Post
 </div>
 
 {% assign latest_post = site.posts.first %}
-<main class="home-main">
+
+<!--
+This is the only change: added 'style="flex-grow: 1;"'
+to push the footer down.
+-->
+
+<main class="home-main" style="flex-grow: 1;">
     {% if latest_post %}
     <section class="top-story-section">
         <a href="{{ latest_post.url | relative_url }}" class="top-story-card reveal-on-scroll">
