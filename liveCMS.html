@@ -83,7 +83,7 @@
                  </div>
              </main>
         </div>
-        
+
         <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 items-center justify-center p-4">
              <div id="edit-modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-2xl flex flex-col max-h-[95vh]">
                  <h2 class="text-2xl font-bold mb-4 p-8 pb-0 flex-shrink-0">Edit Post</h2>
@@ -102,7 +102,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
-            
+
             if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
                 document.getElementById('app').innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-8" role="alert"><p class="font-bold">Configuration Error</p><p>Please enter your Supabase URL and Anon Key in the script.</p></div>`;
                 return;
@@ -145,8 +145,7 @@
                     authView.classList.add('hidden');
                     editorView.classList.remove('hidden');
                     writerEmailSpan.textContent = session.user.email;
-                    
-                    // --- THIS IS THE MODIFIED BLOCK ---
+
                     // It now creates all four default blocks in order
                     if (blocksContainer.children.length === 0) {
                         createBlock('headline'); // Original
@@ -154,15 +153,13 @@
                         createBlock('youtube');  // Added: YouTube + description
                         createBlock('content');  // Added: Paragraph box
                     }
-                    // --- END OF MODIFIED BLOCK ---
-
                     fetchRecentPosts();
                 } else {
                     authView.classList.remove('hidden');
                     editorView.classList.add('hidden');
                 }
             });
-            
+
             function autoExpand(textarea) { if (textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; } }
 
             function createBlock(type) {
@@ -190,7 +187,7 @@
                 blocksContainer.appendChild(blockWrapper);
                 blockWrapper.querySelectorAll('textarea').forEach(textarea => { textarea.addEventListener('input', () => autoExpand(textarea)); setTimeout(() => autoExpand(textarea), 0); });
             }
-            
+
             async function fetchRecentPosts() {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return;
@@ -199,7 +196,7 @@
                 recentPostsFeed.innerHTML = '';
                 if(data) data.forEach(post => renderRecentPost(post));
             }
-            
+
             function renderRecentPost(post, prepend = false) {
                 const postEl = document.createElement('div');
                 const isPinned = post.is_pinned;
@@ -209,9 +206,9 @@
                 postEl.innerHTML = `<div><p class="font-semibold">${post.headline || 'Update'}</p><p class="text-xs text-slate-500">${new Date(post.timestamp).toLocaleString()}</p></div><div class="flex items-center gap-3">${pinButtonHTML}<button class="edit-btn text-sm font-semibold text-blue-600" data-post-id="${post.id}">Edit</button><button class="delete-btn text-sm font-semibold text-red-600" data-post-id="${post.id}">Delete</button></div>`;
                 if (prepend) { recentPostsFeed.prepend(postEl); } else { recentPostsFeed.appendChild(postEl); }
             }
-            
+
             addBlockBtn.addEventListener('click', () => createBlock(blockTypeSelect.value));
-            
+
             recentPostsFeed.addEventListener('click', async (e) => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return;
@@ -220,7 +217,7 @@
                 const postId = target.dataset.postId;
                 if (target.classList.contains('pin-btn')) {
                     const { data, error } = await supabaseClient.rpc('toggle_pin', { post_id_to_toggle: postId, user_id_of_pinner: user.id });
-                    if (error) { alert(`RPC Error: ${error.message}`); } 
+                    if (error) { alert(`RPC Error: ${error.message}`); }
                     else if (data && data.startsWith('Error:')) { alert(data); }
                 } else if (target.classList.contains('delete-btn')) {
                     if (confirm('Are you sure you want to delete this post?')) {
@@ -235,7 +232,7 @@
 
             editContent.addEventListener('input', () => autoExpand(editContent));
             cancelEditBtn.addEventListener('click', () => editModal.classList.remove('open'));
-            
+
             saveEditBtn.addEventListener('click', async () => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!currentEditingPostId || !user) return;
@@ -245,7 +242,6 @@
             });
 
             const setPublishingState = (isPublishing) => { publishButton.disabled = isPublishing; document.getElementById("publish-text").classList.toggle("hidden", isPublishing); document.getElementById("publish-spinner").classList.toggle("hidden", !isPublishing); };
-            
             publishButton.addEventListener('click', async () => {
                 setPublishingState(true);
                 const blocks = Array.from(document.querySelectorAll('.content-block'));
@@ -261,7 +257,7 @@
                         case 'headline': headline = mainValue; break;
                         case 'content': bodyParts.push(mainValue); break;
                         case 'quote': bodyParts.push(`> ${mainValue.replace(/\n/g, '\n> ')}`); break;
-                        case 'image': 
+                        case 'image':
                             bodyParts.push(`![${descValue || 'Image'}](${mainValue})`); break;
                         default: // This handles all social media types by using their 'type' name as the keyword
                             bodyParts.push(`[${type}|${descValue || ''}](${mainValue})`); break;
@@ -272,74 +268,25 @@
                 if (!content && !headline) { alert("Cannot publish an empty update."); setPublishingState(false); return; }
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
-                if (error) { statusMessage.textContent = `Error: ${error.message}.`; statusMessage.style.color = 'red'; } 
-                else { 
-                    statusMessage.textContent = 'Successfully published!'; 
-                    statusMessage.style.color = 'green'; 
-                    blocksContainer.innerHTML = ''; 
-                    
-                    // --- ALSO UPDATED HERE ---
+                if (error) { statusMessage.textContent = `Error: ${error.message}.`; statusMessage.style.color = 'red'; }
+                else {
+                    statusMessage.textContent = 'Successfully published!';
+                    statusMessage.style.color = 'green';
+                    blocksContainer.innerHTML = '';
+
                     // Reset the form to the new default state after publishing
                     createBlock('headline');
                     createBlock('image');
                     createBlock('youtube');
                     createBlock('content');
-                    // --- END OF UPDATE ---
 
-                    tagsInput.value = ''; 
+                    tagsInput.value = '';
                 }
                 setPublishingState(false);
-            });
-            
-            // I also modified the publish success logic to reset to the new 4-block default
-            publishButton.addEventListener('click', async () => {
-                setPublishingState(true);
-                const blocks = Array.from(document.querySelectorAll('.content-block'));
-                let headline = '', bodyParts = [];
-                blocks.forEach(block => {
-                    const type = block.dataset.blockType;
-                    const inputs = block.querySelectorAll('textarea, input');
-                    const mainValue = inputs[0]?.value.trim();
-                    const descValue = inputs[1]?.value.trim();
-                    if (!mainValue) return;
 
-                    switch (type) {
-                        case 'headline': headline = mainValue; break;
-                        case 'content': bodyParts.push(mainValue); break;
-                        case 'quote': bodyParts.push(`> ${mainValue.replace(/\n/g, '\n> ')}`); break;
-                        case 'image': 
-                            bodyParts.push(`![${descValue || 'Image'}](${mainValue})`); break;
-                        default: // This handles all social media types by using their 'type' name as the keyword
-                            bodyParts.push(`[${type}|${descValue || ''}](${mainValue})`); break;
-                    }
-                });
-                const tags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
-                const content = bodyParts.join('\n\n');
-                if (!content && !headline) { alert("Cannot publish an empty update."); setPublishingState(false); return; }
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
-                if (error) { statusMessage.textContent = `Error: ${error.message}.`; statusMessage.style.color = 'red'; } 
-                else { 
-                    statusMessage.textContent = 'Successfully published!'; 
-                    statusMessage.style.color = 'green'; 
-                    blocksContainer.innerHTML = ''; 
-                    
-                    // --- ALSO UPDATED HERE ---
-                    // Reset the form to the new default state after publishing
-                    createBlock('headline');
-                    createBlock('image');
-                    createBlock('youtube');
-                    createBlock('content');
-                    // --- END OF UPDATE ---
-
-                    tagsInput.value = ''; 
-                }
-                setPublishingState(false);
-                
                 // Clear status message after 3 seconds
                 setTimeout(() => { statusMessage.textContent = ''; }, 3000);
             });
-            
             supabaseClient.channel('public:live_posts:cms').on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => { fetchRecentPosts(); }).subscribe();
         });
     </script>
