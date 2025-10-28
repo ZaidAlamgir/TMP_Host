@@ -14,9 +14,9 @@ layout: default
         background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: none;
+        display: none; /* Initially hidden */
     }
-    .news-card.visible { display: flex; }
+    .news-card.visible { display: flex; } /* Made visible by JS */
     .news-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
     .news-card .news-card-image-wrapper {
         overflow: hidden; width: 100%; height: 220px; background-color: #e2e8f0;
@@ -92,7 +92,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const tagFilter = urlParams.get('tag');
 
     if (tagFilter) {
-        const formattedTag = tagFilter.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        // --- THIS BLOCK IS MODIFIED ---
+        let formattedTag = tagFilter.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        // Specific fix for Art & Culture tag display
+        if (tagFilter === 'art-culture') {
+            formattedTag = 'Art & Culture';
+        }
+        // --- END OF MODIFICATION ---
+
         pageTitle.innerHTML = `News in <span class="tag-highlight">${formattedTag}</span>`;
         pageSubtitle.style.display = 'none';
 
@@ -107,36 +114,47 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadNextBatch() {
         if (currentIndex >= articlesToShow.length) {
             loader.classList.remove('visible');
-            return;
+            return; // No more articles to show
         }
         loader.classList.add('visible');
+        // Simulate network delay for loading effect
         setTimeout(() => {
             const nextBatch = articlesToShow.slice(currentIndex, currentIndex + BATCH_SIZE);
             nextBatch.forEach(card => card.classList.add('visible'));
             currentIndex += BATCH_SIZE;
-            loader.classList.remove('visible');
+            loader.classList.remove('visible'); // Hide loader after batch is added
+
+            // Disconnect observer if all articles are shown
             if (currentIndex >= articlesToShow.length) {
                 observer.disconnect();
             }
-        }, 300);
+        }, 300); // 300ms delay
     }
 
+    // Initial load or no results message
     if (articlesToShow.length > 0) {
-        loadNextBatch();
+        loadNextBatch(); // Load the first batch
     } else {
-        const message = tagFilter 
-            ? `No articles found for the category "${tagFilter.replace(/-/g, ' ')}".`
+        const message = tagFilter
+            ? `No articles found for the category "${formattedTag}".` // Use the corrected formattedTag here too
             : "No articles have been published yet.";
         noResultsMessage.textContent = message;
         noResultsMessage.style.display = 'block';
     }
 
+    // Setup Intersection Observer to load more when loader is visible
     const observer = new IntersectionObserver((entries) => {
+        // Check if the loader element is intersecting (visible in the viewport)
         if (entries[0].isIntersecting) {
             loadNextBatch();
         }
-    }, { root: null, rootMargin: '0px', threshold: 0.1 });
+    }, {
+        root: null, // Use the viewport as the root
+        rootMargin: '0px', // No margin
+        threshold: 0.1 // Trigger when 10% of the loader is visible
+    });
 
+    // Start observing the loader element only if there are articles
     if (articlesToShow.length > 0) {
         observer.observe(loader);
     }

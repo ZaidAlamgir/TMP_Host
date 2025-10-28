@@ -10,11 +10,6 @@ title: Home - The Muslim Post
 
 {% assign latest_post = site.posts.first %}
 
-<!--
-This is the only change: added 'style="flex-grow: 1;"'
-to push the footer down.
--->
-
 <main class="home-main" style="flex-grow: 1;">
     {% if latest_post %}
     <section class="top-story-section">
@@ -104,6 +99,44 @@ to push the footer down.
                         <p class="news-card-subheadline">Exploring cinema, literature, and the arts from around the world.</p>
                     </div>
                 </a>
+
+                <a href="news-hub.html?tag=weather" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/8e44ad/ffffff?text=Weather" alt="Weather" class="news-card-image">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Weather</h3>
+                        <p class="news-card-subheadline">Latest forecasts, climate updates, and weather-related news.</p>
+                    </div>
+                </a>
+                <a href="news-hub.html?tag=sports" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/27ae60/ffffff?text=Sports" alt="Sports" class="news-card-image">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Sports</h3>
+                        <p class="news-card-subheadline">Scores, highlights, and analysis from the world of sports.</p>
+                    </div>
+                </a>
+                <a href="news-hub.html?tag=national-news" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/c0392b/ffffff?text=National+News" alt="National News" class="news-card-image">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">National News</h3>
+                        <p class="news-card-subheadline">Key developments and events happening within the country.</p>
+                    </div>
+                </a>
+                <a href="news-hub.html?tag=international-news" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/7f8c8d/ffffff?text=International+News" alt="International News" class="news-card-image">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">International News</h3>
+                        <p class="news-card-subheadline">Significant news and stories from across the globe.</p>
+                    </div>
+                </a>
+
             </div>
         </section>
 
