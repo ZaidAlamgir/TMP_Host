@@ -10,17 +10,17 @@ title: Live Updates
     .live-header { text-align: center; margin-bottom: 2.5rem; }
     .live-post { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin: 0 auto 2rem auto; max-width: 800px; }
     .live-post-content { padding: 1.5rem; }
-    .post-body { text-align: center; } 
+    .post-body { text-align: center; }
     .post-body > * { text-align: left; margin-left: auto; margin-right: auto; }
     .post-body .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
     .live-post-headline { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1rem; line-height: 1.2; }
     .live-post-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.875rem; color: #4b5563; }
     .live-post-author-group { display: flex; align-items: center; gap: 0.5rem; }
     .live-post-author { font-weight: 600; }
-    
+
     /* --- THIS IS THE MODIFIED LINE --- */
     .live-post-time { font-weight: 600; color: #ef4444; margin-left: auto; }
-    
+
     .post-author-logo {
         width: 30px;
         height: 30px;
@@ -69,7 +69,7 @@ title: Live Updates
 
     <div id="pinned-post-container"></div>
     <div id="live-feed"></div>
-    
+
     <div id="feed-controls" class="text-center mt-8">
         <button id="load-more-btn" class="professional-btn">Load Previous Updates</button>
         <a href="https://archive-live.tmpnews.com" id="archive-btn" class="professional-btn" style="display: none;">Check Archive History</a>
@@ -90,17 +90,17 @@ title: Live Updates
 
         const pinnedPostContainer = document.getElementById('pinned-post-container');
         const liveFeed = document.getElementById('live-feed');
-        
+
         const loadMoreBtn = document.getElementById('load-more-btn');
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
-        
+
         let loadedPosts = 0;
         const INITIAL_LOAD_COUNT = 20;
         const SUBSEQUENT_LOAD_COUNT = 10;
-        const ARCHIVE_THRESHOLD = 250;
+        const ARCHIVE_THRESHOLD = 250; // Keep this threshold logic
         const viewedPosts = new Set(JSON.parse(sessionStorage.getItem('viewedLivePosts') || '[]'));
-        
+
         function parseContent(content) {
             if (!content) return '';
             const placeholders = [];
@@ -202,10 +202,10 @@ title: Live Updates
             postElement.id = `post-${postData.id}`;
             if (insertAtTop) postElement.classList.add('new-post-animation');
             if (postData.is_pinned) postElement.classList.add('is-pinned');
-            
+
             let tagsHTML = postData.tags?.length > 0 ? '<div class="tags-container">' + postData.tags.map(tag => `<a href="#" class="tag-badge">#${tag}</a>`).join('') + '</div>' : '';
             let pinnedBadgeHTML = postData.is_pinned ? `<span class="pinned-badge"><i class="fas fa-thumbtack fa-xs"></i><span class="ml-1.5">PINNED</span></span>` : '';
-            
+
             const logoSVG = `
                 <svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true">
                     <rect x="50" y="50" width="100" height="100" class="square"/>
@@ -213,8 +213,8 @@ title: Live Updates
                     <circle cx="100" cy="100" r="80" fill="none" stroke-width="2" class="rotating-circle"/>
                 </svg>`;
 
-            const formattedDate = new Date(postData.timestamp).toLocaleString('en-US', { 
-                year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' 
+            const formattedDate = new Date(postData.timestamp).toLocaleString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'
             });
 
             postElement.innerHTML = `
@@ -239,7 +239,7 @@ title: Live Updates
             incrementViewCount(postData.id);
             setTimeout(() => { loadSocialScripts(); }, 100);
         }
-        
+
         async function fetchInitialPosts() {
             const { data: pinnedData } = await supabaseClient.from('live_posts').select('*').eq('is_pinned', true).limit(1);
             pinnedPostContainer.innerHTML = '';
@@ -256,15 +256,29 @@ title: Live Updates
             if (isInitial) liveFeed.innerHTML = '';
             data.forEach(post => renderPost(post, liveFeed, false));
             loadedPosts += data.length;
+
+            // --- THIS IS THE MODIFIED LOGIC BLOCK ---
             if (data.length < limit) {
-                loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'none'; noMorePostsMsg.style.display = 'block';
+                // No more posts available
+                loadMoreBtn.style.display = 'none';         // Hide Load More button
+                archiveBtn.style.display = 'inline-block'; // Show Archive button
+                noMorePostsMsg.style.display = 'block';     // Show "end" message
             } else if (loadedPosts >= ARCHIVE_THRESHOLD) {
-                loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'inline-block'; noMorePostsMsg.style.display = 'none';
+                // Reached archive threshold, but more posts *might* exist
+                loadMoreBtn.style.display = 'none';         // Hide Load More button
+                archiveBtn.style.display = 'inline-block'; // Show Archive button
+                noMorePostsMsg.style.display = 'none';      // Hide "end" message
             } else {
-                loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load Previous Updates'; loadMoreBtn.style.display = 'inline-block'; archiveBtn.style.display = 'none'; noMorePostsMsg.style.display = 'none';
+                // More posts available, haven't hit threshold yet
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load Previous Updates';
+                loadMoreBtn.style.display = 'inline-block'; // Show Load More button
+                archiveBtn.style.display = 'none';          // Hide Archive button
+                noMorePostsMsg.style.display = 'none';       // Hide "end" message
             }
+            // --- END OF MODIFIED LOGIC BLOCK ---
         }
-        
+
         async function incrementViewCount(postId) {
             if (viewedPosts.has(postId)) return;
             viewedPosts.add(postId);
@@ -280,30 +294,26 @@ title: Live Updates
                  const postUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
                  const shareText = `Live Update: ${postHeadline}`;
 
-                 // *** THIS IS THE NEW LOGIC ***
                  if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
-                     // If the Android interface is available, use it for a native share
                      window.AndroidInterface.share(postHeadline, shareText, postUrl);
                  } else if (navigator.share) {
-                     // Otherwise, use the standard Web Share API
                      navigator.share({
                          title: postHeadline,
                          text: shareText,
                          url: postUrl
                      });
                  } else {
-                     // Fallback for browsers that don't support sharing
                      alert(`Share this link:\n${postUrl}`);
                  }
              }
         };
 
         supabaseClient.channel('public:live_posts').on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => fetchInitialPosts()).subscribe();
-        
+
         loadMoreBtn.addEventListener('click', () => loadMorePosts(false));
         liveFeed.addEventListener('click', shareHandler);
         pinnedPostContainer.addEventListener('click', shareHandler);
-        
+
         fetchInitialPosts();
     });
 {% endraw %}

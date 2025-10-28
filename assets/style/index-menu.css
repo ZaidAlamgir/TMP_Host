@@ -1,49 +1,46 @@
-/* --- Styles for the new Universal Animated Index Menu --- */
+/* --- Styles for the Enhanced Universal Animated Index Menu --- */
 
 /* 1. The Index/Close Button Container */
 .index-menu-button {
     background: none;
     border: none;
     cursor: pointer;
-    z-index: 1001; /* Must be higher than the menu overlay */
+    z-index: 1001;
     transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     padding: 5px;
-    /* This is a common fix for preventing blurriness on transformed elements */
     backface-visibility: hidden;
-    /* This creates a space for the icons to live in */
     width: 28px;
     height: 28px;
     position: relative;
 }
 
-/* NEW: Style for the icons inside the button */
+/* Style for the icons inside the button */
 .index-menu-button svg {
-    /* This positions both icons directly on top of each other */
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    /* This makes them fade in and out smoothly */
-    transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    stroke: #1c1e21; /* Default dark color */
 }
 
-/* By default, the close icon is invisible */
 #index-close-icon {
     opacity: 0;
+    transform: rotate(-90deg) scale(0.7);
 }
 
 /* 2. The Rotation Animation and Icon Switch */
 .index-menu-button.active {
-    transform: rotate(360deg);
+    /* transform: rotate(90deg); */
 }
-/* When the menu is active, hide the open icon... */
 .index-menu-button.active #index-open-icon {
     opacity: 0;
+    transform: rotate(90deg) scale(0.7);
 }
-/* ...and show the close icon. */
 .index-menu-button.active #index-close-icon {
     opacity: 1;
+    transform: rotate(0deg) scale(1);
 }
 
 /* 3. The Full-Screen Menu Overlay */
@@ -53,141 +50,295 @@
     left: 0;
     width: 100%;
     height: 100%;
-    /* Refined: A clean, classical light theme */
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     z-index: 1000;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
+    transition: opacity 0.25s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 10vh;
+    overflow-y: auto;
 }
 
 .index-menu-overlay.active {
     opacity: 1;
-    transform: scale(1);
     pointer-events: all;
 }
 
 /* 4. The Content Inside the Menu */
 .index-menu-content {
-    /* New: A focused, centered single-column layout */
-    max-width: 700px;
-    margin: 12vh auto 0 auto;
-    padding: 2rem 1.5rem;
-    height: 75vh;
+    max-width: 650px;
+    width: 90%;
+    padding: 0;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.3s ease-out 0.1s, transform 0.3s ease-out 0.1s;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Keep column layout */
 }
 
-/* 5. The Search Box */
+.index-menu-overlay.active .index-menu-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- NEW: Search Box Container --- */
+.search-box-container {
+    position: relative; /* For positioning the icon */
+    margin-bottom: 2.5rem; /* Space below search */
+    width: 100%;
+}
+
+/* 5. The Search Box Input */
 .index-search-box {
     width: 100%;
-    /* Refined: A more elegant and less intrusive search input */
-    font-size: 1.8rem;
-    font-weight: 500;
-    padding: 1rem 0.5rem;
-    border: none;
-    border-bottom: 2px solid #d1d5db;
-    background-color: transparent;
+    font-size: 1.1rem; /* Adjusted size */
+    font-weight: 400; /* Regular weight */
+    padding: 0.8rem 2.5rem 0.8rem 1rem; /* Left, Top/Bottom, Right */
+    border: 2px solid #d1d5db; /* <<< CHANGED border-width (implicitly via border shorthand) */
+    background-color: #fff; /* White background */
     outline: none;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s;
     color: #1c1e21;
-    margin-bottom: 2rem;
+    border-radius: 8px; /* Rounded corners */
+    box-sizing: border-box; /* Include padding/border in width */
 }
-
+.index-search-box::placeholder {
+    color: #9ca3af;
+}
 .index-search-box:focus {
-    border-bottom-color: #0073e6;
+    border-color: #0073e6;
+    box-shadow: 0 0 0 2px rgba(0, 115, 230, 0.2); /* Focus ring */
 }
 
-/* 6. The Results List */
+/* --- NEW: Search Icon Styling --- */
+.search-icon {
+    position: absolute;
+    top: 50%;
+    right: 1rem; /* Position inside the right padding */
+    transform: translateY(-50%);
+    color: #9ca3af; /* Icon color */
+    pointer-events: none; /* Make icon non-interactive */
+}
+.search-icon svg {
+     width: 18px;
+     height: 18px;
+}
+
+
+/* 6. The Main Navigation Links Section (Placed below search) */
+.index-main-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Remove gap, border handles spacing */
+    padding: 0;
+    margin-bottom: 2rem;
+    border: 2px solid #e5e7eb; /* <<< CHANGED border-width */
+    border-radius: 8px; /* Rounded corners for the box */
+    overflow: hidden; /* Clip borders within rounding */
+}
+
+/* Styling for main nav items (links or dropdown toggles) */
+.index-main-nav > div, /* For dropdown container */
+.index-main-nav > a {  /* For direct links */
+    text-decoration: none;
+    color: #1f2937;
+    font-weight: bold; /* --- MADE TEXT BOLD --- */
+    font-size: 1.1rem;
+    padding: 0.9rem 1rem;
+    position: relative;
+    transition: color 0.2s, background-color 0.2s;
+    border-bottom: 1px solid #e5e7eb; /* Keep separator thin */
+    cursor: pointer; /* Add pointer for dropdown */
+    display: flex; /* Use flex for alignment */
+    justify-content: space-between; /* Space for dropdown arrow */
+    align-items: center;
+}
+.index-main-nav > div:last-child,
+.index-main-nav > a:last-child {
+    border-bottom: none;
+}
+.index-main-nav > div:hover,
+.index-main-nav > a:hover {
+    color: #0073e6;
+    background-color: #f9fafb;
+}
+
+/* --- Dropdown Specific Styles --- */
+.nav-item-dropdown {
+    /* Inherits styles from .index-main-nav > div */
+}
+.dropdown-toggle::after { /* Simple arrow indicator */
+    content: '▼';
+    font-size: 0.7em;
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+.nav-item-dropdown.open .dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+.categories-dropdown {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #f9fafb; /* Light background for dropdown */
+    max-height: 0; /* Hidden by default */
+    overflow: hidden;
+    transition: max-height 0.3s ease-out; /* Smooth transition */
+}
+.nav-item-dropdown.open .categories-dropdown {
+    max-height: 500px; /* Adjust as needed to fit all categories */
+    padding-top: 0.5rem; /* Space above first item */
+    padding-bottom: 0.5rem; /* Space below last item */
+}
+.categories-dropdown li a {
+    display: block;
+    padding: 0.6rem 1rem 0.6rem 2rem; /* Indent category links */
+    text-decoration: none;
+    color: #374151; /* Subtler color */
+    font-size: 1rem;
+    font-weight: 500; /* Regular weight */
+    transition: background-color 0.2s, color 0.2s;
+}
+.categories-dropdown li a:hover {
+    background-color: #f0f2f5;
+    color: #0073e6;
+}
+/* --- End Dropdown Styles --- */
+
+
+/* 7. The Results List (Placed below main nav) */
 #index-results-list {
     list-style: none;
     padding: 0;
-    /* New: Let the list grow and scroll naturally */
-    flex-grow: 1;
+    margin: 0; /* Remove margin if search results appear below nav */
+    max-height: 40vh;
     overflow-y: auto;
-    margin-bottom: 2rem;
 }
-
 #index-results-list li a {
     display: block;
-    padding: 1rem;
+    padding: 0.8rem 0.5rem;
     text-decoration: none;
-    /* Refined: Styles for the light theme */
-    color: #333;
-    font-size: 1.1rem;
+    color: #374151;
+    font-size: 1rem;
     font-weight: 500;
-    border-bottom: 1px solid #eef0f2;
-    transition: background-color 0.2s;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s, color 0.2s;
+    border-radius: 4px;
 }
-
+#index-results-list li:last-child a { border-bottom: none; }
 #index-results-list li a:hover {
-    background-color: #f8f9fa;
+    background-color: #f9fafb;
+    color: #0073e6;
 }
 
-/* 7. NEW: The Main Navigation Links Section */
-.index-main-nav {
-    /* New: A classic, horizontal navigation bar */
-    display: flex;
-    justify-content: center;
-    gap: 2.5rem;
-    padding-bottom: 1.5rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #e2e8f0;
+/* --- Style the home link specifically to align text and logo --- */
+.home-link-with-logo {
+    display: flex; /* Use flexbox */
+    justify-content: space-between; /* Push logo to the right */
+    align-items: center; /* Vertically align items */
 }
 
-.index-main-nav a {
-    text-decoration: none;
-    /* Refined: Professional and clean link styling */
-    color: #606770;
-    font-weight: 600;
-    font-size: 1.1rem;
-    padding: 0.5rem 0;
-    position: relative;
-    transition: color 0.2s;
+/* Style the SVG logo inside the menu */
+.menu-home-logo {
+    width: 20px; /* <<< ADJUSTED SIZE */
+    height: 20px; /* <<< ADJUSTED SIZE */
+    margin-left: 1rem; /* Space between "Home" text and logo */
+    color: #3498db; /* Match header logo color */
+    flex-shrink: 0; /* Prevent logo from shrinking */
 }
 
-.index-main-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #0073e6;
-    transform: scaleX(0);
+/* Styles needed for the logo animation within the menu */
+.menu-home-logo .tmp-text {
+    font-family: 'Merriweather', serif; /* <<< ADDED FONT FAMILY */
+    font-size: 80px;
+    font-weight: bold;
+    fill: #000000; /* <<< CHANGED FILL TO BLACK */
+}
+
+.menu-home-logo .square {
+    fill: currentColor; /* Use the color set on .menu-home-logo */
+}
+
+.menu-home-logo .rotating-circle {
     transform-origin: center;
-    transition: transform 0.3s ease;
+    animation: rotate 10s linear infinite;
+    stroke: currentColor; /* Use the color set on .menu-home-logo */
+    stroke-width: 4; /* Match stroke-width used in JS */
 }
 
-.index-main-nav a:hover {
-    color: #1c1e21;
+/* Make sure the rotate animation is defined (it might already be) */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-.index-main-nav a:hover::after {
-    transform: scaleX(1);
-}
 
-/* Responsive adjustments for the new menu */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .index-menu-content {
-        margin-top: 10vh;
-        height: 80vh;
-        padding: 1rem;
-    }
-    .index-main-nav {
-        gap: 1.8rem;
-    }
-    .index-main-nav a {
-        font-size: 1rem;
-    }
-    .index-search-box {
-        font-size: 1.5rem;
-    }
+    .index-menu-overlay { padding-top: 8vh; }
+    .index-search-box { font-size: 1rem; padding: 0.7rem 2.5rem 0.7rem 1rem; }
+    .index-main-nav > div, .index-main-nav > a { font-size: 1rem; padding: 0.8rem 1rem; }
+    .categories-dropdown li a { font-size: 0.95rem; padding: 0.5rem 1rem 0.5rem 1.8rem; }
+    #index-results-list li a { font-size: 0.95rem; }
 }
 
-/* --- Styles for the Page Fade-out on Login Click --- */
-body.fade-out {
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
+/* --- Dark Mode Specific Styles --- */
+body.dark-mode .index-menu-overlay { background-color: rgba(17, 24, 39, 0.95); }
+body.dark-mode .index-menu-button svg { stroke: var(--dark-text-primary); }
+body.dark-mode .search-box-container { /* No change needed */ }
+body.dark-mode .index-search-box {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-bg-tertiary);
+    border-width: 2px; /* <<< Ensure bold border in dark mode */
+}
+body.dark-mode .index-search-box::placeholder { color: var(--dark-text-secondary); }
+body.dark-mode .index-search-box:focus {
+    border-color: var(--dark-accent-primary);
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+body.dark-mode .search-icon { color: var(--dark-text-secondary); }
+
+body.dark-mode .index-main-nav {
+    border-color: var(--dark-bg-tertiary);
+    border-width: 2px; /* <<< Ensure bold border in dark mode */
+}
+body.dark-mode .index-main-nav > div, body.dark-mode .index-main-nav > a {
+    color: var(--dark-text-primary); /* Bold text should be primary color */
+    border-bottom-color: var(--dark-bg-tertiary); /* Separator color */
+    border-bottom-width: 1px; /* Keep separator thin */
+}
+/* Ensure last item doesn't have a bottom border */
+body.dark-mode .index-main-nav > div:last-child,
+body.dark-mode .index-main-nav > a:last-child {
+    border-bottom: none;
+}
+body.dark-mode .index-main-nav > div:hover, body.dark-mode .index-main-nav > a:hover {
+    color: var(--dark-accent-primary);
+    background-color: var(--dark-bg-secondary);
+}
+body.dark-mode .categories-dropdown { background-color: var(--dark-bg-secondary); }
+body.dark-mode .categories-dropdown li a { color: var(--dark-text-secondary); }
+body.dark-mode .categories-dropdown li a:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-accent-primary);
+}
+
+body.dark-mode #index-results-list li a {
+    color: var(--dark-text-secondary);
+    border-bottom-color: var(--dark-bg-tertiary);
+}
+body.dark-mode #index-results-list li a:hover {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-accent-primary);
+}
+
+/* Adjust dark mode if needed */
+body.dark-mode .menu-home-logo {
+   color: #60a5fa; /* Example: Use dark mode accent color */
 }
