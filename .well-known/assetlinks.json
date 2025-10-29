@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.alamgir.tmp",
+      "sha256_cert_fingerprints": [
+        "AE:BA:D7:40:85:8A:FB:CF:07:7E:4E:FE:79:C0:50:40:63:08:F4:AF:2E:DA:52:60:18:8A:4C:57:34:1C:67:35"
+      ]
+    }
+  }
+]
