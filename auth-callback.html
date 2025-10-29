@@ -18,28 +18,35 @@
 
     <script>
         window.onload = () => {
-            const isInsideApp = typeof window.AndroidInterface !== 'undefined';
             
-            if (isInsideApp) {
-                
-                console.log("Inside app, redirecting to tmpnews://auth");
-                window.location.href = "tmpnews://auth";
-                
-                return; 
-            }                   
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const redirectInfoJSON = localStorage.getItem('auth_redirect_info');
-            localStorage.removeItem('auth_redirect_info'); 
+            
+            if (code && !redirectInfoJSON) {
+                
+                console.log("Google flow detected. Attempting to redirect to app: tmpnews://auth");
+                window.location.href = "tmpnews://auth";
+
+                setTimeout(() => {
+                    console.log("Google flow fallback: Redirecting to website homepage.");
+                    window.location.href = "/"; // Redirect to homepage
+                }, 750);
+                
+                
+                return;
+            }
+            // --- END: NEW ANDROID APP LOGIC ---       
+            localStorage.removeItem('auth_redirect_info'); // Clean up
 
             if (code && redirectInfoJSON) {
+                console.log("Other auth flow detected. Redirecting to original page.");
                 const redirectInfo = JSON.parse(redirectInfoJSON);
-                const finalRedirect = redirectInfo.destination;
-           
-           window.location.href = `${finalRedirect}?code=${code}`;
-       } else {
-           document.body.innerHTML = '<p style="color: red; text-align: center;">Authentication error: Could not find necessary redirect information. Please try logging in again.</p>';
-       }
+                const finalRedirect = redirectInfo.destination;            
+                window.location.href = `${finalRedirect}?code=${code}`;
+           } else {
+               document.body.innerHTML = '<p style="color: red; text-align: center;">Authentication error: Could not find necessary redirect information. Please try logging in again.</p>';
+           }
 
         };
     </script>
