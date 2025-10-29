@@ -49,7 +49,17 @@ function renderWriterHeader(base_path) {
 
     const categoryDropdown = generateCategoryDropdownHTML(base_path);
 
-    // *** MODIFIED HTML STRUCTURE FOR MENU OVERLAY ***
+    // --- START Settings Button Logic ---
+    const isInsideApp = typeof window.AndroidInterface !== 'undefined';
+    const settingsMenuItemHTML = isInsideApp ? `
+        <a href="#" id="app-settings-menu-item" class="app-settings-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Settings
+        </a>
+    ` : '';
+    // --- END Settings Button Logic ---
+
+
     const writerHeaderHTML = `
         <header class="header">
             <div class="header-content">
@@ -62,7 +72,7 @@ function renderWriterHeader(base_path) {
                 <div class="header-center">
                     <a href="${base_path}/" class="logo">
                          <svg class="vector-animation" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
-                             <defs><filter id="glow"><feGaussianBlur stdDeviation="3.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+                            <defs><filter id="glow"><feGaussianBlur stdDeviation="3.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
                             <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
@@ -80,10 +90,10 @@ function renderWriterHeader(base_path) {
         <div class="index-menu-overlay" id="index-menu-overlay">
             <div class="index-menu-content">
                 <div class="search-box-container">
-                     <input type="text" id="index-search-box" class="index-search-box" placeholder="Search by tags to find articles">
-                     <span class="search-icon">
+                    <input type="text" id="index-search-box" class="index-search-box" placeholder="Search by tags to find articles">
+                    <span class="search-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                     </span>
+                    </span>
                 </div>
                 <div class="index-main-nav">
                     <a href="${base_path}/" class="home-link-with-logo">
@@ -99,6 +109,8 @@ function renderWriterHeader(base_path) {
                     </div>
                     <a href="${base_path}/about.html">About</a>
                     <a href="${base_path}/terms.html">Terms & Conditions</a>
+                    <!-- Inject Settings Link Here -->
+                    ${settingsMenuItemHTML}
                 </div>
                 <ul id="index-results-list"></ul>
             </div>
@@ -107,12 +119,19 @@ function renderWriterHeader(base_path) {
     headerPlaceholder.innerHTML = writerHeaderHTML;
 
     const writerLoginBtn = document.getElementById('writer-login-btn');
-    writerLoginBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        if (confirm("ADMIN NOTICE: This login is for authorized writers only. Press OK to continue.")) {
-            window.location.href = `${base_path}/cms.html`;
-        }
-    });
+    if (writerLoginBtn) { // Check if button exists before adding listener
+        writerLoginBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            // Use custom modal/dialog instead of confirm
+             showCustomConfirm("ADMIN NOTICE: This login is for authorized writers only. Press OK to continue.", () => {
+                 window.location.href = `${base_path}/cms.html`;
+             });
+            // if (confirm("ADMIN NOTICE: This login is for authorized writers only. Press OK to continue.")) {
+            //     window.location.href = `${base_path}/cms.html`;
+            // }
+        });
+    }
+
 
     // Attach menu logic AFTER injecting HTML
     attachMenuLogic(base_path);
@@ -127,13 +146,22 @@ function renderSupabaseHeader(user, base_path) {
     const mainIconLink = isUserLoggedIn ? `${base_path}/profile.html` : `${base_path}/auth.html`;
     const categoryDropdown = generateCategoryDropdownHTML(base_path);
 
-    // *** MODIFIED HTML STRUCTURE FOR MENU OVERLAY ***
+    // --- START Settings Button Logic ---
+    const isInsideApp = typeof window.AndroidInterface !== 'undefined';
+    const settingsMenuItemHTML = isInsideApp ? `
+        <a href="#" id="app-settings-menu-item" class="app-settings-link">
+             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            Settings
+        </a>
+    ` : '';
+    // --- END Settings Button Logic ---
+
     const supabaseHeaderHTML = `
         <header class="header">
             <div class="header-content">
                 <div class="header-left">
                     <button class="index-menu-button" id="index-menu-btn" title="Open Index">
-                         <svg id="index-open-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                        <svg id="index-open-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                         <svg id="index-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
@@ -163,14 +191,14 @@ function renderSupabaseHeader(user, base_path) {
         </header>
         <div class="index-menu-overlay" id="index-menu-overlay">
             <div class="index-menu-content">
-                 <div class="search-box-container">
-                     <input type="text" id="index-search-box" class="index-search-box" placeholder="Search by tags to find articles">
-                     <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+                <div class="search-box-container">
+                    <input type="text" id="index-search-box" class="index-search-box" placeholder="Search by tags to find articles">
+                    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
                 </div>
                 <div class="index-main-nav">
                     <a href="${base_path}/" class="home-link-with-logo">
-                         <span>Home</span>
-                         <svg class="menu-home-logo" viewBox="0 0 200 200" aria-hidden="true">
+                        <span>Home</span>
+                        <svg class="menu-home-logo" viewBox="0 0 200 200" aria-hidden="true">
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
                             <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="4" class="rotating-circle"/>
@@ -181,6 +209,8 @@ function renderSupabaseHeader(user, base_path) {
                     </div>
                     <a href="${base_path}/about.html">About</a>
                     <a href="${base_path}/terms.html">Terms & Conditions</a>
+                     <!-- Inject Settings Link Here -->
+                    ${settingsMenuItemHTML}
                 </div>
                 <ul id="index-results-list"></ul>
             </div>
@@ -190,16 +220,34 @@ function renderSupabaseHeader(user, base_path) {
     headerPlaceholder.innerHTML = supabaseHeaderHTML;
 
     // Attach menu logic AFTER injecting HTML
-    attachMenuLogic(base_path);
+    attachMenuLogic(base_path); // This will now attach the settings listener too
 
-    if (isUserLoggedIn && !user.photoURL) {
-        const profileInitialCircle = document.getElementById('profile-initial-circle');
-        if (profileInitialCircle) { // Check if element exists before modifying
-            const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
-            profileInitialCircle.textContent = initial;
-            profileInitialCircle.style.backgroundColor = generateColorForUser(user.uid);
-        }
-    }
+    if (isUserLoggedIn && user) { // Added check for user object
+         const profileInitialCircle = document.getElementById('profile-initial-circle');
+         if (profileInitialCircle && !user.photoURL) { // Check if element exists before modifying
+             const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+             profileInitialCircle.textContent = initial;
+             profileInitialCircle.style.backgroundColor = generateColorForUser(user.uid || user.id); // Use uid or id
+             profileInitialCircle.style.display = 'flex'; // Ensure it's visible if no photo
+         }
+          // Ensure profile pic visibility is correct
+         const profilePicImg = document.getElementById('profile-pic-img');
+         if (profilePicImg) {
+             profilePicImg.style.display = user.photoURL ? 'block' : 'none';
+             if(user.photoURL) profilePicImg.src = user.photoURL; // Update src
+         }
+          const profilePicContainer = document.getElementById('profile-pic-container');
+         if (profilePicContainer) profilePicContainer.style.display = 'flex';
+          const loginIconSvg = document.getElementById('login-icon-svg');
+         if (loginIconSvg) loginIconSvg.style.display = 'none';
+
+     } else {
+         // Ensure logged-out state is visually correct
+         const loginIconSvg = document.getElementById('login-icon-svg');
+         if (loginIconSvg) loginIconSvg.style.display = 'block';
+         const profilePicContainer = document.getElementById('profile-pic-container');
+         if (profilePicContainer) profilePicContainer.style.display = 'none';
+     }
 }
 
 
@@ -216,13 +264,20 @@ function attachMenuLogic(base_path) {
     async function getPostData() {
         if (allPosts.length === 0) {
             try {
-                const response = await fetch(`${base_path}/search.json`);
-                if (!response.ok) throw new Error('Search data not found.');
+                // Try fetching from root first, then relative if needed (more robust)
+                let searchUrl = `/search.json`;
+                let response = await fetch(searchUrl);
+                if (!response.ok) {
+                    searchUrl = `${base_path}/search.json`; // Fallback to relative path
+                    response = await fetch(searchUrl);
+                }
+                if (!response.ok) throw new Error(`Search data not found at ${searchUrl}. Status: ${response.status}`);
                 allPosts = await response.json();
             } catch (error) { console.error("Could not load search data:", error); }
         }
         return allPosts;
     }
+
 
     function renderPosts(posts) {
         if (!resultsList) return;
@@ -234,7 +289,9 @@ function attachMenuLogic(base_path) {
         // Limit results displayed initially
         posts.slice(0, 10).forEach(post => {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<a href="${base_path}${post.url}">${post.title}</a>`;
+             // Ensure post URL is correctly formed relative to the site root
+             // Assuming post.url starts with "/"
+            listItem.innerHTML = `<a href="${post.url}">${post.title}</a>`;
             resultsList.appendChild(listItem);
         });
     }
@@ -244,6 +301,7 @@ function attachMenuLogic(base_path) {
         if(searchBox) searchBox.value = ''; // Clear search on open
         if(indexMenuBtn) indexMenuBtn.classList.add('active');
         if(indexMenuOverlay) indexMenuOverlay.classList.add('active');
+         document.body.classList.add('menu-open'); // Prevent body scroll
     }
 
     function closeMenu() {
@@ -251,6 +309,7 @@ function attachMenuLogic(base_path) {
         if(indexMenuOverlay) indexMenuOverlay.classList.remove('active');
         // Close dropdown when closing main menu
         if (dropdownContainer) dropdownContainer.classList.remove('open');
+         document.body.classList.remove('menu-open'); // Allow body scroll
     }
 
     // Main Menu Toggle
@@ -264,10 +323,10 @@ function attachMenuLogic(base_path) {
     // Close menu by clicking overlay
     if (indexMenuOverlay) {
         indexMenuOverlay.addEventListener('click', (e) => {
-             // Close only if clicking the overlay itself, not content inside
-             if (e.target === indexMenuOverlay) {
+            // Close only if clicking the overlay itself, not content inside
+            if (e.target === indexMenuOverlay) {
                 closeMenu();
-             }
+            }
         });
     }
 
@@ -276,26 +335,27 @@ function attachMenuLogic(base_path) {
         searchBox.addEventListener('input', async (e) => {
             const query = e.target.value.toLowerCase().trim();
             const posts = await getPostData();
-            // More robust filtering: check title and tags
+            // More robust filtering: check title and tags (ensure tags exist)
             const filteredPosts = query.length < 2
                 ? posts.slice(0, 5) // Show recent if query is short
                 : posts.filter(post =>
-                    post.title.toLowerCase().includes(query) ||
-                    post.tags.toLowerCase().includes(query)
+                    (post.title && post.title.toLowerCase().includes(query)) || // Check if title exists
+                    (post.tags && post.tags.toLowerCase().includes(query)) // Check if tags exist
                 );
             renderPosts(filteredPosts); // Render filtered results
         });
     }
 
+
     // Articles Dropdown Toggle
     if (dropdownToggle) {
         dropdownToggle.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent closing main menu
-            dropdownContainer.classList.toggle('open');
+            if (dropdownContainer) dropdownContainer.classList.toggle('open'); // Check container exists
         });
     }
 
-     // Close main menu when a category link is clicked
+    // Close main menu when a category link is clicked
     const categoryLinks = document.querySelectorAll('.categories-dropdown li a');
     categoryLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -304,12 +364,29 @@ function attachMenuLogic(base_path) {
         });
     });
 
+    // --- START Settings Link Listener ---
+    const settingsLink = document.getElementById('app-settings-menu-item');
+    if (settingsLink && typeof window.AndroidInterface !== 'undefined') {
+        settingsLink.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default '#' link behavior
+            console.log("App Settings link clicked");
+            try {
+                window.AndroidInterface.openAppSettings();
+                closeMenu(); // Close the menu after clicking
+            } catch (e) {
+                console.error("Error calling AndroidInterface.openAppSettings:", e);
+                // Optionally show an alert or message if the call fails
+                // alert("Could not open app settings.");
+            }
+        });
+    }
+    // --- END Settings Link Listener ---
+
 }
 
 
 // --- Supabase Header Initialization (Handles Caching & Auth State) ---
 function initializeSupabaseHeader(base_path, forceRerender = false) {
-    const basePath = base_path;
     const CACHED_USER_KEY = 'cachedUser';
 
     let cachedUser = null;
@@ -324,42 +401,63 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
     }
 
     // Initial render with cached user (or null if none)
-    renderSupabaseHeader(cachedUser, basePath);
+    renderSupabaseHeader(cachedUser, base_path);
 
     // Initialize Supabase client if available
-    const supabaseInstance = window.supabase?.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
+    // Ensure Supabase URL and Key are correctly configured elsewhere or replace placeholders
+     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; // Replace if needed
+     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU'; // Replace if needed
+     let supabaseInstance = null;
+      try {
+           if (window.supabase && typeof window.supabase.createClient === 'function') {
+                supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+           }
+      } catch(e) {
+           console.error("Error creating Supabase client:", e);
+      }
+
 
     if (supabaseInstance) {
         // Listen for authentication changes
         supabaseInstance.auth.onAuthStateChange((event, session) => {
             const user = session?.user;
-            let userChanged = false;
+             let userChanged = false; // Flag to check if re-render actually happened
 
             if (user) {
                 // User is logged in or state changed to logged in
                 const userToCache = {
-                    uid: user.id,
+                    uid: user.id, // Use id
                     displayName: user.user_metadata?.full_name,
                     email: user.email,
                     photoURL: user.user_metadata?.avatar_url
                 };
-                 // Check if user data actually changed or if it's the initial load
-                if (forceRerender || !cachedUser || JSON.stringify(userToCache) !== localStorage.getItem(CACHED_USER_KEY)) {
-                    renderSupabaseHeader(userToCache, basePath); // Re-render header with user info
+
+                 // Compare with current cache in localStorage, not just the initially loaded cachedUser
+                 const currentStorageCache = localStorage.getItem(CACHED_USER_KEY);
+                 const needsUpdate = forceRerender || !currentStorageCache || JSON.stringify(userToCache) !== currentStorageCache;
+
+                if (needsUpdate) {
+                    console.log("Auth Change: User logged in or data changed. Re-rendering header.");
+                    renderSupabaseHeader(userToCache, base_path); // Re-render header with user info
                     localStorage.setItem(CACHED_USER_KEY, JSON.stringify(userToCache));
-                    cachedUser = userToCache; // Update local variable
+                    cachedUser = userToCache; // Update local variable for subsequent checks within this scope
                     userChanged = true;
+                } else {
+                    // console.log("Auth Change: User logged in, but cached data is current. No re-render.");
                 }
             } else {
                 // User is logged out or state changed to logged out
-                if (cachedUser || forceRerender) { // Only re-render if there was a user before
-                    renderSupabaseHeader(null, basePath); // Re-render header in logged-out state
+                if (localStorage.getItem(CACHED_USER_KEY) || forceRerender) { // Check storage directly
+                    console.log("Auth Change: User logged out. Re-rendering header.");
+                    renderSupabaseHeader(null, base_path); // Re-render header in logged-out state
                     localStorage.removeItem(CACHED_USER_KEY);
                     cachedUser = null; // Update local variable
                     userChanged = true;
+                } else {
+                     // console.log("Auth Change: User logged out, but already reflected. No re-render.");
                 }
             }
-             // console.log("Auth state changed:", event, "User changed:", userChanged); // Debug log
+             // console.log("Auth state change processed. Event:", event, "User changed on screen:", userChanged);
         });
     } else {
         console.warn("Supabase client not found. Header auth state might be inaccurate.");
@@ -370,27 +468,31 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
 // --- Main Execution Logic ---
 document.addEventListener('DOMContentLoaded', function() {
     const pathname = window.location.pathname;
-    const base_path = document.body.getAttribute('data-base-path') || '';
+    // Attempt to get base path from body attribute, default to '.'
+    const base_path = document.body.getAttribute('data-base-path') || '.';
 
     // Define pages where header injection should be skipped
     const skipHeaderPages = [
         '/auth.html',
         '/auth-callback.html',
         '/callback.html',
-        '/profile.html' // Profile page handles its own auth state rendering
+        // '/profile.html' // Keep header on profile, but profile.js might update parts of it
     ];
 
-    if (skipHeaderPages.some(page => pathname.includes(page))) {
+    if (skipHeaderPages.some(page => pathname.endsWith(page))) { // Use endsWith for better matching
+        console.log("Skipping header injection for:", pathname);
         return; // Don't inject header on these pages
     }
 
     // Determine if it's a writer CMS page
-    const isWriterPage = pathname.includes('/cms.html') || pathname.includes('/liveCMS.html');
+    const isWriterPage = pathname.endsWith('/cms.html') || pathname.endsWith('/liveCMS.html');
 
     if (isWriterPage) {
+         console.log("Rendering writer header for:", pathname);
         renderWriterHeader(base_path);
     } else {
         // Initialize Supabase header for all other public pages
+         console.log("Initializing Supabase header for:", pathname);
         initializeSupabaseHeader(base_path);
     }
 });
@@ -398,21 +500,48 @@ document.addEventListener('DOMContentLoaded', function() {
 // Handle browser back/forward navigation potentially using cached pages (bfcache)
 window.addEventListener('pageshow', function(event) {
     if (event.persisted) { // Page loaded from bfcache
+        console.log("Page loaded from bfcache:", window.location.pathname);
         const pathname = window.location.pathname;
-        const skipHeaderPages = ['/auth.html','/auth-callback.html','/callback.html','/profile.html'];
+        const skipHeaderPages = ['/auth.html','/auth-callback.html','/callback.html']; // Pages without header
 
-        if (skipHeaderPages.some(page => pathname.includes(page))) {
-            return;
+        if (skipHeaderPages.some(page => pathname.endsWith(page))) {
+            return; // Still skip header on these
         }
 
-        const base_path = document.body.getAttribute('data-base-path') || '';
-        const isWriterPage = pathname.includes('/cms.html') || pathname.includes('/liveCMS.html');
+        const base_path = document.body.getAttribute('data-base-path') || '.';
+        const isWriterPage = pathname.endsWith('/cms.html') || pathname.endsWith('/liveCMS.html');
 
-        // Force re-render of the appropriate header on bfcache restore to ensure correct state
+        // Force re-render of the appropriate header on bfcache restore
         if (isWriterPage) {
-             renderWriterHeader(base_path); // Re-attach listeners for writer header
+             console.log("Re-rendering writer header after bfcache restore.");
+             renderWriterHeader(base_path);
         } else {
-             initializeSupabaseHeader(base_path, true); // Force re-render for Supabase header
+             console.log("Re-initializing Supabase header after bfcache restore.");
+            initializeSupabaseHeader(base_path, true); // Force re-check and re-render
         }
     }
 });
+
+
+// --- Custom Confirm/Alert ---
+// Basic implementation - replace with a proper modal library if needed
+function showCustomConfirm(message, onOk) {
+    const dialog = document.createElement('div');
+    dialog.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000;';
+    dialog.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); max-width: 90%; text-align: center;">
+            <p style="margin-bottom: 20px;">${message}</p>
+            <button id="custom-confirm-ok" style="padding: 8px 16px; margin-right: 10px; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer;">OK</button>
+            <button id="custom-confirm-cancel" style="padding: 8px 16px; border: 1px solid #ccc; background-color: #f0f0f0; border-radius: 4px; cursor: pointer;">Cancel</button>
+        </div>
+    `;
+    document.body.appendChild(dialog);
+
+    document.getElementById('custom-confirm-ok').onclick = () => {
+        document.body.removeChild(dialog);
+        if (onOk) onOk();
+    };
+    document.getElementById('custom-confirm-cancel').onclick = () => {
+        document.body.removeChild(dialog);
+    };
+}

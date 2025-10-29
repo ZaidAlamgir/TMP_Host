@@ -342,3 +342,9 @@ body.dark-mode #index-results-list li a:hover {
 body.dark-mode .menu-home-logo {
    color: #60a5fa; /* Example: Use dark mode accent color */
 }
+
+/* Ensure the settings icon color matches the link text color */
+.index-main-nav .app-settings-link svg {
+  stroke: currentColor; /* Use the link's current text color for the icon */
+  fill: none; /* Make sure SVG isn't filled if it shouldn't be */
+}
