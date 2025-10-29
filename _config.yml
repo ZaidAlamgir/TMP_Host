@@ -28,6 +28,7 @@ collections:
 include:
   - cms.html
   - liveCMS.html
+  - ".well-known"
 
 # Exclude from processing.
 exclude:
