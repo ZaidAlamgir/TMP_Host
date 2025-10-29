@@ -23,28 +23,50 @@
             const code = urlParams.get('code');
             const redirectInfoJSON = localStorage.getItem('auth_redirect_info');
             
+            // --- START: UPDATED ANDROID APP LOGIC ---
+            // This page loads in the *external browser* (Chrome).
+            // We check if this is the Google OAuth flow, which has a 'code' 
+            // but does NOT set 'redirectInfoJSON' in localStorage.
             if (code && !redirectInfoJSON) {
-                
-                console.log("Google flow detected. Attempting to redirect to app: tmpnews://auth");
-                window.location.href = "tmpnews://auth";
+                // This is the Google Sign-In flow.
+                console.log("Google flow detected. Attempting to redirect to app via Android Intent URL.");
 
+                // --- This is the new, "more powerful" redirect ---
+                // It's an intent-based URL specifically for Android/Chrome.
+                // scheme=tmpnews, host=auth, package=com.alamgir.tmp
+                // This tells Chrome exactly which app to open.
+                const androidIntentUrl = "intent://auth#Intent;scheme=tmpnews;package=com.alamgir.tmp;end";
+                
+                // Try the new intent URL
+                window.location.href = androidIntentUrl;
+
+                // --- Fallback for desktop/non-app users ---
+                // If the app redirect doesn't work after 1000ms (e.g., user is on 
+                // a desktop), this will run and log them into the website normally.
                 setTimeout(() => {
                     console.log("Google flow fallback: Redirecting to website homepage.");
                     window.location.href = "/"; // Redirect to homepage
-                }, 750);
+                }, 1000); // Increased to 1 second
                 
-                
+                // Stop the rest of this script from running.
                 return;
             }
-            // --- END: NEW ANDROID APP LOGIC ---       
+            // --- END: UPDATED ANDROID APP LOGIC ---
+
+            
+            // --- Your original code for *other* browser login flows ---
+            // This part will now only run if 'redirectInfoJSON' *exists*,
+            // preserving your website's other login methods.
             localStorage.removeItem('auth_redirect_info'); // Clean up
 
             if (code && redirectInfoJSON) {
                 console.log("Other auth flow detected. Redirecting to original page.");
                 const redirectInfo = JSON.parse(redirectInfoJSON);
-                const finalRedirect = redirectInfo.destination;            
+                const finalRedirect = redirectInfo.destination;
+                // Redirect the user back to their original page with the auth code
                 window.location.href = `${finalRedirect}?code=${code}`;
            } else {
+               // This handles any flow that fails (e.g., no code in URL)
                document.body.innerHTML = '<p style="color: red; text-align: center;">Authentication error: Could not find necessary redirect information. Please try logging in again.</p>';
            }
 
