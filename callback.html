@@ -9,7 +9,6 @@
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0073e6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Styles for the "Return to App" button */
         .return-button {
             display: inline-block;
             padding: 14px 28px;
@@ -36,30 +35,50 @@
         <h2>Login Successful!</h2>
         <p style="margin-bottom: 1.5rem;">Click the button below to return to the app.</p>
         
-        <a href="intent://auth#Intent;scheme=tmpnews;package=com.alamgir.tmp;end" class="return-button">Return to App</a>
+        <a href="https://www.tmpnews.com/callback.html?app_redirect=true" class="return-button" id="return-to-app-btn">Return to App</a>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7TpvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 
-                // --- *** MODIFIED ROBUST CHECK *** ---
-                // Check BOTH search query (before the '#') and hash fragment (after the '#')
+                // Get all URL parameters
                 const searchParams = new URLSearchParams(window.location.search);
                 const hashParams = new URLSearchParams(window.location.hash.substring(1));
                 
-                const fromApp = searchParams.get('from_app') === 'true' || hashParams.get('from_app') === 'true';
+                const fromAppQuery = searchParams.get('from_app') === 'true' || hashParams.get('from_app') === 'true';
+                const appRedirectQuery = searchParams.get('app_redirect') === 'true';
+                const sessionHash = window.location.hash; // Get the full hash, e.g., "#access_token=..."
 
-                if (fromApp) {
-                    // App user detected! Show the "Return to App" button.
+                if (appRedirectQuery) {
+                    // --- SCENARIO 2: We are INSIDE the app's WebView ---
+                    // The app was opened by the link. The hash is in the URL.
+                    // Supabase has processed the hash. Now, just redirect to the app's home page.
+                    console.log("App redirect detected. Logging in and redirecting to /");
+                    window.location.replace('/');
+                } 
+                else if (fromAppQuery && sessionHash) {
+                    // --- SCENARIO 1: We are in the external BROWSER (Chrome) ---
+                    // The login was successful. We need to show the "Return to App" button
+                    // and pass the session hash to it.
+                    console.log("Login from app detected. Showing 'Return to App' button.");
+                    
+                    // *** THIS IS THE KEY CHANGE (Part 2) ***
+                    // Add the session hash to the button's link
+                    const returnButton = document.getElementById('return-to-app-btn');
+                    returnButton.href = returnButton.href + sessionHash; // e.g., "...?app_redirect=true#access_token=..."
+
                     document.getElementById('loading-container').style.display = 'none';
                     document.getElementById('app-return-container').style.display = 'block';
-                } else {
-                    // Normal website user. Log them in directly.
+                } 
+                else {
+                    // --- SCENARIO 3: Normal web user login ---
+                    // Not from the app, just a standard website login.
+                    console.log("Normal web login detected. Redirecting to /");
                     window.location.replace('/');
                 }
             }
