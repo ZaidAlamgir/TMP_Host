@@ -42,29 +42,27 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                
-                // Supabase puts OAuth data in the URL hash (#)
-                const params = new URLSearchParams(window.location.hash.substring(1));
-                
-                // Check for the 'from_app' tag that auth.html added
-                const fromApp = params.get('from_app') === 'true';
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                
+                // Get the URL parameters
+                const params = new URLSearchParams(window.location.hash.substring(1)); // OAuth data is in the hash
+                const fromApp = params.get('from_app') === 'true'; // Check for our tag
 
-                if (fromApp) {
-                    // APP USER: Show the "Return to App" button
-                    document.getElementById('loading-container').style.display = 'none';
-                    document.getElementById('app-return-container').style.display = 'block';
-                } else {
-                    // NORMAL WEBSITE USER: Log them in to the website
-                    window.location.replace('/');
-                }
-            }
-        });
-    </script>
+                if (fromApp) {
+                    // App user detected! Show the "Return to App" button.
+                    document.getElementById('loading-container').style.display = 'none';
+                    document.getElementById('app-return-container').style.display = 'block';
+                } else {
+                    // Normal website user. Log them in directly.
+                    window.location.replace('/');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
