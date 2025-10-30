@@ -36,6 +36,8 @@
     <div class="container" id="app-return-container" style="display:none;">
         <h2>Login Successful!</h2>
         <p style="margin-bottom: 1.5rem;">Click the button below to return to the app.</p>
+        
+        <!-- This is the verified link that your AndroidManifest.xml is listening for -->
         <a href="https://www.tmpnews.com/auth-return" class="return-button">Return to App</a>
     </div>
 
@@ -47,16 +49,18 @@
         supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
                 
-                // Get the URL parameters
-                const params = new URLSearchParams(window.location.hash.substring(1)); // OAuth data is in the hash
-                const fromApp = params.get('from_app') === 'true'; // Check for our tag
+                // Supabase puts OAuth data in the URL hash (#)
+                const params = new URLSearchParams(window.location.hash.substring(1));
+                
+                // Check for the 'from_app' tag that auth.html added
+                const fromApp = params.get('from_app') === 'true';
 
                 if (fromApp) {
-                    // App user detected! Show the "Return to App" button.
+                    // APP USER: Show the "Return to App" button
                     document.getElementById('loading-container').style.display = 'none';
                     document.getElementById('app-return-container').style.display = 'block';
                 } else {
-                    // Normal website user. Log them in directly.
+                    // NORMAL WEBSITE USER: Log them in to the website
                     window.location.replace('/profile.html');
                 }
             }
