@@ -277,10 +277,11 @@ title: Account - The Muslim Post
         }
 
         // --- AUTH GUARD ---
-        // If a user is already logged in, redirect them to their profile.
+        // If a user is already logged in, redirect them away from the login page.
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
-                window.location.href = `${basePath}/profile.html`;
+                // Redirect to the homepage using replace() to prevent history loops
+                window.location.replace(`${basePath}/`); 
             }
         });
 
@@ -362,16 +363,40 @@ title: Account - The Muslim Post
             });
 
             const handleGoogleSignIn = async () => {
-                const { error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                });
-                if (error) {
-                    signInError.textContent = error.message;
-                    emailError.textContent = error.message;
-                }
-            };
-            googleSignInSignUpBtn.addEventListener('click', handleGoogleSignIn);
-            googleSignInBtn.addEventListener('click', handleGoogleSignIn);
+    // 1. Check if we are inside your app's WebView
+    const isInsideApp = typeof window.AndroidInterface !== 'undefined';
+
+    // 2. Set the default redirect options
+    const authOptions = {
+        provider: 'google',
+        options: {
+            // This MUST point to callback.html
+            redirectTo: `${window.location.origin}/callback.html`
+        }
+    };
+
+    // 3. If we are inside the app, "tag" the request
+    if (isInsideApp) {
+        console.log("Running from inside app, adding 'from_app' tag.");
+        // This adds 'from_app=true' to the return URL hash
+        authOptions.options.queryParams = {
+            'from_app': 'true'
+        };
+    } else {
+        console.log("Running from a normal browser.");
+    }
+
+    // 4. Pass the modified options to Supabase
+    const { data, error } = await supabase.auth.signInWithOAuth(authOptions);
+    
+    if (error) {
+        signInError.textContent = error.message;
+        emailError.textContent = error.message;
+    }
+};
+
+googleSignInSignUpBtn.addEventListener('click', handleGoogleSignIn);
+googleSignInBtn.addEventListener('click', handleGoogleSignIn);
             
             // CRITICAL FIX: Use event delegation for password toggle icons.
             // Font Awesome's JS can replace <i> tags with <svg>, causing direct listeners to break.
