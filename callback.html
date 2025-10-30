@@ -32,37 +32,38 @@
         <p>Please wait while we sign you in...</p>
     </div>
 
-    <!-- This container will be shown for app users -->
     <div class="container" id="app-return-container" style="display:none;">
         <h2>Login Successful!</h2>
         <p style="margin-bottom: 1.5rem;">Click the button below to return to the app.</p>
         
-        <!-- This is the verified link that your AndroidManifest.xml is listening for -->
         <a href="intent://auth#Intent;scheme=tmpnews;package=com.alamgir.tmp;end" class="return-button">Return to App</a>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                
-                // Get the URL parameters
-                const params = new URLSearchParams(window.location.hash.substring(1)); // OAuth data is in the hash
-                const fromApp = params.get('from_app') === 'true'; // Check for our tag
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                
+                // --- *** MODIFIED ROBUST CHECK *** ---
+                // Check BOTH search query (before the '#') and hash fragment (after the '#')
+                const searchParams = new URLSearchParams(window.location.search);
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                
+                const fromApp = searchParams.get('from_app') === 'true' || hashParams.get('from_app') === 'true';
 
-                if (fromApp) {
-                    // App user detected! Show the "Return to App" button.
-                    document.getElementById('loading-container').style.display = 'none';
-                    document.getElementById('app-return-container').style.display = 'block';
-                } else {
-                    // Normal website user. Log them in directly.
-                    window.location.replace('/');
-                }
-            }
-        });
-    </script>
+                if (fromApp) {
+                    // App user detected! Show the "Return to App" button.
+                    document.getElementById('loading-container').style.display = 'none';
+                    document.getElementById('app-return-container').style.display = 'block';
+                } else {
+                    // Normal website user. Log them in directly.
+                    window.location.replace('/');
+                }
+            }
+        });
+    </script>
 </body>
 </html>

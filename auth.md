@@ -362,41 +362,42 @@ title: Account - The Muslim Post
                 }
             });
 
+            // --- *** MODIFIED FUNCTION *** ---
             const handleGoogleSignIn = async () => {
-    // 1. Check if we are inside your app's WebView
-    const isInsideApp = typeof window.AndroidInterface !== 'undefined';
+                // 1. Check if we are inside your app's WebView
+                const isInsideApp = typeof window.AndroidInterface !== 'undefined';
+                
+                // 2. Set the base redirectTo URL
+                let redirectUrl = `${window.location.origin}/callback.html`;
+                
+                // 3. If we are inside the app, add 'from_app=true' as a query parameter
+                if (isInsideApp) {
+                    console.log("Running from inside app, adding 'from_app' to search query.");
+                    redirectUrl += '?from_app=true'; // Add as a standard query parameter
+                } else {
+                    console.log("Running from a normal browser.");
+                }
+            
+                // 4. Set the default redirect options
+                const authOptions = {
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectUrl // Use the modified URL
+                    }
+                };
+                
+                // 5. Pass the modified options to Supabase
+                const { data, error } = await supabase.auth.signInWithOAuth(authOptions);
+                
+                if (error) {
+                    signInError.textContent = error.message;
+                    emailError.textContent = error.message;
+                }
+            };
+            // --- *** END OF MODIFICATION *** ---
 
-    // 2. Set the default redirect options
-    const authOptions = {
-        provider: 'google',
-        options: {
-            // This MUST point to callback.html
-            redirectTo: `${window.location.origin}/callback.html`
-        }
-    };
-
-    // 3. If we are inside the app, "tag" the request
-    if (isInsideApp) {
-        console.log("Running from inside app, adding 'from_app' tag.");
-        // This adds 'from_app=true' to the return URL hash
-        authOptions.options.queryParams = {
-            'from_app': 'true'
-        };
-    } else {
-        console.log("Running from a normal browser.");
-    }
-
-    // 4. Pass the modified options to Supabase
-    const { data, error } = await supabase.auth.signInWithOAuth(authOptions);
-    
-    if (error) {
-        signInError.textContent = error.message;
-        emailError.textContent = error.message;
-    }
-};
-
-googleSignInSignUpBtn.addEventListener('click', handleGoogleSignIn);
-googleSignInBtn.addEventListener('click', handleGoogleSignIn);
+            googleSignInSignUpBtn.addEventListener('click', handleGoogleSignIn);
+            googleSignInBtn.addEventListener('click', handleGoogleSignIn);
             
             // CRITICAL FIX: Use event delegation for password toggle icons.
             // Font Awesome's JS can replace <i> tags with <svg>, causing direct listeners to break.
