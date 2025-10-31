@@ -83,7 +83,7 @@ Institutional Bias: This exclusion is mirrored in the state machinery. Muslim re
 The "Muslim community" is not a single unified group. It is divided very deeply by caste, class, and sect, which is an internal aspect that makes the complexity of the story of the community's marginalization even greater. The OBC Muslim movements, representing the "marginalized" (OBCs and others) Muslims, highlights a long-standing internal oppression by the Hinduised Caste System in Muslim Society, in a Very Small Level it is like Hindu Caste system or Varna mostly in Villages and Outer areas but do exist
 
 
-OBC Muslim activists argue that they face a triple-layered discrimination: as Muslims (from the Hindu majority), as "low-caste" (from the Muslim elite), and as a backward class (from the state). They have historically been underrepresented within Muslim leadership itself, which has often focused on issues of identity (like personal law) rather than the "bread and butter" issues of development and social justice that disproportionately affect the Pasmanda majority.
+OBC Muslim activists argue that they face a triple-layered discrimination: as Muslims (from the Hindu majority), as "low-caste" (from the Muslim elite), and as a backward class (from the state). They have historically been underrepresented within Muslim leadership itself, which has often focused on issues of identity (like personal law) rather than the "bread and butter" issues of development and social justice that disproportionately affect the OBC majority.
 
 ## 9. Psychological Trauma and Perpetual Insecurity.
 
