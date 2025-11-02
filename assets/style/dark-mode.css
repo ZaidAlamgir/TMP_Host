@@ -1,110 +1,206 @@
-/* --- Enhanced Dark Mode Theme --- */
-/* This is activated when your Android app adds the 'dark-mode' class to the body tag */
+/* ---
+==========================================================================
+   A powerful, unified dark mode stylesheet for The Muslim Post.
+   This file overrides light-mode defaults and Tailwind classes
+   when 'body.dark-mode' is active.
+==========================================================================
+--- */
 
+/* --- 1. Root Color Variables --- */
 :root {
-    --dark-bg-primary: #111827;      /* Deep navy - Main background */
-    --dark-bg-secondary: #1f2937;    /* Dark gray - Cards, headers */
-    --dark-bg-tertiary: #374151;     /* Lighter gray - Borders, hover states */
-    --dark-text-primary: #f9fafb;    /* Off-white - Main text, headlines */
-    --dark-text-secondary: #d1d5db;  /* Light gray - Subtitles, meta text */
-    --dark-accent-primary: #60a5fa;  /* Bright blue - Links, primary actions */
-    --dark-accent-secondary: #facc15;/* Vibrant yellow - Banners, special buttons */
+    --dark-bg-primary: #111827;      /* Deep navy - Main background (Tailwind gray-900) */
+    --dark-bg-secondary: #1f2937;    /* Dark gray - Cards, headers (Tailwind gray-800) */
+    --dark-bg-tertiary: #374151;     /* Lighter gray - Hover states (Tailwind gray-700) */
+    --dark-border-color: #4b5563;    /* Muted border (Tailwind gray-600) */
+    --dark-text-primary: #f9fafb;    /* Off-white - Headlines (Tailwind gray-50) */
+    --dark-text-secondary: #d1d5db;  /* Light gray - Body text (Tailwind gray-300) */
+    --dark-text-muted: #9ca3af;     /* Muted gray - Meta text (Tailwind gray-400) */
+    --dark-accent-primary: #60a5fa;  /* Bright blue - Links (Tailwind blue-400) */
+    --dark-accent-secondary: #facc15;/* Vibrant yellow - Banners (Tailwind yellow-400) */
 }
+
+/* --- 2. Global Overrides (To fight Tailwind) --- */
 
 body.dark-mode {
     background-color: var(--dark-bg-primary);
-    color: var(--dark-text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* --- General Content & Containers --- */
-body.dark-mode .header,
-body.dark-mode .post-container,
-body.dark-mode .legal-container,
-body.dark-mode .selection-card,
-body.dark-mode .article-container,
-body.dark-mode .live-post,
-body.dark-mode .auth-container,
-body.dark-mode .subscription-card,
-body.dark-mode .news-card,
-body.dark-mode .profile-layout {
-    background-color: var(--dark-bg-secondary);
     color: var(--dark-text-secondary);
-    border-color: var(--dark-bg-tertiary);
 }
 
-/* --- Typography --- */
+/* Override common Tailwind light-mode classes */
+body.dark-mode .bg-white,
+body.dark-mode .bg-slate-100 {
+    background-color: var(--dark-bg-secondary) !important;
+}
+
+body.dark-mode .bg-gray-100,
+body.dark-mode .bg-slate-50,
+body.dark-mode .bg-f8f9fa,  /* from home.css */
+body.dark-mode .bg-f9fafb,  /* from post.html */
+body.dark-mode .bg-f0f2f5 {  /* from style.css */
+    background-color: var(--dark-bg-primary) !important;
+}
+
+/* Text Colors */
 body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
 body.dark-mode .logo,
-body.dark-mode .top-story-headline,
-body.dark-mode .news-card-headline,
-body.dark-mode .live-post-headline,
-body.dark-mode .main-title,
-body.dark-mode .article-headline {
-    color: var(--dark-text-primary);
+body.dark-mode .font-bold,
+body.dark-mode .font-semibold,
+body.dark-mode .text-gray-800,
+body.dark-mode .text-gray-900,
+body.dark-mode .text-slate-800,
+body.dark-mode .text-slate-900,
+body.dark-mode .text-1c1e21, /* from style.css */
+body.dark-mode [class*="color: #111827"],
+body.dark-mode [class*="color: #1c1e21"] {
+    color: var(--dark-text-primary) !important;
 }
 
 body.dark-mode p,
-body.dark-mode .subtitle,
-body.dark-mode .top-story-subheadline,
-body.dark-mode .news-card-subheadline,
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-700,
+body.dark-mode .text-slate-600,
+body.dark-mode .text-606770, /* from post.html */
+body.dark-mode .color-4b5563, /* from post.html */
+body.dark-mode .color-374151, /* from post.html */
+body.dark-mode .article-body p,
 body.dark-mode .article-subheadline,
-body.dark-mode .footer-disclaimer,
-body.dark-mode .post-card-author {
-    color: var(--dark-text-secondary);
+body.dark-mode .top-story-subheadline,
+body.dark-mode .subtitle {
+    color: var(--dark-text-secondary) !important;
 }
 
+body.dark-mode .text-gray-500,
+body.dark-mode .text-slate-500,
+body.dark-mode .text-6b7280, /* from post.html */
+body.dark-mode .text-8a8d91,
+body.dark-mode .publish-date,
+body.dark-mode .article-image-caption,
+body.dark-mode .post-stats,
+body.dark-mode .stat-item {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Links and Accents */
 body.dark-mode a {
     color: var(--dark-accent-primary);
 }
-
-body.dark-mode blockquote {
-    border-left-color: var(--dark-accent-primary);
-    background-color: rgba(96, 165, 250, 0.05);
+body.dark-mode a:hover {
+    color: #93c5fd; /* Lighter blue on hover */
+}
+body.dark-mode .tag-highlight { /* from news-hub.html */
+    color: var(--dark-accent-primary) !important;
 }
 
-/* --- Forms & Interactive Elements --- */
-body.dark-mode input[type="text"],
-body.dark-mode input[type="email"],
-body.dark-mode input[type="password"],
-body.dark-mode textarea,
-body.dark-mode select {
-    background-color: var(--dark-bg-tertiary);
+/* Borders */
+body.dark-mode .border-gray-200,
+body.dark-mode .border-slate-200,
+body.dark-mode .border-slate-300,
+body.dark-mode .border-e5e7eb, /* from post.html */
+body.dark-mode .border-dddfe2, /* from post.html */
+body.dark-mode .border-d1d5db,
+body.dark-mode .border-t, body.dark-mode .border-b, body.dark-mode .border,
+body.dark-mode .article-meta,
+body.dark-mode .article-footer,
+body.dark-mode .post-footer,
+body.dark-mode hr {
+    border-color: var(--dark-border-color) !important;
+}
+
+body.dark-mode .divider::before,
+body.dark-mode .divider::after {
+    border-bottom-color: var(--dark-border-color) !important;
+}
+
+/* Shadows */
+body.dark-mode .shadow-lg,
+body.dark-mode .shadow-xl,
+body.dark-mode .shadow,
+body.dark-mode .box-shadow {
+    /* Replace light shadow with a subtle border */
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+
+/* Blockquotes */
+body.dark-mode blockquote,
+body.dark-mode .article-body blockquote {
+    border-left-color: var(--dark-accent-primary) !important;
+    background-color: rgba(96, 165, 250, 0.05) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
+/* --- 3. Component-Specific Overrides --- */
+
+/* --- Header, Footer, Navs (style.css, index-menu.css, site-footer.html) --- */
+body.dark-mode .header {
+    background-color: var(--dark-bg-secondary);
+    border-bottom-color: var(--dark-border-color);
+}
+body.dark-mode .header.header-solid { /* For about.css */
+    background-color: var(--dark-bg-secondary) !important;
+    border-bottom-color: var(--dark-border-color) !important;
+}
+body.dark-mode .header .logo,
+body.dark-mode .header .index-menu-button svg,
+body.dark-mode .header.header-solid .logo,
+body.dark-mode .header.header-solid .index-menu-button svg,
+body.dark-mode #login-icon-svg svg {
+    color: var(--dark-text-primary) !important;
+    stroke: var(--dark-text-primary) !important;
+}
+
+body.dark-mode .index-menu-overlay {
+    background-color: rgba(17, 24, 39, 0.95); /* Dark with blur */
+}
+body.dark-mode .index-search-box {
+    background-color: var(--dark-bg-secondary);
     color: var(--dark-text-primary);
-    border-color: #4b5563;
+    border-color: var(--dark-border-color);
+}
+body.dark-mode .search-icon {
+    color: var(--dark-text-muted);
+}
+body.dark-mode .index-main-nav {
+    border-color: var(--dark-border-color);
+}
+body.dark-mode .index-main-nav > div,
+body.dark-mode .index-main-nav > a {
+    color: var(--dark-text-primary);
+    border-bottom-color: var(--dark-border-color);
+}
+body.dark-mode .index-main-nav > div:hover,
+body.dark-mode .index-main-nav > a:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-accent-primary);
+}
+body.dark-mode .categories-dropdown {
+    background-color: var(--dark-bg-primary);
+}
+body.dark-mode .categories-dropdown li a {
+    color: var(--dark-text-secondary);
+}
+body.dark-mode .categories-dropdown li a:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-accent-primary);
+}
+body.dark-mode #index-results-list li a {
+    color: var(--dark-text-secondary);
+    border-bottom-color: var(--dark-border-color);
+}
+body.dark-mode #index-results-list li a:hover {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-accent-primary);
+}
+body.dark-mode .menu-home-logo .tmp-text {
+    fill: var(--dark-text-primary);
 }
 
-body.dark-mode input:focus,
-body.dark-mode textarea:focus,
-body.dark-mode select:focus {
-    border-color: var(--dark-accent-primary);
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
-}
-
-body.dark-mode .btn-primary,
-body.dark-mode .cta-button {
-    background-color: var(--dark-accent-primary);
-    color: var(--dark-bg-primary);
-    font-weight: bold;
-}
-
-body.dark-mode .btn-primary:hover,
-body.dark-mode .cta-button:hover {
-    background-color: #3b82f6; /* Brighter blue on hover */
-}
-
-/* --- Specific Component Styling --- */
-
-/* Header & Navigation */
-body.dark-mode .header-content .index-menu-button svg {
-    stroke: var(--dark-text-primary);
-}
 body.dark-mode .bottom-nav {
     background-color: var(--dark-bg-secondary);
-    border-top: 1px solid var(--dark-bg-tertiary);
+    border-top: 1px solid var(--dark-border-color);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
 }
 body.dark-mode .bottom-nav-link {
-    color: var(--dark-text-secondary);
+    color: var(--dark-text-muted);
 }
 body.dark-mode .bottom-nav-link.active {
     color: var(--dark-accent-primary);
@@ -113,29 +209,122 @@ body.dark-mode .bottom-nav-link.active svg {
     stroke: var(--dark-accent-primary);
 }
 body.dark-mode .nav-glider {
-    background-color: rgba(96, 165, 250, 0.15);
+    background-color: rgba(96, 165, 250, 0.15); /* Faint blue glow */
 }
 
-/* Homepage */
+body.dark-mode .bg-gray-800 { /* Footer */
+    background-color: var(--dark-bg-primary) !important;
+}
+body.dark-mode .text-gray-300 { /* Footer text */
+    color: var(--dark-text-secondary) !important;
+}
+body.dark-mode .text-gray-400 { /* Footer meta text */
+    color: var(--dark-text-muted) !important;
+}
+body.dark-mode .border-gray-700 { /* Footer border */
+    border-color: var(--dark-border-color) !important;
+}
+
+/* --- Homepage (home.css, index.md) --- */
 body.dark-mode .support-cta-banner {
-    background-color: var(--dark-accent-secondary);
-    color: var(--dark-bg-primary);
+    background-color: var(--dark-accent-secondary) !important;
+    color: var(--dark-bg-primary) !important; /* High contrast */
 }
 body.dark-mode .support-cta-button {
-    background-color: var(--dark-bg-primary);
-    color: var(--dark-accent-secondary);
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-accent-secondary) !important;
 }
 body.dark-mode .top-story-card {
-    background-color: transparent; /* Let the section background show */
+    background-color: var(--dark-bg-secondary) !important;
+}
+body.dark-mode .top-story-kicker {
+    color: var(--dark-accent-primary);
+}
+body.dark-mode .news-card {
+    background-color: var(--dark-bg-secondary) !important;
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+body.dark-mode .news-card-image-wrapper {
+    background-color: var(--dark-bg-tertiary);
 }
 body.dark-mode .feature-item .feature-icon {
     background-color: var(--dark-bg-tertiary);
     color: var(--dark-accent-primary);
 }
+body.dark-mode .cta-section {
+    background-color: var(--dark-bg-secondary) !important;
+}
 
-/* Profile Page */
+/* --- Post Feeds (post.html, live.md, postopen.html) --- */
+body.dark-mode .post-container,
+body.dark-mode .live-post,
+body.dark-mode .article-container,
+body.dark-mode .user-post {
+    background-color: var(--dark-bg-secondary);
+    border-color: var(--dark-border-color);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border-color) !important;
+}
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+    border-color: var(--dark-accent-primary) !important;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3) !important;
+}
+body.dark-mode .suggestion-chip,
+body.dark-mode .post-tag,
+body.dark-mode .tag {
+    background-color: rgba(96, 165, 250, 0.15);
+    color: var(--dark-accent-primary);
+}
+body.dark-mode .suggestion-chip:hover,
+body.dark-mode .post-tag:hover {
+    background-color: rgba(96, 165, 250, 0.25);
+}
+body.dark-mode .tag-badge { /* from live.md */
+    background-color: #3730a3; /* Dark indigo */
+    color: #e0e7ff;
+}
+body.dark-mode .pinned-badge { /* from live.md */
+    background-color: #78350f; /* Dark orange */
+    color: #fef3c7;
+}
+body.dark-mode .share-btn {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-secondary);
+}
+body.dark-mode .share-btn:hover {
+    background-color: var(--dark-border-color);
+}
+body.dark-mode .author-avatar { /* from postopen.html */
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+
+/* --- Auth & Profile (auth.md, profile.css, profile.md) --- */
+body.dark-mode .auth-container {
+    background-color: var(--dark-bg-secondary);
+}
+body.dark-mode .btn-google {
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border-color) !important;
+}
+body.dark-mode .btn-google:hover {
+    background-color: var(--dark-bg-tertiary) !important;
+}
+body.dark-mode .profile-layout {
+    background-color: var(--dark-bg-secondary);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
 body.dark-mode .profile-nav {
-    border-right-color: var(--dark-bg-tertiary);
+    border-right-color: var(--dark-border-color);
 }
 body.dark-mode .profile-nav li a {
     color: var(--dark-text-secondary);
@@ -146,32 +335,98 @@ body.dark-mode .profile-nav li a:hover {
 body.dark-mode .profile-nav li a.active {
     background-color: var(--dark-accent-primary);
     color: var(--dark-bg-primary);
+    font-weight: bold;
+}
+body.dark-mode .btn-primary {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+body.dark-mode .btn-primary:hover {
+    background-color: #93c5fd;
+}
+body.dark-mode .user-post-item { /* from profile.md */
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+body.dark-mode .message.success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #a7f3d0;
+    border-color: #059669;
+}
+body.dark-mode .message.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border-color: #b91c1c;
+}
+body.dark-mode .message.info {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #93c5fd;
+    border-color: #2563eb;
 }
 
-/* Live Page */
-body.dark-mode .live-indicator .dot {
-    box-shadow: 0 0 8px 2px #f87171; /* A slightly softer red glow */
-}
-body.dark-mode .tag-badge {
-    background-color: #3730a3; /* Dark indigo for tags */
-    color: #e0e7ff;
-}
-body.dark-mode .pinned-badge {
-    background-color: #78350f; /* Dark orange for pinned */
-    color: #fef3c7;
+/* --- Legal Pages (legal.css) --- */
+body.dark-mode .legal-container {
+    background-color: var(--dark-bg-secondary);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
 }
 
-/* Support & Payment Page */
+/* --- Support & Payment (support.css, payment-selection.css) --- */
+body.dark-mode .subscription-card,
+body.dark-mode .selection-card {
+    background-color: var(--dark-bg-secondary);
+    border-color: var(--dark-border-color);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+body.dark-mode .subscription-card:hover {
+     box-shadow: 0 0 0 1px var(--dark-accent-primary), 0 8px 20px rgba(96, 165, 250, 0.1) !important;
+}
 body.dark-mode .subscription-card.popular {
-    border-color: var(--dark-accent-primary);
+    border-color: var(--dark-accent-primary) !important;
 }
 body.dark-mode .popular-badge {
     background-color: var(--dark-accent-primary);
     color: var(--dark-bg-primary);
+    font-weight: bold;
+}
+body.dark-mode .card-button {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+body.dark-mode .card-button:hover {
+    background-color: #93c5fd;
+}
+body.dark-mode .subscription-card.membership .card-button {
+    background: linear-gradient(90deg, #10B981, #059669);
+    color: var(--dark-text-primary);
 }
 body.dark-mode .features-list .fa-check-circle {
     color: #34d399; /* Green check */
 }
 body.dark-mode .features-list .fa-times-circle {
-    color: #6b7280; /* Muted 'x' */
+    color: var(--dark-text-muted); /* Muted 'x' */
+}
+body.dark-mode .quick-amount-btn {
+    background-color: var(--dark-bg-tertiary);
+    border-color: var(--dark-border-color);
+    color: var(--dark-text-secondary);
+}
+body.dark-mode .quick-amount-btn.selected {
+    border-color: var(--dark-accent-primary);
+    background-color: rgba(96, 165, 250, 0.1);
+    color: var(--dark-accent-primary);
+}
+body.dark-mode .plan-summary {
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+body.dark-mode .method-card {
+    border-color: var(--dark-border-color);
+}
+/* Make PayPal/Paytm logos visible on dark background */
+body.dark-mode .paypal-logo path[fill="#003087"],
+body.dark-mode .paypal-logo path[fill="#012169"] {
+    fill: #009CDE;
+}
+body.dark-mode .paytm-logo path[fill="#00b2ef"] {
+    fill: #00b2ef;
 }
