@@ -21,17 +21,25 @@ extra_css:
         </div>
 
         <div class="payment-methods-grid">
-            <div class="method-card" id="phonepe-card">
+            
+            <!-- === START: Paytm card (Now dynamic) === -->
+            <div class="method-card" id="paytm-verification-card" style="border: 2px solid #00b2ef; background-color: #f9fafb;">
                 <div class="logo-container">
-                    <svg class="method-logo phonepe-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="50" fill="#5F259F"/>
-                        <path d="M72.3963 32.748L61.6457 71.0718C61.4285 71.8687 60.7029 72.4332 59.8517 72.4332H40.1481C39.2969 72.4332 38.5714 71.8687 38.3541 71.0718L27.6035 32.748C27.3862 31.9511 28.0202 31.25 28.9493 31.25H71.0505C71.9796 31.25 72.6136 31.9511 72.3963 32.748ZM58.0772 40.8529L51.981 63.3155H48.0188L41.9226 40.8529H58.0772Z" fill="white"/>
-                    </svg>
+                    <svg class="method-logo" style="max-width: 140px;" viewBox="0 0 110 32" xmlns="http://www.w3.org/2000/svg"><path fill="#00b2ef" d="M108.8 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-9-1.1h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-15.1 14.3 3.6 3.6c.4.4.4 1.1 0 1.5l-4.1 4.1c-.2.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-6.9c0-.6.2-1.1.6-1.5l5-5c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5l-3.6 3.6c-.4.4-1 .4-1.4 0l-.8-.8c-.4-.4-.4-1.1 0-1.5m-1 15.6h-4.6c-.3 0-.5-.2-.5-.5V18.1c0-.6.2-1.1.6-1.5l10.3-10.3c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5L71 15.6c-.4.4-1 .4-1.4 0l-5.7-5.7c-.4-.4-.4-1.1 0-1.5l3.6-3.6c.4-.4.4-1.1 0-1.5l-4.1-4.1c-.2-.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-1c0-.3-.2-.5-.5-.5h-6.1c-.3 0-.5.2-.5.5v1c0 .3-.2.5-.5.5h-4.6c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5m-9-29.9h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 0h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9 0H14c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M12.9 0H4.7C4.4 0 4.2.2 4.2.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M3.6 1.1H.5C.2 1.1 0 1.3 0 1.6v28.8c0 .3.2.5.5.5h3.1c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5"></path></svg>
                 </div>
-                <p class="method-description">Ideal for users in India. Supports UPI, Wallets, Net Banking, and Cards.</p>
-                <button id="phonepe-button" class="payment-button phonepe">Pay with PhonePe</button>
+                <!-- Title and Description will be set by JavaScript -->
+                <h3 id="paytm-card-title" style="font-weight: 600; color: #1c1e21; font-size: 1.1rem; margin-bottom: 0.5rem;">Loading...</h3>
+                <p id="paytm-card-description" class="method-description" style="color: #374151;">
+                    Please wait while we check your account status...
+                </p>
+                <!-- This button will also be controlled by JavaScript -->
+                <button id="temp-free-access-btn" class="payment-button" style="background-color: #00b2ef; color: white; display: none;">
+                    ...
+                </button>
             </div>
+            <!-- === END: Modification === -->
 
+            <!-- === START: PayPal card (Now dynamic) === -->
             <div class="method-card" id="paypal-card">
                 <div class="logo-container">
                     <svg class="method-logo paypal-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78 50">
@@ -42,9 +50,20 @@ extra_css:
                         <path fill="#009CDE" d="m32.8 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6H15.6c-.7 0-1.3-.4-1.5-1.1L12 34.6c-.2-.7-.8-1.1-1.5-1.1H9.2c-1 0-1.8-.7-1.9-1.7L6.4 24.7c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
                     </svg>
                 </div>
-                <p class="method-description">Recommended for international users. Pay securely with your PayPal account or credit/debit card.</p>
-                <div id="paypal-button-container"></div>
+                
+                <!-- === MODIFICATION: Moved this <p> tag outside the button container === -->
+                <p class="method-description" id="paypal-description">
+                    <strong>For International Customers & Reviewers.</strong>
+                    <br>
+                    (Note: PayPal does not support India-to-India payments).
+                </p>
+                <!-- This container is now ONLY for the button -->
+                <div id="paypal-button-container">
+                    <!-- PayPal button will render here -->
+                </div>
             </div>
+            <!-- === END: PayPal card === -->
+
         </div>
         
         <div class="back-link-container">
@@ -54,7 +73,7 @@ extra_css:
 
     <div id="payment-loader" style="display: none; text-align: center; padding: 3rem 1rem;">
         <div class="spinner"></div>
-        <p class="loader-text">Connecting securely to the payment gateway...</p>
+        <p class="loader-text">Activating Plan... Please wait.</p>
     </div>
 </main>
 
@@ -62,62 +81,135 @@ extra_css:
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // --- Supabase Client ---
+        const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // --- Get Plan Details from URL ---
         const urlParams = new URLSearchParams(window.location.search);
         const plan = urlParams.get('plan');
         const amount = urlParams.get('amount');
         const cycle = urlParams.get('cycle');
         
-        // --- DIAGNOSTIC: Check if data is arriving from the URL ---
-        console.log('Plan:', plan, 'Amount:', amount, 'Cycle:', cycle);
-
         if (!plan || !amount || !cycle) {
             document.querySelector('.selection-card').innerHTML = '<p class="error-message">Invalid subscription details. Please <a href="support.html">go back</a> and select a plan.</p>';
             return;
         }
 
-        const exchangeRate = 83.0;
-        const amountUSD = (amount / exchangeRate).toFixed(2);
-
+        // --- Populate Page with Plan Details ---
         document.getElementById('selected-plan-name').textContent = plan;
         document.getElementById('summary-plan-name').textContent = plan;
         document.getElementById('summary-plan-price').textContent = `₹${amount}`;
         document.getElementById('summary-plan-cycle').textContent = `/ ${cycle}`;
 
-        // PhonePe Button Handler (no changes needed here)
-        const phonepeButton = document.getElementById('phonepe-button');
-        phonepeButton.addEventListener('click', () => {
-            document.querySelector('.selection-card').style.display = 'none';
-            document.getElementById('payment-loader').style.display = 'block';
-            alert(`Initiating PhonePe payment for ₹${amount}.`);
-        });
+        // --- Main Logic ---
+        await handlePaymentOptions();
 
-        // FIX #2: PayPal button logic wrapped in a try...catch block
-        // This will show a helpful error if the Client ID is missing or invalid.
-        try {
-            paypal.Buttons({
-                createOrder: (data, actions) => {
-                    return actions.order.create({
-                        purchase_units: [{
-                            description: `The Muslim Post - ${plan} Subscription`,
-                            amount: { value: amountUSD, currency_code: 'USD' }
-                        }]
-                    });
-                },
-                onApprove: (data, actions) => {
-                    return actions.order.capture().then(details => {
-                        alert('Transaction completed by ' + details.payer.name.given_name + '!');
-                    });
-                },
-                onError: (err) => {
-                    console.error('PayPal Button Error:', err);
-                    alert('An error occurred with the PayPal transaction. Please try again.');
-                },
-                style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' }
-            }).render('#paypal-button-container');
-        } catch (error) {
-            console.error("Failed to render PayPal buttons. This is often due to an invalid or missing Client ID.", error);
-            document.getElementById('paypal-button-container').innerHTML = "<p class='error-message'>Could not load PayPal buttons. Please verify your Client ID.</p>";
+        // --- Helper Functions ---
+
+        async function handlePaymentOptions() {
+            const paytmCardTitle = document.getElementById('paytm-card-title');
+            const paytmCardDescription = document.getElementById('paytm-card-description');
+            const tempButton = document.getElementById('temp-free-access-btn');
+            const paypalCard = document.getElementById('paypal-card');
+            const paypalDescription = document.getElementById('paypal-description'); // Get the description
+
+            const { data: { session } } = await supabase.auth.getSession();
+
+            // Case 0: One-time Support (Donation)
+            if (plan === 'One-time Support') {
+                paytmCardTitle.textContent = 'Paytm (Under Verification)';
+                paytmCardDescription.innerHTML = 'Our Paytm Gateway is under verification. <br><br>Please use PayPal for one-time support.';
+                tempButton.style.display = 'none';
+                
+                // Render PayPal for the donation
+                paypalCard.style.display = 'block'; // Make sure it's visible
+                paypalDescription.style.display = 'block'; // Make sure description is visible
+                renderPayPal(true); // 'true' means it's a donation
+                return;
+            }
+
+            // === THIS IS THE UPDATED LOGIC ===
+
+            // Case 1: User is Logged In
+            if (session) {
+                // --- User is Logged In & It's a Subscription ---
+                paytmCardTitle.textContent = 'All Benefits Activated';
+                // === MODIFICATION: Added <strong> tag ===
+                paytmCardDescription.innerHTML = 'As a logged-in user, your benefits are active. <br><br><strong>Our Paytm gateway is in verification. For testing, you can use the PayPal option.</strong>';
+                tempButton.style.display = 'none'; // Hide button
+                
+                paypalCard.style.display = 'block'; // Show PayPal card
+                paypalDescription.style.display = 'block'; // Make sure description is visible
+                renderPayPal(false); // 'false' for subscription
+            
+            } else {
+                // --- Case 2: User is Logged Out ---
+                paytmCardTitle.textContent = 'Please Log In';
+                // === MODIFICATION: Added <strong> tag ===
+                paytmCardDescription.innerHTML = 'Please log in to activate your free subscription benefits. <br><br><strong>Our Paytm gateway is in verification. For testing, you can use the PayPal option.</strong>';
+                tempButton.style.display = 'block';
+                tempButton.textContent = 'Log In to Activate';
+
+                tempButton.addEventListener('click', () => {
+                    sessionStorage.setItem('postLoginRedirect', window.location.href);
+                    window.location.href = 'auth.html';
+                });
+
+                paypalCard.style.display = 'block'; // Show PayPal card
+                paypalDescription.style.display = 'block'; // Make sure description is visible
+                renderPayPal(false); // 'false' for subscription
+            }
+        }
+
+        function renderPayPal(isDonation = false) {
+            const exchangeRate = 83.0;
+            const amountUSD = (amount / exchangeRate).toFixed(2);
+            const paypalContainer = document.getElementById('paypal-button-container');
+
+            // The <p> tag is now safe outside this div.
+            paypalContainer.innerHTML = ''; 
+
+            try {
+                paypal.Buttons({
+                    createOrder: (data, actions) => {
+                        return actions.order.create({
+                            purchase_units: [{
+                                description: `The Muslim Post - ${plan} Subscription`,
+                                amount: { value: amountUSD, currency_code: 'USD' }
+                            }]
+                        });
+                    },
+                    
+                    onApprove: (data, actions) => {
+                        document.querySelector('.selection-card').style.display = 'none';
+                        document.getElementById('payment-loader').style.display = 'block';
+
+                        return actions.order.capture().then(async (details) => {
+                            // Payment is successful.
+                            
+                            // We are NOT saving subscriptions to Supabase in this version.
+                            // We will add this back when your gateway is live.
+                            
+                            // Redirect to success
+                            window.location.href = 'payment-status.html?code=PAYMENT_SUCCESS';
+                        });
+                    },
+
+                    onError: (err) => {
+                        console.error('PayPal Button Error:', err);
+                        window.location.href = 'payment-status.html?code=PAYMENT_FAILED';
+                    },
+
+                    style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' }
+                }).render(paypalContainer); // Render directly into the container
+            
+            } catch (error) {
+                console.error("Failed to render PayPal buttons:", error);
+                paypalContainer.innerHTML = "<p class='error-message'>Could not load PayPal. Please refresh the page.</p>";
+            }
         }
     });
 </script>

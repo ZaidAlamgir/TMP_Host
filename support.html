@@ -5,6 +5,77 @@ extra_css:
   - /assets/style/support.css
 ---
 
+<style>
+  .quick-amount-selector {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .quick-amount-btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .quick-amount-btn:hover {
+    border-color: #bbb;
+  }
+  .quick-amount-btn.selected {
+    /* This is the "popular" color from your other card */
+    border-color: #6a3ab2; 
+    background-color: #f4effc;
+    color: #6a3ab2;
+    box-shadow: 0 2px 8px rgba(106, 58, 178, 0.1);
+  }
+  .custom-amount-form .custom-amount-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+    font-size: 0.95rem;
+  }
+
+  /* === NEW STYLES FOR THE INPUT BOX === */
+  .custom-amount-input {
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    padding: 12px 15px; /* Increased padding (size) */
+    font-size: 1.1rem; /* Larger font */
+    font-weight: 600;
+    color: #1c1e21;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .custom-amount-input:focus,
+  .custom-amount-input:focus-visible {
+    border-color: #6a3ab2; /* Focus color matches your theme */
+    box-shadow: 0 0 0 3px rgba(106, 58, 178, 0.15);
+    outline: none;
+  }
+
+  /* === HIDE DEFAULT NUMBER INPUT ARROWS === */
+  /* For Chrome, Safari, Edge, Opera */
+  .custom-amount-input::-webkit-outer-spin-button,
+  .custom-amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* For Firefox */
+  .custom-amount-input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield; /* <-- CSS FIX: Added this line */
+  }
+  /* === END OF NEW STYLES === */
+
+</style>
 <main class="support-page-container">
     <section class="support-header">
         <h1 class="main-title">Support Independent Journalism</h1>
@@ -32,7 +103,7 @@ extra_css:
             <div class="popular-badge">Most Popular</div>
             <div class="card-header">
                 <h2 class="tier-name">Gold</h2>
-                <p class="tier-price">₹599 <span class="billing-cycle">/ month</span></p>
+                <p class="tier-price">₹599 <span class="billing-cycle">/ year</span></p>
                 <p class="tier-description">Unlock exclusive content and get the best value with our annual plan.</p>
             </div>
             <ul class="features-list">
@@ -48,7 +119,7 @@ extra_css:
         <div class="subscription-card">
             <div class="card-header">
                 <h2 class="tier-name">Diamond</h2>
-                <p class="tier-price">₹1000 <span class="billing-cycle">/ month</span></p>
+                <p class="tier-price">₹1000 <span class="billing-cycle">/ year</span></p>
                 <p class="tier-description">For dedicated readers who want a deeper involvement in our direction.</p>
             </div>
             <ul class="features-list">
@@ -64,7 +135,7 @@ extra_css:
         <div class="subscription-card membership">
             <div class="card-header">
                 <h2 class="tier-name">Membership</h2>
-                <p class="tier-price">₹5000 <span class="billing-cycle">/ month</span></p>
+                <p class="tier-price">₹5000 <span class="billing-cycle">/ year</span></p>
                 <p class="tier-description">Become a verified contributor and part of our core community.</p>
             </div>
             <ul class="features-list">
@@ -76,13 +147,35 @@ extra_css:
             </ul>
             <a href="payment-selection.html?plan=Membership&amount=5000&cycle=year" class="card-button">Become a Member</a>
         </div>
-    </section>
+
+        <div class="subscription-card" id="custom-support-card">
+            <div class="card-header">
+                <h2 class="tier-name">Support TMP</h2>
+                <p class="tier-price">₹ <span class="billing-cycle">One-time</span></p>
+                <p class="tier-description">Make a one-time contribution to support our mission.</p>
+            </div>
+            
+            <div class="custom-amount-form">
+                <div class="quick-amount-selector">
+                    <button class="quick-amount-btn" data-amount="100">₹100</button>
+                    <button class="quick-amount-btn" data-amount="250">₹250</button>
+                    <button class="quick-amount-btn" data-amount="500">₹500</button>
+                </div>
+
+                <label for="custom-amount-input" class="custom-amount-label">Or enter a custom amount (in ₹):</label>
+                <input type="number" id="custom-amount-input" class="custom-amount-input" placeholder="e.g., 100" min="10">
+                <p class="error-message" id="custom-amount-error" style="display:none;"></p>
+                
+                <button id="custom-support-button" class="card-button" style="margin-top: 15px;">Proceed to Pay</button>
+            </div>
+        </div>
+        </section>
 
     <section class="faq-section">
         <h2 class="section-title">Frequently Asked Questions</h2>
         <div class="faq-item">
             <h3 class="faq-question">What payment methods do you accept?</h3>
-            <p class="faq-answer">We accept payments via <strong>PhonePe</strong> for our Indian readers (which includes UPI, Wallets, and Cards) and <strong>PayPal</strong> for our international readers. You will be able to choose your preferred method on the next screen.</p>
+            <p class="faq-answer">We accept payments via <strong>Paytm PG</strong> for our Indian readers (which includes UPI, Wallets, and Cards) and <strong>PayPal</strong> for our international readers. You will be able to choose your preferred method on the next screen.</p>
         </div>
         <div class="faq-item">
             <h3 class="faq-question">Can I cancel my subscription?</h3>
@@ -90,7 +183,61 @@ extra_css:
         </div>
         <div class="faq-item">
             <h3 class="faq-question">Is my payment information secure?</h3>
-            <p class="faq-answer">Absolutely. All payments are processed by trusted, secure payment gateways (PhonePe and PayPal). We do not collect or store any of your sensitive payment information on our servers. For more information, please read our <a href="privacy.html">Privacy Policy</a>.</p>
+            <p class="faq-answer">Absolutely. All payments are processed by trusted, secure payment gateways (<strong>Paytm PG</strong> and PayPal). We do not collect or store any of your sensitive payment information on our servers. For more information, please read our <a href="privacy.html">Privacy Policy</a>.</p>
         </div>
     </section>
 </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const supportButton = document.getElementById('custom-support-button');
+        const amountInput = document.getElementById('custom-amount-input');
+        const errorMessage = document.getElementById('custom-amount-error');
+        const quickButtons = document.querySelectorAll('.quick-amount-btn');
+        const minAmount = 10; // Set a minimum donation amount
+
+        // Function to remove 'selected' class from all quick buttons
+        function clearQuickButtonSelection() {
+            quickButtons.forEach(btn => btn.classList.remove('selected'));
+        }
+
+        // Add click event to each quick button
+        quickButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent form submission if it was a form
+                clearQuickButtonSelection();
+                button.classList.add('selected');
+                const amount = button.getAttribute('data-amount');
+                amountInput.value = amount;
+                errorMessage.style.display = 'none'; // Hide error
+            });
+        });
+
+        // Listen for manual input to clear quick-select buttons
+        if (amountInput) {
+            amountInput.addEventListener('input', () => {
+                clearQuickButtonSelection();
+                if (errorMessage.style.display === 'block') {
+                    errorMessage.style.display = 'none';
+                }
+            });
+        }
+
+        // Handle the final payment button click
+        if (supportButton) {
+            // JAVASCRIPT FIX: Removed the stray underscore from '()_=>'
+            supportButton.addEventListener('click', () => { 
+                const amount = parseFloat(amountInput.value);
+
+                if (isNaN(amount) || amount < minAmount) {
+                    errorMessage.textContent = `Please enter a valid amount (minimum ₹${minAmount}).`;
+                    errorMessage.style.display = 'block';
+                } else {
+                    errorMessage.style.display = 'none';
+                    // Redirect to payment page
+                    window.location.href = `payment-selection.html?plan=One-time Support&amount=${amount}&cycle=one-time`;
+                }
+            });
+        }
+    });
+</script>
