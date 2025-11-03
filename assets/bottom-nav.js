@@ -1,19 +1,7 @@
 // --- Enhanced Bottom Navigation (All-in-One Script) ---
 
 (function() {
-    if (typeof window.AndroidInterface !== 'undefined') {
-        console.log("Android app detected. Skipping web bottom-nav creation.");
-        if (typeof window.AndroidInterface.updateActiveTab === 'function') {
-            window.AndroidInterface.updateActiveTab(window.location.pathname);
-        }
-        const navPlaceholder = document.getElementById('bottom-nav-placeholder');
-        if (navPlaceholder) {
-            navPlaceholder.style.display = 'none';
-        }
-        document.body.style.paddingBottom = '0px';
-        return;
-    }
-    // --- *** END OF ANDROID CHECK *** ---
+    // 1. CREATE AND INJECT THE CSS STYLES
     const styles = `
         .bottom-nav {
             position: fixed;
@@ -132,13 +120,7 @@
             });
 
             if (!activeLinkElement) {
-                // Fallback: Check if the path is a post
-                if (path.includes('/_posts/')) {
-                    activeLinkElement = document.getElementById('nav-articles');
-                } else {
-                    // Default to home if no other match
-                    activeLinkElement = document.getElementById('nav-home');
-                }
+                activeLinkElement = document.getElementById('nav-home');
             }
 
             if (activeLinkElement) {
