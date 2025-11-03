@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: site.title }}</title>
+
+    <script>
+        (function() {
+            try {
+                const isDarkMode = window.AndroidInterface.getDarkModeStatus() === 'true';
+                if (isDarkMode) {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) {
+                console.log('Flicker-Fix: Not in app. Defaulting to light mode.');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="{{ '/assets/style/style.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/index-menu.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/profile.css' | relative_url }}">

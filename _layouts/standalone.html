@@ -4,17 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: site.title }}</title>
+
+    <script>
+        (function() {
+            try {
+                const isDarkMode = window.AndroidInterface.getDarkModeStatus() === 'true';
+                if (isDarkMode) {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) {
+                console.log('Flicker-Fix: Not in app. Defaulting to light mode.');
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="{{ '/assets/style/style.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/dark-mode.css' | relative_url }}">
     <link rel="icon" href="{{ '/favicon.svg' | relative_url }}" type="image/svg+xml">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 <body data-base-path="{{ site.baseurl }}">
-    <!-- 
-        CRITICAL FIX: Added the header placeholder and injector script.
-        Without these, the header would never appear on pages using this layout,
-        making it seem like navigation to the auth page was failing.
-    -->
     <div id="header-placeholder"></div>
     
     {{ content }}

@@ -2,7 +2,7 @@
 ==========================================================================
    A powerful, unified dark mode stylesheet for The Muslim Post.
    This file overrides light-mode defaults and Tailwind classes
-   when 'body.dark-mode' is active.
+   when 'html.dark-mode' is active.
 ==========================================================================
 --- */
 
@@ -16,113 +16,114 @@
     --dark-text-secondary: #d1d5db;  /* Light gray - Body text (Tailwind gray-300) */
     --dark-text-muted: #9ca3af;     /* Muted gray - Meta text (Tailwind gray-400) */
     --dark-accent-primary: #60a5fa;  /* Bright blue - Links (Tailwind blue-400) */
-    --dark-accent-secondary: #facc15;/* Vibrant yellow - Banners (Tailwind yellow-400) */
+    --dark-accent-yellow: #facc15;   /* Vibrant yellow (Tailwind yellow-400) */
 }
 
 /* --- 2. Global Overrides (To fight Tailwind) --- */
 
-body.dark-mode {
+html.dark-mode body {
     background-color: var(--dark-bg-primary);
     color: var(--dark-text-secondary);
 }
 
 /* Override common Tailwind light-mode classes */
-body.dark-mode .bg-white,
-body.dark-mode .bg-slate-100 {
+html.dark-mode .bg-white,
+html.dark-mode .bg-slate-100 {
     background-color: var(--dark-bg-secondary) !important;
 }
 
-body.dark-mode .bg-gray-100,
-body.dark-mode .bg-slate-50,
-body.dark-mode .bg-f8f9fa,  /* from home.css */
-body.dark-mode .bg-f9fafb,  /* from post.html */
-body.dark-mode .bg-f0f2f5 {  /* from style.css */
+html.dark-mode .bg-gray-100,
+html.dark-mode .bg-slate-50,
+html.dark-mode .bg-f8f9fa,  /* from home.css */
+html.dark-mode .bg-f9fafb,  /* from post.html */
+html.dark-mode .bg-f0f2f5 {  /* from style.css */
     background-color: var(--dark-bg-primary) !important;
 }
 
 /* Text Colors */
-body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4,
-body.dark-mode .logo,
-body.dark-mode .font-bold,
-body.dark-mode .font-semibold,
-body.dark-mode .text-gray-800,
-body.dark-mode .text-gray-900,
-body.dark-mode .text-slate-800,
-body.dark-mode .text-slate-900,
-body.dark-mode .text-1c1e21, /* from style.css */
-body.dark-mode [class*="color: #111827"],
-body.dark-mode [class*="color: #1c1e21"] {
+html.dark-mode h1, html.dark-mode h2, html.dark-mode h3, html.dark-mode h4,
+html.dark-mode .logo,
+html.dark-mode .font-bold,
+html.dark-mode .font-semibold,
+html.dark-mode .text-gray-800,
+html.dark-mode .text-gray-900,
+html.dark-mode .text-slate-800,
+html.dark-mode .text-slate-900,
+html.dark-mode .text-1c1e21, /* from style.css */
+html.dark-mode [class*="color: #111827"],
+html.dark-mode [class*="color: #1c1e21"] {
     color: var(--dark-text-primary) !important;
 }
 
-body.dark-mode p,
-body.dark-mode .text-gray-600,
-body.dark-mode .text-gray-700,
-body.dark-mode .text-slate-600,
-body.dark-mode .text-606770, /* from post.html */
-body.dark-mode .color-4b5563, /* from post.html */
-body.dark-mode .color-374151, /* from post.html */
-body.dark-mode .article-body p,
-body.dark-mode .article-subheadline,
-body.dark-mode .top-story-subheadline,
-body.dark-mode .subtitle {
+html.dark-mode p,
+html.dark-mode .text-gray-600,
+html.dark-mode .text-gray-700,
+html.dark-mode .text-slate-600,
+html.dark-mode .text-606770, /* from post.html */
+html.dark-mode .color-4b5563, /* from post.html */
+html.dark-mode .color-374151, /* from post.html */
+html.dark-mode .article-body p,
+html.dark-mode .article-subheadline,
+html.dark-mode .top-story-subheadline,
+html.dark-mode .subtitle {
     color: var(--dark-text-secondary) !important;
 }
 
-body.dark-mode .text-gray-500,
-body.dark-mode .text-slate-500,
-body.dark-mode .text-6b7280, /* from post.html */
-body.dark-mode .text-8a8d91,
-body.dark-mode .publish-date,
-body.dark-mode .article-image-caption,
-body.dark-mode .post-stats,
-body.dark-mode .stat-item {
+html.dark-mode .text-gray-500,
+html.dark-mode .text-slate-500,
+html.dark-mode .text-6b7280, /* from post.html */
+html.dark-mode .text-8a8d91,
+html.dark-mode .publish-date,
+html.dark-mode .article-image-caption,
+html.dark-mode .post-stats,
+html.dark-mode .stat-item {
     color: var(--dark-text-muted) !important;
 }
 
 /* Links and Accents */
-body.dark-mode a {
+html.dark-mode a {
     color: var(--dark-accent-primary);
 }
-body.dark-mode a:hover {
+html.dark-mode a:hover {
     color: #93c5fd; /* Lighter blue on hover */
 }
-body.dark-mode .tag-highlight { /* from news-hub.html */
+html.dark-mode .tag-highlight { /* from news-hub.html */
     color: var(--dark-accent-primary) !important;
 }
 
 /* Borders */
-body.dark-mode .border-gray-200,
-body.dark-mode .border-slate-200,
-body.dark-mode .border-slate-300,
-body.dark-mode .border-e5e7eb, /* from post.html */
-body.dark-mode .border-dddfe2, /* from post.html */
-body.dark-mode .border-d1d5db,
-body.dark-mode .border-t, body.dark-mode .border-b, body.dark-mode .border,
-body.dark-mode .article-meta,
-body.dark-mode .article-footer,
-body.dark-mode .post-footer,
-body.dark-mode hr {
+html.dark-mode .border-gray-200,
+html.dark-mode .border-slate-200,
+html.dark-mode .border-slate-300,
+html.dark-mode .border-e5e7eb, /* from post.html */
+html.dark-mode .border-dddfe2, /* from post.html */
+html.dark-mode .border-d1d5db,
+html.dark-mode .border-t, html.dark-mode .border-b, html.dark-mode .border,
+html.dark-mode .article-meta,
+html.dark-mode .article-footer,
+html.dark-mode .post-footer,
+html.dark-mode .feed-tabs, /* from post.html */
+html.dark-mode hr {
     border-color: var(--dark-border-color) !important;
 }
 
-body.dark-mode .divider::before,
-body.dark-mode .divider::after {
+html.dark-mode .divider::before,
+html.dark-mode .divider::after {
     border-bottom-color: var(--dark-border-color) !important;
 }
 
 /* Shadows */
-body.dark-mode .shadow-lg,
-body.dark-mode .shadow-xl,
-body.dark-mode .shadow,
-body.dark-mode .box-shadow {
+html.dark-mode .shadow-lg,
+html.dark-mode .shadow-xl,
+html.dark-mode .shadow,
+html.dark-mode .box-shadow {
     /* Replace light shadow with a subtle border */
     box-shadow: 0 0 0 1px var(--dark-border-color) !important;
 }
 
 /* Blockquotes */
-body.dark-mode blockquote,
-body.dark-mode .article-body blockquote {
+html.dark-mode blockquote,
+html.dark-mode .article-body blockquote {
     border-left-color: var(--dark-accent-primary) !important;
     background-color: rgba(96, 165, 250, 0.05) !important;
     color: var(--dark-text-secondary) !important;
@@ -131,302 +132,355 @@ body.dark-mode .article-body blockquote {
 /* --- 3. Component-Specific Overrides --- */
 
 /* --- Header, Footer, Navs (style.css, index-menu.css, site-footer.html) --- */
-body.dark-mode .header {
+html.dark-mode .header {
     background-color: var(--dark-bg-secondary);
     border-bottom-color: var(--dark-border-color);
 }
-body.dark-mode .header.header-solid { /* For about.css */
+html.dark-mode .header.header-solid { /* For about.css */
     background-color: var(--dark-bg-secondary) !important;
     border-bottom-color: var(--dark-border-color) !important;
 }
-body.dark-mode .header .logo,
-body.dark-mode .header .index-menu-button svg,
-body.dark-mode .header.header-solid .logo,
-body.dark-mode .header.header-solid .index-menu-button svg,
-body.dark-mode #login-icon-svg svg {
+html.dark-mode .header .logo,
+html.dark-mode .header .index-menu-button svg,
+html.dark-mode .header.header-solid .logo,
+html.dark-mode .header.header-solid .index-menu-button svg,
+html.dark-mode #login-icon-svg svg {
     color: var(--dark-text-primary) !important;
     stroke: var(--dark-text-primary) !important;
 }
 
-body.dark-mode .index-menu-overlay {
+html.dark-mode .index-menu-overlay {
     background-color: rgba(17, 24, 39, 0.95); /* Dark with blur */
 }
-body.dark-mode .index-search-box {
+html.dark-mode .index-search-box {
     background-color: var(--dark-bg-secondary);
     color: var(--dark-text-primary);
     border-color: var(--dark-border-color);
 }
-body.dark-mode .search-icon {
+html.dark-mode .search-icon {
     color: var(--dark-text-muted);
 }
-body.dark-mode .index-main-nav {
+html.dark-mode .index-main-nav {
     border-color: var(--dark-border-color);
 }
-body.dark-mode .index-main-nav > div,
-body.dark-mode .index-main-nav > a {
+html.dark-mode .index-main-nav > div,
+html.dark-mode .index-main-nav > a {
     color: var(--dark-text-primary);
     border-bottom-color: var(--dark-border-color);
 }
-body.dark-mode .index-main-nav > div:hover,
-body.dark-mode .index-main-nav > a:hover {
+html.dark-mode .index-main-nav > div:hover,
+html.dark-mode .index-main-nav > a:hover {
     background-color: var(--dark-bg-tertiary);
     color: var(--dark-accent-primary);
 }
-body.dark-mode .categories-dropdown {
+html.dark-mode .categories-dropdown {
     background-color: var(--dark-bg-primary);
 }
-body.dark-mode .categories-dropdown li a {
+html.dark-mode .categories-dropdown li a {
     color: var(--dark-text-secondary);
 }
-body.dark-mode .categories-dropdown li a:hover {
+html.dark-mode .categories-dropdown li a:hover {
     background-color: var(--dark-bg-tertiary);
     color: var(--dark-accent-primary);
 }
-body.dark-mode #index-results-list li a {
+html.dark-mode #index-results-list li a {
     color: var(--dark-text-secondary);
     border-bottom-color: var(--dark-border-color);
 }
-body.dark-mode #index-results-list li a:hover {
+html.dark-mode #index-results-list li a:hover {
     background-color: var(--dark-bg-secondary);
     color: var(--dark-accent-primary);
 }
-body.dark-mode .menu-home-logo .tmp-text {
+html.dark-mode .menu-home-logo .tmp-text {
     fill: var(--dark-text-primary);
 }
 
-body.dark-mode .bottom-nav {
+html.dark-mode .bottom-nav {
     background-color: var(--dark-bg-secondary);
     border-top: 1px solid var(--dark-border-color);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
 }
-body.dark-mode .bottom-nav-link {
+html.dark-mode .bottom-nav-link {
     color: var(--dark-text-muted);
 }
-body.dark-mode .bottom-nav-link.active {
+html.dark-mode .bottom-nav-link.active {
     color: var(--dark-accent-primary);
 }
-body.dark-mode .bottom-nav-link.active svg {
+html.dark-mode .bottom-nav-link.active svg {
     stroke: var(--dark-accent-primary);
 }
-body.dark-mode .nav-glider {
+html.dark-mode .nav-glider {
     background-color: rgba(96, 165, 250, 0.15); /* Faint blue glow */
 }
 
-body.dark-mode .bg-gray-800 { /* Footer */
+html.dark-mode .bg-gray-800 { /* Footer */
     background-color: var(--dark-bg-primary) !important;
 }
-body.dark-mode .text-gray-300 { /* Footer text */
+html.dark-mode .text-gray-300 { /* Footer text */
     color: var(--dark-text-secondary) !important;
 }
-body.dark-mode .text-gray-400 { /* Footer meta text */
+html.dark-mode .text-gray-400 { /* Footer meta text */
     color: var(--dark-text-muted) !important;
 }
-body.dark-mode .border-gray-700 { /* Footer border */
+html.dark-mode .border-gray-700 { /* Footer border */
     border-color: var(--dark-border-color) !important;
 }
 
 /* --- Homepage (home.css, index.md) --- */
-body.dark-mode .support-cta-banner {
-    background-color: var(--dark-accent-secondary) !important;
-    color: var(--dark-bg-primary) !important; /* High contrast */
+
+/* === UPDATED FIX for Support Banner === */
+html.dark-mode .support-cta-banner {
+    /* User Request: black background, white text */
+    background-color: var(--dark-bg-primary) !important; /* This is #111827 (near black) */
+    color: var(--dark-text-primary) !important; /* This is #f9fafb (near white) */
 }
-body.dark-mode .support-cta-button {
-    background-color: var(--dark-bg-primary) !important;
-    color: var(--dark-accent-secondary) !important;
+html.dark-mode .support-cta-button {
+    /* User Request: white button, (assumed) black text for contrast */
+    background-color: var(--dark-text-primary) !important; /* This is #f9fafb (near white) */
+    color: var(--dark-bg-primary) !important; /* This is #111827 (near black) */
 }
-body.dark-mode .top-story-card {
+/* === END FIX === */
+
+html.dark-mode .top-story-card {
     background-color: var(--dark-bg-secondary) !important;
 }
-body.dark-mode .top-story-kicker {
+html.dark-mode .top-story-kicker {
     color: var(--dark-accent-primary);
 }
-body.dark-mode .news-card {
+html.dark-mode .news-card {
     background-color: var(--dark-bg-secondary) !important;
     box-shadow: 0 0 0 1px var(--dark-border-color) !important;
 }
-body.dark-mode .news-card-image-wrapper {
+html.dark-mode .news-card-image-wrapper {
     background-color: var(--dark-bg-tertiary);
 }
-body.dark-mode .feature-item .feature-icon {
+html.dark-mode .feature-item .feature-icon {
     background-color: var(--dark-bg-tertiary);
     color: var(--dark-accent-primary);
 }
-body.dark-mode .cta-section {
+html.dark-mode .cta-section {
     background-color: var(--dark-bg-secondary) !important;
 }
+/* --- home screen banner fix --- */
 
 /* --- Post Feeds (post.html, live.md, postopen.html) --- */
-body.dark-mode .post-container,
-body.dark-mode .live-post,
-body.dark-mode .article-container,
-body.dark-mode .user-post {
+html.dark-mode .post-container,
+html.dark-mode .live-post,
+html.dark-mode .article-container,
+html.dark-mode .user-post {
     background-color: var(--dark-bg-secondary);
     border-color: var(--dark-border-color);
     box-shadow: 0 0 0 1px var(--dark-border-color) !important;
 }
-body.dark-mode input,
-body.dark-mode textarea,
-body.dark-mode select {
+
+/* === FIX for post.html === */
+html.dark-mode .form-group label,
+html.dark-mode .suggestions-container label {
+    color: var(--dark-text-primary);
+}
+html.dark-mode .add-block-controls {
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .add-block-controls button {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+}
+html.dark-mode .add-block-controls button:hover {
+    background-color: var(--dark-border-color);
+}
+html.dark-mode .dynamic-block {
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .dynamic-block h3 {
+    color: var(--dark-text-muted);
+}
+html.dark-mode .btn-secondary,
+html.dark-mode .btn-cancel {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+}
+html.dark-mode .btn-secondary:hover,
+html.dark-mode .btn-cancel:hover {
+    background-color: var(--dark-border-color);
+}
+html.dark-mode .feed-tab {
+    color: var(--dark-text-muted);
+}
+html.dark-mode .feed-tab.active {
+    color: var(--dark-accent-primary);
+    border-bottom-color: var(--dark-accent-primary);
+}
+/* === END FIX === */
+
+html.dark-mode input,
+html.dark-mode textarea,
+html.dark-mode select {
     background-color: var(--dark-bg-tertiary) !important;
     color: var(--dark-text-primary) !important;
     border-color: var(--dark-border-color) !important;
 }
-body.dark-mode input:focus,
-body.dark-mode textarea:focus,
-body.dark-mode select:focus {
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+html.dark-mode input:focus,
+html.dark-mode textarea:focus,
+html.dark-mode select:focus {
     border-color: var(--dark-accent-primary) !important;
     box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3) !important;
 }
-body.dark-mode .suggestion-chip,
-body.dark-mode .post-tag,
-body.dark-mode .tag {
+html.dark-mode .suggestion-chip,
+html.dark-mode .post-tag,
+html.dark-mode .tag {
     background-color: rgba(96, 165, 250, 0.15);
     color: var(--dark-accent-primary);
 }
-body.dark-mode .suggestion-chip:hover,
-body.dark-mode .post-tag:hover {
+html.dark-mode .suggestion-chip:hover,
+html.dark-mode .post-tag:hover {
     background-color: rgba(96, 165, 250, 0.25);
 }
-body.dark-mode .tag-badge { /* from live.md */
+html.dark-mode .tag-badge { /* from live.md */
     background-color: #3730a3; /* Dark indigo */
     color: #e0e7ff;
 }
-body.dark-mode .pinned-badge { /* from live.md */
+html.dark-mode .pinned-badge { /* from live.md */
     background-color: #78350f; /* Dark orange */
     color: #fef3c7;
 }
-body.dark-mode .share-btn {
+html.dark-mode .share-btn {
     background-color: var(--dark-bg-tertiary);
     color: var(--dark-text-secondary);
 }
-body.dark-mode .share-btn:hover {
+html.dark-mode .share-btn:hover {
     background-color: var(--dark-border-color);
 }
-body.dark-mode .author-avatar { /* from postopen.html */
+html.dark-mode .author-avatar { /* from postopen.html */
     background-color: var(--dark-accent-primary);
     color: var(--dark-bg-primary);
 }
 
 /* --- Auth & Profile (auth.md, profile.css, profile.md) --- */
-body.dark-mode .auth-container {
+html.dark-mode .auth-container {
     background-color: var(--dark-bg-secondary);
 }
-body.dark-mode .btn-google {
+html.dark-mode .btn-google {
     background-color: var(--dark-bg-primary) !important;
     color: var(--dark-text-primary) !important;
     border-color: var(--dark-border-color) !important;
 }
-body.dark-mode .btn-google:hover {
+html.dark-mode .btn-google:hover {
     background-color: var(--dark-bg-tertiary) !important;
 }
-body.dark-mode .profile-layout {
+html.dark-mode .profile-layout {
     background-color: var(--dark-bg-secondary);
     box-shadow: 0 0 0 1px var(--dark-border-color) !important;
 }
-body.dark-mode .profile-nav {
+html.dark-mode .profile-nav {
     border-right-color: var(--dark-border-color);
 }
-body.dark-mode .profile-nav li a {
+html.dark-mode .profile-nav li a {
     color: var(--dark-text-secondary);
 }
-body.dark-mode .profile-nav li a:hover {
+html.dark-mode .profile-nav li a:hover {
     background-color: var(--dark-bg-tertiary);
 }
-body.dark-mode .profile-nav li a.active {
+html.dark-mode .profile-nav li a.active {
     background-color: var(--dark-accent-primary);
     color: var(--dark-bg-primary);
     font-weight: bold;
 }
-body.dark-mode .btn-primary {
+html.dark-mode .btn-primary {
     background-color: var(--dark-accent-primary);
     color: var(--dark-bg-primary);
 }
-body.dark-mode .btn-primary:hover {
+html.dark-mode .btn-primary:hover {
     background-color: #93c5fd;
 }
-body.dark-mode .user-post-item { /* from profile.md */
+html.dark-mode .user-post-item { /* from profile.md */
     background-color: var(--dark-bg-primary);
     border-color: var(--dark-border-color);
 }
-body.dark-mode .message.success {
+html.dark-mode .message.success {
     background-color: rgba(16, 185, 129, 0.1);
     color: #a7f3d0;
     border-color: #059669;
 }
-body.dark-mode .message.error {
+html.dark-mode .message.error {
     background-color: rgba(239, 68, 68, 0.1);
     color: #fca5a5;
     border-color: #b91c1c;
 }
-body.dark-mode .message.info {
+html.dark-mode .message.info {
     background-color: rgba(59, 130, 246, 0.1);
     color: #93c5fd;
     border-color: #2563eb;
 }
 
 /* --- Legal Pages (legal.css) --- */
-body.dark-mode .legal-container {
+html.dark-mode .legal-container {
     background-color: var(--dark-bg-secondary);
     box-shadow: 0 0 0 1px var(--dark-border-color) !important;
 }
 
 /* --- Support & Payment (support.css, payment-selection.css) --- */
-body.dark-mode .subscription-card,
-body.dark-mode .selection-card {
+html.dark-mode .subscription-card,
+html.dark-mode .selection-card {
     background-color: var(--dark-bg-secondary);
     border-color: var(--dark-border-color);
     box-shadow: 0 0 0 1px var(--dark-border-color) !important;
 }
-body.dark-mode .subscription-card:hover {
+html.dark-mode .subscription-card:hover {
      box-shadow: 0 0 0 1px var(--dark-accent-primary), 0 8px 20px rgba(96, 165, 250, 0.1) !important;
 }
-body.dark-mode .subscription-card.popular {
+html.dark-mode .subscription-card.popular {
     border-color: var(--dark-accent-primary) !important;
 }
-body.dark-mode .popular-badge {
+html.dark-mode .popular-badge {
     background-color: var(--dark-accent-primary);
     color: var(--dark-bg-primary);
     font-weight: bold;
 }
-body.dark-mode .card-button {
+html.dark-mode .card-button {
     background-color: var(--dark-accent-primary);
     color: var(--dark-bg-primary);
 }
-body.dark-mode .card-button:hover {
+html.dark-mode .card-button:hover {
     background-color: #93c5fd;
 }
-body.dark-mode .subscription-card.membership .card-button {
+html.dark-mode .subscription-card.membership .card-button {
     background: linear-gradient(90deg, #10B981, #059669);
     color: var(--dark-text-primary);
 }
-body.dark-mode .features-list .fa-check-circle {
+html.dark-mode .features-list .fa-check-circle {
     color: #34d399; /* Green check */
 }
-body.dark-mode .features-list .fa-times-circle {
+html.dark-mode .features-list .fa-times-circle {
     color: var(--dark-text-muted); /* Muted 'x' */
 }
-body.dark-mode .quick-amount-btn {
+html.dark-mode .quick-amount-btn {
     background-color: var(--dark-bg-tertiary);
     border-color: var(--dark-border-color);
     color: var(--dark-text-secondary);
 }
-body.dark-mode .quick-amount-btn.selected {
+html.dark-mode .quick-amount-btn.selected {
     border-color: var(--dark-accent-primary);
     background-color: rgba(96, 165, 250, 0.1);
     color: var(--dark-accent-primary);
 }
-body.dark-mode .plan-summary {
+html.dark-mode .plan-summary {
     background-color: var(--dark-bg-primary);
     border-color: var(--dark-border-color);
 }
-body.dark-mode .method-card {
+html.dark-mode .method-card {
     border-color: var(--dark-border-color);
 }
 /* Make PayPal/Paytm logos visible on dark background */
-body.dark-mode .paypal-logo path[fill="#003087"],
-body.dark-mode .paypal-logo path[fill="#012169"] {
+html.dark-mode .paypal-logo path[fill="#003087"],
+html.dark-mode .paypal-logo path[fill="#012169"] {
     fill: #009CDE;
 }
-body.dark-mode .paytm-logo path[fill="#00b2ef"] {
+html.dark-mode .paytm-logo path[fill="#00b2ef"] {
     fill: #00b2ef;
 }
