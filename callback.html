@@ -2,28 +2,11 @@
 <html>
 <head>
     <title>Authenticating...</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 1rem; box-sizing: border-box; }
         .container { text-align: center; color: #606770; background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0073e6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* This button container is no longer used by the new logic, but kept for safety */
-        .return-button {
-            display: inline-block;
-            padding: 14px 28px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #ffffff;
-            background-color: #0073e6;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .return-button:hover { background-color: #005bab; }
     </style>
 </head>
 <body>
@@ -32,42 +15,29 @@
         <p>Please wait while we sign you in...</p>
     </div>
 
-    <div class="container" id="app-return-container" style="display:none;">
-        <h2>Login Successful!</h2>
-        <p style="margin-bottom: 1.5rem;">Click the button below to return to the app.</p>
-        <a href="#" class="return-button" id="return-to-app-btn">Return to App</a>
-    </div>
-
     <script>
         const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
-        
-        // --- FIX #1: This key is now correct ---
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // --- FIX #2: Simplified redirect logic ---
         supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
-                
-                // The App Link brought us back inside the app.
-                // The Supabase client has processed the session from the URL hash.
-                // All we need to do now is redirect to the homepage.
-                
-                console.log("App login detected. Logging in and redirecting to /");
-                // Use replace() to prevent this callback page from being in the browser history
-                window.location.replace('/'); 
+                const hash = window.location.hash;
+                console.log("SIGNED_IN event detected. Redirecting to app: tmpnews://auth/callback" + hash);
+                window.location.replace(`tmpnews://auth/callback${hash}`);
+                // --- **** END OF FIX **** ---
+
+            } else if (event === 'SIGNED_OUT') {
+                // Handle sign-out if needed
             }
-            // You can add 'else if (event === 'SIGNED_OUT')' handling here if needed
         });
 
         // --- Fallback timeout ---
-        // If 'SIGNED_IN' doesn't fire after 10 seconds, show an error.
         setTimeout(() => {
             const loader = document.getElementById('loading-container');
-            // Check if the loader is still visible
             if (loader.style.display !== 'none') {
-                 console.error("Auth callback timed out. 'SIGNED_IN' event did not fire. Check Supabase key and redirect settings.");
+                 console.error("Auth callback timed out. 'SIGNED_IN' event did not fire.");
                  loader.innerHTML = '<p style="color: red; font-weight: 500;">Login failed or timed out. Please try again.</p>';
             }
         }, 10000); // 10 second timeout
