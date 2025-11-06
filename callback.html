@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Authenticating...</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 1rem; box-sizing: border-box; }
         .container { text-align: center; color: #606770; background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -18,7 +19,7 @@
     <script>
         const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
-        
+    
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         supabase.auth.onAuthStateChange((event, session) => {
@@ -26,21 +27,19 @@
                 const hash = window.location.hash;
                 console.log("SIGNED_IN event detected. Redirecting to app: tmpnews://auth/callback" + hash);
                 window.location.replace(`tmpnews://auth/callback${hash}`);
-                // --- **** END OF FIX **** ---
 
             } else if (event === 'SIGNED_OUT') {
-                // Handle sign-out if needed
             }
         });
 
-        // --- Fallback timeout tesing 10 seconds---
+        // --- Fallback timeout ---
         setTimeout(() => {
             const loader = document.getElementById('loading-container');
             if (loader.style.display !== 'none') {
                  console.error("Auth callback timed out. 'SIGNED_IN' event did not fire.");
                  loader.innerHTML = '<p style="color: red; font-weight: 500;">Login failed or timed out. Please try again.</p>';
             }
-        }, 10000); // 10 second timeout
+        }, 10000); 
     </script>
 </body>
 </html>
