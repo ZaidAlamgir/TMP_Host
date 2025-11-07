@@ -1,0 +1,16 @@
+name: Submit Sitemap to IndexNow
+on:
+  workflow_run:
+    workflows: ["pages-build-deployment"] 
+    types: [completed]
+
+jobs:
+  submit-sitemap:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Submit sitemap URLs to IndexNow
+        uses: bojieyang/indexnow-action@v2
+        with:
+          sitemap-location: 'https://yourdomain.com/sitemap.xml'
+          key: ${{ secrets.INDEXNOW_KEY }}
