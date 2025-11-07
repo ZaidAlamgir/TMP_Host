@@ -92,12 +92,13 @@ title: Live Updates
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // We keep Supabase client only for view count, sharing, and Realtime functionality.
+        // --- CONFIGURATION ---
+        // NOTE: Supabase client is kept here only for view count, sharing, and Realtime functionality.
         const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // route added
+        // This is your Cloudflare Worker URL (now correctly configured)
         const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json'; 
 
         const pinnedPostContainer = document.getElementById('pinned-post-container');
@@ -106,16 +107,18 @@ title: Live Updates
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
 
-        // --- UPDATED 30/30 PAGINATION CONSTANTS ---
         const INITIAL_LOAD_COUNT = 30; 
         const SUBSEQUENT_LOAD_COUNT = 30;
-        // --- END UPDATED CONSTANTS ---
 
         const CACHE_KEY = 'cachedLiveFeed';
         
         let allPosts = []; 
         let loadedPostsCount = 0; 
         const viewedPosts = new Set(JSON.parse(sessionStorage.getItem('viewedLivePosts') || '[]'));
+
+        // --- Utility Functions (parseContent, loadSocialScripts, incrementViewCount, shareHandler) ---
+        // ... (These functions remain exactly as you provided them)
+        // 
 
         function parseContent(content) {
             if (!content) return '';
@@ -190,7 +193,7 @@ title: Live Updates
                         case 'telegram':
                             const tgMatch = url.match(/t\.me\/([a-zA-Z0-9_]+\/\d+)/);
                             if (tgMatch && tgMatch[1]) {
-                                htmlBlock = `<div class="my-4"><blockquote class="telegram-post" data-post="${tgMatch[1]}" data-width="100%"></blockquote>${caption}</div>`;
+                                htmlBlock = `<div class="my-4"><blockquote class="telegram-post" data-post="${tgMatch[1]}" data-width="100%"></blockquote>${caption}`;
                             }
                             break;
                     }
@@ -277,7 +280,6 @@ title: Live Updates
             setTimeout(() => { loadSocialScripts(); }, 100);
         }
 
-        // --- NEW FETCH FUNCTION: Gets the whole feed from the cached endpoint ---
         async function fetchFullFeed(forceNetwork = false) {
             const cachedData = sessionStorage.getItem('cachedLiveFeed');
             if (cachedData && !forceNetwork) {
@@ -292,7 +294,7 @@ title: Live Updates
             }
 
             try {
-                const response = await fetch('https://data.tmpnews.com/feed.json', { cache: 'no-cache' }); 
+                const response = await fetch(LIVE_FEED_URL, { cache: 'no-cache' }); 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
                 const data = await response.json();
@@ -310,10 +312,9 @@ title: Live Updates
             }
         }
 
-        // --- MODIFIED LOAD MORE POSTS: Now paginates the in-memory array ---
         async function loadMorePosts(isInitial = false) {
             if (isInitial) {
-                const fullFeed = await fetchFullFeed();
+                const fullFeed = await fetchFullFeed(true); // Always force network on initial load after a RT event
                 if (fullFeed.length === 0) {
                     liveFeed.innerHTML = '';
                     loadMoreBtn.style.display = 'none';
@@ -325,6 +326,7 @@ title: Live Updates
                 const pinned = fullFeed.find(p => p.is_pinned);
                 allPosts = fullFeed.filter(p => !p.is_pinned); 
 
+                // Only wipe and re-render the containers on initial/full refresh
                 pinnedPostContainer.innerHTML = '';
                 if (pinned) renderPost(pinned, pinnedPostContainer, false);
 
@@ -371,14 +373,60 @@ title: Live Updates
             await supabaseClient.rpc('increment_post_view_count', { post_id_to_inc: postId });
         }
         
-        // --- REALTIME FIX FOR INSTANT UPDATES ---
+        // --- REALTIME FIX: IMPLEMENTING INCREMENTAL UPDATES (Prevents Flicker) ---
         supabaseClient.channel('live_updates_listener')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
+                // Clear cache so the NEXT full load is fresh
                 sessionStorage.removeItem('cachedLiveFeed'); 
-                loadMorePosts(true); 
+
+                const newPostData = payload.new;
+                const oldPostData = payload.old;
+                
+                // --- INSERT (New Post) ---
+                if (payload.eventType === 'INSERT') {
+                    // If the new post is not pinned: prepend it to the feed
+                    if (!newPostData.is_pinned) {
+                        renderPost(newPostData, liveFeed, true); 
+                        allPosts.unshift(newPostData);
+                        loadedPostsCount++;
+                    } else {
+                        // If a NEW pinned post is created, we must refresh the pinned container
+                        loadMorePosts(true); 
+                    }
+                } 
+                
+                // --- UPDATE (Post Edited) ---
+                else if (payload.eventType === 'UPDATE') {
+                    const existingElement = document.getElementById(`post-${newPostData.id}`);
+
+                    if (newPostData.is_pinned !== oldPostData.is_pinned) {
+                         // If the pin status changed, a full re-render is necessary to move the post
+                         loadMorePosts(true); 
+                    } else if (existingElement) {
+                        // If the element is visible, remove the old one and render the new one
+                        const container = existingElement.parentNode;
+                        existingElement.remove();
+                        renderPost(newPostData, container, false); // Render it back in its original position
+                    } else {
+                        // If an updated post isn't visible, fetch the full feed to update the cache
+                        fetchFullFeed(true);
+                    }
+                }
+                
+                // --- DELETE (Post Removed) ---
+                else if (payload.eventType === 'DELETE') {
+                    document.getElementById(`post-${oldPostData.id}`)?.remove();
+                    // Remove from the in-memory array to fix pagination
+                    allPosts = allPosts.filter(p => p.id !== oldPostData.id);
+                    loadedPostsCount = allPosts.filter(p => !p.is_pinned).length;
+                    
+                    // If a pinned post was deleted, refresh to clear the pinned container
+                    if (oldPostData.is_pinned) loadMorePosts(true);
+                }
             })
             .subscribe();
 
+        // --- Event Listeners (Remain unchanged) ---
         const shareHandler = (e) => {
              const shareBtn = e.target.closest('.share-btn');
              if (shareBtn) {
@@ -405,6 +453,7 @@ title: Live Updates
         liveFeed.addEventListener('click', shareHandler);
         pinnedPostContainer.addEventListener('click', shareHandler);
 
+        // Initial page load
         loadMorePosts(true);
     });
 </script>
