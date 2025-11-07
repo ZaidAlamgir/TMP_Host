@@ -58,6 +58,16 @@ title: Live Updates
     .responsive-iframe-container iframe { position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; border: none; }
     .instagram-video-container { position: relative; padding-bottom: 125%; height: 0; overflow: hidden; max-width: 500px; margin: 1rem auto; border-radius: 8px; }
     .instagram-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    /* Style for the raw HTML/Widget containers */
+    .widget-container { 
+        padding: 0; 
+        margin: 1.5rem auto !important; 
+        max-width: 100%;
+        overflow: hidden; 
+        /* Added a subtle border to highlight embedded content */
+        border: 1px solid #e5e7eb; 
+        border-radius: 8px;
+    }
 </style>
 
 <div id="fb-root"></div>
@@ -81,24 +91,30 @@ title: Live Updates
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-{% raw %}
     document.addEventListener('DOMContentLoaded', () => {
-        const { createClient } = supabase;
+        // We keep Supabase client only for view count, sharing, and Realtime functionality.
         const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // route added
+        const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json'; 
 
         const pinnedPostContainer = document.getElementById('pinned-post-container');
         const liveFeed = document.getElementById('live-feed');
-
         const loadMoreBtn = document.getElementById('load-more-btn');
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
 
-        let loadedPosts = 0;
-        const INITIAL_LOAD_COUNT = 20;
-        const SUBSEQUENT_LOAD_COUNT = 10;
-        const ARCHIVE_THRESHOLD = 250; // Keep this threshold logic
+        // --- UPDATED 30/30 PAGINATION CONSTANTS ---
+        const INITIAL_LOAD_COUNT = 30; 
+        const SUBSEQUENT_LOAD_COUNT = 30;
+        // --- END UPDATED CONSTANTS ---
+
+        const CACHE_KEY = 'cachedLiveFeed';
+        
+        let allPosts = []; 
+        let loadedPostsCount = 0; 
         const viewedPosts = new Set(JSON.parse(sessionStorage.getItem('viewedLivePosts') || '[]'));
 
         function parseContent(content) {
@@ -106,61 +122,80 @@ title: Live Updates
             const placeholders = [];
             let tempContent = content;
             const allKeywords = 'twitter-video|twitter|instagram-video|instagram|facebook|youtube|tiktok|linkedin|reddit|telegram';
-            const regex = new RegExp(`\\[(${allKeywords})\\|?(.*?)\\]\\((.*?)\\)|!\\[(.*?)\]\\((.*?)\\)`, 'g');
+            
+            // --- UPDATED REGEX: Captures Social Media, Image, OR Widget/HTML ---
+            const regex = new RegExp(
+                `\\[(${allKeywords})\\|?(.*?)\\]\\((.*?)\\)` + // Social Media: [type|desc](url)
+                `|!\\[(.*?)\\]\\((.*?)\\)` + // Image: ![alt](url)
+                `|\\[WIDGET\\|(.*?)\\|(.*?)\\]([\\s\\S]*?)(?=\\n\\n|$)`, // Widget: [WIDGET|type|caption]content
+                'g'
+            );
 
-            tempContent = tempContent.replace(regex, (match, socialType, socialDesc, socialUrl, imgAlt, imgUrl) => {
+            tempContent = tempContent.replace(regex, (match, socialType, socialDesc, socialUrl, imgAlt, imgUrl, widgetType, widgetCaption, widgetContent) => {
                 let htmlBlock = '';
-                const caption = socialDesc ? `<p class="media-caption">${socialDesc}</p>` : '';
-                if (socialType) {
+
+                // 1. WIDGET / HTML EMBED BLOCK
+                if (widgetType) {
+                    const caption = widgetCaption ? `<p class="media-caption">${widgetCaption}</p>` : '';
+                    htmlBlock = `<div class="my-4 widget-container" data-type="${widgetType}" style="max-width: 600px; margin: 1.5rem auto;">${widgetContent}</div>${caption}`;
+                } 
+                // 2. IMAGE BLOCK
+                else if (imgAlt || imgUrl) {
+                    const captionHTML = (imgAlt && imgAlt.toLowerCase() !== 'image' && imgAlt.trim() !== '') ? `<p class="media-caption">${imgAlt}</p>` : '';
+                    htmlBlock = `<div class="my-4"><img src="${imgUrl}" alt="${imgAlt || ''}" class="my-0 mx-auto rounded-lg">${captionHTML}</div>`;
+                }
+                // 3. SOCIAL MEDIA BLOCK (must be handled explicitly as socialType is non-null here)
+                else if (socialType) {
+                    const caption = socialDesc ? `<p class="media-caption">${socialDesc}</p>` : '';
+                    const url = socialUrl;
+
                     switch (socialType) {
                         case 'twitter':
-                            const twitterUrl = socialUrl.replace('x.com', 'twitter.com');
+                            const twitterUrl = url.replace('x.com', 'twitter.com');
                             htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${twitterUrl}"></a></blockquote>${caption}</div>`;
                             break;
                         case 'twitter-video':
-                            const twitterVideoUrl = socialUrl.replace('x.com', 'twitter.com');
+                            const twitterVideoUrl = url.replace('x.com', 'twitter.com');
                             htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-conversation="none"><a href="${twitterVideoUrl}"></a></blockquote>${caption}</div>`;
                             break;
                         case 'instagram':
-                            htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${socialUrl}" data-instgrm-version="14"></blockquote>${caption}</div>`;
+                            htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`;
                             break;
                         case 'instagram-video':
-                            const igMatch = socialUrl.match(/\/(p|reel)\/([a-zA-Z0-9_-]+)/);
+                            const igMatch = url.match(/\/(p|reel)\/([a-zA-Z0-9_-]+)/);
                             if (igMatch && igMatch[2]) {
                                 htmlBlock = `<div class="instagram-video-container my-4"><iframe src="https://www.instagram.com/p/${igMatch[2]}/embed" frameborder="0" scrolling="no" allowtransparency="true"></iframe></div>${caption}`;
                             } else {
-                                htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${socialUrl}" data-instgrm-version="14"></blockquote>${caption}</div>`;
+                                htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`;
                             }
                             break;
                         case 'facebook':
-                            htmlBlock = `<div class="my-4"><div class="fb-post" data-href="${socialUrl}" data-width="auto" data-show-text="true"></div>${caption}</div>`;
+                            htmlBlock = `<div class="my-4"><div class="fb-post" data-href="${url}" data-width="auto" data-show-text="true"></div>${caption}</div>`;
                             break;
                         case 'youtube':
-                            const ytMatch = socialUrl.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                            const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
                             if (ytMatch && ytMatch[1]) {
                                 htmlBlock = `<div class="responsive-iframe-container responsive-iframe-container-16x9 my-4"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}?rel=0&modestbranding=1" allowfullscreen></iframe></div>${caption}`;
                             }
                             break;
                         case 'tiktok':
-                            htmlBlock = `<div class="my-4"><blockquote class="tiktok-embed" cite="${socialUrl}" data-embed-from="embed_page"> <section></section> </blockquote>${caption}</div>`;
+                            htmlBlock = `<div class="my-4"><blockquote class="tiktok-embed" cite="${url}" data-embed-from="embed_page"> <section></section> </blockquote>${caption}</div>`;
                             break;
                         case 'linkedin':
-                            htmlBlock = `<div class="my-4"><div class="linkedin-post" data-href="${socialUrl}"></div>${caption}</div>`;
+                            htmlBlock = `<div class="my-4"><div class="linkedin-post" data-href="${url}"></div>${caption}</div>`;
                             break;
                         case 'reddit':
-                            htmlBlock = `<div class="my-4"><blockquote class="reddit-embed-bq" data-embed-height="500"><a href="${socialUrl}">Post</a></blockquote>${caption}</div>`;
+                            htmlBlock = `<div class="my-4"><blockquote class="reddit-embed-bq" data-embed-height="500"><a href="${url}">Post</a></blockquote>${caption}</div>`;
                             break;
                         case 'telegram':
-                             const tgMatch = socialUrl.match(/t\.me\/([a-zA-Z0-9_]+\/\d+)/);
-                             if (tgMatch && tgMatch[1]) {
+                            const tgMatch = url.match(/t\.me\/([a-zA-Z0-9_]+\/\d+)/);
+                            if (tgMatch && tgMatch[1]) {
                                 htmlBlock = `<div class="my-4"><blockquote class="telegram-post" data-post="${tgMatch[1]}" data-width="100%"></blockquote>${caption}</div>`;
-                             }
-                             break;
+                            }
+                            break;
                     }
-                } else {
-                    const captionHTML = (imgAlt && imgAlt.toLowerCase() !== 'image' && imgAlt.trim() !== '') ? `<p class="media-caption">${imgAlt}</p>` : '';
-                    htmlBlock = `<div class="my-4"><img src="${imgUrl}" alt="${imgAlt || ''}" class="my-0 mx-auto rounded-lg">${captionHTML}</div>`;
                 }
+                
                 placeholders.push(htmlBlock);
                 return `__PLACEHOLDER_${placeholders.length - 1}__`;
             });
@@ -168,8 +203,10 @@ title: Live Updates
             const processedText = tempContent.split('\n\n').map(p => {
                 if (p.startsWith('__PLACEHOLDER_')) return p;
                 if (p.trim() === '') return '';
-                return `<p>${p.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>').replace(/\n/g, '<br>')}</p>`;
+                // Handle markdown blockquotes (>) and convert paragraphs
+                return p.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>').trim() === '' ? '' : `<p>${p.replace(/\n/g, '<br>')}</p>`;
             }).join('');
+            
             return processedText.replace(/__PLACEHOLDER_(\d+)__/g, (match, index) => placeholders[parseInt(index, 10)]);
         }
 
@@ -195,7 +232,7 @@ title: Live Updates
             if (window.instgrm?.Embeds) window.instgrm.Embeds.process();
             if (window.FB?.XFBML) window.FB.XFBML.parse();
         }
-
+        
         function renderPost(postData, container, insertAtTop = false) {
             const postElement = document.createElement('div');
             postElement.className = 'live-post';
@@ -240,43 +277,91 @@ title: Live Updates
             setTimeout(() => { loadSocialScripts(); }, 100);
         }
 
-        async function fetchInitialPosts() {
-            const { data: pinnedData } = await supabaseClient.from('live_posts').select('*').eq('is_pinned', true).limit(1);
-            pinnedPostContainer.innerHTML = '';
-            if (pinnedData && pinnedData.length > 0) renderPost(pinnedData[0], pinnedPostContainer, false);
-            await loadMorePosts(true);
+        // --- NEW FETCH FUNCTION: Gets the whole feed from the cached endpoint ---
+        async function fetchFullFeed(forceNetwork = false) {
+            const cachedData = sessionStorage.getItem('cachedLiveFeed');
+            if (cachedData && !forceNetwork) {
+                allPosts = JSON.parse(cachedData);
+                return allPosts;
+            }
+
+            if (!forceNetwork) {
+                liveFeed.innerHTML = `<div class="loader" style="margin-top: 20px;"></div>`;
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.textContent = 'Loading...';
+            }
+
+            try {
+                const response = await fetch('https://data.tmpnews.com/feed.json', { cache: 'no-cache' }); 
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                
+                if (!Array.isArray(data)) throw new Error("Invalid data format from feed endpoint.");
+
+                sessionStorage.setItem('cachedLiveFeed', JSON.stringify(data));
+                allPosts = data;
+                return allPosts;
+
+            } catch (error) {
+                console.error('Error fetching cached feed:', error);
+                liveFeed.innerHTML = `<p style="text-align: center; color: red;">Could not load live updates. Please try again later.</p>`;
+                return [];
+            }
         }
 
+        // --- MODIFIED LOAD MORE POSTS: Now paginates the in-memory array ---
         async function loadMorePosts(isInitial = false) {
-            loadMoreBtn.disabled = true; loadMoreBtn.textContent = 'Loading...';
-            if (isInitial) loadedPosts = 0;
-            const limit = isInitial ? INITIAL_LOAD_COUNT : SUBSEQUENT_LOAD_COUNT;
-            const { data, error } = await supabaseClient.from('live_posts').select('*').eq('is_pinned', false).order('timestamp', { ascending: false }).range(loadedPosts, loadedPosts + limit - 1);
-            if (error) { console.error("Supabase fetch error:", error); loadMoreBtn.textContent = 'Failed to load'; loadMoreBtn.disabled = false; return; }
-            if (isInitial) liveFeed.innerHTML = '';
-            data.forEach(post => renderPost(post, liveFeed, false));
-            loadedPosts += data.length;
+            if (isInitial) {
+                const fullFeed = await fetchFullFeed();
+                if (fullFeed.length === 0) {
+                    liveFeed.innerHTML = '';
+                    loadMoreBtn.style.display = 'none';
+                    noMorePostsMsg.textContent = "No updates have been posted yet.";
+                    noMorePostsMsg.style.display = 'block';
+                    return;
+                }
 
-            // --- THIS IS THE MODIFIED LOGIC BLOCK ---
-            if (data.length < limit) {
-                // No more posts available
-                loadMoreBtn.style.display = 'none';         // Hide Load More button
-                archiveBtn.style.display = 'inline-block'; // Show Archive button
-                noMorePostsMsg.style.display = 'block';     // Show "end" message
-            } else if (loadedPosts >= ARCHIVE_THRESHOLD) {
-                // Reached archive threshold, but more posts *might* exist
-                loadMoreBtn.style.display = 'none';         // Hide Load More button
-                archiveBtn.style.display = 'inline-block'; // Show Archive button
-                noMorePostsMsg.style.display = 'none';      // Hide "end" message
+                const pinned = fullFeed.find(p => p.is_pinned);
+                allPosts = fullFeed.filter(p => !p.is_pinned); 
+
+                pinnedPostContainer.innerHTML = '';
+                if (pinned) renderPost(pinned, pinnedPostContainer, false);
+
+                liveFeed.innerHTML = '';
+                loadedPostsCount = 0;
+            }
+            
+            if (loadedPostsCount >= allPosts.length) {
+                loadMoreBtn.style.display = 'none';
+                archiveBtn.style.display = 'inline-block';
+                noMorePostsMsg.style.display = 'block';
+                return;
+            }
+
+            loadMoreBtn.disabled = true; 
+            loadMoreBtn.textContent = 'Loading...';
+
+            const startIndex = loadedPostsCount;
+            const limit = isInitial ? INITIAL_LOAD_COUNT : SUBSEQUENT_LOAD_COUNT;
+            const endIndex = startIndex + limit;
+            
+            const batch = allPosts.slice(startIndex, endIndex);
+
+            batch.forEach(post => renderPost(post, liveFeed, false));
+            loadedPostsCount += batch.length;
+
+            if (loadedPostsCount >= allPosts.length) {
+                loadMoreBtn.style.display = 'none';
+                archiveBtn.style.display = 'inline-block';
+                noMorePostsMsg.style.display = 'block';
             } else {
-                // More posts available, haven't hit threshold yet
                 loadMoreBtn.disabled = false;
                 loadMoreBtn.textContent = 'Load Previous Updates';
-                loadMoreBtn.style.display = 'inline-block'; // Show Load More button
-                archiveBtn.style.display = 'none';          // Hide Archive button
-                noMorePostsMsg.style.display = 'none';       // Hide "end" message
+                loadMoreBtn.style.display = 'inline-block';
+                archiveBtn.style.display = 'none';
+                noMorePostsMsg.style.display = 'none';
             }
-            // --- END OF MODIFIED LOGIC BLOCK ---
         }
 
         async function incrementViewCount(postId) {
@@ -285,6 +370,14 @@ title: Live Updates
             sessionStorage.setItem('viewedLivePosts', JSON.stringify(Array.from(viewedPosts)));
             await supabaseClient.rpc('increment_post_view_count', { post_id_to_inc: postId });
         }
+        
+        // --- REALTIME FIX FOR INSTANT UPDATES ---
+        supabaseClient.channel('live_updates_listener')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
+                sessionStorage.removeItem('cachedLiveFeed'); 
+                loadMorePosts(true); 
+            })
+            .subscribe();
 
         const shareHandler = (e) => {
              const shareBtn = e.target.closest('.share-btn');
@@ -308,13 +401,10 @@ title: Live Updates
              }
         };
 
-        supabaseClient.channel('public:live_posts').on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => fetchInitialPosts()).subscribe();
-
         loadMoreBtn.addEventListener('click', () => loadMorePosts(false));
         liveFeed.addEventListener('click', shareHandler);
         pinnedPostContainer.addEventListener('click', shareHandler);
 
-        fetchInitialPosts();
+        loadMorePosts(true);
     });
-{% endraw %}
 </script>
