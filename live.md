@@ -17,8 +17,6 @@ title: Live Updates
     .live-post-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.875rem; color: #4b5563; }
     .live-post-author-group { display: flex; align-items: center; gap: 0.5rem; }
     .live-post-author { font-weight: 600; }
-
-    /* --- THIS IS THE MODIFIED LINE --- */
     .live-post-time { font-weight: 600; color: #ef4444; margin-left: auto; }
 
     .post-author-logo {
