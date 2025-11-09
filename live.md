@@ -95,7 +95,7 @@ title: Live Updates
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // --- START: CUSTOM CANVAS CLASS (Copied from post.html) ---
+    // --- START: CUSTOM CANVAS CLASS ---
     class CanvasLikeButton {
         constructor(canvas, initialIsLiked) {
             this.canvas = canvas;
@@ -112,8 +112,6 @@ title: Live Updates
             
             this.ctx.scale(this.dpr, this.dpr);
 
-            // NOTE: isLiked state is read/controlled by this class for animation,
-            // but the source of truth is still localStorage/DB.
             this.isLiked = initialIsLiked; 
             this.isHovered = false;
             this.buttonCenter = { x: this.logicalWidth / 2, y: this.logicalHeight / 2 };
@@ -277,7 +275,7 @@ title: Live Updates
             localStorage.setItem('anonClientId', 'anon-' + Date.now() + Math.random().toString(36).substring(2, 9));
         }
 
-        // --- Utility Functions (parseContent, loadSocialScripts omitted for brevity) ---
+        // --- Utility Functions ---
         function parseContent(content) {
             if (!content) return '';
             const placeholders = [];
@@ -415,10 +413,8 @@ title: Live Updates
                 .single();
 
             if (!error && data) {
-                // We check for inequality rather than just 'less than' because the manual decrement might be visible faster
-                if (parseInt(likeCountSpan.textContent) !== data.like_count) {
-                    likeCountSpan.textContent = data.like_count;
-                }
+                 // FIX: Always use the authoritative DB count if it's available
+                likeCountSpan.textContent = data.like_count;
             } else {
                 console.warn(`Failed to fetch live like count for post ${postId}:`, error?.message);
             }
@@ -443,42 +439,43 @@ title: Live Updates
                 });
         }
 
-        // --- MODIFIED TOGGLE LIKE FUNCTION ---
-        async function toggleLike(postId, canvasButtonInstance) {
+        // --- MODIFIED TOGGLE LIKE FUNCTION (Primary Fix) ---
+        async function toggleLike(postId, canvasButtonInstance, postElement) {
             const postIdStr = postId.toString();
-            const isCurrentlyLiked = canvasButtonInstance.isLiked; // Get state from canvas instance
-            const action = isCurrentlyLiked ? 'increment' : 'decrement';
+            // Determine the final intended action based on the canvas instance's new state
+            const action = canvasButtonInstance.isLiked ? 'increment' : 'decrement';
+            const likeCountSpan = postElement.querySelector(`#like-count-${postId}`);
+            const initialCount = parseInt(likeCountSpan.textContent);
             
             // 1. Send the scalable write signal
             fetch(`${ANALYTICS_WRITE_URL}?log=like&post_id=${postId}&action=${action}&client_id=${localStorage.getItem('anonClientId')}`, { method: 'GET', cache: 'no-store' })
                 .then(() => {
-                    // Update local storage state only on successful network fire
+                    // Success: Update local storage and perform authoritative read
                     if (action === 'increment') {
                         likedPosts.add(postIdStr);
-                        localStorage.setItem('likedLivePosts', JSON.stringify(Array.from(likedPosts)));
                     } else {
                         likedPosts.delete(postIdStr);
-                        localStorage.setItem('likedLivePosts', JSON.stringify(Array.from(likedPosts)));
-                    }
-                    // 2. Trigger final authoritative read from DB
-                    setTimeout(() => refreshLikeCount(postId), 1500); 
-                })
-                .catch(error => {
-                    console.error("Like log failed:", error);
-                    alert("Like failed! Please try again.");
-                    // Rollback optimistic UI/animation if the network request fails
-                    canvasButtonInstance.triggerClick(); 
-                    // Rollback local storage state
-                    if (action === 'increment') {
-                         likedPosts.delete(postIdStr);
-                    } else {
-                         likedPosts.add(postIdStr);
                     }
                     localStorage.setItem('likedLivePosts', JSON.stringify(Array.from(likedPosts)));
+                    
+                    // Reduce the delay for authoritative read
+                    setTimeout(() => refreshLikeCount(postId), 500); 
+                })
+                .catch(error => {
+                    // FAILURE: ROLLBACK OPTIMISTIC UI
+                    console.error("Like log failed. Rolling back UI.", error);
+                    alert("Like failed! Please try again.");
+                    
+                    // 2. Rollback UI/Animation: Call triggerClick *again* to flip the state back
+                    canvasButtonInstance.triggerClick(); 
+                    
+                    // 3. Rollback the displayed count
+                    const rollbackCount = action === 'increment' ? Math.max(0, initialCount) : initialCount;
+                    likeCountSpan.textContent = rollbackCount;
                 });
         }
         
-        // --- RENDER POST FUNCTION (Creates Canvas Element) ---
+        // --- RENDER POST FUNCTION ---
         function renderPost(postData, container, insertAtTop = false) {
             const postElement = document.createElement('div');
             postElement.className = 'live-post';
@@ -500,7 +497,6 @@ title: Live Updates
                 year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'
             });
             
-            // Check if post is currently liked by this browser (using local storage state)
             const isLiked = likedPosts.has(postData.id.toString());
             
             postElement.innerHTML = `
@@ -532,7 +528,6 @@ title: Live Updates
             // --- BIND CANVAS BUTTON ---
             const canvasEl = document.getElementById(`like-canvas-${postData.id}`);
             const canvasButton = new CanvasLikeButton(canvasEl, isLiked);
-            // Store the instance so the event listener can access it
             postElement.canvasButtonInstance = canvasButton; 
             // --- END BIND ---
 
@@ -545,7 +540,7 @@ title: Live Updates
             }, 100);
         }
 
-        // --- Core Load & Realtime Logic (omitted loadMorePosts, fetchFullFeed for brevity) ---
+        // --- Core Load & Realtime Logic ---
         async function fetchFullFeed(forceCacheBypass = false) {
              const cachedData = sessionStorage.getItem(CACHE_KEY);
             if (cachedData && !forceCacheBypass) {
@@ -584,7 +579,7 @@ title: Live Updates
         }
 
         async function loadMorePosts(isFullRefresh = false) {
-            if (isFullRefresh) {
+             if (isFullRefresh) {
                 const fullFeed = await fetchFullFeed(true); 
                 if (fullFeed.length === 0) {
                     pinnedPostContainer.innerHTML = ''; liveFeed.innerHTML = '';
@@ -603,10 +598,10 @@ title: Live Updates
             } else if (loadedPostsCount === 0) {
                 const fullFeed = await fetchFullFeed(false); 
                 if (fullFeed.length === 0) {
-                     if (loadedPostsCount === 0) {
+                    if (loadedPostsCount === 0) {
                         loadMoreBtn.style.display = 'none'; noMorePostsMsg.textContent = "No updates have been posted yet."; noMorePostsMsg.style.display = 'block';
-                     }
-                     return;
+                    }
+                    return;
                 }
                 
                 const pinned = fullFeed.find(p => p.is_pinned);
@@ -679,7 +674,7 @@ title: Live Updates
             })
             .subscribe();
 
-        // --- Event Listeners (Modified for Canvas) ---
+        // --- Event Listeners ---
         const shareHandler = (e) => {
              const shareBtn = e.target.closest('.share-btn');
              if (shareBtn) {
@@ -702,48 +697,33 @@ title: Live Updates
              }
         };
         
-        liveFeed.addEventListener('click', (e) => {
+        const likeButtonClickHandler = (e) => {
             const likeCanvas = e.target.closest('.like-btn-canvas');
             if (likeCanvas) {
                 const postElement = likeCanvas.closest('.live-post');
-                const postId = postElement.id.split('-')[1]; // Extract ID from 'post-ID'
+                const postId = postElement.id.split('-')[1]; 
                 const canvasButtonInstance = postElement.canvasButtonInstance;
+                const likeCountSpan = postElement.querySelector(`#like-count-${postId}`);
 
+                // Store the current count for use in rollback
+                let currentCount = parseInt(likeCountSpan.textContent);
+                
                 // 1. Trigger the Canvas Animation & Optimistic UI Update
                 canvasButtonInstance.triggerClick(); 
 
-                const likeCountSpan = postElement.querySelector(`#like-count-${postId}`);
-                let currentCount = parseInt(likeCountSpan.textContent);
+                // 2. Perform optimistic count update
                 const newCount = canvasButtonInstance.isLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
                 likeCountSpan.textContent = newCount;
 
-                // 2. Fire the Scalable Write Logic
-                toggleLike(postId, canvasButtonInstance);
+                // 3. Fire the Scalable Write Logic, passing the postElement for rollback
+                toggleLike(postId, canvasButtonInstance, postElement);
                 return;
             }
-            shareHandler(e); // Pass event to existing share handler
-        });
-        
-        pinnedPostContainer.addEventListener('click', (e) => {
-            const likeCanvas = e.target.closest('.like-btn-canvas');
-            if (likeCanvas) {
-                 const postElement = likeCanvas.closest('.live-post');
-                 const postId = postElement.id.split('-')[1];
-                 const canvasButtonInstance = postElement.canvasButtonInstance;
-
-                 canvasButtonInstance.triggerClick(); 
-                 
-                 const likeCountSpan = postElement.querySelector(`#like-count-${postId}`);
-                 let currentCount = parseInt(likeCountSpan.textContent);
-                 const newCount = canvasButtonInstance.isLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
-                 likeCountSpan.textContent = newCount;
-                 
-                 toggleLike(postId, canvasButtonInstance);
-                 return;
-            }
             shareHandler(e);
-        });
-
+        };
+        
+        liveFeed.addEventListener('click', likeButtonClickHandler);
+        pinnedPostContainer.addEventListener('click', likeButtonClickHandler);
         loadMoreBtn.addEventListener('click', () => loadMorePosts(false));
 
         // Initial page load: Rely on the cached data (pre-fetch) if available.

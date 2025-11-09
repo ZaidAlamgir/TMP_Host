@@ -24,29 +24,16 @@
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const loader = document.getElementById('loading-container');
-
-        // --- **** THIS IS THE FIX **** ---
         
-        // We wrap our logic in an async function to use 'await'
         (async () => {
-            const hash = window.location.hash.substring(1); // Get "access_token=..."
+            const hash = window.location.hash.substring(1);
             const params = new URLSearchParams(hash);
             
             const accessToken = params.get('access_token');
             const refreshToken = params.get('refresh_token');
-
-            // SCENARIO 1: We are in the Custom Tab (no AndroidInterface)
-            // We must immediately redirect back to the app.
-            if (!window.AndroidInterface && accessToken) {
-                console.log("Token found in Custom Tab. Redirecting to app.");
-                window.location.replace(`tmpnews://auth/callback#${hash}`);
-            } 
-            // SCENARIO 2: We are in the WebView (AndroidInterface exists)
-            // We must *manually save the session* before redirecting.
-            else if (window.AndroidInterface && accessToken && refreshToken) {
+            if (window.AndroidInterface && accessToken && refreshToken) {
                 console.log("Token found in WebView. Manually setting session...");
                 
-                // Manually force Supabase to save the session from the tokens
                 const { error } = await supabase.auth.setSession({
                     access_token: accessToken,
                     refresh_token: refreshToken
@@ -56,19 +43,31 @@
                     console.error("Error setting session:", error.message);
                     loader.innerHTML = `<p style="color: red; font-weight: 500;">Login error: ${error.message}</p>`;
                 } else {
-                    // Session is 100% saved! NOW it is safe to redirect.
                     console.log("Session set successfully. Redirecting to /");
                     window.location.replace('/');
                 }
             }
-            // SCENARIO 3: No token was found. This is an error.
+            else if (!window.AndroidInterface && accessToken && refreshToken) {
+                console.log("Token found in Web Browser. Manually setting session...");
+
+                const { error } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken
+                });
+
+                if (error) {
+                    console.error("Error setting session:", error.message);
+                    loader.innerHTML = `<p style="color: red; font-weight: 500;">Login error: ${error.message}</p>`;
+                } else {
+                    console.log("Session set successfully. Redirecting to /");
+                    window.location.replace('/'); 
+                }
+            }
             else {
                 console.error("Callback page loaded, but no token found in URL hash.");
                 loader.innerHTML = '<p style="color: red; font-weight: 500;">Login error. No token received. Please try again.</p>';
             }
         })();
-        
-        // --- **** END OF FIX **** ---
 
     </script>
 </body>
