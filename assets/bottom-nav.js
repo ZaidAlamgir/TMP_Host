@@ -65,7 +65,6 @@
 
     // 2. CREATE THE HTML STRUCTURE
     const base_path = document.body.getAttribute('data-base-path') || '';
-    // THIS IS THE FIX: Read the dynamic URL for the latest post
     const latestPostUrl = document.body.getAttribute('data-latest-post-url') || `${base_path}/latest/`;
 
     const navHTML = `
@@ -97,6 +96,45 @@
     document.body.insertAdjacentHTML('beforeend', navHTML);
 
     // 3. ATTACH THE JAVASCRIPT LOGIC
+    
+    // --- Live Feed Prefetch Logic (Unchanged) ---
+    function prefetchLiveFeed() {
+        const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json';
+        const PREFETCH_KEY = 'prefetchedLiveFeed';
+        const TIMESTAMP_KEY = 'prefetchedLiveFeedTimestamp';
+        const now = Date.now();
+        const lastPrefetchTime = parseInt(localStorage.getItem(TIMESTAMP_KEY) || '0');
+        if (now - lastPrefetchTime < 10000) {
+            console.log('Prefetch skipped, too recent.');
+            return;
+        }
+        console.log('Prefetching live feed...');
+        localStorage.setItem(TIMESTAMP_KEY, now.toString());
+        fetch(LIVE_FEED_URL, { cache: 'no-store' })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response not ok for prefetch');
+                return response.json();
+            })
+            .then(data => {
+                localStorage.setItem(PREFETCH_KEY, JSON.stringify(data));
+                console.log('Live feed prefetched and stored in localStorage.');
+            })
+            .catch(error => {
+                console.error('Live feed prefetch failed:', error);
+                localStorage.removeItem(PREFETCH_KEY);
+                localStorage.removeItem(TIMESTAMP_KEY);
+            });
+    }
+    function attachPrefetchListener() {
+        const navLiveButton = document.getElementById('nav-live');
+        if (navLiveButton) {
+            navLiveButton.addEventListener('mousedown', prefetchLiveFeed);
+            navLiveButton.addEventListener('touchstart', prefetchLiveFeed, { passive: true });
+        }
+    }
+    // --- END Prefetch Logic ---
+
+
     function initializeNav() {
         const bottomNav = document.getElementById('bottom-nav');
         if (!bottomNav) return;
@@ -107,37 +145,59 @@
         const navLinks = bottomNav.querySelectorAll('.bottom-nav-link');
         const glider = bottomNav.querySelector('.nav-glider');
 
+        // --- THIS IS THE FIX FOR BUG 2 ---
         function setActiveLink() {
             const path = window.location.pathname;
             let activeLinkElement = null;
 
+            // Normalize path: /index.html becomes /
+            // Also handle base_path if it's not empty
+            const normalizedPath = path.endsWith('/index.html') ? (base_path ? base_path : '/') : path;
+
             navLinks.forEach(link => {
                 const linkPath = new URL(link.href).pathname;
                 link.classList.remove('active');
-                if (path === linkPath || (path.endsWith('/') && linkPath.endsWith('/index.html'))) {
+                
+                // Normalize linkPath for home
+                const normalizedLinkPath = (linkPath.endsWith('/index.html') || linkPath.endsWith(base_path + '/')) ? (base_path ? base_path : '/') : linkPath;
+
+                if (normalizedPath === normalizedLinkPath) {
                     activeLinkElement = link;
                 }
             });
 
+            // Fallback for /latest/ redirect
+            // We check if the *current page path* ends with the *link's URL*
+            if (!activeLinkElement && (normalizedPath.endsWith(latestPostUrl) || normalizedPath.includes('/latest'))) {
+                 activeLinkElement = document.getElementById('nav-articles');
+            }
+
+            // Final fallback to home if still no match
             if (!activeLinkElement) {
                 activeLinkElement = document.getElementById('nav-home');
             }
-
-            if (activeLinkElement) {
-                activeLinkElement.classList.add('active');
-                
-                const linkRect = activeLinkElement.getBoundingClientRect();
-                const navRect = bottomNav.getBoundingClientRect();
+            
+            // Re-apply active class to the final choice
+            navLinks.forEach(link => link.classList.remove('active'));
+            activeLinkElement.classList.add('active');
+            
+            const linkRect = activeLinkElement.getBoundingClientRect();
+            const navRect = bottomNav.getBoundingClientRect();
+            if(glider) {
                 glider.style.width = `${linkRect.width * 0.8}px`;
                 glider.style.left = `${linkRect.left - navRect.left + (linkRect.width * 0.1)}px`;
             }
         }
+        // --- END FIX FOR BUG 2 ---
 
         setActiveLink();
         window.addEventListener('resize', setActiveLink);
+        attachPrefetchListener();
 
         setTimeout(() => {
-            glider.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+            if(glider) {
+                glider.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+            }
         }, 50);
     }
     
