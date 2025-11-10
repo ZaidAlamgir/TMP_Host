@@ -484,3 +484,20 @@ html.dark-mode .paypal-logo path[fill="#012169"] {
 html.dark-mode .paytm-logo path[fill="#00b2ef"] {
     fill: #00b2ef;
 }
+
+/* --- Fix for Author Text Colors --- */
+html.dark-mode .top-story-author,
+html.dark-mode .author-name,
+html.dark-mode .live-post-author
+html.dark-mode .plan-summary {
+    color: var(--dark-text-primary) !important;
+}
+
+html.dark-mode li {
+    color: var(--dark-text-primary) !important;
+}
+ 
+html.dark-mode .plan-price,
+html.dark-mode .plan-name {
+    color: var(--dark-text-primary) !important;
+}
