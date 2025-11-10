@@ -166,6 +166,33 @@ title: Account - The Muslim Post
          margin-top: 2rem;
          font-size: 0.95rem;
     }
+
+    /* --- ADDED: Loader Animation --- */
+    .btn-google .loader {
+      display: none; /* Hide by default */
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3; /* Light grey circle */
+      border-top: 3px solid #0073e6; /* Blue spinner part */
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0;
+    }
+    
+    /* Show loader and hide content when 'loading' class is present */
+    .btn-google.loading .loader {
+      display: inline-block;
+    }
+    .btn-google.loading span,
+    .btn-google.loading img {
+      display: none;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* --- END: Loader Animation --- */
 </style>
 
 <div class="auth-page-wrapper">
@@ -185,7 +212,8 @@ title: Account - The Muslim Post
         <div class="divider">OR</div>
         <button id="googleSignInSignUp" class="btn-google">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
-            Continue with Google
+            <span>Continue with Google</span>
+            <div class="loader"></div>
         </button>
         <div class="auth-toggle-link">
             Already have an account? <a id="goToSignIn">Sign In</a>
@@ -239,7 +267,8 @@ title: Account - The Muslim Post
         <div class="divider">OR</div>
         <button id="googleSignIn" class="btn-google">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon">
-            Sign in with Google
+            <span>Sign in with Google</span>
+            <div class="loader"></div>
         </button>
         <div class="auth-toggle-link">
             Don't have an account? <a id="goToSignUp">Sign Up</a>
@@ -255,7 +284,7 @@ title: Account - The Muslim Post
 <script>
     // --- SUPABASE CONFIGURATION ---
     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; // Your Supabase Project URL
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -294,7 +323,10 @@ title: Account - The Muslim Post
             const emailInput = document.getElementById('email'), passwordInput = document.getElementById('password'), fullNameInput = document.getElementById('fullName');
             const signInEmailInput = document.getElementById('signInEmail'), signInPasswordInput = document.getElementById('signInPassword');
             const backToStep1Link = document.getElementById('backToStep1'), goToSignInLink = document.getElementById('goToSignIn'), goToSignUpLink = document.getElementById('goToSignUp');
+            
+            // --- MODIFIED: Get button references here ---
             const googleSignInSignUpBtn = document.getElementById('googleSignInSignUp'), googleSignInBtn = document.getElementById('googleSignIn');
+            
             const togglePasswordIcons = document.querySelectorAll('.toggle-password');
             const emailError = document.getElementById('emailError'), registerError = document.getElementById('registerError'), signInError = document.getElementById('signInError');
             const reqLength = document.getElementById('req-length'), reqNumber = document.getElementById('req-number'), reqUppercase = document.getElementById('req-uppercase');
@@ -362,50 +394,69 @@ title: Account - The Muslim Post
                 }
             });
 
-            // --- *** MODIFIED FUNCTION *** ---
+            // --- *** THIS IS THE UPDATED FUNCTION *** ---
             const handleGoogleSignIn = async () => {
-                // 1. Check if we are inside your app's WebView
-                const isInsideApp = typeof window.AndroidInterface !== 'undefined';
+                // 1. Get error fields
+                const signInError = document.getElementById('signInError');
+                const emailError = document.getElementById('emailError');
                 
-                // 2. Set the base redirectTo URL
-                let redirectUrl = `${window.location.origin}/callback.html`;
+                // 2. Show loading state and disable buttons
+                googleSignInSignUpBtn.disabled = true;
+                googleSignInBtn.disabled = true;
+                googleSignInSignUpBtn.classList.add('loading');
+                googleSignInBtn.classList.add('loading');
+
+                // 3. Clear previous errors
+                signInError.textContent = '';
+                emailError.textContent = '';
                 
-                // 3. If we are inside the app, add 'from_app=true' as a query parameter
+                // 4. Check if we are inside your Android app
+                const isInsideApp = (window.AndroidInterface && typeof window.AndroidInterface.share === 'function');
+                
+                let redirectUrl;
+                
                 if (isInsideApp) {
-                    console.log("Running from inside app, adding 'from_app' to search query.");
-                    redirectUrl += '?from_app=true'; // Add as a standard query parameter
+                    console.log("App detected. Redirecting to tmpnews://auth/callback");
+                    redirectUrl = 'tmpnews://auth/callback';
                 } else {
-                    console.log("Running from a normal browser.");
+                    console.log("Web browser detected. Redirecting to https://www.tmpnews.com/callback.html");
+                    redirectUrl = 'https://www.tmpnews.com/callback.html';
                 }
             
-                // 4. Set the default redirect options
+                // 5. Set the auth options
                 const authOptions = {
                     provider: 'google',
                     options: {
-                        redirectTo: redirectUrl // Use the modified URL
+                        redirectTo: redirectUrl // Use the correct URL based on the environment
                     }
                 };
                 
-                // 5. Pass the modified options to Supabase
-                const { data, error } = await supabase.auth.signInWithOAuth(authOptions);
+                // 6. Pass the options to Supabase
+                const { error } = await supabase.auth.signInWithOAuth(authOptions);
                 
+                // 7. Handle error (if redirect fails)
                 if (error) {
-                    signInError.textContent = error.message;
-                    emailError.textContent = error.message;
+                    // Display the error in the currently active form
+                    const activeErrorEl = document.getElementById('stepSignIn').classList.contains('active') ? signInError : emailError;
+                    activeErrorEl.textContent = error.message;
+
+                    // 8. Hide loading state and re-enable buttons
+                    googleSignInSignUpBtn.disabled = false;
+                    googleSignInBtn.disabled = false;
+                    googleSignInSignUpBtn.classList.remove('loading');
+                    googleSignInBtn.classList.remove('loading');
                 }
+                // If successful, the page redirects, so no 'else' is needed
             };
-            // --- *** END OF MODIFICATION *** ---
+            // --- *** END OF UPDATED FUNCTION *** ---
 
             googleSignInSignUpBtn.addEventListener('click', handleGoogleSignIn);
             googleSignInBtn.addEventListener('click', handleGoogleSignIn);
             
             // CRITICAL FIX: Use event delegation for password toggle icons.
-            // Font Awesome's JS can replace <i> tags with <svg>, causing direct listeners to break.
-            // Attaching to a parent and checking the target ensures the listener always works.
             authFormContainer.addEventListener('click', (e) => {
                 if (e.target.classList.contains('toggle-password')) {
                     const icon = e.target;
-                    // The password input is the previous sibling of the icon
                     const passwordField = icon.previousElementSibling;
 
                     if (passwordField && (passwordField.id === 'password' || passwordField.id === 'signInPassword')) {
