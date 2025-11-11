@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /_site/
+Disallow: /bin/
+Disallow: /.bundle/
+Disallow: /vendor/
+Disallow: /.sass-cache/
+Disallow: /.jekyll-cache/
+Disallow: /assets/ # Optional: good to add if you don't want them indexing CSS/JS
+
+# Allow all other content
+Allow: /
+
+Sitemap: https://www.tmpnews.com/sitemap.xml
