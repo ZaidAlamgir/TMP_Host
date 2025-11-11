@@ -181,7 +181,7 @@ redirect_to:
 
                 {{ latest_post.content | markdownify }}
             </div> <script>
-            document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('turbo:load', () => {
                 // console.log("Caption script running for latest layout..."); // For debugging
                 const articleBody = document.querySelector('.article-body');
                 if (!articleBody) {
@@ -248,7 +248,7 @@ redirect_to:
         <p style="text-align: center;">No posts have been published yet.</p>
     {% endif %}
 </div> <script> // Share Script
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('turbo:load', () => {
     const shareButton = document.getElementById('native-share-button');
 
     if (shareButton) {
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script> // Embed Script
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('turbo:load', () => {
     const articleBody = document.querySelector('.article-body');
     if (!articleBody) return;
 

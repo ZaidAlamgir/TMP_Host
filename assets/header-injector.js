@@ -1,5 +1,6 @@
 // A single, smart script that injects the correct header based on the current page.
 // This is the final version with all features, caching, correct paths, and dropdown menu.
+// *** MODIFIED FOR TURBO ***
 
 // --- Helper function to generate a unique color for a user's initial ---
 function generateColorForUser(userId) {
@@ -109,7 +110,6 @@ function renderWriterHeader(base_path) {
                     </div>
                     <a href="${base_path}/about.html">About</a>
                     <a href="${base_path}/terms.html">Terms & Conditions</a>
-                    <!-- Inject Settings Link Here -->
                     ${settingsMenuItemHTML}
                 </div>
                 <ul id="index-results-list"></ul>
@@ -209,8 +209,7 @@ function renderSupabaseHeader(user, base_path) {
                     </div>
                     <a href="${base_path}/about.html">About</a>
                     <a href="${base_path}/terms.html">Terms & Conditions</a>
-                     <!-- Inject Settings Link Here -->
-                    ${settingsMenuItemHTML}
+                     ${settingsMenuItemHTML}
                 </div>
                 <ul id="index-results-list"></ul>
             </div>
@@ -406,7 +405,7 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
     // Initialize Supabase client if available
     // Ensure Supabase URL and Key are correctly configured elsewhere or replace placeholders
      const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; // Replace if needed
-     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU'; // Replace if needed
+     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU'; // Replace if needed
      let supabaseInstance = null;
       try {
            if (window.supabase && typeof window.supabase.createClient === 'function') {
@@ -466,7 +465,10 @@ function initializeSupabaseHeader(base_path, forceRerender = false) {
 
 
 // --- Main Execution Logic ---
-document.addEventListener('DOMContentLoaded', function() {
+// --- THIS IS THE KEY CHANGE ---
+// We replace 'DOMContentLoaded' with 'turbo:load'
+document.addEventListener('turbo:load', function() {
+    console.log("Turbo has loaded a new page. Initializing header-injector.");
     const pathname = window.location.pathname;
     // Attempt to get base path from body attribute, default to '.'
     const base_path = document.body.getAttribute('data-base-path') || '.';
@@ -481,6 +483,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (skipHeaderPages.some(page => pathname.endsWith(page))) { // Use endsWith for better matching
         console.log("Skipping header injection for:", pathname);
+        // If a header exists from a previous page, remove it
+        const headerPlaceholder = document.getElementById('header-placeholder');
+        if (headerPlaceholder) headerPlaceholder.innerHTML = '';
         return; // Don't inject header on these pages
     }
 
@@ -496,6 +501,8 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeSupabaseHeader(base_path);
     }
 });
+// --- END KEY CHANGE ---
+
 
 // Handle browser back/forward navigation potentially using cached pages (bfcache)
 window.addEventListener('pageshow', function(event) {
@@ -526,7 +533,12 @@ window.addEventListener('pageshow', function(event) {
 // --- Custom Confirm/Alert ---
 // Basic implementation - replace with a proper modal library if needed
 function showCustomConfirm(message, onOk) {
+    // Remove any existing dialog first
+    const existingDialog = document.getElementById('custom-confirm-dialog');
+    if (existingDialog) existingDialog.remove();
+    
     const dialog = document.createElement('div');
+    dialog.id = 'custom-confirm-dialog'; // Add an ID
     dialog.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000;';
     dialog.innerHTML = `
         <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); max-width: 90%; text-align: center;">
