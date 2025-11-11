@@ -1,9 +1,4 @@
-// --- Enhanced Bottom Navigation (All-in-One Script) ---
-// *** TURBO-ENABLED VERSION (Slide Animation + Position Fix) ***
-
 (function() {
-
-    // --- FUNCTION 1: CREATE AND INJECT THE CSS STYLES ---
     function injectStyles() {
         const styles = `
             .bottom-nav {
@@ -61,14 +56,8 @@
                 /* --- FIX 1: START INVISIBLE and NO transition --- */
                 opacity: 0;
             }
-            
-            /* --- FIX 2: "SMOOTHER" ANIMATION CLASS --- */
             .nav-glider.glider-animated {
-                /* This is the animation you'll feel. 
-                  It's longer (0.6s) and uses 'ease-in-out' 
-                  for a smoother, more noticeable slide.
-                */
-                transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             }
         `;
         
@@ -80,17 +69,13 @@
             document.head.appendChild(styleSheet);
         }
     }
-
-    // --- FUNCTION 2: CREATE THE HTML STRUCTURE ---
     function injectHTML() {
         if (document.getElementById('bottom-nav')) {
-            return; // Already injected
+            return; 
         }
 
         const base_path = document.body.getAttribute('data-base-path') || '';
         const latestPostUrl = document.body.getAttribute('data-latest-post-url') || `${base_path}/latest/`;
-
-        // data-turbo-permanent is the fix for the "glitch"
         const navHTML = `
             <nav class="bottom-nav" id="bottom-nav" data-turbo-permanent>
                 <div class="nav-glider"></div>
@@ -119,8 +104,6 @@
         
         document.body.insertAdjacentHTML('beforeend', navHTML);
     }
-
-    // --- FUNCTION 3: LIVE FEED PREFETCH LOGIC ---
     function prefetchLiveFeed() {
         const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json';
         const PREFETCH_KEY = 'prefetchedLiveFeed';
@@ -147,7 +130,6 @@
     }
 
     function attachPrefetchListener() {
-        // We must use event delegation on 'document.body' because the nav is permanent
         document.body.addEventListener('mousedown', function(e) {
             if (e.target.closest('#nav-live')) {
                 prefetchLiveFeed();
@@ -159,13 +141,11 @@
             }
         }, { passive: true });
     }
-
-    // --- FUNCTION 4: INITIALIZE NAV (POSITION, PADDING, ETC) ---
     function initializeNav() {
         const bottomNav = document.getElementById('bottom-nav');
         if (!bottomNav) {
             console.error("Bottom nav not found, re-injecting.");
-            injectHTML(); // Failsafe
+            injectHTML(); 
         }
         
         const navHeight = bottomNav.offsetHeight;
@@ -217,47 +197,35 @@
                 glider.style.left = `${linkRect.left - navRect.left + (linkRect.width * 0.1)}px`;
             }
         }
-
-        // Run this first to set the position *before* it becomes visible
         setActiveLink();
         window.addEventListener('resize', setActiveLink);
-
-        // --- THIS IS THE FIX for the "jump from corner" ---
         if (glider && !glider.classList.contains('glider-animated')) {
             // Use a minimal timeout
             setTimeout(() => {
                 glider.classList.add('glider-animated');
-                glider.style.opacity = '1'; // Make it visible
-            }, 10); // 10ms is enough
+                glider.style.opacity = '1'; 
+            }, 10); 
         } else if (glider) {
-            // If it's already animated, just ensure it's visible
             glider.style.opacity = '1';
         }
     }
     
-    // --- MAIN EXECUTION ---
-    
-    // 1. Inject CSS one time
     injectStyles();
 
-    // 2. Inject HTML one time
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', injectHTML);
     } else {
         injectHTML(); 
     }
     
-    // 3. Attach prefetch listeners one time
     attachPrefetchListener();
     
-    // 4. Run the nav initialization logic on *every* Turbo load
     document.addEventListener('turbo:load', initializeNav);
     
-    // 5. Run it once *after* DOMContentLoaded for the very first page load
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeNav);
     } else {
-        initializeNav(); // Handle if script is loaded defer
+        initializeNav();
     }
 
 })();

@@ -54,5 +54,26 @@
     {% for js_file in page.extra_js %}
         <script src="{{ js_file | relative_url }}"></script>
     {% endfor %} 
+
+    <script>
+    document.addEventListener('turbo:load', () => {
+      const articleBodies = document.querySelectorAll('.article-body, .post-content');
+      const internalHostname = 'www.tmpnews.com'; 
+
+      articleBodies.forEach(body => {
+        const links = body.querySelectorAll('a');
+        links.forEach(link => {
+          try {
+            if (link.hostname && link.hostname !== internalHostname) {
+              link.setAttribute('rel', 'nofollow noopener noreferrer');
+              link.setAttribute('target', '_blank');
+            }
+          } catch (e) {
+            console.log('Skipping non-http link: ' + link.href);
+          }
+        });
+      });
+    });
+    </script>
 </body>
 </html>

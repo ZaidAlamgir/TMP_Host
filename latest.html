@@ -8,6 +8,35 @@ redirect_to:
 
 {% assign latest_post = site.posts.first %}
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ latest_post.url | absolute_url }}"
+  },
+  "headline": "{{ latest_post.title | escape }}",
+  "image": [
+    "{{ latest_post.image | absolute_url }}"
+   ],
+  "datePublished": "{{ latest_post.date | date_to_xmlschema }}",
+  "dateModified": "{{ latest_post.date | date_to_xmlschema }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ latest_post.author | default: 'TMP Staff' | escape }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "The Muslim Post",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ '/android-chrome-512x512.png' | absolute_url }}"
+    }
+  },
+  "description": "{{ latest_post.subheadline | default: latest_post.content | strip_html | truncatewords: 50 | escape }}"
+}
+</script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
 

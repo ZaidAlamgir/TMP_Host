@@ -3,6 +3,22 @@ layout: default
 title: Home - The Muslim Post
 ---
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "The Muslim Post",
+  "url": "https://www.tmpnews.com/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://www.tmpnews.com/search.html?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 <div class="support-cta-banner">
     <p>Independent journalism is more important than ever. Please consider supporting The Muslim Post today.</p>
     <a href="{{ 'support.html' | relative_url }}" class="support-cta-button">Support TMP</a>
@@ -129,7 +145,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="news-hub.html?tag=international-news" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/7f8c8d/ffffff?text=International+News" alt="International News" class="news-card-image">
+                        <img src="httpsWeaviate-V3-Documentation/img/logo-weaviate.svg" alt="International News" class="news-card-image">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">International News</h3>
