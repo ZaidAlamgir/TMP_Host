@@ -169,14 +169,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // NOTE: Using the Supabase credentials you provided.
+            
             const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
-
             const { createClient } = supabase;
             const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            
-            // --- UI Elements ---
             const authView = document.getElementById('auth-view');
             const editorView = document.getElementById('editor-view');
             const signInForm = document.getElementById('sign-in-form');
