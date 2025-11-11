@@ -1,7 +1,7 @@
 name: Submit Sitemap to IndexNow
 on:
   workflow_run:
-    workflows: ["pages-build-deployment"] 
+    workflows: ["Deploy Jekyll site to Pages"] 
     types: [completed]
 
 jobs:
@@ -12,5 +12,5 @@ jobs:
       - name: 🚀 Submit sitemap URLs to IndexNow
         uses: bojieyang/indexnow-action@v2
         with:
-          sitemap-location: 'https://yourdomain.com/sitemap.xml'
+          sitemap-location: 'https://www.tmpnews.com/sitemap.xml'
           key: ${{ secrets.INDEXNOW_KEY }}
