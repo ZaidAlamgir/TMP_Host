@@ -20,7 +20,14 @@
             border-radius: 9999px; cursor: pointer; transition: background-color 0.2s;
         }
         .tag-chip:hover { background-color: #cbd5e1; }
-        textarea { resize: none; overflow: hidden; }
+        textarea { 
+            resize: none; 
+            overflow: hidden; 
+            transition: height 0.1s ease-out; 
+        }
+        #article-p1, .dynamic-paragraph {
+            min-height: 150px; 
+        }
         .remove-block-btn { position: absolute; top: 0.75rem; right: 0.75rem; color: #94a3b8; cursor: pointer; }
         .remove-block-btn:hover { color: #ef4444; }
         .link-modal-overlay {
@@ -162,7 +169,6 @@
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         const GITHUB_CONFIG = {
             clientId: 'Ov23liQdWxdci4yccEie',
             redirectUri: 'https://www.tmpnews.com/auth-callback.html',
@@ -172,8 +178,6 @@
             articlesPath: '_posts',
             tokenExchangeUrl: 'https://github-auth-proxy.zaidkhan137782.workers.dev'
         };
-
-        // --- DOM ELEMENTS ---
         const loginView = document.getElementById('login-view');
         const editorView = document.getElementById('editor-view');
         const loginButton = document.getElementById('login-button');
@@ -194,11 +198,13 @@
         let selectionStart = 0;
         let selectionEnd = 0;
         let accessToken = null;
-
         const autoExpandTextarea = (textarea) => {
             if (!textarea) return;
+            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             textarea.style.height = 'auto';
             textarea.style.height = `${textarea.scrollHeight}px`;
+            window.scrollTo(scrollLeft, scrollTop);
         };
 
         window.onload = async () => {
@@ -237,9 +243,6 @@
 
         const showLogin = () => { loginView.classList.remove('hidden'); editorView.classList.add('hidden'); };
         const showEditor = () => { loginView.classList.add('hidden'); editorView.classList.remove('hidden'); };
-
-        // --- EVENT LISTENERS ---
-
         loginButton.addEventListener('click', () => {
             const finalDestination = window.location.origin + window.location.pathname;
             localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'main_cms' }));
@@ -350,7 +353,6 @@
         });
 
         cancelLinkBtn.addEventListener('click', hideLinkModal);
-
         publishButton.addEventListener('click', async () => {
             const headline = document.getElementById('article-headline').value.trim();
             const paragraph1 = document.getElementById('article-p1').value.trim();
@@ -362,9 +364,7 @@
             const subheadline = document.getElementById('article-subheadline').value.trim();
             const mainImageUrl = document.getElementById('article-main-image-url').value.trim();
             const mainImageDesc = document.getElementById('article-main-image-desc').value.trim();
-
             const authorName = document.getElementById('article-author').value.trim();
-
             const tags = tagsInput.value.trim();
             let frontmatter = `---\n`;
             frontmatter += `title: "${headline.replace(/"/g, '\\"')}"\n`;
@@ -426,7 +426,7 @@
                     updateStatus(`Successfully published: ${filename}`, 'green');
                     editorView.querySelectorAll('input, textarea').forEach(el => el.value = '');
                     dynamicBlocksContainer.innerHTML = '';
-                    document.getElementById('article-author').value = 'TMP Staff'; // Reset author field to default
+                    document.getElementById('article-author').value = 'TMP Staff';
                     document.querySelectorAll('textarea').forEach(autoExpandTextarea);
                 } else {
                     const error = await response.json();
