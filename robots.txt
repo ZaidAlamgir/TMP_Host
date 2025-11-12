@@ -1,3 +1,26 @@
+# 1. Block AI Bots (Manually added)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+# 2. Rules for Everyone Else (our original rules)
 User-agent: *
 Disallow: /_site/
 Disallow: /bin/
@@ -5,9 +28,8 @@ Disallow: /.bundle/
 Disallow: /vendor/
 Disallow: /.sass-cache/
 Disallow: /.jekyll-cache/
-Disallow: /assets/ # Optional: good to add if you don't want them indexing CSS/JS
+Disallow: /assets/
 
-# Allow all other content
 Allow: /
 
 Sitemap: https://www.tmpnews.com/sitemap.xml
