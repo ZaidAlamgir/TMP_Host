@@ -53,7 +53,6 @@
                 border-radius: 20px;
                 transform: translateY(-50%);
                 z-index: 0;
-                /* --- FIX 1: START INVISIBLE and NO transition --- */
                 opacity: 0;
             }
             .nav-glider.glider-animated {
@@ -69,6 +68,7 @@
             document.head.appendChild(styleSheet);
         }
     }
+
     function injectHTML() {
         if (document.getElementById('bottom-nav')) {
             return; 
@@ -76,6 +76,7 @@
 
         const base_path = document.body.getAttribute('data-base-path') || '';
         const latestPostUrl = document.body.getAttribute('data-latest-post-url') || `${base_path}/latest/`;
+        
         const navHTML = `
             <nav class="bottom-nav" id="bottom-nav" data-turbo-permanent>
                 <div class="nav-glider"></div>
@@ -104,6 +105,7 @@
         
         document.body.insertAdjacentHTML('beforeend', navHTML);
     }
+
     function prefetchLiveFeed() {
         const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json';
         const PREFETCH_KEY = 'prefetchedLiveFeed';
@@ -141,6 +143,7 @@
             }
         }, { passive: true });
     }
+
     function initializeNav() {
         const bottomNav = document.getElementById('bottom-nav');
         if (!bottomNav) {
@@ -156,51 +159,61 @@
         const base_path = document.body.getAttribute('data-base-path') || '';
         const latestPostUrl = document.body.getAttribute('data-latest-post-url') || `${base_path}/latest/`;
 
+        // --- UPDATED LOGIC FOR CLOUDFLARE COMPATIBILITY ---
+        function cleanPath(path) {
+            // Remove base_path, index.html, .html extension, and trailing slashes
+            let cleaned = path;
+            if (base_path && cleaned.startsWith(base_path)) {
+                cleaned = cleaned.substring(base_path.length);
+            }
+            return cleaned.replace('/index.html', '')
+                          .replace('.html', '')
+                          .replace(/\/$/, '') || '/';
+        }
+
         function setActiveLink() {
-            const path = window.location.pathname;
+            const currentPath = cleanPath(window.location.pathname);
             let activeLinkElement = null;
 
-            const normalizedPath = path.endsWith('/index.html') ? (base_path ? base_path : '/') : path;
-
+            // 1. Try exact match
             navLinks.forEach(link => {
-                const linkPath = new URL(link.href).pathname;
-                link.classList.remove('active');
-                
-                const normalizedLinkPath = (linkPath.endsWith('/index.html') || linkPath.endsWith(base_path + '/')) ? (base_path ? base_path : '/') : linkPath;
-
-                if (normalizedPath === normalizedLinkPath) {
+                const linkPath = cleanPath(new URL(link.href).pathname);
+                if (currentPath === linkPath) {
                     activeLinkElement = link;
                 }
             });
 
-            if (!activeLinkElement && (normalizedPath.endsWith(latestPostUrl) || normalizedPath.includes('/latest'))) {
-                 activeLinkElement = document.getElementById('nav-articles');
-            }
-
+            // 2. Fallback logic if no exact match found
             if (!activeLinkElement) {
-                if (normalizedPath.includes('/postopen.html')) {
-                    activeLinkElement = document.getElementById('nav-post');
-                } else if (normalizedPath.includes('/post.html')) {
+                if (window.location.pathname.includes('/latest')) {
+                     activeLinkElement = document.getElementById('nav-articles');
+                } else if (window.location.pathname.includes('/post')) {
+                    // Handles post.html and postopen.html even if match failed above
                     activeLinkElement = document.getElementById('nav-post');
                 } else {
+                    // Default to Home
                     activeLinkElement = document.getElementById('nav-home');
                 }
             }
             
             navLinks.forEach(link => link.classList.remove('active'));
-            activeLinkElement.classList.add('active');
-            
-            const linkRect = activeLinkElement.getBoundingClientRect();
-            const navRect = bottomNav.getBoundingClientRect();
-            if(glider) {
-                glider.style.width = `${linkRect.width * 0.8}px`;
-                glider.style.left = `${linkRect.left - navRect.left + (linkRect.width * 0.1)}px`;
+            if (activeLinkElement) {
+                activeLinkElement.classList.add('active');
+                
+                const linkRect = activeLinkElement.getBoundingClientRect();
+                const navRect = bottomNav.getBoundingClientRect();
+                if(glider) {
+                    glider.style.width = `${linkRect.width * 0.8}px`;
+                    glider.style.left = `${linkRect.left - navRect.left + (linkRect.width * 0.1)}px`;
+                }
             }
         }
+        // --------------------------------------------------
+
         setActiveLink();
         window.addEventListener('resize', setActiveLink);
+        
         if (glider && !glider.classList.contains('glider-animated')) {
-            // Use a minimal timeout
             setTimeout(() => {
                 glider.classList.add('glider-animated');
                 glider.style.opacity = '1'; 
