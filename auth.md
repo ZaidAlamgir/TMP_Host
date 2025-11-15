@@ -1,6 +1,7 @@
 ---
 layout: standalone
 title: Account - The Muslim Post
+permalink: /auth.html
 ---
 
 <style>

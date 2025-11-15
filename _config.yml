@@ -1,6 +1,6 @@
 title: The Muslim Post | TMP News
 description: "The Muslim Post (TMP News) is a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective on World Politics, Indian Politics, and the Muslim World."
-permalink: /:title.html
+permalink: /news/:categories/:title/
 
 # Site-wide SEO keywords
 keywords: ["The Muslim Post", "TMP News", "Muslim post", "World Politics", "Indian Politics", "Muslim World", "Technology", "Global Economy"]
@@ -28,6 +28,8 @@ collections:
 include:
   - cms.html
   - liveCMS.html
+  - latest.html
+  - .well-known
 
 # Exclude from processing.
 exclude:

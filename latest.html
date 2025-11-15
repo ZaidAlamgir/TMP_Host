@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Latest Article
+permalink: /latest.html
 ---
 
 {% assign latest_post = site.posts.first %}
@@ -208,65 +209,39 @@ title: Latest Article
                 {{ latest_post.content | markdownify }}
             </div> <script>
             document.addEventListener('turbo:load', () => {
-                // console.log("Caption script running for latest layout..."); // For debugging
                 const articleBody = document.querySelector('.article-body');
-                if (!articleBody) {
-                    // console.log("Article body not found."); // For debugging
-                    return;
-                }
+                if (!articleBody) return;
 
-                // Find images that are direct children of article-body OR the only child of a paragraph within article-body
-                // AND crucially, are NOT already inside a FIGURE element.
-                 const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
-                // console.log(`Found ${images.length} potential images for captions.`); // For debugging
-
+                const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
+                
                 images.forEach((img, index) => {
-                    // Double-check it's not already processed or inside a figure
-                    if (img.closest('figure')) {
-                         // console.log(`Image ${index} skipped, already in figure.`); // For debugging
-                         return;
-                    }
+                    if (img.closest('figure')) return;
 
                     const altText = img.getAttribute('alt');
-                    // console.log(`Image ${index} alt: "${altText}"`); // For debugging
-
-                    // Check if alt text is meaningful
                     const hasMeaningfulAlt = altText && altText.trim() !== '' && altText.toLowerCase() !== 'article image' && altText.toLowerCase() !== 'image';
-
-                    // Check if wrapping is needed (either for caption or just styling)
-                     const needsWrapping = img.parentElement && img.parentElement.tagName !== 'FIGURE';
-
+                    const needsWrapping = img.parentElement && img.parentElement.tagName !== 'FIGURE';
 
                      if (needsWrapping) {
                         const figure = document.createElement('figure');
                         figure.classList.add('article-figure');
-                        const clonedImg = img.cloneNode(true); // Clone before potential removal
-                        figure.appendChild(clonedImg); // Add image first
+                        const clonedImg = img.cloneNode(true);
+                        figure.appendChild(clonedImg);
 
                         if (hasMeaningfulAlt) {
                             const figcaption = document.createElement('figcaption');
                             figcaption.classList.add('article-image-caption');
                             figcaption.textContent = altText;
-                            figure.appendChild(figcaption); // Then add caption if alt text exists
-                            // console.log(`Image ${index}: Added caption: "${altText}"`); // For debugging
+                            figure.appendChild(figcaption);
                         }
 
-                        // Perform replacement
                         const parent = img.parentElement;
                         if (parent && parent.tagName === 'P' && parent.children.length === 1 && parent.childNodes.length === 1) {
-                            // If img is the sole content of a paragraph, replace the paragraph
-                            // console.log(`Image ${index}: Replacing parent P with figure.`); // For debugging
                             parent.parentNode.replaceChild(figure, parent);
                         } else {
-                            // If img is a direct child or inline, replace the image itself
-                            // console.log(`Image ${index}: Replacing img with figure.`); // For debugging
                              img.parentNode.replaceChild(figure, img);
                         }
-                    } else {
-                        // console.log(`Image ${index} skipped (already in figure or no parent).`); // For debugging
                     }
                 });
-                // console.log("Caption script finished for latest layout."); // For debugging
             });
             </script>
             </article>
@@ -280,7 +255,7 @@ document.addEventListener('turbo:load', () => {
     if (shareButton) {
         shareButton.addEventListener('click', async () => {
             const postUrl = window.location.href;
-            const postTitle = "{{ latest_post.title | escape }}"; // Correct variable for this page
+            const postTitle = "{{ latest_post.title | escape }}";
             const postText = `Read the article: "${postTitle}"`;
 
             if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
@@ -331,7 +306,6 @@ document.addEventListener('turbo:load', () => {
                 case 'twitter-video':
                      embedHtml = `<blockquote class="twitter-tweet"><a href="${url}"></a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"><\/script>`;
                     break;
-                // Add cases for other platforms if needed
             }
 
             if (embedHtml) {
@@ -343,11 +317,9 @@ document.addEventListener('turbo:load', () => {
                     captionEl.textContent = caption;
                     container.appendChild(captionEl);
                 }
-                // Check if the parent is a paragraph before replacing
                 if (link.parentElement && link.parentElement.tagName === 'P') {
                      link.parentElement.parentNode.replaceChild(container, link.parentElement);
                 } else {
-                     // If not in a paragraph (less likely), replace the link itself
                      link.parentNode.replaceChild(container, link);
                 }
             }
