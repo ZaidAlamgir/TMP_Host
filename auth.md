@@ -302,7 +302,7 @@ title: Account - The Muslim Post
             localStorage.setItem('cachedUser', JSON.stringify(userToCache));
             // Use location.replace() to prevent the login page from being added to the browser history.
             // This allows the user to click "back" once on the profile page to return to where they were.
-            window.location.replace(`${basePath}/profile.html`);
+            window.location.replace(`{{ '/profile/' | relative_url }}`);
         }
 
         // --- AUTH GUARD ---
@@ -310,7 +310,7 @@ title: Account - The Muslim Post
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 // Redirect to the homepage using replace() to prevent history loops
-                window.location.replace(`${basePath}/`); 
+                window.location.replace(`{{ '/' | relative_url }}`); 
             }
         });
 

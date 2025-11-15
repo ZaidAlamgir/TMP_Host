@@ -20,6 +20,14 @@
             border-radius: 9999px; cursor: pointer; transition: background-color 0.2s;
         }
         .tag-chip:hover { background-color: #cbd5e1; }
+        
+        /* Specific style for Category chips to differentiate them */
+        .category-chip {
+            background-color: #dbeafe; color: #1e40af; font-size: 0.8rem; padding: 0.25rem 0.75rem;
+            border-radius: 9999px; cursor: pointer; transition: background-color 0.2s; border: 1px solid #bfdbfe;
+        }
+        .category-chip:hover { background-color: #bfdbfe; }
+
         textarea { 
             resize: none; 
             overflow: hidden; 
@@ -130,23 +138,37 @@
                  </button>
             </div>
             <hr class="my-6">
+            
             <div class="mb-6">
                 <label for="article-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags</label>
                 <input type="text" id="article-tags" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., technology, politics (comma-separated)">
                 <div id="tag-suggestions-container" class="tag-suggestions">
-                    <div class="tag-chip" data-tag="world-politics">World Politics</div>
-                    <div class="tag-chip" data-tag="indian-politics">Indian Politics</div>
-                    <div class="tag-chip" data-tag="muslim-world">Muslim World</div>
-                    <div class="tag-chip" data-tag="technology">Technology</div>
-                    <div class="tag-chip" data-tag="medical-science">Medical Science</div>
-                    <div class="tag-chip" data-tag="global-economy">Global Economy</div>
-                    <div class="tag-chip" data-tag="art-culture">Art & Culture</div>
-                    <div class="tag-chip" data-tag="weather">Weather</div>
-                    <div class="tag-chip" data-tag="sports">Sports</div>
-                    <div class="tag-chip" data-tag="national-news">National News</div>
-                    <div class="tag-chip" data-tag="international-news">International News</div>
+                    <div class="tag-chip" data-tag="breaking-news">Breaking News</div>
+                    <div class="tag-chip" data-tag="analysis">Analysis</div>
+                    <div class="tag-chip" data-tag="opinion">Opinion</div>
+                    <div class="tag-chip" data-tag="updates">Updates</div>
                 </div>
             </div>
+
+            <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <label for="article-categories" class="block text-sm font-bold text-blue-800 mb-1">Categories (Required for URL)</label>
+                <p class="text-xs text-blue-600 mb-2">Select at least one category to ensure the link works correctly.</p>
+                <input type="text" id="article-categories" class="w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Click a suggestion below...">
+                <div id="category-suggestions-container" class="tag-suggestions">
+                    <div class="category-chip" data-cat="world-politics">World Politics</div>
+                    <div class="category-chip" data-cat="indian-politics">Indian Politics</div>
+                    <div class="category-chip" data-cat="muslim-world">Muslim World</div>
+                    <div class="category-chip" data-cat="technology">Technology</div>
+                    <div class="category-chip" data-cat="medical-science">Medical Science</div>
+                    <div class="category-chip" data-cat="global-economy">Global Economy</div>
+                    <div class="category-chip" data-cat="art-culture">Art & Culture</div>
+                    <div class="category-chip" data-cat="weather">Weather</div>
+                    <div class="category-chip" data-cat="sports">Sports</div>
+                    <div class="category-chip" data-cat="national-news">National News</div>
+                    <div class="category-chip" data-cat="international-news">International News</div>
+                </div>
+            </div>
+
             <button id="publish-button" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-500 transition-colors w-full flex items-center justify-center">
                 <span id="publish-text">Publish Article</span>
                 <span id="publish-spinner" class="hidden">
@@ -189,7 +211,10 @@
         const addBlockButton = document.getElementById('add-block-button');
         const dynamicBlocksContainer = document.getElementById('dynamic-content-blocks');
         const blockTypeSelect = document.getElementById('block-type-select');
+        
         const tagsInput = document.getElementById('article-tags');
+        const categoriesInput = document.getElementById('article-categories'); // NEW
+        
         const linkModal = document.getElementById('link-modal');
         const linkUrlInput = document.getElementById('link-url-input');
         const addLinkBtn = document.getElementById('add-link-btn');
@@ -307,12 +332,25 @@
             newBlock.querySelectorAll('textarea').forEach(autoExpandTextarea);
         });
 
+        // Logic for Tag Suggestions
         document.getElementById('tag-suggestions-container').addEventListener('click', (e) => {
             if (e.target.classList.contains('tag-chip')) {
                 const newTag = e.target.dataset.tag;
                 const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
                 if (!currentTags.includes(newTag)) {
                     tagsInput.value = tagsInput.value.trim() === '' ? newTag : `${tagsInput.value.trim()}, ${newTag}`;
+                }
+            }
+        });
+
+        // Logic for Category Suggestions (NEW)
+        document.getElementById('category-suggestions-container').addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-chip')) {
+                const newCat = e.target.dataset.cat;
+                // Categories are usually single, but we can allow multiple via CSV like tags
+                const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
+                if (!currentCats.includes(newCat)) {
+                    categoriesInput.value = categoriesInput.value.trim() === '' ? newCat : `${categoriesInput.value.trim()}, ${newCat}`;
                 }
             }
         });
@@ -353,32 +391,52 @@
         });
 
         cancelLinkBtn.addEventListener('click', hideLinkModal);
+        
         publishButton.addEventListener('click', async () => {
             const headline = document.getElementById('article-headline').value.trim();
             const paragraph1 = document.getElementById('article-p1').value.trim();
+            
+            // Basic Validation
             if (!headline || !paragraph1) {
                 updateStatus('Headline and Paragraph 1 are required.', 'red');
                 return;
             }
+
             setPublishingState(true);
+            
             const subheadline = document.getElementById('article-subheadline').value.trim();
             const mainImageUrl = document.getElementById('article-main-image-url').value.trim();
             const mainImageDesc = document.getElementById('article-main-image-desc').value.trim();
             const authorName = document.getElementById('article-author').value.trim();
+            
             const tags = tagsInput.value.trim();
+            const categories = categoriesInput.value.trim(); // NEW: Get categories
+
             let frontmatter = `---\n`;
             frontmatter += `title: "${headline.replace(/"/g, '\\"')}"\n`;
             if (subheadline) frontmatter += `subheadline: "${subheadline.replace(/"/g, '\\"')}"\n`;
             frontmatter += `date: ${new Date().toISOString()}\n`;
             if (mainImageUrl) frontmatter += `image: "${mainImageUrl}"\n`;
             if (mainImageDesc) frontmatter += `image_description: "${mainImageDesc.replace(/"/g, '\\"')}"\n`;
+            
+            // Process Tags
             const tagList = tags.split(',').map(tag => tag.trim().toLowerCase().replace(/\s+/g, '-')).filter(t => t);
             if (tagList.length > 0) frontmatter += `tags: [${tagList.join(', ')}]\n`;
 
-            frontmatter += `author: "${authorName.replace(/"/g, '\\"')}"\n`;
+            // Process Categories (NEW)
+            const catList = categories.split(',').map(c => c.trim().toLowerCase().replace(/\s+/g, '-')).filter(c => c);
+            if (catList.length > 0) {
+                frontmatter += `categories: [${catList.join(', ')}]\n`;
+            } else {
+                // Optional: Warn user if no category is selected, as URL needs it
+                 updateStatus('Warning: No category selected. URL might break.', 'orange');
+                 // We continue publishing, but the link will be weird.
+            }
 
+            frontmatter += `author: "${authorName.replace(/"/g, '\\"')}"\n`;
             frontmatter += `layout: post\n`;
             frontmatter += `---\n\n`;
+
             let body = `${paragraph1}\n\n`;
             document.querySelectorAll('.dynamic-content-block').forEach(block => {
                 const blockType = block.dataset.blockType;
@@ -409,6 +467,7 @@
                         break;
                 }
             });
+
             const fileContent = frontmatter + body;
             const date = new Date().toISOString().split('T')[0];
             const slug = headline.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -416,6 +475,7 @@
             const filePath = `${GITHUB_CONFIG.articlesPath}/${filename}`;
             const commitMessage = `feat: Add new article "${headline}"`;
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.repoOwner}/${GITHUB_CONFIG.repoName}/contents/${filePath}`;
+            
             try {
                 const response = await fetch(url, {
                     method: 'PUT',

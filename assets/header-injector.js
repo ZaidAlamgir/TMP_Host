@@ -1,8 +1,21 @@
-// A single, smart script that injects the correct header based on the current page.
-// This is the final version with all features, caching, correct paths, and dropdown menu.
-// *** MODIFIED FOR TURBO ***
+// =============================================================================
+// THE MUSLIM POST — HEADER INJECTOR
+// Merged Version: File 1 Visuals + File 2 Path Logic
+// =============================================================================
 
-// --- Helper function to generate a unique color for a user's initial ---
+// --- 1. CONSTANTS & PATH CONFIGURATION ---
+// This fixes the 404 errors by ensuring links always start from the root domain.
+const PATHS = {
+    ROOT: '/',
+    AUTH: '/auth.html',
+    PROFILE: '/profile/', // Ensure this matches your folder structure
+    ABOUT: '/about/',
+    TERMS: '/terms/',
+    CMS: '/cms.html',
+    NEWS_HUB: '/news/hub/'
+};
+
+// --- 2. HELPER: GENERATE USER COLOR ---
 function generateColorForUser(userId) {
     const colors = ['#e53935', '#d81b60', '#8e24aa', '#5e35b1', '#3949ab', '#1e88e5', '#039be5', '#00acc1', '#00897b', '#43a047', '#7cb342', '#c0ca33', '#ffb300', '#fb8c00', '#f4511e', '#6d4c41', '#757575', '#546e7a'];
     let hash = 0;
@@ -16,8 +29,7 @@ function generateColorForUser(userId) {
     return colors[index];
 }
 
-// --- List of Categories for Dropdown ---
-// Matches the tags used in index.md and cms.html
+// --- 3. CATEGORY DATA ---
 const categories = [
     { name: "World Politics", tag: "world-politics" },
     { name: "Indian Politics", tag: "indian-politics" },
@@ -32,25 +44,26 @@ const categories = [
     { name: "International News", tag: "international-news" }
 ];
 
-// --- Function to Generate Category Dropdown HTML ---
-function generateCategoryDropdownHTML(base_path) {
+// --- 4. HELPER: DROPDOWN HTML ---
+function generateCategoryDropdownHTML() {
     let dropdownHTML = `<ul class="categories-dropdown">`;
-    dropdownHTML += `<li><a href="${base_path}/news-hub.html">All Categories</a></li>`; // Add "All" option
+    dropdownHTML += `<li><a href="${PATHS.NEWS_HUB}">All Categories</a></li>`;
     categories.forEach(cat => {
-        dropdownHTML += `<li><a href="${base_path}/news-hub.html?tag=${cat.tag}">${cat.name}</a></li>`;
+        // Uses absolute path to prevent /news/hub/news/hub/?tag=... errors
+        dropdownHTML += `<li><a href="${PATHS.NEWS_HUB}?tag=${cat.tag}">${cat.name}</a></li>`;
     });
     dropdownHTML += `</ul>`;
     return dropdownHTML;
 }
 
-// --- RENDER FUNCTION 1: For Jekyll Pages (Writer Login) ---
-function renderWriterHeader(base_path) {
+// --- 5. RENDER FUNCTION: WRITER (CMS) HEADER ---
+function renderWriterHeader() {
     const headerPlaceholder = document.getElementById('header-placeholder');
     if (!headerPlaceholder) return;
 
-    const categoryDropdown = generateCategoryDropdownHTML(base_path);
+    const categoryDropdown = generateCategoryDropdownHTML();
 
-    // --- START Settings Button Logic ---
+    // Settings Button Logic
     const isInsideApp = typeof window.AndroidInterface !== 'undefined';
     const settingsMenuItemHTML = isInsideApp ? `
         <a href="#" id="app-settings-menu-item" class="app-settings-link">
@@ -58,8 +71,6 @@ function renderWriterHeader(base_path) {
             Settings
         </a>
     ` : '';
-    // --- END Settings Button Logic ---
-
 
     const writerHeaderHTML = `
         <header class="header">
@@ -71,7 +82,7 @@ function renderWriterHeader(base_path) {
                     </button>
                 </div>
                 <div class="header-center">
-                    <a href="${base_path}/" class="logo">
+                    <a href="${PATHS.ROOT}" class="logo">
                          <svg class="vector-animation" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
                             <defs><filter id="glow"><feGaussianBlur stdDeviation="3.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
@@ -97,7 +108,7 @@ function renderWriterHeader(base_path) {
                     </span>
                 </div>
                 <div class="index-main-nav">
-                    <a href="${base_path}/" class="home-link-with-logo">
+                    <a href="${PATHS.ROOT}" class="home-link-with-logo">
                         <span>Home</span>
                         <svg class="menu-home-logo" viewBox="0 0 200 200" aria-hidden="true">
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
@@ -108,8 +119,8 @@ function renderWriterHeader(base_path) {
                     <div class="nav-item-dropdown"> <span class="dropdown-toggle">Articles</span>
                         ${categoryDropdown}
                     </div>
-                    <a href="${base_path}/about.html">About</a>
-                    <a href="${base_path}/terms.html">Terms & Conditions</a>
+                    <a href="${PATHS.ABOUT}">About</a>
+                    <a href="${PATHS.TERMS}">Terms & Conditions</a>
                     ${settingsMenuItemHTML}
                 </div>
                 <ul id="index-results-list"></ul>
@@ -119,34 +130,31 @@ function renderWriterHeader(base_path) {
     headerPlaceholder.innerHTML = writerHeaderHTML;
 
     const writerLoginBtn = document.getElementById('writer-login-btn');
-    if (writerLoginBtn) { // Check if button exists before adding listener
+    if (writerLoginBtn) {
         writerLoginBtn.addEventListener('click', (event) => {
             event.preventDefault();
-            // Use custom modal/dialog instead of confirm
-             showCustomConfirm("ADMIN NOTICE: This login is for authorized writers only. Press OK to continue.", () => {
-                 window.location.href = `${base_path}/cms.html`;
-             });
-            // if (confirm("ADMIN NOTICE: This login is for authorized writers only. Press OK to continue.")) {
-            //     window.location.href = `${base_path}/cms.html`;
-            // }
+            showCustomConfirm("ADMIN NOTICE: This login is for authorized writers only. Press OK to continue.", () => {
+                window.location.href = PATHS.CMS;
+            });
         });
     }
 
-
-    // Attach menu logic AFTER injecting HTML
-    attachMenuLogic(base_path);
+    // Attach menu logic
+    attachMenuLogic();
 }
 
-// --- RENDER FUNCTION 2: For Public-Facing Supabase Pages ---
-function renderSupabaseHeader(user, base_path) {
+// --- 6. RENDER FUNCTION: SUPABASE/PUBLIC HEADER ---
+function renderSupabaseHeader(user) {
     const headerPlaceholder = document.getElementById('header-placeholder');
     if (!headerPlaceholder) return;
+    
     const isUserLoggedIn = !!user;
+    
+    // Use constants for paths to fix 404s
+    const mainIconLink = isUserLoggedIn ? PATHS.PROFILE : PATHS.AUTH;
+    const categoryDropdown = generateCategoryDropdownHTML();
 
-    const mainIconLink = isUserLoggedIn ? `${base_path}/profile.html` : `${base_path}/auth.html`;
-    const categoryDropdown = generateCategoryDropdownHTML(base_path);
-
-    // --- START Settings Button Logic ---
+    // Settings Button Logic
     const isInsideApp = typeof window.AndroidInterface !== 'undefined';
     const settingsMenuItemHTML = isInsideApp ? `
         <a href="#" id="app-settings-menu-item" class="app-settings-link">
@@ -154,7 +162,6 @@ function renderSupabaseHeader(user, base_path) {
             Settings
         </a>
     ` : '';
-    // --- END Settings Button Logic ---
 
     const supabaseHeaderHTML = `
         <header class="header">
@@ -166,7 +173,7 @@ function renderSupabaseHeader(user, base_path) {
                     </button>
                 </div>
                 <div class="header-center">
-                    <a href="${base_path}/" class="logo">
+                    <a href="${PATHS.ROOT}" class="logo">
                         <svg class="vector-animation" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
                             <defs><filter id="glow"><feGaussianBlur stdDeviation="3.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
@@ -196,7 +203,7 @@ function renderSupabaseHeader(user, base_path) {
                     <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
                 </div>
                 <div class="index-main-nav">
-                    <a href="${base_path}/" class="home-link-with-logo">
+                    <a href="${PATHS.ROOT}" class="home-link-with-logo">
                         <span>Home</span>
                         <svg class="menu-home-logo" viewBox="0 0 200 200" aria-hidden="true">
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
@@ -207,8 +214,8 @@ function renderSupabaseHeader(user, base_path) {
                     <div class="nav-item-dropdown"> <span class="dropdown-toggle">Articles</span>
                         ${categoryDropdown}
                     </div>
-                    <a href="${base_path}/about.html">About</a>
-                    <a href="${base_path}/terms.html">Terms & Conditions</a>
+                    <a href="${PATHS.ABOUT}">About</a>
+                    <a href="${PATHS.TERMS}">Terms & Conditions</a>
                      ${settingsMenuItemHTML}
                 </div>
                 <ul id="index-results-list"></ul>
@@ -218,30 +225,30 @@ function renderSupabaseHeader(user, base_path) {
 
     headerPlaceholder.innerHTML = supabaseHeaderHTML;
 
-    // Attach menu logic AFTER injecting HTML
-    attachMenuLogic(base_path); // This will now attach the settings listener too
+    attachMenuLogic(); // Attach listeners
 
-    if (isUserLoggedIn && user) { // Added check for user object
+    // Profile Picture Logic
+    if (isUserLoggedIn && user) {
          const profileInitialCircle = document.getElementById('profile-initial-circle');
-         if (profileInitialCircle && !user.photoURL) { // Check if element exists before modifying
+         if (profileInitialCircle && !user.photoURL) {
              const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
              profileInitialCircle.textContent = initial;
-             profileInitialCircle.style.backgroundColor = generateColorForUser(user.uid || user.id); // Use uid or id
-             profileInitialCircle.style.display = 'flex'; // Ensure it's visible if no photo
+             profileInitialCircle.style.backgroundColor = generateColorForUser(user.uid || user.id);
+             profileInitialCircle.style.display = 'flex';
          }
-          // Ensure profile pic visibility is correct
+         
          const profilePicImg = document.getElementById('profile-pic-img');
          if (profilePicImg) {
              profilePicImg.style.display = user.photoURL ? 'block' : 'none';
-             if(user.photoURL) profilePicImg.src = user.photoURL; // Update src
+             if(user.photoURL) profilePicImg.src = user.photoURL;
          }
-          const profilePicContainer = document.getElementById('profile-pic-container');
+         
+         const profilePicContainer = document.getElementById('profile-pic-container');
          if (profilePicContainer) profilePicContainer.style.display = 'flex';
-          const loginIconSvg = document.getElementById('login-icon-svg');
+         const loginIconSvg = document.getElementById('login-icon-svg');
          if (loginIconSvg) loginIconSvg.style.display = 'none';
 
      } else {
-         // Ensure logged-out state is visually correct
          const loginIconSvg = document.getElementById('login-icon-svg');
          if (loginIconSvg) loginIconSvg.style.display = 'block';
          const profilePicContainer = document.getElementById('profile-pic-container');
@@ -249,34 +256,28 @@ function renderSupabaseHeader(user, base_path) {
      }
 }
 
-
-// --- Centralized Menu Logic Function ---
-function attachMenuLogic(base_path) {
+// --- 7. MENU LOGIC & SEARCH ---
+function attachMenuLogic() {
     const indexMenuBtn = document.getElementById('index-menu-btn');
     const indexMenuOverlay = document.getElementById('index-menu-overlay');
     const searchBox = document.getElementById('index-search-box');
     const resultsList = document.getElementById('index-results-list');
     const dropdownToggle = document.querySelector('.dropdown-toggle');
     const dropdownContainer = document.querySelector('.nav-item-dropdown');
-    let allPosts = []; // Cache for search
+    let allPosts = [];
 
     async function getPostData() {
         if (allPosts.length === 0) {
             try {
-                // Try fetching from root first, then relative if needed (more robust)
-                let searchUrl = `/search.json`;
+                // Use absolute path for search.json to avoid relative path errors
+                let searchUrl = `${PATHS.ROOT}search.json`.replace('//', '/'); 
                 let response = await fetch(searchUrl);
-                if (!response.ok) {
-                    searchUrl = `${base_path}/search.json`; // Fallback to relative path
-                    response = await fetch(searchUrl);
-                }
-                if (!response.ok) throw new Error(`Search data not found at ${searchUrl}. Status: ${response.status}`);
+                if (!response.ok) throw new Error("Status " + response.status);
                 allPosts = await response.json();
-            } catch (error) { console.error("Could not load search data:", error); }
+            } catch (error) { console.error("Search load error:", error); }
         }
         return allPosts;
     }
-
 
     function renderPosts(posts) {
         if (!resultsList) return;
@@ -285,260 +286,173 @@ function attachMenuLogic(base_path) {
             resultsList.innerHTML = '<li><a href="#">No results found.</a></li>';
             return;
         }
-        // Limit results displayed initially
         posts.slice(0, 10).forEach(post => {
             const listItem = document.createElement('li');
-             // Ensure post URL is correctly formed relative to the site root
-             // Assuming post.url starts with "/"
-            listItem.innerHTML = `<a href="${post.url}">${post.title}</a>`;
+            // Ensure result links are also root-absolute
+            let safeUrl = post.url;
+            if (!safeUrl.startsWith('/')) safeUrl = '/' + safeUrl;
+            
+            listItem.innerHTML = `<a href="${safeUrl}">${post.title}</a>`;
             resultsList.appendChild(listItem);
         });
     }
 
     function openMenu() {
-        getPostData().then(posts => renderPosts(posts.slice(0, 5))); // Show initial results on open
-        if(searchBox) searchBox.value = ''; // Clear search on open
+        getPostData().then(posts => renderPosts(posts.slice(0, 5)));
+        if(searchBox) searchBox.value = '';
         if(indexMenuBtn) indexMenuBtn.classList.add('active');
         if(indexMenuOverlay) indexMenuOverlay.classList.add('active');
-         document.body.classList.add('menu-open'); // Prevent body scroll
+        document.body.classList.add('menu-open');
     }
 
     function closeMenu() {
         if(indexMenuBtn) indexMenuBtn.classList.remove('active');
         if(indexMenuOverlay) indexMenuOverlay.classList.remove('active');
-        // Close dropdown when closing main menu
         if (dropdownContainer) dropdownContainer.classList.remove('open');
-         document.body.classList.remove('menu-open'); // Allow body scroll
+        document.body.classList.remove('menu-open');
     }
 
-    // Main Menu Toggle
     if (indexMenuBtn) {
         indexMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent overlay click listener
+            e.stopPropagation();
             indexMenuBtn.classList.contains('active') ? closeMenu() : openMenu();
         });
     }
 
-    // Close menu by clicking overlay
     if (indexMenuOverlay) {
         indexMenuOverlay.addEventListener('click', (e) => {
-            // Close only if clicking the overlay itself, not content inside
-            if (e.target === indexMenuOverlay) {
-                closeMenu();
-            }
+            if (e.target === indexMenuOverlay) closeMenu();
         });
     }
 
-    // Search Box Logic
     if (searchBox) {
         searchBox.addEventListener('input', async (e) => {
             const query = e.target.value.toLowerCase().trim();
             const posts = await getPostData();
-            // More robust filtering: check title and tags (ensure tags exist)
             const filteredPosts = query.length < 2
-                ? posts.slice(0, 5) // Show recent if query is short
+                ? posts.slice(0, 5)
                 : posts.filter(post =>
-                    (post.title && post.title.toLowerCase().includes(query)) || // Check if title exists
-                    (post.tags && post.tags.toLowerCase().includes(query)) // Check if tags exist
+                    (post.title && post.title.toLowerCase().includes(query)) ||
+                    (post.tags && post.tags.toLowerCase().includes(query))
                 );
-            renderPosts(filteredPosts); // Render filtered results
+            renderPosts(filteredPosts);
         });
     }
 
-
-    // Articles Dropdown Toggle
     if (dropdownToggle) {
         dropdownToggle.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent closing main menu
-            if (dropdownContainer) dropdownContainer.classList.toggle('open'); // Check container exists
+            e.stopPropagation();
+            if (dropdownContainer) dropdownContainer.classList.toggle('open');
         });
     }
 
-    // Close main menu when a category link is clicked
     const categoryLinks = document.querySelectorAll('.categories-dropdown li a');
     categoryLinks.forEach(link => {
-        link.addEventListener('click', () => {
-             closeMenu();
-             // Allow default link behavior to navigate
-        });
+        link.addEventListener('click', () => { closeMenu(); });
     });
 
-    // --- START Settings Link Listener ---
+    // Android Settings Integration
     const settingsLink = document.getElementById('app-settings-menu-item');
     if (settingsLink && typeof window.AndroidInterface !== 'undefined') {
         settingsLink.addEventListener('click', (event) => {
-            event.preventDefault(); // Prevent default '#' link behavior
-            console.log("App Settings link clicked");
+            event.preventDefault();
             try {
                 window.AndroidInterface.openAppSettings();
-                closeMenu(); // Close the menu after clicking
-            } catch (e) {
-                console.error("Error calling AndroidInterface.openAppSettings:", e);
-                // Optionally show an alert or message if the call fails
-                // alert("Could not open app settings.");
-            }
+                closeMenu();
+            } catch (e) { console.error("Error calling AndroidInterface:", e); }
         });
     }
-    // --- END Settings Link Listener ---
-
 }
 
-
-// --- Supabase Header Initialization (Handles Caching & Auth State) ---
-function initializeSupabaseHeader(base_path, forceRerender = false) {
+// --- 8. SUPABASE AUTH INITIALIZATION ---
+function initializeSupabaseHeader(forceRerender = false) {
     const CACHED_USER_KEY = 'cachedUser';
-
     let cachedUser = null;
     try {
         const cachedData = localStorage.getItem(CACHED_USER_KEY);
-        if (cachedData) {
-            cachedUser = JSON.parse(cachedData);
+        if (cachedData) cachedUser = JSON.parse(cachedData);
+    } catch (error) { localStorage.removeItem(CACHED_USER_KEY); }
+
+    renderSupabaseHeader(cachedUser);
+
+    const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; 
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+    let supabaseInstance = null;
+    
+    try {
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+            supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
-    } catch (error) {
-        console.error("Failed to parse cached user:", error);
-        localStorage.removeItem(CACHED_USER_KEY);
-    }
-
-    // Initial render with cached user (or null if none)
-    renderSupabaseHeader(cachedUser, base_path);
-
-    // Initialize Supabase client if available
-    // Ensure Supabase URL and Key are correctly configured elsewhere or replace placeholders
-     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; // Replace if needed
-     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU'; // Replace if needed
-     let supabaseInstance = null;
-      try {
-           if (window.supabase && typeof window.supabase.createClient === 'function') {
-                supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-           }
-      } catch(e) {
-           console.error("Error creating Supabase client:", e);
-      }
-
+    } catch(e) { console.error("Error creating Supabase client:", e); }
 
     if (supabaseInstance) {
-        // Listen for authentication changes
         supabaseInstance.auth.onAuthStateChange((event, session) => {
             const user = session?.user;
-             let userChanged = false; // Flag to check if re-render actually happened
-
             if (user) {
-                // User is logged in or state changed to logged in
                 const userToCache = {
-                    uid: user.id, // Use id
+                    uid: user.id,
                     displayName: user.user_metadata?.full_name,
                     email: user.email,
                     photoURL: user.user_metadata?.avatar_url
                 };
-
-                 // Compare with current cache in localStorage, not just the initially loaded cachedUser
-                 const currentStorageCache = localStorage.getItem(CACHED_USER_KEY);
-                 const needsUpdate = forceRerender || !currentStorageCache || JSON.stringify(userToCache) !== currentStorageCache;
+                const currentStorageCache = localStorage.getItem(CACHED_USER_KEY);
+                const needsUpdate = forceRerender || !currentStorageCache || JSON.stringify(userToCache) !== currentStorageCache;
 
                 if (needsUpdate) {
-                    console.log("Auth Change: User logged in or data changed. Re-rendering header.");
-                    renderSupabaseHeader(userToCache, base_path); // Re-render header with user info
+                    renderSupabaseHeader(userToCache);
                     localStorage.setItem(CACHED_USER_KEY, JSON.stringify(userToCache));
-                    cachedUser = userToCache; // Update local variable for subsequent checks within this scope
-                    userChanged = true;
-                } else {
-                    // console.log("Auth Change: User logged in, but cached data is current. No re-render.");
+                    cachedUser = userToCache;
                 }
             } else {
-                // User is logged out or state changed to logged out
-                if (localStorage.getItem(CACHED_USER_KEY) || forceRerender) { // Check storage directly
-                    console.log("Auth Change: User logged out. Re-rendering header.");
-                    renderSupabaseHeader(null, base_path); // Re-render header in logged-out state
+                if (localStorage.getItem(CACHED_USER_KEY) || forceRerender) {
+                    renderSupabaseHeader(null);
                     localStorage.removeItem(CACHED_USER_KEY);
-                    cachedUser = null; // Update local variable
-                    userChanged = true;
-                } else {
-                     // console.log("Auth Change: User logged out, but already reflected. No re-render.");
+                    cachedUser = null;
                 }
             }
-             // console.log("Auth state change processed. Event:", event, "User changed on screen:", userChanged);
         });
-    } else {
-        console.warn("Supabase client not found. Header auth state might be inaccurate.");
     }
 }
 
-
-// --- Main Execution Logic ---
-// --- THIS IS THE KEY CHANGE ---
-// We replace 'DOMContentLoaded' with 'turbo:load'
+// --- 9. MAIN EXECUTION LOGIC (Path Aware) ---
 document.addEventListener('turbo:load', function() {
-    console.log("Turbo has loaded a new page. Initializing header-injector.");
+    initHeaderFlow();
+});
+
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) { // Back/Forward cache
+        initHeaderFlow(true);
+    }
+});
+
+function initHeaderFlow(forceRerender = false) {
     const pathname = window.location.pathname;
-    // Attempt to get base path from body attribute, default to '.'
-    const base_path = document.body.getAttribute('data-base-path') || '.';
+    
+    // Pages where header should NOT exist
+    const skipHeaderPages = [PATHS.AUTH, '/auth-callback.html', '/callback.html'];
 
-    // Define pages where header injection should be skipped
-    const skipHeaderPages = [
-        '/auth.html',
-        '/auth-callback.html',
-        '/callback.html',
-        // '/profile.html' // Keep header on profile, but profile.js might update parts of it
-    ];
-
-    if (skipHeaderPages.some(page => pathname.endsWith(page))) { // Use endsWith for better matching
-        console.log("Skipping header injection for:", pathname);
-        // If a header exists from a previous page, remove it
+    if (skipHeaderPages.some(page => pathname.endsWith(page))) {
         const headerPlaceholder = document.getElementById('header-placeholder');
         if (headerPlaceholder) headerPlaceholder.innerHTML = '';
-        return; // Don't inject header on these pages
+        return;
     }
 
-    // Determine if it's a writer CMS page
-    const isWriterPage = pathname.endsWith('/cms.html') || pathname.endsWith('/liveCMS.html');
+    const isWriterPage = pathname.endsWith(PATHS.CMS) || pathname.endsWith('/liveCMS.html');
 
     if (isWriterPage) {
-         console.log("Rendering writer header for:", pathname);
-        renderWriterHeader(base_path);
+        renderWriterHeader();
     } else {
-        // Initialize Supabase header for all other public pages
-         console.log("Initializing Supabase header for:", pathname);
-        initializeSupabaseHeader(base_path);
+        initializeSupabaseHeader(forceRerender);
     }
-});
-// --- END KEY CHANGE ---
+}
 
-
-// Handle browser back/forward navigation potentially using cached pages (bfcache)
-window.addEventListener('pageshow', function(event) {
-    if (event.persisted) { // Page loaded from bfcache
-        console.log("Page loaded from bfcache:", window.location.pathname);
-        const pathname = window.location.pathname;
-        const skipHeaderPages = ['/auth.html','/auth-callback.html','/callback.html']; // Pages without header
-
-        if (skipHeaderPages.some(page => pathname.endsWith(page))) {
-            return; // Still skip header on these
-        }
-
-        const base_path = document.body.getAttribute('data-base-path') || '.';
-        const isWriterPage = pathname.endsWith('/cms.html') || pathname.endsWith('/liveCMS.html');
-
-        // Force re-render of the appropriate header on bfcache restore
-        if (isWriterPage) {
-             console.log("Re-rendering writer header after bfcache restore.");
-             renderWriterHeader(base_path);
-        } else {
-             console.log("Re-initializing Supabase header after bfcache restore.");
-            initializeSupabaseHeader(base_path, true); // Force re-check and re-render
-        }
-    }
-});
-
-
-// --- Custom Confirm/Alert ---
-// Basic implementation - replace with a proper modal library if needed
+// --- 10. CUSTOM DIALOG ---
 function showCustomConfirm(message, onOk) {
-    // Remove any existing dialog first
     const existingDialog = document.getElementById('custom-confirm-dialog');
     if (existingDialog) existingDialog.remove();
     
     const dialog = document.createElement('div');
-    dialog.id = 'custom-confirm-dialog'; // Add an ID
+    dialog.id = 'custom-confirm-dialog';
     dialog.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000;';
     dialog.innerHTML = `
         <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); max-width: 90%; text-align: center;">
@@ -556,4 +470,11 @@ function showCustomConfirm(message, onOk) {
     document.getElementById('custom-confirm-cancel').onclick = () => {
         document.body.removeChild(dialog);
     };
+}
+
+// Initial run (fallback for non-Turbo)
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+   setTimeout(() => initHeaderFlow(), 50);
+} else {
+   document.addEventListener('DOMContentLoaded', () => initHeaderFlow());
 }

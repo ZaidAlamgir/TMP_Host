@@ -8,7 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
     
     <meta name="description" content="{{ page.subheadline | default: site.description | strip_html }}">
-    <meta name="keywords" content="{{ page.tags | join: ', ' | default: site.keywords | join: ', ' }}"> 
+    {% assign meta_keywords = page.tags | default: site.keywords %}
+    <meta name="keywords" content="{{ meta_keywords | join: ', ' }}">
 
     <script>
         (function() {

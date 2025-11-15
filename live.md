@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Live Updates
+permalink: /live/
 ---
 
 <style>

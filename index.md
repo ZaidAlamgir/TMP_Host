@@ -52,7 +52,7 @@ title: Home - The Muslim Post
             <h2 class="section-title">In the News</h2>
             <p class="section-subtitle">Stay updated with the latest trends, research, and important discussions.</p>
             <div class="news-grid-full">
-                <a href="news-hub.html?tag=world-politics" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=world-politics" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/3498db/ffffff?text=World+Politics" alt="World Politics" class="news-card-image">
                     </div>
@@ -61,7 +61,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Global affairs, international relations, and major political developments across the world.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=indian-politics" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=indian-politics" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/f1c40f/ffffff?text=Indian+Politics" alt="Indian Politics" class="news-card-image">
                     </div>
@@ -70,7 +70,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">In-depth coverage of the political landscape, policies, and elections within India.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=muslim-world" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=muslim-world" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/2ecc71/ffffff?text=Muslim+World" alt="Muslim World" class="news-card-image">
                     </div>
@@ -79,7 +79,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Issues, culture, and events concerning Muslim communities globally.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=technology" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=technology" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/9b59b6/ffffff?text=Technology" alt="Technology" class="news-card-image">
                     </div>
@@ -88,7 +88,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">The latest in AI, gadgets, and digital innovation shaping our future.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=medical-science" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=medical-science" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/e74c3c/ffffff?text=Medical+Science" alt="Medical Science" class="news-card-image">
                     </div>
@@ -97,7 +97,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Breakthroughs in health, medicine, and scientific research.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=global-economy" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=global-economy" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/1abc9c/ffffff?text=Global+Economy" alt="Global Economy" class="news-card-image">
                     </div>
@@ -106,7 +106,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Analysis of financial markets, trade, and economic policies.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=art-culture" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=art-culture" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/e67e22/ffffff?text=Art+%26+Culture" alt="Art & Culture" class="news-card-image">
                     </div>
@@ -116,7 +116,7 @@ title: Home - The Muslim Post
                     </div>
                 </a>
 
-                <a href="news-hub.html?tag=weather" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=weather" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/8e44ad/ffffff?text=Weather" alt="Weather" class="news-card-image">
                     </div>
@@ -125,7 +125,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Latest forecasts, climate updates, and weather-related news.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=sports" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=sports" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/27ae60/ffffff?text=Sports" alt="Sports" class="news-card-image">
                     </div>
@@ -134,7 +134,7 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Scores, highlights, and analysis from the world of sports.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=national-news" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=national-news" class="news-card">
                     <div class="news-card-image-wrapper">
                         <img src="https://placehold.co/600x400/c0392b/ffffff?text=National+News" alt="National News" class="news-card-image">
                     </div>
@@ -143,9 +143,9 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Key developments and events happening within the country.</p>
                     </div>
                 </a>
-                <a href="news-hub.html?tag=international-news" class="news-card">
+                <a href="{{ '/news/hub/' | relative_url }}?tag=international-news" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="httpsWeaviate-V3-Documentation/img/logo-weaviate.svg" alt="International News" class="news-card-image">
+                        <img src="https://placehold.co/600x400/34495e/ffffff?text=International+News" alt="International News" class="news-card-image">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">International News</h3>
@@ -183,12 +183,25 @@ title: Home - The Muslim Post
         <div class="cta-content reveal-on-scroll">
             <h1>Share Your Knowledge</h1>
             <p>Join a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective.</p>
-            <a href="{{ 'post.html' | relative_url }}" class="cta-button">Get Started</a>
+            <a id="cta-get-started" href="{{ 'post.html' | relative_url }}" class="cta-button">Get Started</a>
         </div>
     </section>
 </main>
 
 <script>
+    // This script ensures the "Get Started" button points to the login page
+    // for users who are not logged in.
+    document.addEventListener('turbo:load', () => {
+        const getStartedBtn = document.getElementById('cta-get-started');
+        if (getStartedBtn) {
+            const cachedUser = localStorage.getItem('cachedUser');
+            if (!cachedUser) {
+                // If user is not logged in, link to the auth page.
+                getStartedBtn.href = "{{ 'auth.html' | relative_url }}";
+            }
+        }
+    });
+
     document.addEventListener('turbo:load', () => {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {

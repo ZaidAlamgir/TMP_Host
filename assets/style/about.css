@@ -213,7 +213,11 @@
 }
 
 .team-member {
-    text-align: center;
+    display: flex;          
+    flex-direction: column;  
+    align-items: center;      
+    text-align: center;       
+    padding: 2rem;
     transition: transform 0.3s ease;
 }
 
@@ -222,11 +226,12 @@
 }
 
 .team-member img {
+    display: block;    
+    margin: 0 auto 1rem auto; 
     width: 160px;
     height: 160px;
     object-fit: cover;
     border-radius: 50%;
-    margin-bottom: 1rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
@@ -277,4 +282,24 @@
     .timeline-item.right::after, .timeline-item.left::after {
         left: 10px;
     }
+}
+/* NEW CODE - VISIBLE BY DEFAULT */
+.fade-in {
+    /* Start visible so users never see a blank page */
+    opacity: 1; 
+    transform: translateY(0);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* Only hide elements initially if we can animate them */
+@media (prefers-reduced-motion: no-preference) {
+    .fade-in:not(.visible) {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
