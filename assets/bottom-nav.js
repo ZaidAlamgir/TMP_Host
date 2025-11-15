@@ -114,7 +114,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                     <span>Home</span>
                 </a>
-                <a href="${cleanPath(latestUrl)}" class="bottom-nav-link" id="nav-articles">
+                <a href="${cleanPath(base + '/latest.html')}" class="bottom-nav-link" id="nav-articles">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     <span>Latest</span>
                 </a>
@@ -133,7 +133,7 @@
         });
     }
 
-    // 3. SMART GLIDER LOGIC
+    // 3. SMART GLIDER LOGIC (Flicker Fix)
     function updateGlider() {
         const nav = document.getElementById(CONFIG.navId);
         if (!nav) return;
@@ -156,18 +156,31 @@
             const relativeLeft = linkRect.left - navRect.left;
             
             // Style application (Center the glider on the icon)
-            // We use 70% width of the link for a pill shape
             const newWidth = linkRect.width * 0.7;
             const offset = (linkRect.width - newWidth) / 2;
 
-            glider.style.width = `${newWidth}px`;
-            glider.style.left = `${relativeLeft + offset}px`;
-            glider.style.opacity = '1';
-            
-            // Enable animation class after first paint to avoid "whoosh" from left:0
+            // Apply coordinates WITHOUT transition first if not ready
             if (!glider.classList.contains('ready')) {
-                setTimeout(() => glider.classList.add('ready'), 50);
+                glider.style.transition = 'none';
+                glider.style.width = `${newWidth}px`;
+                glider.style.left = `${relativeLeft + offset}px`;
+                glider.style.opacity = '1';
+                
+                // Force Reflow
+                void glider.offsetWidth; 
+
+                // Enable animation class in next frame
+                requestAnimationFrame(() => {
+                    glider.style.transition = ''; // Remove inline transition override
+                    glider.classList.add('ready');
+                });
+            } else {
+                // Standard animation
+                glider.style.width = `${newWidth}px`;
+                glider.style.left = `${relativeLeft + offset}px`;
+                glider.style.opacity = '1';
             }
+            
         } else if (glider) {
             glider.style.opacity = '0'; // Hide if no active link
         }
@@ -204,7 +217,7 @@
             if (path.includes('/postopen/') || path.includes('/post/')) {
                 document.getElementById('nav-post')?.classList.add(CONFIG.activeClass);
                 matchFound = true;
-            } else if (path.includes('/latest')) {
+            } else if (path.includes('/latest') || path === '/latest.html') {
                 document.getElementById('nav-articles')?.classList.add(CONFIG.activeClass);
                 matchFound = true;
             }
@@ -212,8 +225,6 @@
 
         // C. Default fallback (Home)
         if (!matchFound) {
-             // Only default to home if we are actually near the root
-             // Otherwise, showing no active state is better than showing the wrong one
              const homeLink = document.getElementById('nav-home');
              if (homeLink && (path === '' || path === '/')) {
                  homeLink.classList.add(CONFIG.activeClass);
@@ -242,14 +253,13 @@
                 .catch(() => {}); // Silent fail
         };
 
-        // Passive listeners for better scrolling performance
         document.body.addEventListener('touchstart', (e) => {
             if (e.target.closest('#nav-live')) handlePrefetch();
         }, { passive: true });
         
         document.body.addEventListener('mouseenter', (e) => {
              if (e.target.closest('#nav-live')) handlePrefetch();
-        }, true); // Capture phase
+        }, true);
     }
 
     // 6. MASTER INITIALIZER
@@ -261,9 +271,7 @@
 
         const nav = document.getElementById(CONFIG.navId);
         
-        // OBSERVER: This is the "Smart" part. 
-        // It watches if the nav changes size (device rotation, layout shift)
-        // and fixes the glider immediately.
+        // OBSERVER: Watch for size changes
         if (nav && window.ResizeObserver) {
             const observer = new ResizeObserver(() => {
                 requestAnimationFrame(updateGlider);
@@ -273,19 +281,14 @@
             window.addEventListener('resize', updateGlider);
         }
 
-        // POLLING: Fallback for slow frameworks/animations
-        // Checks active state 3 times over 1 second
+        // POLLING: Fallback for slow frameworks
         [100, 300, 800].forEach(t => setTimeout(highlightActiveLink, t));
     }
 
     // 7. EVENT BINDINGS
-    // Handle SPA navigations (Back/Forward buttons)
     window.addEventListener('popstate', () => setTimeout(highlightActiveLink, 10));
-    
-    // Handle Turbo/Hotwire
     document.addEventListener('turbo:load', init);
     
-    // Handle Click Immediate Feedback (Feels faster)
     document.addEventListener('click', (e) => {
         const link = e.target.closest('.bottom-nav-link');
         if (link) {
@@ -295,7 +298,6 @@
         }
     }, true);
 
-    // Boot sequence
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
