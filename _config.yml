@@ -22,7 +22,7 @@ kramdown:
 # Tell Jekyll to process the _live_updates folder as a collection
 collections:
   live_updates:
-    output: true # This ensures each document becomes its own page
+    output: true 
 
 # Tell Jekyll to include these files/folders in the final build
 include:
