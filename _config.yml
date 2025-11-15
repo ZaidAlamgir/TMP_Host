@@ -1,45 +1,56 @@
-title: The Muslim Post | TMP News
-description: "The Muslim Post (TMP News) is a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective on World Politics, Indian Politics, and the Muslim World."
-permalink: /:title.html
+name: Build and Deploy to Cloudflare Pages
 
-# Site-wide SEO keywords
-keywords: ["The Muslim Post", "TMP News", "Muslim post", "World Politics", "Indian Politics", "Muslim World", "Technology", "Global Economy"]
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
-# Add this section to explicitly enable the sitemap plugin
-plugins:
-  - jekyll-sitemap
+permissions:
+  contents: read
+  deployments: write
 
-baseurl: "" 
-url: "https://www.tmpnews.com"
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
-# Build settings
-markdown: kramdown
-kramdown:
-  input: GFM
-  hard_wrap: false
-  syntax_highlighter: rouge
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+          
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          
+      - name: Build with Jekyll
+        run: bundle exec jekyll build --trace
+        
+      - name: Upload artifact for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: jekyll-site
+          path: ./_site
+          retention-days: 5
 
-# Tell Jekyll to process the _live_updates folder as a collection
-collections:
-  live_updates:
-    output: true # This ensures each document becomes its own page
-
-# Tell Jekyll to include these files/folders in the final build
-include:
-  - cms.html
-  - liveCMS.html
-  - ".well-known"
-
-# Exclude from processing.
-exclude:
-  - .sass-cache/
-  - .jekyll-cache/
-  - gemfiles/
-  - Gemfile
-  - Gemfile.lock
-  - node_modules/
-  - vendor/bundle/
-  - vendor/cache/
-  - vendor/gems/
-  - vendor/ruby/
-  - README.md
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jekyll-site
+          path: ./_site
+          
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} 
+          projectName: 'TMP_Host'
+          directory: ./_site
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
