@@ -1,19 +1,17 @@
-name: Deploy Jekyll site to Pages
+name: Build and Deploy to Cloudflare Pages
 
+# This now runs on every push, which is FREE for public repos.
 on:
   push:
     branches: ["main"]
-  # Allows the workflow to be triggered manually from the Actions tab
   workflow_dispatch:
-  # Allows the workflow to be triggered by an external repository
-  repository_dispatch:
-    types: [new-live-content]
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  deployments: write
 
+# This ensures only one build runs at a time.
+# If 10 people push at once, the builds will line up in a queue.
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -24,30 +22,38 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Checkout Live Content Repo
-        uses: actions/checkout@v4
-        with:
-          repository: 'AmmarKhanAlamgirOfficial/live-content'
-          token: ${{ secrets.CONTENT_PULL_TOKEN }}
-          path: '_live_updates'
+          
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
+          
       - name: Build with Jekyll
         run: bundle exec jekyll build --trace
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        
+      - name: Upload artifact for deployment
+        uses: actions/upload-artifact@v4
         with:
+          name: jekyll-site
           path: ./_site
+          retention-days: 5 # Still good practice to keep this.
+
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jekyll-site
+          path: ./_site
+          
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} 
+          projectName: 'TMP_Host'
+          directory: ./_site
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
