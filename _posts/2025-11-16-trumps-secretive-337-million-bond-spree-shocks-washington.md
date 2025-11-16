@@ -2,7 +2,7 @@
 title: "Trump’s Secretive $337 Million Bond Spree Shocks Washington"
 subheadline: "Trump’s investment surge in tech, finance, and municipal bonds fuels debates over public trust and private profit."
 date: 2025-11-16T15:12:15.863Z
-image: "https://media.tmpnews.com/images/Trump’s Secretive $337 Million Bond Spree Shocks Washington.webp"
+image: "https://media.tmpnews.com/images/trumps-secretive-337-million-bond-spree-shocks-washington.webp"
 image_description: "Donald Trump speaking at the 2013 Conservative Political Action Conference (CPAC) in National Harbor, Maryland.
 
 Credit:-Gage Skidmore from Peoria, AZ, United States of America"
