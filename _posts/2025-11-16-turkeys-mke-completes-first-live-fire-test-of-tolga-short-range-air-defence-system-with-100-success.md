@@ -2,7 +2,7 @@
 title: "Turkey’s MKE Completes First Live-Fire Test of TOLGA Short-Range Air Defence System With 100% Success"
 subheadline: "MKE Says System Ready for Mass Production After Flawless Test Performance"
 date: 2025-11-16T15:45:39.001Z
-image: "https://media.tmpnews.com/images/Turkey’s MKE Completes First Live-Fire Test of TOLGA Short-Range Air Defence System With 100% Success.webp"
+image: "https://media.tmpnews.com/images/turkeys-mke-completes-first-live-fire-test-of-tolga-short-range-air-defence-system-with-100-percent-success.webp"
 image_description: "Turkish: Makine ve Kimya Endüstrisi or MKE for short), established in 1950, is a reorganization of government-controlled group of factories in Turkey that supplied the Turkish Armed Forces with military products."
 tags: [breaking-news, analysis, technology]
 categories: [world-politics, international-news, technology]
