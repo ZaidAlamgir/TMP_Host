@@ -6,6 +6,9 @@ permalink: /live/
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    /* Ensure icons are available */
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
     .live-container { max-width: 1440px; margin: 0 auto; padding: 0 1rem 4rem 1rem; }
     .live-header { text-align: center; margin-bottom: 2.5rem; }
@@ -89,6 +92,53 @@ permalink: /live/
         animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* --- NEW: Translation Styles --- */
+    /* CRITICAL: Hidden by default. Use !important to prevent any override unless specifcally targeted. */
+    .app-only-feature { display: none !important; }
+    
+    /* Revealed ONLY if body has 'android-app-view' class */
+    body.android-app-view .app-only-feature { display: flex !important; }
+
+    .live-translation-controls {
+        gap: 8px;
+        margin-top: 1.5rem; /* Spacing above the buttons (below content) */
+        margin-bottom: 0.5rem; /* Spacing below the buttons (above footer) */
+        padding-top: 0.5rem;
+    }
+    .translate-chip-btn {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        border-radius: 20px;
+        padding: 6px 14px; /* Slightly larger for easy tapping */
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.2s;
+    }
+    .translate-chip-btn:hover {
+        background-color: #dcfce7;
+    }
+    .translate-chip-btn.hindi {
+        background-color: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1e40af;
+    }
+    .translated-text-block {
+        background-color: #f8fafc;
+        border-left: 4px solid #3b82f6;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+        font-size: 1.05rem;
+        color: #1e293b;
+        animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 </style>
 
 <div id="fb-root"></div>
@@ -112,6 +162,62 @@ permalink: /live/
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // --- START: GLOBAL TRANSLATION LOGIC FOR ANDROID ---
+    // These functions must be global (on window) so they persist and can be called by the Android Interface
+    window.currentTranslatingPostId = null;
+
+    window.requestLivePostTranslation = function(postId, lang) {
+        if (window.currentTranslatingPostId) {
+            console.log("Translation already in progress.");
+            return; 
+        }
+        
+        // Check if Android Interface is available
+        if (window.AndroidTranslator) {
+            window.currentTranslatingPostId = postId;
+            const postElement = document.getElementById(`post-${postId}`);
+            
+            if (postElement) {
+                // Visual Feedback: dim buttons
+                const controls = postElement.querySelector('.live-translation-controls');
+                if(controls) controls.style.opacity = '0.5';
+
+                // Get the text content of the post
+                const contentDiv = postElement.querySelector('.post-body');
+                const textToTranslate = contentDiv.innerText;
+                
+                // Send to Android
+                window.AndroidTranslator.requestTranslation(textToTranslate, lang);
+            }
+        } else {
+            console.log("Android Translator Interface not found.");
+        }
+    };
+
+    // Callback function called by Android App after translation
+    window.updateContentWithTranslation = function(translatedText) {
+        if (window.currentTranslatingPostId) {
+            const postElement = document.getElementById(`post-${window.currentTranslatingPostId}`);
+            if (postElement) {
+                const contentDiv = postElement.querySelector('.post-body');
+                
+                // Replace content with a styled translation block
+                contentDiv.innerHTML = `
+                    <div class="translated-text-block">
+                        <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#3b82f6; margin-bottom:4px;">Translated Content</div>
+                        ${translatedText.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+                
+                // Restore button opacity
+                const controls = postElement.querySelector('.live-translation-controls');
+                if(controls) controls.style.opacity = '1';
+            }
+            window.currentTranslatingPostId = null;
+        }
+    };
+    // --- END: TRANSLATION LOGIC ---
+
     // --- START: CUSTOM CANVAS CLASS (Unchanged) ---
     class CanvasLikeButton {
         constructor(canvas, initialIsLiked) {
@@ -139,10 +245,9 @@ permalink: /live/
             this.ctx.translate(centerX, centerY);
             this.ctx.scale(scale, scale);
             this.ctx.rotate(rotation);
-            const starStrokeColor = this.isLiked ? '#facc15' : '#6b7280';
-            const starFillColor = this.isLiked ? '#fde047' : '#374151';
+            this.ctx.strokeStyle = this.isLiked ? '#facc15' : '#6b7280';
+            this.ctx.fillStyle = this.isLiked ? '#fde047' : '#374151';
             this.ctx.lineWidth = 2; this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
-            this.ctx.strokeStyle = starStrokeColor; this.ctx.fillStyle = starFillColor;
             const spikes = 5, outerRadius = 16, innerRadius = 8;
             let rot = Math.PI / 2 * 3, x = 0, y = 0, step = Math.PI / spikes;
             this.ctx.beginPath(); this.ctx.moveTo(0, -outerRadius);
@@ -217,6 +322,13 @@ permalink: /live/
 
 
     document.addEventListener('turbo:load', () => {
+        // --- DETECT ANDROID APP ---
+        // If the Android interface is present, add a class to the body
+        if (window.AndroidTranslator) {
+            console.log("Android App Detected: Enabling Native Features");
+            document.body.classList.add('android-app-view');
+        }
+
         // --- CONFIGURATION ---
         const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
@@ -364,15 +476,10 @@ permalink: /live/
             if (window.FB?.XFBML) window.FB.XFBML.parse();
         }
 
-        // --- REMOVED: All direct Supabase read functions ---
-        // refreshViewCount() and refreshLikeCount() are GONE.
-
-        // --- Scalable Write Functions (This is all that's left) ---
+        // --- Scalable Write Functions ---
         const ANALYTICS_WRITE_URL = 'https://data.tmpnews.com/feed.json'; 
         
         async function incrementViewCount(postId) {
-            // This function now *only* sends the write signal.
-            // It no longer reads from Supabase.
             if (viewedPosts.has(postId)) {
                 return; // Already viewed this session
             }
@@ -391,7 +498,6 @@ permalink: /live/
         }
         
         async function toggleLike(postId, canvasButtonInstance, postElement) {
-            // This function also *only* sends the write signal.
             const postIdStr = postId.toString();
             const action = canvasButtonInstance.isLiked ? 'increment' : 'decrement';
             const likeCountSpan = postElement.querySelector(`#like-count-${postId}`);
@@ -403,8 +509,6 @@ permalink: /live/
                     else likedPosts.delete(postIdStr);
                     localStorage.setItem('likedLivePosts', JSON.stringify(Array.from(likedPosts)));
                     
-                    // Invalidate the worker's cache so the *next* refresh gets the new count
-                    // We do this by making a "no-cache" request to the feed.
                     fetch(LIVE_FEED_URL, { cache: 'no-cache' });
                 })
                 .catch(error => {
@@ -416,7 +520,7 @@ permalink: /live/
                 });
         }
         
-        // --- Render Post Function (MODIFIED) ---
+        // --- Render Post Function (MODIFIED WITH TRANSLATION BTNS) ---
         function renderPost(postData, container, insertAtTop = false) {
             const postElement = document.createElement('div');
             postElement.className = 'live-post';
@@ -436,12 +540,22 @@ permalink: /live/
             });
             const isLiked = likedPosts.has(postData.id.toString());
             
-            // --- THIS IS THE KEY CHANGE ---
-            // We now *trust* the counts from the worker.
-            // We use 0 as a fallback if the worker's function isn't updated yet.
             const initialViewCount = postData.view_count || 0;
             const initialLikeCount = postData.like_count || 0;
             
+            // --- TRANSLATION BUTTONS HTML ---
+            // The 'app-only-feature' class ensures it is display:none unless 'android-app-view' is on body
+            const translationButtonsHTML = `
+                <div class="live-translation-controls app-only-feature">
+                    <button class="translate-chip-btn hindi" onclick="requestLivePostTranslation(${postData.id}, 'hi')">
+                        <i class="fas fa-language"></i> Hindi
+                    </button>
+                    <button class="translate-chip-btn" onclick="requestLivePostTranslation(${postData.id}, 'ur')">
+                        <i class="fas fa-language"></i> Urdu
+                    </button>
+                </div>
+            `;
+
             postElement.innerHTML = `
                 <div class="live-post-content p-4 md:p-6">
                     <div class="live-post-meta">
@@ -452,9 +566,14 @@ permalink: /live/
                         <span class="live-post-time">${formattedDate}</span>
                         ${pinnedBadgeHTML}
                     </div>
+                    
                     <h2 class="live-post-headline">${postData.headline || ''}</h2>
                     ${tagsHTML}
                     <div class="post-body pt-4">${parseContent(postData.content)}</div>
+                    
+                    <!-- TRANSLATION BUTTONS MOVED HERE -->
+                    ${translationButtonsHTML}
+
                     <div class="post-footer">
                         <div class="post-stats" data-post-id="${postData.id}">
                             <canvas id="like-canvas-${postData.id}" class="like-btn-canvas" width="40" height="40" title="Like"></canvas>
@@ -472,16 +591,12 @@ permalink: /live/
             const canvasButton = new CanvasLikeButton(canvasEl, isLiked);
             postElement.canvasButtonInstance = canvasButton; 
 
-            // Send the "new view" signal (if needed)
             incrementViewCount(postData.id);
             
-            // --- NEW: Animate the counts from the worker ---
             setTimeout(() => { 
                 const likeCountSpan = document.getElementById(`like-count-${postData.id}`);
                 const viewCountSpan = document.getElementById(`view-count-${postData.id}`);
                 
-                // Animate from 0 to the numbers provided by the worker
-                // Only do this once per session
                 if (!animatedPosts.has(postData.id)) {
                     animateCountUp(likeCountSpan, 0, initialLikeCount);
                     animateCountUp(viewCountSpan, 0, initialViewCount);
@@ -577,7 +692,7 @@ permalink: /live/
             }
         }
         
-        // --- MODIFIED: Realtime Listener ---
+        // --- Realtime Listener ---
         supabaseClient.channel('live_updates_listener')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
                 sessionStorage.removeItem(CACHE_KEY); 
@@ -594,16 +709,13 @@ permalink: /live/
                     }
                 } 
                 else if (payload.eventType === 'UPDATE') {
-                    // This is the update from a like or view.
                     const existingElement = document.getElementById(`post-${newPostData.id}`);
                     const currentIsPinned = existingElement ? existingElement.classList.contains('is-pinned') : false;
                     const newIsPinned = newPostData.is_pinned;
                     
                     if (newIsPinned !== currentIsPinned) {
-                         loadMorePosts(true); // Pinned status changed, just refresh
+                         loadMorePosts(true); 
                     } else if (existingElement) {
-                        // **This is the key change!**
-                        // Just update the numbers directly from the payload.
                         const likeCountSpan = existingElement.querySelector(`#like-count-${newPostData.id}`);
                         const viewCountSpan = existingElement.querySelector(`#view-count-${newPostData.id}`);
                         
@@ -627,7 +739,7 @@ permalink: /live/
             })
             .subscribe();
 
-        // --- Event Listeners (Unchanged) ---
+        // --- Event Listeners ---
         const shareHandler = (e) => {
              const shareBtn = e.target.closest('.share-btn');
              if (shareBtn) {
