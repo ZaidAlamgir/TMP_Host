@@ -21,7 +21,7 @@ extra_js:
                 </filter>
             </defs>
             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
-            <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
+            <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text" style="font-family: 'Merriweather', serif; fill: #ffffff;">TMP</text>
             <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
         </svg>
         <h1>The Muslim Post</h1>
@@ -83,13 +83,39 @@ extra_js:
     <h2 class="section-title fade-in">Meet The Team</h2>
     <div class="team-grid">
         <div class="team-member fade-in">
-            <img src="https://i.postimg.cc/vZrK2HCW/logo.jpg" alt="ammar khan alamgir">
-            <h3>Ammar Khan Alamgir</h3>
-            <p>Founder</p>
-            <p class="team-member-bio">Ammar is a visionary leader with a passion for journalism and community building. He founded The Muslim Post with the goal of creating a media platform that would amplify diverse voices and provide a more nuanced understanding of the Muslim world.</p>
+            <a href="{{ '/the-muslim-post/Ammar-khan/founder' | relative_url }}" class="team-link-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                <div class="relative inline-block">
+            <div class="w-40 h-40 sm:w-40 sm:h-40 mx-auto rounded-full p-1 bg-gradient-to-tr from-blue-600 to-cyan-500 shadow-xl">
+                <img src="{{ '/assets/images/the-muslim-post/founder.jpg' | relative_url }}"
+                     alt="Founder Name" 
+                     class="w-full h-full rounded-full object-cover border-4 border-white dark:border-gray-900 bg-gray-200">
+            </div>
+            <div class="absolute bottom-2 right-2 bg-blue-600 text-white rounded-full p-1.5 border-4 border-white dark:border-gray-900 shadow-sm" title="Verified">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+        </div>
+                <h3>Ammar Khan Alamgir</h3>
+                <p>Founder</p>
+                <p class="team-member-bio">Ammar is a visionary leader with a passion for journalism and community building. He founded The Muslim Post with the goal of creating a media platform that would amplify diverse voices and provide a more nuanced understanding of the Muslim world.</p>
+            </a>
         </div>
         <div class="team-member fade-in">
-            <img src="https://i.postimg.cc/vZrK2HCW/logo.jpg" alt="TMP Team">
+            <svg class="team-logo-svg mb-4" width="200" height="200" viewBox="0 0 200 200" aria-hidden="true">
+                <defs>
+                    <filter id="glow-member-2">
+                        <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square" style="filter:url(#glow-member-2);"/>
+                <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text" style="font-family: 'Merriweather', serif; fill: #000000;">TMP</text>
+                <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
+            </svg>
             <h3>TMP Team</h3>
             <p></p>
             <p class="team-member-bio">Our team is composed of talented journalists, editors, and designers who are dedicated to our mission. Together, we work to bring you the highest quality news and analysis from around the world.</p>

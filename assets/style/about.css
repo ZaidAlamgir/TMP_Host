@@ -213,10 +213,10 @@
 }
 
 .team-member {
-    display: flex;          
-    flex-direction: column;  
-    align-items: center;      
-    text-align: center;       
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
     padding: 2rem;
     transition: transform 0.3s ease;
 }
@@ -225,24 +225,31 @@
     transform: translateY(-5px);
 }
 
-.team-member img {
-    display: block;    
-    margin: 0 auto 1rem auto; 
-    width: 160px;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 50%;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
+/* --- TEXT BOLDING CHANGES --- */
 .team-member h3 {
     font-size: 1.5rem;
+    font-weight: 700; /* Made team member names BOLD */
 }
 
 .team-member p {
     font-size: 1rem;
     color: #606770;
     font-weight: 500;
+}
+
+.team-member-bio {
+    font-weight: 600; /* Made description SEMI-BOLD */
+}
+/* --------------------------- */
+
+.team-member img {
+    display: block; 
+    margin: 0 auto 1rem auto; 
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 /* Fade-in Animation */
@@ -265,9 +272,20 @@
     .hero-content p {
         font-size: 1.2rem;
     }
-    .tmp-text {
-        font-size: 60px;
+
+    /* --- SVG SCALING FIX --- */
+    /* 1. Scale the entire SVG container down to maintain proportion */
+    .vector-animation, .team-logo-svg {
+        width: 150px; /* Reduce SVG container size */
+        height: 150px;
     }
+    
+    /* 2. Adjust TMP text size relative to the new container size */
+    .tmp-text {
+        font-size: 85px; /* Adjusted font size for 150px container (was 80px for 200px) */
+    }
+    /* ------------------------ */
+    
     .timeline::after {
         left: 20px;
     }
@@ -283,6 +301,7 @@
         left: 10px;
     }
 }
+
 /* NEW CODE - VISIBLE BY DEFAULT */
 .fade-in {
     /* Start visible so users never see a blank page */

@@ -21,7 +21,7 @@ title: Home - The Muslim Post
 </script>
 <div class="support-cta-banner">
     <p>Independent journalism is more important than ever. Please consider supporting The Muslim Post today.</p>
-    <a href="{{ 'support.html' | relative_url }}" class="support-cta-button">Support TMP</a>
+    <a href="{{ '/support/' | relative_url }}" class="support-cta-button">Support TMP</a>
 </div>
 
 {% assign latest_post = site.posts.first %}
@@ -183,7 +183,7 @@ title: Home - The Muslim Post
         <div class="cta-content reveal-on-scroll">
             <h1>Share Your Knowledge</h1>
             <p>Join a community of thinkers, learners, and experts. Discover insightful posts and contribute your own perspective.</p>
-            <a id="cta-get-started" href="{{ 'post.html' | relative_url }}" class="cta-button">Get Started</a>
+            <a id="cta-get-started" href="{{ '/post/' | relative_url }}" class="cta-button">Get Started</a>
         </div>
     </section>
 </main>

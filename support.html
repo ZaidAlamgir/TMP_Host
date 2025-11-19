@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Support The Muslim Post
+permalink: /support.html
 extra_css:
   - /assets/style/support.css
 ---
@@ -96,7 +97,7 @@ extra_css:
                 <li><i class="fas fa-times-circle feature-disabled"></i> Suggestion rights</li>
                 <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
             </ul>
-            <a href="payment-selection.html?plan=Regular&amount=90&cycle=month" class="card-button">Choose Regular</a>
+            <a href="{{ '/payment-selection.html' | relative_url }}?plan=Regular&amount=90&cycle=month" class="card-button">Choose Regular</a>
         </div>
 
         <div class="subscription-card popular">
@@ -113,7 +114,7 @@ extra_css:
                 <li><i class="fas fa-times-circle feature-disabled"></i> Suggestion rights</li>
                 <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
             </ul>
-            <a href="payment-selection.html?plan=Gold&amount=599&cycle=year" class="card-button">Choose Gold</a>
+            <a href="{{ '/payment-selection.html' | relative_url }}?plan=Gold&amount=599&cycle=year" class="card-button">Choose Gold</a>
         </div>
 
         <div class="subscription-card">
@@ -129,7 +130,7 @@ extra_css:
                 <li><i class="fas fa-check-circle"></i> <strong>Right to give suggestions for changes</strong></li>
                 <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
             </ul>
-            <a href="payment-selection.html?plan=Diamond&amount=1000&cycle=year" class="card-button">Choose Diamond</a>
+            <a href="{{ '/payment-selection.html' | relative_url }}?plan=Diamond&amount=1000&cycle=year" class="card-button">Choose Diamond</a>
         </div>
 
         <div class="subscription-card membership">
@@ -145,7 +146,7 @@ extra_css:
                 <li><i class="fas fa-check-circle"></i> Right to give suggestions for changes</li>
                 <li><i class="fas fa-check-circle"></i> <strong>Become a writer & post articles (after verification)</strong></li>
             </ul>
-            <a href="payment-selection.html?plan=Membership&amount=5000&cycle=year" class="card-button">Become a Member</a>
+            <a href="{{ '/payment-selection.html' | relative_url }}?plan=Membership&amount=5000&cycle=year" class="card-button">Become a Member</a>
         </div>
 
         <div class="subscription-card" id="custom-support-card">
@@ -171,7 +172,7 @@ extra_css:
         </div>
         </section>
 
-    <section class="faq-section">
+<section class="faq-section">
         <h2 class="section-title">Frequently Asked Questions</h2>
         <div class="faq-item">
             <h3 class="faq-question">What payment methods do you accept?</h3>
@@ -179,11 +180,11 @@ extra_css:
         </div>
         <div class="faq-item">
             <h3 class="faq-question">Can I cancel my subscription?</h3>
-            <p class="faq-answer">Yes, you can cancel your recurring subscription at any time through your account profile page. Your access will continue until the end of your current billing period. Please see our <a href="refund-policy.html">Cancellation & Refund Policy</a> for more details.</p>
+            <p class="faq-answer">Yes, you can cancel your recurring subscription at any time through your account profile page. Your access will continue until the end of your current billing period. Please see our <a href="/refund-policy/">Cancellation & Refund Policy</a> for more details.</p>
         </div>
         <div class="faq-item">
             <h3 class="faq-question">Is my payment information secure?</h3>
-            <p class="faq-answer">Absolutely. All payments are processed by trusted, secure payment gateways (<strong>Paytm PG</strong> and PayPal). We do not collect or store any of your sensitive payment information on our servers. For more information, please read our <a href="privacy.html">Privacy Policy</a>.</p>
+            <p class="faq-answer">Absolutely. All payments are processed by trusted, secure payment gateways (<strong>Paytm PG</strong> and PayPal). We do not collect or store any of your sensitive payment information on our servers. For more information, please read our <a href="/privacy/">Privacy Policy</a> for more details.</p>
         </div>
     </section>
 </main>
@@ -225,7 +226,6 @@ extra_css:
 
         // Handle the final payment button click
         if (supportButton) {
-            // JAVASCRIPT FIX: Removed the stray underscore from '()_=>'
             supportButton.addEventListener('click', () => { 
                 const amount = parseFloat(amountInput.value);
 
@@ -234,8 +234,8 @@ extra_css:
                     errorMessage.style.display = 'block';
                 } else {
                     errorMessage.style.display = 'none';
-                    // Redirect to payment page
-                    window.location.href = `payment-selection.html?plan=One-time Support&amount=${amount}&cycle=one-time`;
+                    // Redirect to payment page, using root-relative path
+                    window.location.href = `{{ '/payment-selection.html' | relative_url }}?plan=One-time Support&amount=${amount}&cycle=one-time`;
                 }
             });
         }

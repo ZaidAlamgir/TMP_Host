@@ -91,7 +91,7 @@
             transform: translateY(-2px);
         }
         
-        /* GLIDER ANIMATION */
+        /* Stabilized Glider Animation */
         .nav-glider {
             position: absolute;
             top: 50%;
@@ -102,17 +102,20 @@
             border-radius: 12px;
             transform: translateY(-50%);
             z-index: 1;
-            opacity: 0;
+            opacity: 0; /* Hidden by default until JS positions it */
             pointer-events: none;
             will-change: left, width;
+            /* NO TRANSITION here. This stops the "slide from zero" glitch. */
         }
+
         .nav-glider.ready {
-            transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1), 
-                        width 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+            /* Only animate when the .ready class is added by JS */
+            transition: left 0.25s cubic-bezier(0.2, 0.6, 0.2, 1), 
+                        width 0.25s cubic-bezier(0.2, 0.6, 0.2, 1),
                         opacity 0.2s ease;
         }
 
-        /* Dark Mode overrides for Nav */
+        /* Dark Mode Support */
         html.dark-mode .bottom-nav {
             background-color: #1f2937;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
@@ -128,7 +131,8 @@
     {% endfor %}
 </head>
 <body class="{{ page.body_class }} flex flex-col min-h-screen" data-base-path="{{ site.baseurl }}" data-latest-post-url="{{ site.posts.first.url | relative_url }}"> 
-    <div id="header-placeholder"></div>
+    
+    <div id="header-placeholder" data-turbo-permanent></div>
     
     <div class="main-content-wrapper" style="flex-grow: 1;">
         {{ content }}

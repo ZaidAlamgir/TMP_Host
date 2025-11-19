@@ -6,39 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .container { 
-            text-align: center; 
-            color: #606770; 
-            background: #fff;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+        .container { text-align: center; color: #606770; background: #fff; padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0073e6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        h2 {
-            color: #333;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-        p {
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-        .return-button {
-            display: inline-block;
-            background-color: #0073e6;
-            color: #ffffff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-decoration: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            transition: background-color 0.2s ease;
-        }
-        .return-button:hover {
-            background-color: #005bb5;
-        }
+        h2 { color: #333; margin-top: 0; margin-bottom: 10px; }
+        p { margin-bottom: 25px; line-height: 1.5; }
+        .return-button { display: inline-block; background-color: #0073e6; color: #ffffff; font-size: 1.1rem; font-weight: 600; text-decoration: none; padding: 14px 28px; border-radius: 8px; transition: background-color 0.2s ease; }
+        .return-button:hover { background-color: #005bb5; }
     </style>
 </head>
 <body>
@@ -49,52 +23,65 @@
 
     <script>
         window.onload = () => {
-            
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
+            const state = urlParams.get('state'); // Get the state to identify the CMS
             const redirectInfoJSON = localStorage.getItem('auth_redirect_info');
-            const cameFromApp = urlParams.get('from_app') === 'true';
+            
+            // Clean up local storage *after* reading it
+            localStorage.removeItem('auth_redirect_info'); 
 
-            if (code && !redirectInfoJSON) {
-                
-                if (cameFromApp) {
-                    
-                    console.log("Google flow from app detected. Displaying 'Return to App' button.");
-
-                    const androidIntentUrl = "intent://auth#Intent;scheme=tmpnews;package=com.alamgir.tmp;end";
-                    
-                    const container = document.getElementById('auth-container');
-                    container.innerHTML = `
-                        <h2>Login Successful!</h2>
-                        <p>Please tap the button below to return to the app.</p>
-                        <a href="${androidIntentUrl}" class="return-button">Return to App</a>
-                    `;
-                    return;
-                } else {
-                    
-                    console.log("Google flow from normal web browser. Logging into website.");
-                    
-                    setTimeout(() => {
-                         window.location.href = "/"; 
-                    }, 500);
-                   
-                    document.querySelector("#auth-container p").textContent = "Login successful, redirecting...";
-                    return;
-                }
+            if (!code) {
+                document.getElementById('auth-container').innerHTML = '<p style="color: red; text-align: center;">Authentication error: No auth code provided. Please try again.</p>';
+                return;
             }
-            localStorage.removeItem('auth_redirect_info'); // Clean up
 
-            if (code && redirectInfoJSON) {
-                console.log("Other auth flow detected. Redirecting to original page.");
+            // --- Logic for Android App ---
+            const cameFromApp = urlParams.get('from_app') === 'true';
+            if (cameFromApp && !redirectInfoJSON) {
+                console.log("Google flow from app detected. Displaying 'Return to App' button.");
+                const androidIntentUrl = "intent://auth#Intent;scheme=tmpnews;package=com.alamgir.tmp;end";
+                const container = document.getElementById('auth-container');
+                container.innerHTML = `
+                    <h2>Login Successful!</h2>
+                    <p>Please tap the button below to return to the app.</p>
+                    <a href="${androidIntentUrl}" class="return-button">Return to App</a>
+                `;
+                return;
+            }
+
+            // --- Logic for Google Web Login (no redirect info) ---
+            // This checks if it's NOT a CMS login
+            if (!redirectInfoJSON && state !== 'main_cms' && state !== 'org_cms') {
+                 console.log("Google flow from normal web browser. Logging into website.");
+                 setTimeout(() => {
+                     window.location.href = "/"; // Redirect to homepage
+                 }, 500);
+                 document.querySelector("#auth-container p").textContent = "Login successful, redirecting...";
+                 return;
+            }
+
+            // --- Logic for CMS (GitHub Auth) ---
+            if (redirectInfoJSON) {
+                console.log("CMS auth flow detected. Redirecting to original page.");
                 const redirectInfo = JSON.parse(redirectInfoJSON);
+                
+                // Check if state matches the CMS ID from local storage
+                if (state !== redirectInfo.cms_id) {
+                     document.getElementById('auth-container').innerHTML = '<p style="color: red; text-align: center;">Authentication error: State mismatch. Please try logging in again.</p>';
+                     return;
+                }
+
+                // Get the original destination (e.g., http://127.0.0.1:4000/ORGcms.html)
+                // This is the magic part for localhost testing
                 const finalRedirect = redirectInfo.destination;
                 
-                window.location.href = `${finalRedirect}?code=${code}`;
-           } else {
-               
-               document.getElementById('auth-container').innerHTML = '<p style="color: red; text-align: center;">Authentication error: Could not find necessary redirect information. Please try logging in again.</p>';
-           }
-
+                // Pass the code back to the correct CMS page
+                window.location.href = `${finalRedirect}?code=${code}&state=${state}`;
+            } else {
+                // This case should rarely happen if login button is correct
+                document.getElementById('auth-container').innerHTML = '<p style="color: red; text-align: center;">Authentication error: Could not find redirect info. Please try logging in again.</p>';
+            }
         };
     </script>
 </body>

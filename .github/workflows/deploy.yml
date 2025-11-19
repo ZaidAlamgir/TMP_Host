@@ -1,17 +1,16 @@
 name: Build and Deploy to Cloudflare Pages
 
-# This now runs on every push, which is FREE for public repos.
 on:
   push:
     branches: ["main"]
   workflow_dispatch:
+  repository_dispatch:
+    types: [new-article-post]
 
 permissions:
   contents: read
   deployments: write
 
-# This ensures only one build runs at a time.
-# If 10 people push at once, the builds will line up in a queue.
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -20,28 +19,135 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 1. Checkout Main Repo (TMP_Host)
         uses: actions/checkout@v4
+        with:
+          repository: zaidalamgir/TMP_Host
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./main_site
+
+      - name: 2. Create Staging Directories
+        run: |
+          mkdir -p ./main_site/_posts
+          mkdir -p ./_article_repos
+        
+      - name: 3. Checkout World Politics
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-world-politics
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/world-politics
+
+      - name: 4. Checkout Indian Politics
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-indian-politics
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/indian-politics
+
+      - name: 5. Checkout Muslim World
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-muslim-world
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/muslim-world
+
+      - name: 6. Checkout Technology
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-technology
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/technology
+
+      - name: 7. Checkout Medical Science
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-medical-science
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/medical-science
+
+      - name: 8. Checkout Global Economy
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-global-economy
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/global-economy
+
+      - name: 9. Checkout Art & Culture
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-art-culture
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/art-culture
+
+      - name: 10. Checkout Weather
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-weather
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/weather
+
+      - name: 11. Checkout Sports
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-sports
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/sports
+
+      - name: 12. Checkout National News
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-national-news
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/national-news
+
+      - name: 13. Checkout International News
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-international-news
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/international-news
+      
+      - name: 14. Consolidate All Posts
+        run: |
+          echo "Moving all new articles into the main _posts folder..."
+          # The '|| true' ensures that if a folder is empty, it doesn't fail the build.
+          mv ./_article_repos/world-politics/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/indian-politics/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/muslim-world/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/technology/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/medical-science/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/global-economy/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/art-culture/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/weather/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/sports/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/national-news/posts/**/*.md ./main_site/_posts/ || true
+          mv ./_article_repos/international-news/posts/**/*.md ./main_site/_posts/ || true
           
-      - name: Setup Ruby
+          echo "Listing all consolidated posts:"
+          ls -l ./main_site/_posts
+      
+      - name: 15. Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
+          working-directory: ./main_site 
           
-      - name: Build with Jekyll
+      - name: 16. Build with Jekyll
         run: bundle exec jekyll build --trace
+        working-directory: ./main_site 
         
-      - name: Upload artifact for deployment
+      - name: 17. Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: jekyll-site
-          path: ./_site
-          retention-days: 5 # Still good practice to keep this.
+          path: ./main_site/_site
+          retention-days: 5
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build 
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4

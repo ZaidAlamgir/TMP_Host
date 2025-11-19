@@ -29,6 +29,9 @@ include:
   - cms.html
   - liveCMS.html
   - latest.html
+  - about.html
+  - news-hub.html 
+  - post.html
   - .well-known
 
 # Exclude from processing.
@@ -44,3 +47,4 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
   - README.md
+  - _article_repos/

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Complete Your Subscription
+permalink: /payment-selection.html
 extra_css:
   - /assets/style/payment-selection.css
 ---
@@ -22,24 +23,18 @@ extra_css:
 
         <div class="payment-methods-grid">
             
-            <!-- === START: Paytm card (Now dynamic) === -->
             <div class="method-card" id="paytm-verification-card" style="border: 2px solid #00b2ef; background-color: #f9fafb;">
                 <div class="logo-container">
                     <svg class="method-logo" style="max-width: 140px;" viewBox="0 0 110 32" xmlns="http://www.w3.org/2000/svg"><path fill="#00b2ef" d="M108.8 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-9-1.1h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-15.1 14.3 3.6 3.6c.4.4.4 1.1 0 1.5l-4.1 4.1c-.2.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-6.9c0-.6.2-1.1.6-1.5l5-5c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5l-3.6 3.6c-.4.4-1 .4-1.4 0l-.8-.8c-.4-.4-.4-1.1 0-1.5m-1 15.6h-4.6c-.3 0-.5-.2-.5-.5V18.1c0-.6.2-1.1.6-1.5l10.3-10.3c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5L71 15.6c-.4.4-1 .4-1.4 0l-5.7-5.7c-.4-.4-.4-1.1 0-1.5l3.6-3.6c.4-.4.4-1.1 0-1.5l-4.1-4.1c-.2-.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-1c0-.3-.2-.5-.5-.5h-6.1c-.3 0-.5.2-.5.5v1c0 .3-.2.5-.5.5h-4.6c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5m-9-29.9h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 0h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9 0H14c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M12.9 0H4.7C4.4 0 4.2.2 4.2.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M3.6 1.1H.5C.2 1.1 0 1.3 0 1.6v28.8c0 .3.2.5.5.5h3.1c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5"></path></svg>
                 </div>
-                <!-- Title and Description will be set by JavaScript -->
                 <h3 id="paytm-card-title" style="font-weight: 600; color: #1c1e21; font-size: 1.1rem; margin-bottom: 0.5rem;">Loading...</h3>
                 <p id="paytm-card-description" class="method-description" style="color: #374151;">
                     Please wait while we check your account status...
                 </p>
-                <!-- This button will also be controlled by JavaScript -->
                 <button id="temp-free-access-btn" class="payment-button" style="background-color: #00b2ef; color: white; display: none;">
                     ...
                 </button>
             </div>
-            <!-- === END: Modification === -->
-
-            <!-- === START: PayPal card (Now dynamic) === -->
             <div class="method-card" id="paypal-card">
                 <div class="logo-container">
                     <svg class="method-logo paypal-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78 50">
@@ -51,23 +46,18 @@ extra_css:
                     </svg>
                 </div>
                 
-                <!-- === MODIFICATION: Moved this <p> tag outside the button container === -->
                 <p class="method-description" id="paypal-description">
                     <strong>For International Customers & Reviewers.</strong>
                     <br>
                     (Note: PayPal does not support India-to-India payments).
                 </p>
-                <!-- This container is now ONLY for the button -->
                 <div id="paypal-button-container">
-                    <!-- PayPal button will render here -->
-                </div>
+                    </div>
             </div>
-            <!-- === END: PayPal card === -->
-
-        </div>
+            </div>
         
         <div class="back-link-container">
-            <a href="support.html" class="back-link">&larr; Change Subscription Plan</a>
+            <a href="{{ '/support/' | relative_url }}" class="back-link">&larr; Change Subscription Plan</a>
         </div>
     </div>
 
@@ -94,7 +84,8 @@ extra_css:
         const cycle = urlParams.get('cycle');
         
         if (!plan || !amount || !cycle) {
-            document.querySelector('.selection-card').innerHTML = '<p class="error-message">Invalid subscription details. Please <a href="support.html">go back</a> and select a plan.</p>';
+            // FIX: Use root-relative link to the support page's permalink
+            document.querySelector('.selection-card').innerHTML = '<p class="error-message">Invalid subscription details. Please <a href="{{ '/support/' | relative_url }}">go back</a> and select a plan.</p>';
             return;
         }
 
@@ -114,7 +105,7 @@ extra_css:
             const paytmCardDescription = document.getElementById('paytm-card-description');
             const tempButton = document.getElementById('temp-free-access-btn');
             const paypalCard = document.getElementById('paypal-card');
-            const paypalDescription = document.getElementById('paypal-description'); // Get the description
+            const paypalDescription = document.getElementById('paypal-description');
 
             const { data: { session } } = await supabase.auth.getSession();
 
@@ -125,8 +116,8 @@ extra_css:
                 tempButton.style.display = 'none';
                 
                 // Render PayPal for the donation
-                paypalCard.style.display = 'block'; // Make sure it's visible
-                paypalDescription.style.display = 'block'; // Make sure description is visible
+                paypalCard.style.display = 'block';
+                paypalDescription.style.display = 'block';
                 renderPayPal(true); // 'true' means it's a donation
                 return;
             }
@@ -137,7 +128,6 @@ extra_css:
             if (session) {
                 // --- User is Logged In & It's a Subscription ---
                 paytmCardTitle.textContent = 'All Benefits Activated';
-                // === MODIFICATION: Added <strong> tag ===
                 paytmCardDescription.innerHTML = 'As a logged-in user, your benefits are active. <br><br><strong>Our Paytm gateway is in verification. For testing, you can use the PayPal option.</strong>';
                 tempButton.style.display = 'none'; // Hide button
                 
@@ -148,14 +138,14 @@ extra_css:
             } else {
                 // --- Case 2: User is Logged Out ---
                 paytmCardTitle.textContent = 'Please Log In';
-                // === MODIFICATION: Added <strong> tag ===
                 paytmCardDescription.innerHTML = 'Please log in to activate your free subscription benefits. <br><br><strong>Our Paytm gateway is in verification. For testing, you can use the PayPal option.</strong>';
                 tempButton.style.display = 'block';
                 tempButton.textContent = 'Log In to Activate';
 
                 tempButton.addEventListener('click', () => {
                     sessionStorage.setItem('postLoginRedirect', window.location.href);
-                    window.location.href = 'auth.html';
+                    // FIX: Use root-relative link to auth page
+                    window.location.href = "{{ '/auth.html' | relative_url }}";
                 });
 
                 paypalCard.style.display = 'block'; // Show PayPal card
@@ -188,19 +178,16 @@ extra_css:
                         document.getElementById('payment-loader').style.display = 'block';
 
                         return actions.order.capture().then(async (details) => {
-                            // Payment is successful.
-                            
-                            // We are NOT saving subscriptions to Supabase in this version.
-                            // We will add this back when your gateway is live.
-                            
                             // Redirect to success
-                            window.location.href = 'payment-status.html?code=PAYMENT_SUCCESS';
+                            // FIX: Use root-relative link to payment-status page
+                            window.location.href = "{{ '/payment-status.html' | relative_url }}?code=PAYMENT_SUCCESS";
                         });
                     },
 
                     onError: (err) => {
                         console.error('PayPal Button Error:', err);
-                        window.location.href = 'payment-status.html?code=PAYMENT_FAILED';
+                        // FIX: Use root-relative link to payment-status page
+                        window.location.href = "{{ '/payment-status.html' | relative_url }}?code=PAYMENT_FAILED";
                     },
 
                     style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' }
