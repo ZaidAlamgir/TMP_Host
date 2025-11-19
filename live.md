@@ -94,7 +94,7 @@ permalink: /live/
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* --- NEW: Translation Styles --- */
-    /* CRITICAL: Hidden by default. Use !important to prevent any override unless specifcally targeted. */
+    /* CRITICAL: Hidden by default. Use !important to prevent any override unless specifically targeted. */
     .app-only-feature { display: none !important; }
     
     /* Revealed ONLY if body has 'android-app-view' class */
@@ -175,7 +175,8 @@ permalink: /live/
     window.currentTranslatingPostId = null;
     
     // Define a token to separate headline and body text during translation
-    const SEPARATOR_TOKEN = " <<<HEADLINE_END>>> ";
+    // Using a token less likely to be treated as a translatable phrase
+    const SEPARATOR_TOKEN = "|||||"; 
 
     window.requestLivePostTranslation = function(postId, lang) {
         if (window.currentTranslatingPostId) {
@@ -193,13 +194,34 @@ permalink: /live/
                 const controls = postElement.querySelector('.live-translation-controls');
                 if(controls) controls.style.opacity = '0.5';
 
-                // Get Headline
                 const headlineEl = postElement.querySelector('.live-post-headline');
-                const headlineText = headlineEl ? headlineEl.innerText : "";
-
-                // Get Body Text
                 const contentDiv = postElement.querySelector('.post-body');
-                const bodyText = contentDiv.innerText;
+
+                // --- FIX: SOURCE TEXT HANDLING ---
+                // 1. Check if we already stored the original English text in a data attribute
+                // If not, grab it from the DOM and store it. This prevents recursive translation
+                // (translating Hindi to Urdu instead of English to Urdu).
+                if (!postElement.dataset.originalHeadline) {
+                    postElement.dataset.originalHeadline = headlineEl ? headlineEl.innerText : "";
+                }
+                
+                if (!postElement.dataset.originalBody) {
+                    // Grab text but strictly EXCLUDE any previously added translation blocks
+                    // Iterate child nodes to get text but skip .translated-text-block div
+                    let cleanText = "";
+                    contentDiv.childNodes.forEach(node => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            cleanText += node.textContent;
+                        } else if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains('translated-text-block')) {
+                            cleanText += node.innerText + "\n"; 
+                        }
+                    });
+                    postElement.dataset.originalBody = cleanText.trim();
+                }
+
+                // Use the STORED original text for translation request
+                const headlineText = postElement.dataset.originalHeadline;
+                const bodyText = postElement.dataset.originalBody;
                 
                 // Combine them so we can translate both in one go
                 const combinedText = headlineText + SEPARATOR_TOKEN + bodyText;
@@ -219,27 +241,28 @@ permalink: /live/
             if (postElement) {
                 const contentDiv = postElement.querySelector('.post-body');
                 
-                // 1. Remove any existing translation to avoid duplicates
-                const existingTrans = postElement.querySelector('.translated-text-block');
-                if (existingTrans) existingTrans.remove();
+                // 1. Remove ANY existing translation to avoid duplicates stacking
+                const existingTrans = contentDiv.querySelectorAll('.translated-text-block');
+                existingTrans.forEach(el => el.remove());
 
                 // 2. Split the translated text back into Headline and Body
                 let transHeadline = "";
                 let transBody = translatedText;
 
-                if (translatedText.includes("<<<HEADLINE_END>>>")) {
-                    const parts = translatedText.split("<<<HEADLINE_END>>>");
+                if (translatedText.includes("|||||")) {
+                    const parts = translatedText.split("|||||");
                     transHeadline = parts[0].trim();
                     transBody = parts[1].trim();
-                } else if (translatedText.includes("HEADLINE_END")) {
-                    // Fallback if ML model messed up the brackets
-                    const parts = translatedText.split("HEADLINE_END");
-                    transHeadline = parts[0].trim();
-                    transBody = parts[1].trim();
+                } else {
+                    // Fallback if ML model messed up the separator, treat mostly as body
+                    transBody = translatedText;
                 }
+                
+                // Clean up separator if it leaked
+                transBody = transBody.replace(/\|\|\|\|\|/g, "");
 
                 // 3. Create the translation container
-                // We append it AFTER the original content div, effectively showing both.
+                // We append it INSIDE the post body div (at the end)
                 const translationContainer = document.createElement('div');
                 translationContainer.className = 'translated-text-block';
                 translationContainer.innerHTML = `
@@ -248,7 +271,6 @@ permalink: /live/
                     <div style="line-height:1.6;">${transBody.replace(/\n/g, '<br>')}</div>
                 `;
 
-                // Insert it inside the post body wrapper or right after it
                 contentDiv.appendChild(translationContainer);
                 
                 // Restore button opacity
