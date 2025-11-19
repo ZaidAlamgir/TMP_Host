@@ -12,6 +12,22 @@ const PATHS = {
     NEWS_HUB: '/news/hub/'
 };
 
+// --- HELPER: FINISH LOADING ANIMATION (For Turbo Transitions) ---
+function completeLoadingAnimation() {
+    const bar = document.getElementById('android_progress_bar');
+    if (bar) {
+        bar.style.width = '100%';
+        // Short delay to let 100% register visually, then fade
+        setTimeout(() => {
+            bar.style.opacity = '0';
+            bar.style.transition = 'width 0.2s ease-out, opacity 0.3s ease 0.1s';
+            setTimeout(() => { 
+                if (bar.parentElement) bar.parentElement.removeChild(bar); 
+            }, 500);
+        }, 100);
+    }
+}
+
 // --- HELPER: GENERATE USER COLOR ---
 function generateColorForUser(userId) {
     const colors = ['#e53935', '#d81b60', '#8e24aa', '#5e35b1', '#3949ab', '#1e88e5', '#039be5', '#00acc1', '#00897b', '#43a047', '#7cb342', '#c0ca33', '#ffb300', '#fb8c00', '#f4511e', '#6d4c41', '#757575', '#546e7a'];
@@ -26,7 +42,8 @@ function generateColorForUser(userId) {
     return colors[index];
 }
 
-// --- HELPER: DROPDOWN HTML ---
+// ... [KEEP ALL YOUR DROPDOWN AND PROFILE HELPERS HERE AS THEY WERE] ...
+// (I am omitting the middle helper functions to save space, PASTE THEM BACK HERE)
 function generateCategoryDropdownHTML() {
     const categories = [
         { name: "World Politics", tag: "world-politics" },
@@ -50,7 +67,6 @@ function generateCategoryDropdownHTML() {
     return dropdownHTML;
 }
 
-// --- HELPER: Update Profile UI State (No Re-render) ---
 function updateProfileUI(user) {
     const isUserLoggedIn = !!user;
     const loginIconSvg = document.getElementById('login-icon-svg');
@@ -59,18 +75,14 @@ function updateProfileUI(user) {
     const profilePicImg = document.getElementById('profile-pic-img');
     const userLink = document.querySelector('.header-right .user-icon-link');
 
-    // Update Link HREF if element exists
     if (userLink) {
         userLink.href = isUserLoggedIn ? PATHS.PROFILE : PATHS.AUTH;
     }
 
     if (isUserLoggedIn && user) {
-        // Hide Login Icon
         if (loginIconSvg) loginIconSvg.style.display = 'none';
-        // Show Profile Container
         if (profilePicContainer) profilePicContainer.style.display = 'flex';
 
-        // Handle Avatar Image vs Initial
         if (user.photoURL) {
             if (profilePicImg) {
                 profilePicImg.src = user.photoURL;
@@ -87,27 +99,24 @@ function updateProfileUI(user) {
             }
         }
     } else {
-        // Show Login Icon
         if (loginIconSvg) loginIconSvg.style.display = 'block';
-        // Hide Profile Container
         if (profilePicContainer) profilePicContainer.style.display = 'none';
     }
 }
+// ... [END OF HELPERS] ...
 
 // --- RENDER FUNCTION: SUPABASE/PUBLIC HEADER ---
 function renderSupabaseHeader(user) {
+    // ... [KEEP YOUR EXACT renderSupabaseHeader CODE HERE] ...
     const headerPlaceholder = document.getElementById('header-placeholder');
     if (!headerPlaceholder) return;
 
-    // SMART CHECK: If the public header already exists, just update the User UI and exit.
     const existingHeader = headerPlaceholder.querySelector('.header');
     if (existingHeader && existingHeader.dataset.headerType === 'public') {
         updateProfileUI(user);
         return; 
     }
 
-    // --- Full Render (Only runs on first load or type switch) ---
-    
     const isUserLoggedIn = !!user;
     const mainIconLink = isUserLoggedIn ? PATHS.PROFILE : PATHS.AUTH;
     const categoryDropdown = generateCategoryDropdownHTML();
@@ -181,20 +190,16 @@ function renderSupabaseHeader(user) {
     `;
 
     headerPlaceholder.innerHTML = supabaseHeaderHTML;
-    
-    // Initial UI Set
     updateProfileUI(user);
-    
-    // Attach listeners newly created elements
     attachMenuLogic(); 
 }
 
 // --- RENDER FUNCTION: WRITER (CMS) HEADER ---
 function renderWriterHeader() {
+    // ... [KEEP YOUR EXACT renderWriterHeader CODE HERE] ...
     const headerPlaceholder = document.getElementById('header-placeholder');
     if (!headerPlaceholder) return;
     
-    // Smart check for Writer Header
     const existingHeader = headerPlaceholder.querySelector('.header');
     if (existingHeader && existingHeader.dataset.headerType === 'writer') return;
 
@@ -275,15 +280,13 @@ function renderWriterHeader() {
         });
     }
 
-    // Attach menu logic
     attachMenuLogic();
 }
 
-// --- MENU LOGIC & SEARCH ---
+// ... [KEEP YOUR EXACT attachMenuLogic CODE HERE] ...
 function attachMenuLogic() {
+    // (Keep your existing attachMenuLogic implementation exactly as is)
     const indexMenuBtn = document.getElementById('index-menu-btn');
-    
-    // Guard: If listener already attached, skip
     if (indexMenuBtn && indexMenuBtn.dataset.listenerAttached === 'true') return;
     
     const indexMenuOverlay = document.getElementById('index-menu-overlay');
@@ -341,7 +344,7 @@ function attachMenuLogic() {
             e.stopPropagation();
             indexMenuBtn.classList.contains('active') ? closeMenu() : openMenu();
         });
-        indexMenuBtn.dataset.listenerAttached = 'true'; // Mark as attached
+        indexMenuBtn.dataset.listenerAttached = 'true';
     }
 
     if (indexMenuOverlay) {
@@ -350,7 +353,6 @@ function attachMenuLogic() {
         });
     }
 
-    // --- FIX: Close menu on ANY main navigation link click ---
     const allNavLinks = document.querySelectorAll('.index-main-nav a');
     allNavLinks.forEach(link => {
          link.addEventListener('click', () => {
@@ -358,7 +360,6 @@ function attachMenuLogic() {
          });
     });
     
-    // --- FIX: Close menu on Search Result Click ---
     if (resultsList) {
         resultsList.addEventListener('click', (e) => {
             if (e.target.closest('a')) {
@@ -388,13 +389,11 @@ function attachMenuLogic() {
         });
     }
     
-    // Logic for links inside dropdown
     const categoryLinks = document.querySelectorAll('.categories-dropdown li a');
     categoryLinks.forEach(link => {
         link.addEventListener('click', () => { closeMenu(); });
     });
 
-    // Android Settings Integration
     const settingsLink = document.getElementById('app-settings-menu-item');
     if (settingsLink && typeof window.AndroidInterface !== 'undefined') {
         settingsLink.addEventListener('click', (event) => {
@@ -406,8 +405,9 @@ function attachMenuLogic() {
         });
     }
 }
+// ... [END OF ATTACHMENULOGIC] ...
 
-// --- SUPABASE AUTH INITIALIZATION ---
+// ... [KEEP YOUR INITIALIZATION LOGIC] ...
 function initializeSupabaseHeader(forceRerender = false) {
     const CACHED_USER_KEY = 'cachedUser';
     let cachedUser = null;
@@ -421,7 +421,6 @@ function initializeSupabaseHeader(forceRerender = false) {
     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; 
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
     
-    // (Auth listener logic ensures updateProfileUI is called on auth change)
     if (window.supabase) {
          const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
          sb.auth.onAuthStateChange((event, session) => {
@@ -443,7 +442,6 @@ function initializeSupabaseHeader(forceRerender = false) {
     }
 }
 
-// --- MAIN EXECUTION ---
 function initHeaderFlow(forceRerender = false) {
     const pathname = window.location.pathname;
     const skipHeaderPages = [PATHS.AUTH, '/auth-callback.html', '/callback.html'];
@@ -465,6 +463,7 @@ function initHeaderFlow(forceRerender = false) {
 
 document.addEventListener('turbo:load', function() {
     initHeaderFlow();
+    completeLoadingAnimation(); // <--- NEW: FORCE ANIMATION COMPLETION
 });
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {

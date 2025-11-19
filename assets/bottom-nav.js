@@ -8,34 +8,59 @@
         feedUrl: 'https://data.tmpnews.com/feed.json'
     };
 
+    // --- NEW: MANUAL LOADER TRIGGER (INSTANT FEEDBACK) ---
+    function triggerLoader() {
+        var header = document.querySelector('.header');
+        // Fallback to header tag if class not found
+        if (!header) header = document.getElementsByTagName('header')[0];
+        
+        if (header) {
+            var bar = document.getElementById('android_progress_bar');
+            
+            // If bar doesn't exist, create it (Just like Android Code)
+            if (!bar) {
+                bar = document.createElement('div');
+                bar.id = 'android_progress_bar';
+                // EXACT SAME STYLE AS KOTLIN CODE:
+                bar.style.cssText = 'height:6px; width:0%; background-color:#0073e6; position:absolute; bottom:0; left:0; transition:width 0.2s ease; z-index:9999; box-shadow: 0px -2px 6px rgba(0,115,230,0.5);';
+                
+                var headerPos = window.getComputedStyle(header).position;
+                if (headerPos === 'static') { header.style.position = 'relative'; }
+                header.appendChild(bar);
+            }
+
+            // Force browser repaint
+            void bar.offsetWidth; 
+
+            // Animate to 20% immediately to show "Processing"
+            // The Android WebChromeClient will take over updating this value as data arrives
+            bar.style.width = '20%';
+        }
+    }
+
     // 1. GET ACTIVE LINK BASED ON URL
     function highlightActiveLink() {
         const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
         const links = document.querySelectorAll('.bottom-nav-link');
         let matchFound = false;
 
-        // Reset all links
         links.forEach(l => l.classList.remove(CONFIG.activeClass));
 
-        // Logic to find the active link
         links.forEach(link => {
             if (matchFound) return;
             const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, "") || "/";
             
-            // Exact match or Parent match (e.g. /news/hub/section -> /news/hub)
             if (linkPath === currentPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
                 link.classList.add(CONFIG.activeClass);
                 matchFound = true;
             }
         });
 
-        // Fallback to Home if no match found
         if (!matchFound) {
              const homeLink = document.getElementById('nav-home');
              if (homeLink) homeLink.classList.add(CONFIG.activeClass);
         }
 
-        // Pass 'true' to indicate this is the initial page load
         updateGlider(true); 
     }
 
@@ -51,22 +76,18 @@
             const linkRect = activeLink.getBoundingClientRect();
             const navRect = nav.getBoundingClientRect();
 
-            // Calculate Position
             const relativeLeft = linkRect.left - navRect.left;
-            const newWidth = linkRect.width * 0.7; // 70% width of the icon area
-            const offset = (linkRect.width - newWidth) / 2; // Center it
+            const newWidth = linkRect.width * 0.7; 
+            const offset = (linkRect.width - newWidth) / 2; 
 
-            // Apply styles
             glider.style.width = `${newWidth}px`;
             glider.style.left = `${relativeLeft + offset}px`;
             glider.style.opacity = '1';
 
-            // THE FIX: Prevent "swimming" effect on load
             if (isInitialLoad) {
-                glider.classList.remove('ready'); // Disable transition temporarily
-                void glider.offsetWidth; // Force browser to paint position immediately
+                glider.classList.remove('ready'); 
+                void glider.offsetWidth; 
                 
-                // Re-enable transition for future clicks
                 requestAnimationFrame(() => {
                     glider.classList.add('ready');
                 });
@@ -78,10 +99,13 @@
     document.addEventListener('click', (e) => {
         const link = e.target.closest('.bottom-nav-link');
         if (link) {
-            // Visually update immediately (don't wait for page load)
+            // 1. Trigger the visual loader immediately
+            triggerLoader();
+
+            // 2. Update Bottom Nav UI
             document.querySelectorAll('.bottom-nav-link').forEach(l => l.classList.remove(CONFIG.activeClass));
             link.classList.add(CONFIG.activeClass);
-            updateGlider(false); // false = animate this movement normally
+            updateGlider(false); 
         }
     });
 
@@ -92,7 +116,6 @@
         document.addEventListener('DOMContentLoaded', highlightActiveLink);
     }
     
-    // Handle Browser Back/Forward buttons
     window.addEventListener('popstate', highlightActiveLink);
 
 })();
