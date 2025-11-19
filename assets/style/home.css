@@ -4,11 +4,12 @@ body {
     background-color: #ffffff; /* A clean white background */
 }
 
-/* --- Animation Utility --- */
 .reveal-on-scroll {
     opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(20px); /* Reduced movement distance for less work */
+    /* Changed duration from 0.8s to 0.4s */
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    will-change: opacity, transform; /* Hints browser to optimize rendering */
 }
 
 .reveal-on-scroll.is-visible {

@@ -36,8 +36,9 @@ permalink: /news/hub/
         color: inherit; 
         display: flex; 
         flex-direction: column;
+        /* Optimized transitions */
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        /* No default animation to prevent flashing on cache load */
+        will-change: transform; /* Performance Hint for Browser */
     }
 
     /* Only animate when specifically requested (new content) */
@@ -182,21 +183,16 @@ document.addEventListener('turbo:load', async () => {
         // IMPORTANT: Build HTML string first
         const newHTML = buildCardsHTML(filtered, animate);
         
-        // ONLY update DOM if content is different to prevent flicker
-        // We check the length roughly or a specific data attribute if strict diffing is needed.
-        // For stability, replacing innerHTML is fine IF it's not empty clearing first.
         grid.innerHTML = newHTML;
     }
 
     // --- STABLE LOADING LOGIC ---
 
     // 1. Check if Turbo already restored the content
-    // If the grid has children, it means we navigated back and Turbo restored the page.
-    // In this case, WE DO NOTHING visually. Zero flicker.
     if (grid.childElementCount > 0) {
         console.log("Content restored by Turbo. Skipping initial render.");
     } else {
-        // 2. If empty, try LocalStorage
+        // 2. If empty, try LocalStorage (Instant Load)
         const cachedData = localStorage.getItem(CACHE_KEY);
         if (cachedData) {
             try {
@@ -212,40 +208,42 @@ document.addEventListener('turbo:load', async () => {
         }
     }
 
-    // 4. Background Update (Always runs to check for new posts)
-    try {
-        const response = await fetch('/search.json');
-        if (!response.ok) throw new Error('Network error');
-        
-        const freshArticles = await response.json();
-        
-        // 5. Smart Compare
-        // We simply check if the top article's URL has changed.
-        // If it's the same, we assume no major update is needed -> NO RENDER -> NO FLICKER.
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        const cachedArticles = cachedData ? JSON.parse(cachedData) : [];
-        
-        const isNewContent = !cachedData || 
-                             freshArticles.length !== cachedArticles.length || 
-                             (freshArticles[0] && cachedArticles[0] && freshArticles[0].url !== cachedArticles[0].url);
+    // 4. Background Update (Optimized with setTimeout)
+    // This small delay (100ms) allows the page transition animation to finish 
+    // BEFORE the browser freezes to parse the potentially large JSON file.
+    setTimeout(async () => {
+        try {
+            const response = await fetch('/search.json');
+            if (!response.ok) throw new Error('Network error');
+            
+            const freshArticles = await response.json();
+            
+            // 5. Smart Compare
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            const cachedArticles = cachedData ? JSON.parse(cachedData) : [];
+            
+            const isNewContent = !cachedData || 
+                                 freshArticles.length !== cachedArticles.length || 
+                                 (freshArticles[0] && cachedArticles[0] && freshArticles[0].url !== cachedArticles[0].url);
 
-        if (isNewContent) {
-            console.log("New content detected. Updating...");
-            localStorage.setItem(CACHE_KEY, JSON.stringify(freshArticles));
-            // This is a real update, so we allow animation
-            updateUI(freshArticles, true);
-        } else {
-            console.log("Content up to date. No re-render.");
+            if (isNewContent) {
+                console.log("New content detected. Updating...");
+                localStorage.setItem(CACHE_KEY, JSON.stringify(freshArticles));
+                // This is a real update, so we allow animation
+                updateUI(freshArticles, true);
+            } else {
+                console.log("Content up to date. No re-render.");
+            }
+            
+        } catch (error) {
+            console.error("Background update failed:", error);
+            if (grid.childElementCount === 0) {
+                noResultsMsg.textContent = "Could not load articles.";
+                noResultsMsg.style.display = 'block';
+            }
+        } finally {
+            loader.classList.remove('visible');
         }
-        
-    } catch (error) {
-        console.error("Background update failed:", error);
-        if (grid.childElementCount === 0) {
-            noResultsMsg.textContent = "Could not load articles.";
-            noResultsMsg.style.display = 'block';
-        }
-    } finally {
-        loader.classList.remove('visible');
-    }
+    }, 100); // <-- CRITICAL FIX: 100ms delay
 });
 </script>

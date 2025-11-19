@@ -207,40 +207,48 @@ permalink: /latest.html
                 {% endif %}
 
                 {{ latest_post.content | markdownify }}
-            </div> <script>
+            </div> 
+            <script>
+            // OPTIMIZATION: Wrapped in requestAnimationFrame to avoid blocking main thread during navigation
             document.addEventListener('turbo:load', () => {
-                const articleBody = document.querySelector('.article-body');
-                if (!articleBody) return;
+                requestAnimationFrame(() => {
+                    const articleBody = document.querySelector('.article-body');
+                    if (!articleBody) return;
 
-                const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
-                
-                images.forEach((img, index) => {
-                    if (img.closest('figure')) return;
+                    const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
+                    
+                    images.forEach((img, index) => {
+                        if (img.closest('figure')) return;
 
-                    const altText = img.getAttribute('alt');
-                    const hasMeaningfulAlt = altText && altText.trim() !== '' && altText.toLowerCase() !== 'article image' && altText.toLowerCase() !== 'image';
-                    const needsWrapping = img.parentElement && img.parentElement.tagName !== 'FIGURE';
+                        const altText = img.getAttribute('alt');
+                        const hasMeaningfulAlt = altText && altText.trim() !== '' && altText.toLowerCase() !== 'article image' && altText.toLowerCase() !== 'image';
+                        const needsWrapping = img.parentElement && img.parentElement.tagName !== 'FIGURE';
 
-                     if (needsWrapping) {
-                        const figure = document.createElement('figure');
-                        figure.classList.add('article-figure');
-                        const clonedImg = img.cloneNode(true);
-                        figure.appendChild(clonedImg);
+                        if (needsWrapping) {
+                            const figure = document.createElement('figure');
+                            figure.classList.add('article-figure');
+                            const clonedImg = img.cloneNode(true);
+                            
+                            // Optimization: Lazy load these images
+                            clonedImg.setAttribute('loading', 'lazy');
+                            
+                            figure.appendChild(clonedImg);
 
-                        if (hasMeaningfulAlt) {
-                            const figcaption = document.createElement('figcaption');
-                            figcaption.classList.add('article-image-caption');
-                            figcaption.textContent = altText;
-                            figure.appendChild(figcaption);
+                            if (hasMeaningfulAlt) {
+                                const figcaption = document.createElement('figcaption');
+                                figcaption.classList.add('article-image-caption');
+                                figcaption.textContent = altText;
+                                figure.appendChild(figcaption);
+                            }
+
+                            const parent = img.parentElement;
+                            if (parent && parent.tagName === 'P' && parent.children.length === 1 && parent.childNodes.length === 1) {
+                                parent.parentNode.replaceChild(figure, parent);
+                            } else {
+                                img.parentNode.replaceChild(figure, img);
+                            }
                         }
-
-                        const parent = img.parentElement;
-                        if (parent && parent.tagName === 'P' && parent.children.length === 1 && parent.childNodes.length === 1) {
-                            parent.parentNode.replaceChild(figure, parent);
-                        } else {
-                             img.parentNode.replaceChild(figure, img);
-                        }
-                    }
+                    });
                 });
             });
             </script>
@@ -248,7 +256,9 @@ permalink: /latest.html
     {% else %}
         <p style="text-align: center;">No posts have been published yet.</p>
     {% endif %}
-</div> <script> // Share Script
+</div> 
+
+<script> // Share Script
 document.addEventListener('turbo:load', () => {
     const shareButton = document.getElementById('native-share-button');
 
@@ -282,48 +292,51 @@ document.addEventListener('turbo:load', () => {
 </script>
 
 <script> // Embed Script
+// OPTIMIZATION: Wrapped in requestAnimationFrame
 document.addEventListener('turbo:load', () => {
-    const articleBody = document.querySelector('.article-body');
-    if (!articleBody) return;
+    requestAnimationFrame(() => {
+        const articleBody = document.querySelector('.article-body');
+        if (!articleBody) return;
 
-    articleBody.querySelectorAll('p > a:only-child').forEach(link => {
-        const match = link.textContent.match(/^\[(\w+[-\w]*)\|?(.*)\]$/);
+        articleBody.querySelectorAll('p > a:only-child').forEach(link => {
+            const match = link.textContent.match(/^\[(\w+[-\w]*)\|?(.*)\]$/);
 
-        if (match) {
-            const platform = match[1].toLowerCase();
-            const caption = match[2];
-            const url = link.href;
-            let embedHtml = '';
+            if (match) {
+                const platform = match[1].toLowerCase();
+                const caption = match[2];
+                const url = link.href;
+                let embedHtml = '';
 
-            switch (platform) {
-                case 'youtube':
-                    const videoId = new URL(url).searchParams.get('v');
-                    if (videoId) {
-                        embedHtml = `<div class="embed-container"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+                switch (platform) {
+                    case 'youtube':
+                        const videoId = new URL(url).searchParams.get('v');
+                        if (videoId) {
+                            embedHtml = `<div class="embed-container"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+                        }
+                        break;
+                    case 'twitter':
+                    case 'twitter-video':
+                        embedHtml = `<blockquote class="twitter-tweet"><a href="${url}"></a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"><\/script>`;
+                        break;
+                }
+
+                if (embedHtml) {
+                    const container = document.createElement('div');
+                    container.innerHTML = embedHtml;
+                    if (caption) {
+                        const captionEl = document.createElement('p');
+                        captionEl.className = 'embed-caption';
+                        captionEl.textContent = caption;
+                        container.appendChild(captionEl);
                     }
-                    break;
-                case 'twitter':
-                case 'twitter-video':
-                     embedHtml = `<blockquote class="twitter-tweet"><a href="${url}"></a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"><\/script>`;
-                    break;
-            }
-
-            if (embedHtml) {
-                const container = document.createElement('div');
-                container.innerHTML = embedHtml;
-                if (caption) {
-                    const captionEl = document.createElement('p');
-                    captionEl.className = 'embed-caption';
-                    captionEl.textContent = caption;
-                    container.appendChild(captionEl);
-                }
-                if (link.parentElement && link.parentElement.tagName === 'P') {
-                     link.parentElement.parentNode.replaceChild(container, link.parentElement);
-                } else {
-                     link.parentNode.replaceChild(container, link);
+                    if (link.parentElement && link.parentElement.tagName === 'P') {
+                        link.parentElement.parentNode.replaceChild(container, link.parentElement);
+                    } else {
+                        link.parentNode.replaceChild(container, link);
+                    }
                 }
             }
-        }
+        });
     });
 });
 </script>

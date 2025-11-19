@@ -76,13 +76,13 @@
             position: relative;
             z-index: 2;
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: color 0.1s ease; /* Faster color transition */
             user-select: none;
         }
         .bottom-nav-link svg {
             width: 24px; height: 24px;
             margin-bottom: 4px;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.3s ease;
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.1s ease;
             stroke-width: 2px;
         }
         .bottom-nav-link.active { color: #0073e6; }
@@ -91,38 +91,11 @@
             transform: translateY(-2px);
         }
         
-        /* Stabilized Glider Animation */
-        .nav-glider {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            height: 40px;
-            width: 0;
-            background-color: #e7f3ff;
-            border-radius: 12px;
-            transform: translateY(-50%);
-            z-index: 1;
-            opacity: 0; /* Hidden by default until JS positions it */
-            pointer-events: none;
-            will-change: left, width;
-            /* NO TRANSITION here. This stops the "slide from zero" glitch. */
-        }
-
-        .nav-glider.ready {
-            /* Only animate when the .ready class is added by JS */
-            transition: left 0.25s cubic-bezier(0.2, 0.6, 0.2, 1), 
-                        width 0.25s cubic-bezier(0.2, 0.6, 0.2, 1),
-                        opacity 0.2s ease;
-        }
-
         /* Dark Mode Support */
         html.dark-mode .bottom-nav {
             background-color: #1f2937;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
             border-top: 1px solid #374151;
-        }
-        html.dark-mode .nav-glider {
-            background-color: rgba(96, 165, 250, 0.15);
         }
     </style>
 
@@ -141,7 +114,6 @@
     {% include site-footer.html %}  
     
     <nav class="bottom-nav" id="bottom-nav" data-turbo-permanent>
-        <div class="nav-glider"></div>
         <a href="{{ '/live/' | relative_url }}" class="bottom-nav-link" id="nav-live">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path><circle cx="12" cy="12" r="2"></circle><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"></path></svg>
             <span>Live</span>

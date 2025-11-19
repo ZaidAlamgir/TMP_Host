@@ -29,8 +29,9 @@ title: Home - The Muslim Post
 <main class="home-main" style="flex-grow: 1;">
     {% if latest_post %}
     <section class="top-story-section">
-        <a href="{{ latest_post.url | relative_url }}" class="top-story-card reveal-on-scroll">
+        <a href="{{ latest_post.url | relative_url }}" class="top-story-card">
             <div class="top-story-image-wrapper">
+                {% comment %} Top story image stays eager for LCP {% endcomment %}
                 <img src="{{ latest_post.image | default: 'https://placehold.co/1200x800/e2e8f0/64748b?text=Image+Not+Available' }}" alt="{{ latest_post.image_description | default: 'Top story image' | escape }}">
             </div>
             <div class="top-story-text">
@@ -48,13 +49,13 @@ title: Home - The Muslim Post
     <div class="content-wrapper">
         <hr class="section-divider">
 
-        <section class="content-section news-section reveal-on-scroll">
+        <section class="content-section news-section">
             <h2 class="section-title">In the News</h2>
             <p class="section-subtitle">Stay updated with the latest trends, research, and important discussions.</p>
             <div class="news-grid-full">
                 <a href="{{ '/news/hub/' | relative_url }}?tag=world-politics" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/3498db/ffffff?text=World+Politics" alt="World Politics" class="news-card-image">
+                        <img src="https://placehold.co/600x400/3498db/ffffff?text=World+Politics" alt="World Politics" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">World Politics</h3>
@@ -63,7 +64,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=indian-politics" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/f1c40f/ffffff?text=Indian+Politics" alt="Indian Politics" class="news-card-image">
+                        <img src="https://placehold.co/600x400/f1c40f/ffffff?text=Indian+Politics" alt="Indian Politics" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Indian Politics</h3>
@@ -72,7 +73,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=muslim-world" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/2ecc71/ffffff?text=Muslim+World" alt="Muslim World" class="news-card-image">
+                        <img src="https://placehold.co/600x400/2ecc71/ffffff?text=Muslim+World" alt="Muslim World" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Muslim World</h3>
@@ -81,7 +82,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=technology" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/9b59b6/ffffff?text=Technology" alt="Technology" class="news-card-image">
+                        <img src="https://placehold.co/600x400/9b59b6/ffffff?text=Technology" alt="Technology" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Technology</h3>
@@ -90,7 +91,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=medical-science" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/e74c3c/ffffff?text=Medical+Science" alt="Medical Science" class="news-card-image">
+                        <img src="https://placehold.co/600x400/e74c3c/ffffff?text=Medical+Science" alt="Medical Science" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Medical Science</h3>
@@ -99,7 +100,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=global-economy" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/1abc9c/ffffff?text=Global+Economy" alt="Global Economy" class="news-card-image">
+                        <img src="https://placehold.co/600x400/1abc9c/ffffff?text=Global+Economy" alt="Global Economy" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Global Economy</h3>
@@ -108,7 +109,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=art-culture" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/e67e22/ffffff?text=Art+%26+Culture" alt="Art & Culture" class="news-card-image">
+                        <img src="https://placehold.co/600x400/e67e22/ffffff?text=Art+%26+Culture" alt="Art & Culture" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Art & Culture</h3>
@@ -118,7 +119,7 @@ title: Home - The Muslim Post
 
                 <a href="{{ '/news/hub/' | relative_url }}?tag=weather" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/8e44ad/ffffff?text=Weather" alt="Weather" class="news-card-image">
+                        <img src="https://placehold.co/600x400/8e44ad/ffffff?text=Weather" alt="Weather" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Weather</h3>
@@ -127,7 +128,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=sports" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/27ae60/ffffff?text=Sports" alt="Sports" class="news-card-image">
+                        <img src="https://placehold.co/600x400/27ae60/ffffff?text=Sports" alt="Sports" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">Sports</h3>
@@ -136,7 +137,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=national-news" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/c0392b/ffffff?text=National+News" alt="National News" class="news-card-image">
+                        <img src="https://placehold.co/600x400/c0392b/ffffff?text=National+News" alt="National News" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">National News</h3>
@@ -145,7 +146,7 @@ title: Home - The Muslim Post
                 </a>
                 <a href="{{ '/news/hub/' | relative_url }}?tag=international-news" class="news-card">
                     <div class="news-card-image-wrapper">
-                        <img src="https://placehold.co/600x400/34495e/ffffff?text=International+News" alt="International News" class="news-card-image">
+                        <img src="https://placehold.co/600x400/34495e/ffffff?text=International+News" alt="International News" class="news-card-image" loading="lazy">
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">International News</h3>

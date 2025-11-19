@@ -12,19 +12,18 @@ const PATHS = {
     NEWS_HUB: '/news/hub/'
 };
 
-// --- HELPER: FINISH LOADING ANIMATION (For Turbo Transitions) ---
+// --- HELPER: FINISH LOADING ANIMATION (Optimized) ---
 function completeLoadingAnimation() {
     const bar = document.getElementById('android_progress_bar');
     if (bar) {
         bar.style.width = '100%';
-        // Short delay to let 100% register visually, then fade
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             bar.style.opacity = '0';
-            bar.style.transition = 'width 0.2s ease-out, opacity 0.3s ease 0.1s';
+            bar.style.transition = 'width 0.2s ease-out, opacity 0.2s ease';
             setTimeout(() => { 
                 if (bar.parentElement) bar.parentElement.removeChild(bar); 
-            }, 500);
-        }, 100);
+            }, 250);
+        });
     }
 }
 
@@ -42,8 +41,6 @@ function generateColorForUser(userId) {
     return colors[index];
 }
 
-// ... [KEEP ALL YOUR DROPDOWN AND PROFILE HELPERS HERE AS THEY WERE] ...
-// (I am omitting the middle helper functions to save space, PASTE THEM BACK HERE)
 function generateCategoryDropdownHTML() {
     const categories = [
         { name: "World Politics", tag: "world-politics" },
@@ -103,11 +100,9 @@ function updateProfileUI(user) {
         if (profilePicContainer) profilePicContainer.style.display = 'none';
     }
 }
-// ... [END OF HELPERS] ...
 
 // --- RENDER FUNCTION: SUPABASE/PUBLIC HEADER ---
 function renderSupabaseHeader(user) {
-    // ... [KEEP YOUR EXACT renderSupabaseHeader CODE HERE] ...
     const headerPlaceholder = document.getElementById('header-placeholder');
     if (!headerPlaceholder) return;
 
@@ -144,7 +139,7 @@ function renderSupabaseHeader(user) {
                             <defs><filter id="glow"><feGaussianBlur stdDeviation="3.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
-                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2"/>
                         </svg>
                         <span class="logo-text">The Muslim Post</span>
                     </a>
@@ -174,7 +169,7 @@ function renderSupabaseHeader(user) {
                         <svg class="menu-home-logo" viewBox="0 0 200 200" aria-hidden="true">
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
-                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="4" class="rotating-circle"/>
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="4"/>
                         </svg>
                     </a>
                     <div class="nav-item-dropdown"> <span class="dropdown-toggle">Articles</span>
@@ -196,7 +191,6 @@ function renderSupabaseHeader(user) {
 
 // --- RENDER FUNCTION: WRITER (CMS) HEADER ---
 function renderWriterHeader() {
-    // ... [KEEP YOUR EXACT renderWriterHeader CODE HERE] ...
     const headerPlaceholder = document.getElementById('header-placeholder');
     if (!headerPlaceholder) return;
     
@@ -228,7 +222,7 @@ function renderWriterHeader() {
                             <defs><filter id="glow"><feGaussianBlur stdDeviation="3.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
-                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2" class="rotating-circle"/>
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="2"/>
                         </svg>
                         <span class="logo-text">The Muslim Post</span>
                     </a>
@@ -254,7 +248,7 @@ function renderWriterHeader() {
                         <svg class="menu-home-logo" viewBox="0 0 200 200" aria-hidden="true">
                             <rect x="50" y="50" width="100" height="100" fill="#3498db" class="square"/>
                             <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text>
-                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="4" class="rotating-circle"/>
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="#3498db" stroke-width="4"/>
                         </svg>
                     </a>
                     <div class="nav-item-dropdown"> <span class="dropdown-toggle">Articles</span>
@@ -283,9 +277,7 @@ function renderWriterHeader() {
     attachMenuLogic();
 }
 
-// ... [KEEP YOUR EXACT attachMenuLogic CODE HERE] ...
 function attachMenuLogic() {
-    // (Keep your existing attachMenuLogic implementation exactly as is)
     const indexMenuBtn = document.getElementById('index-menu-btn');
     if (indexMenuBtn && indexMenuBtn.dataset.listenerAttached === 'true') return;
     
@@ -405,9 +397,7 @@ function attachMenuLogic() {
         });
     }
 }
-// ... [END OF ATTACHMENULOGIC] ...
 
-// ... [KEEP YOUR INITIALIZATION LOGIC] ...
 function initializeSupabaseHeader(forceRerender = false) {
     const CACHED_USER_KEY = 'cachedUser';
     let cachedUser = null;
@@ -461,13 +451,14 @@ function initHeaderFlow(forceRerender = false) {
     }
 }
 
+// No Delays
 document.addEventListener('turbo:load', function() {
     initHeaderFlow();
-    completeLoadingAnimation(); // <--- NEW: FORCE ANIMATION COMPLETION
+    completeLoadingAnimation(); 
 });
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-   setTimeout(() => initHeaderFlow(), 50);
+   initHeaderFlow(); 
 } else {
    document.addEventListener('DOMContentLoaded', () => initHeaderFlow());
 }

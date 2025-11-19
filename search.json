@@ -9,9 +9,9 @@ layout: null
       "date": {{ post.date | date_to_string | jsonify }},
       "tags": {{ post.tags | join: ', ' | downcase | jsonify }},
       "subheadline": {{ post.subheadline | jsonify }},
-      "content": {{ post.content | strip_html | normalize_whitespace | jsonify }},
       "image": {{ post.image | relative_url | jsonify }},
       "image_description": {{ post.image_description | jsonify }}
+      {% comment %} REMOVED "content" to fix performance lag {% endcomment %}
     }
     {% unless forloop.last %},{% endunless %}
   {% endfor %}
