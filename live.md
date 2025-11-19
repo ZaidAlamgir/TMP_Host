@@ -291,6 +291,8 @@ permalink: /live/
                         btns.style.opacity = '1';
                         btns.style.pointerEvents = 'auto';
                     }
+                    // IMPORTANT: We clear the ID here to signify the END of the whole process
+                    window.currentTranslatingPostId = null;
                 }
             }
         }
@@ -340,7 +342,8 @@ permalink: /live/
                 const controls = postElement.querySelector('.live-translation-controls');
                 if(controls) controls.style.opacity = '1';
             }
-            window.currentTranslatingPostId = null;
+            // NOTE: We DO NOT clear window.currentTranslatingPostId here anymore.
+            // We wait for updateTranslationProgress(false) to do it.
         }
     };
     // --- END: TRANSLATION LOGIC ---
