@@ -105,6 +105,7 @@ permalink: /live/
         margin-top: 1.5rem; /* Spacing above the buttons (below content) */
         margin-bottom: 0.5rem; /* Spacing below the buttons (above footer) */
         padding-top: 0.5rem;
+        border-top: 1px dashed #e5e7eb;
     }
     .translate-chip-btn {
         background-color: #f0fdf4;
@@ -138,6 +139,13 @@ permalink: /live/
         color: #1e293b;
         animation: fadeIn 0.4s ease;
     }
+    .translated-headline {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
     @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 </style>
 
@@ -165,6 +173,9 @@ permalink: /live/
     // --- START: GLOBAL TRANSLATION LOGIC FOR ANDROID ---
     // These functions must be global (on window) so they persist and can be called by the Android Interface
     window.currentTranslatingPostId = null;
+    
+    // Define a token to separate headline and body text during translation
+    const SEPARATOR_TOKEN = " <<<HEADLINE_END>>> ";
 
     window.requestLivePostTranslation = function(postId, lang) {
         if (window.currentTranslatingPostId) {
@@ -182,12 +193,19 @@ permalink: /live/
                 const controls = postElement.querySelector('.live-translation-controls');
                 if(controls) controls.style.opacity = '0.5';
 
-                // Get the text content of the post
+                // Get Headline
+                const headlineEl = postElement.querySelector('.live-post-headline');
+                const headlineText = headlineEl ? headlineEl.innerText : "";
+
+                // Get Body Text
                 const contentDiv = postElement.querySelector('.post-body');
-                const textToTranslate = contentDiv.innerText;
+                const bodyText = contentDiv.innerText;
+                
+                // Combine them so we can translate both in one go
+                const combinedText = headlineText + SEPARATOR_TOKEN + bodyText;
                 
                 // Send to Android
-                window.AndroidTranslator.requestTranslation(textToTranslate, lang);
+                window.AndroidTranslator.requestTranslation(combinedText, lang);
             }
         } else {
             console.log("Android Translator Interface not found.");
@@ -201,13 +219,37 @@ permalink: /live/
             if (postElement) {
                 const contentDiv = postElement.querySelector('.post-body');
                 
-                // Replace content with a styled translation block
-                contentDiv.innerHTML = `
-                    <div class="translated-text-block">
-                        <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#3b82f6; margin-bottom:4px;">Translated Content</div>
-                        ${translatedText.replace(/\n/g, '<br>')}
-                    </div>
+                // 1. Remove any existing translation to avoid duplicates
+                const existingTrans = postElement.querySelector('.translated-text-block');
+                if (existingTrans) existingTrans.remove();
+
+                // 2. Split the translated text back into Headline and Body
+                let transHeadline = "";
+                let transBody = translatedText;
+
+                if (translatedText.includes("<<<HEADLINE_END>>>")) {
+                    const parts = translatedText.split("<<<HEADLINE_END>>>");
+                    transHeadline = parts[0].trim();
+                    transBody = parts[1].trim();
+                } else if (translatedText.includes("HEADLINE_END")) {
+                    // Fallback if ML model messed up the brackets
+                    const parts = translatedText.split("HEADLINE_END");
+                    transHeadline = parts[0].trim();
+                    transBody = parts[1].trim();
+                }
+
+                // 3. Create the translation container
+                // We append it AFTER the original content div, effectively showing both.
+                const translationContainer = document.createElement('div');
+                translationContainer.className = 'translated-text-block';
+                translationContainer.innerHTML = `
+                    <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#3b82f6; margin-bottom:8px;">Translated Content</div>
+                    <div class="translated-headline">${transHeadline}</div>
+                    <div style="line-height:1.6;">${transBody.replace(/\n/g, '<br>')}</div>
                 `;
+
+                // Insert it inside the post body wrapper or right after it
+                contentDiv.appendChild(translationContainer);
                 
                 // Restore button opacity
                 const controls = postElement.querySelector('.live-translation-controls');
@@ -547,10 +589,10 @@ permalink: /live/
             // The 'app-only-feature' class ensures it is display:none unless 'android-app-view' is on body
             const translationButtonsHTML = `
                 <div class="live-translation-controls app-only-feature">
-                    <button class="translate-chip-btn hindi" onclick="requestLivePostTranslation(${postData.id}, 'hi')">
+                    <button class="translate-chip-btn hindi" onclick="requestLivePostTranslation('${postData.id}', 'hi')">
                         <i class="fas fa-language"></i> Hindi
                     </button>
-                    <button class="translate-chip-btn" onclick="requestLivePostTranslation(${postData.id}, 'ur')">
+                    <button class="translate-chip-btn" onclick="requestLivePostTranslation('${postData.id}', 'ur')">
                         <i class="fas fa-language"></i> Urdu
                     </button>
                 </div>
@@ -571,7 +613,7 @@ permalink: /live/
                     ${tagsHTML}
                     <div class="post-body pt-4">${parseContent(postData.content)}</div>
                     
-                    <!-- TRANSLATION BUTTONS MOVED HERE -->
+                    <!-- TRANSLATION BUTTONS MOVED HERE (Above Footer) -->
                     ${translationButtonsHTML}
 
                     <div class="post-footer">
