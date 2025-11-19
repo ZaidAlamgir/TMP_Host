@@ -94,7 +94,7 @@ permalink: /live/
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* --- NEW: Translation Styles --- */
-    /* CRITICAL: Hidden by default. Use !important to prevent any override unless specifically targeted. */
+    /* CRITICAL: Hidden by default. Use !important to prevent any override unless specifcally targeted. */
     .app-only-feature { display: none !important; }
     
     /* Revealed ONLY if body has 'android-app-view' class */
@@ -146,6 +146,40 @@ permalink: /live/
         margin-bottom: 0.5rem;
         line-height: 1.3;
     }
+    
+    /* --- NEW: Translation Loading Bar --- */
+    .translation-progress-container {
+        display: none; /* Hidden by default */
+        margin: 10px 0;
+        width: 100%;
+        background-color: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+        height: 6px;
+    }
+    
+    .translation-progress-bar {
+        height: 100%;
+        width: 50%;
+        background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
+        background-size: 200% 100%;
+        border-radius: 4px;
+        animation: loading-indeterminate 1.5s infinite linear;
+    }
+    
+    @keyframes loading-indeterminate {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(200%); }
+    }
+    
+    .processing-text {
+        display: none;
+        font-size: 0.75rem;
+        color: #64748b;
+        font-style: italic;
+        margin-bottom: 4px;
+    }
+
     @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 </style>
 
@@ -175,7 +209,7 @@ permalink: /live/
     window.currentTranslatingPostId = null;
     
     // Define a token to separate headline and body text during translation
-    // Using a token less likely to be treated as a translatable phrase
+    // Using a token less likely to be treated as a translatable phrase or punctuation
     const SEPARATOR_TOKEN = "|||||"; 
 
     window.requestLivePostTranslation = function(postId, lang) {
@@ -234,6 +268,34 @@ permalink: /live/
         }
     };
 
+    // Handle Loading State from Android
+    window.updateTranslationProgress = function(isProcessing) {
+        if (window.currentTranslatingPostId) {
+            const postElement = document.getElementById(`post-${window.currentTranslatingPostId}`);
+            if (postElement) {
+                const progressBar = postElement.querySelector('.translation-progress-container');
+                const processingText = postElement.querySelector('.processing-text');
+                const btns = postElement.querySelector('.live-translation-controls');
+                
+                if (isProcessing) {
+                    if (progressBar) progressBar.style.display = 'block';
+                    if (processingText) processingText.style.display = 'block';
+                    if (btns) {
+                        btns.style.opacity = '0.5';
+                        btns.style.pointerEvents = 'none';
+                    }
+                } else {
+                    if (progressBar) progressBar.style.display = 'none';
+                    if (processingText) processingText.style.display = 'none';
+                    if (btns) {
+                        btns.style.opacity = '1';
+                        btns.style.pointerEvents = 'auto';
+                    }
+                }
+            }
+        }
+    };
+
     // Callback function called by Android App after translation
     window.updateContentWithTranslation = function(translatedText) {
         if (window.currentTranslatingPostId) {
@@ -242,6 +304,7 @@ permalink: /live/
                 const contentDiv = postElement.querySelector('.post-body');
                 
                 // 1. Remove ANY existing translation to avoid duplicates stacking
+                // Important: Check inside the contentDiv for any previous translation blocks
                 const existingTrans = contentDiv.querySelectorAll('.translated-text-block');
                 existingTrans.forEach(el => el.remove());
 
@@ -607,6 +670,14 @@ permalink: /live/
             const initialViewCount = postData.view_count || 0;
             const initialLikeCount = postData.like_count || 0;
             
+            // --- INSERT PROGRESS BAR HTML ---
+            const progressBarHTML = `
+                <div class="processing-text">Downloading model & translating...</div>
+                <div class="translation-progress-container">
+                    <div class="translation-progress-bar"></div>
+                </div>
+            `;
+            
             // --- TRANSLATION BUTTONS HTML ---
             // The 'app-only-feature' class ensures it is display:none unless 'android-app-view' is on body
             const translationButtonsHTML = `
@@ -635,6 +706,9 @@ permalink: /live/
                     ${tagsHTML}
                     <div class="post-body pt-4">${parseContent(postData.content)}</div>
                     
+                    <!-- Progress Bar Here -->
+                    ${progressBarHTML}
+
                     <!-- TRANSLATION BUTTONS MOVED HERE (Above Footer) -->
                     ${translationButtonsHTML}
 
