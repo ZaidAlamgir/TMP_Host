@@ -108,24 +108,42 @@ jobs:
           token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
           path: ./_article_repos/international-news
       
+      # --- UPDATED STEP 14: Robust Copy Method ---
       - name: 14. Consolidate All Posts
         run: |
-          echo "Moving all new articles into the main _posts folder..."
-          # The '|| true' ensures that if a folder is empty, it doesn't fail the build.
-          mv ./_article_repos/world-politics/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/indian-politics/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/muslim-world/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/technology/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/medical-science/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/global-economy/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/art-culture/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/weather/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/sports/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/national-news/posts/**/*.md ./main_site/_posts/ || true
-          mv ./_article_repos/international-news/posts/**/*.md ./main_site/_posts/ || true
+          echo "--- Starting Consolidation ---"
           
-          echo "Listing all consolidated posts:"
-          ls -l ./main_site/_posts
+          # Ensure destination exists
+          mkdir -p ./main_site/_posts
+
+          # Function to safely copy posts
+          copy_posts() {
+            src="./_article_repos/$1/posts"
+            # Check if the folder exists (it might not for new categories)
+            if [ -d "$src" ]; then
+              echo "Processing $1..."
+              # Copy contents recursively (-r) to handle year/month folders
+              cp -r "$src"/. ./main_site/_posts/
+            else
+              echo "Skipping $1 (No posts folder found)"
+            fi
+          }
+
+          # Execute for all categories
+          copy_posts "world-politics"
+          copy_posts "indian-politics"
+          copy_posts "muslim-world"
+          copy_posts "technology"
+          copy_posts "medical-science"
+          copy_posts "global-economy"
+          copy_posts "art-culture"
+          copy_posts "weather"
+          copy_posts "sports"
+          copy_posts "national-news"
+          copy_posts "international-news"
+          
+          echo "--- Verification: Files in _posts ---"
+          ls -R ./main_site/_posts
       
       - name: 15. Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -138,7 +156,7 @@ jobs:
         run: bundle exec jekyll build --trace
         working-directory: ./main_site 
 
-      # --- NEW STEP 16b: Fix AssetLinks via Rewrite ---
+      # --- STEP 16b: Fix AssetLinks via Rewrite ---
       - name: 16b. Setup AssetLinks Rewrite for Cloudflare
         run: |
           echo "Setting up AssetLinks Rewrite..."
@@ -146,13 +164,11 @@ jobs:
           # 1. Copy assetlinks.json to the ROOT of _site so it is definitely uploaded
           cp .well-known/assetlinks.json _site/assetlinks.json
           
-          # 2. Also copy to .well-known folder for completeness (though Cloudflare might ignore it)
+          # 2. Also copy to .well-known folder for completeness
           mkdir -p _site/.well-known
           cp .well-known/assetlinks.json _site/.well-known/
           
-          # 3. Create Cloudflare _redirects rule
-          # This tells Cloudflare: "If user asks for /.well-known/assetlinks.json, 
-          # serve them /assetlinks.json (from root) with a 200 OK status."
+          # 3. Create Cloudflare _redirects rule to ensure the path works perfectly
           echo "/.well-known/assetlinks.json /assetlinks.json 200" >> _site/_redirects
           
           echo "AssetLinks rewrite setup complete."
