@@ -138,14 +138,26 @@ jobs:
         run: bundle exec jekyll build --trace
         working-directory: ./main_site 
 
-      # --- NEW STEP ADDED HERE ---
-      - name: 16b. Force Copy .well-known to _site
+      # --- NEW STEP 16b: Fix AssetLinks via Rewrite ---
+      - name: 16b. Setup AssetLinks Rewrite for Cloudflare
         run: |
-          echo "Manually copying .well-known folder to _site..."
-          # This forces the hidden folder into the build output
-          cp -r .well-known _site/
+          echo "Setting up AssetLinks Rewrite..."
+          
+          # 1. Copy assetlinks.json to the ROOT of _site so it is definitely uploaded
+          cp .well-known/assetlinks.json _site/assetlinks.json
+          
+          # 2. Also copy to .well-known folder for completeness (though Cloudflare might ignore it)
+          mkdir -p _site/.well-known
+          cp .well-known/assetlinks.json _site/.well-known/
+          
+          # 3. Create Cloudflare _redirects rule
+          # This tells Cloudflare: "If user asks for /.well-known/assetlinks.json, 
+          # serve them /assetlinks.json (from root) with a 200 OK status."
+          echo "/.well-known/assetlinks.json /assetlinks.json 200" >> _site/_redirects
+          
+          echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site
-      # ---------------------------
+      # ------------------------------------------------
         
       - name: 17. Upload artifact for deployment
         uses: actions/upload-artifact@v4
