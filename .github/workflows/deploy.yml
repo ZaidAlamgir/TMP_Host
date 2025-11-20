@@ -108,28 +108,22 @@ jobs:
           token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
           path: ./_article_repos/international-news
       
-      # --- UPDATED STEP 14: Robust Copy Method ---
+      # --- ROBUST CONSOLIDATION ---
       - name: 14. Consolidate All Posts
         run: |
           echo "--- Starting Consolidation ---"
-          
-          # Ensure destination exists
           mkdir -p ./main_site/_posts
 
-          # Function to safely copy posts
           copy_posts() {
             src="./_article_repos/$1/posts"
-            # Check if the folder exists (it might not for new categories)
             if [ -d "$src" ]; then
               echo "Processing $1..."
-              # Copy contents recursively (-r) to handle year/month folders
               cp -r "$src"/. ./main_site/_posts/
             else
               echo "Skipping $1 (No posts folder found)"
             fi
           }
 
-          # Execute for all categories
           copy_posts "world-politics"
           copy_posts "indian-politics"
           copy_posts "muslim-world"
@@ -156,47 +150,20 @@ jobs:
         run: bundle exec jekyll build --trace
         working-directory: ./main_site 
 
-      # --- STEP 16b: Fix AssetLinks via Rewrite ---
+      # --- ASSET LINKS FIX ---
       - name: 16b. Setup AssetLinks Rewrite for Cloudflare
         run: |
           echo "Setting up AssetLinks Rewrite..."
-          
-          # 1. Copy assetlinks.json to the ROOT of _site so it is definitely uploaded
           cp .well-known/assetlinks.json _site/assetlinks.json
-          
-          # 2. Also copy to .well-known folder for completeness
           mkdir -p _site/.well-known
           cp .well-known/assetlinks.json _site/.well-known/
-          
-          # 3. Create Cloudflare _redirects rule to ensure the path works perfectly
           echo "/.well-known/assetlinks.json /assetlinks.json 200" >> _site/_redirects
-          
           echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site
-      # ------------------------------------------------
         
-      - name: 17. Upload artifact for deployment
-        uses: actions/upload-artifact@v4
-        with:
-          name: jekyll-site
-          path: ./main_site/_site
-          retention-days: 1
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build 
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: jekyll-site
-          path: ./_site
-          
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - name: 17. Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} 
-          projectName: 'tmp-host'
-          directory: ./_site
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy ./_site --project-name=tmp-host
