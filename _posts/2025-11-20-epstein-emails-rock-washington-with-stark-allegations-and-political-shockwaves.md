@@ -2,7 +2,7 @@
 title: "Epstein Emails Rock Washington With Stark Allegations and Political Shockwaves"
 subheadline: "Newly released House Oversight emails reveal Epstein’s boasts, taunts, and alleged proximity to Donald Trump, political elites, and billionaire confidants, raising fresh questions about his influence and manipulation tactics."
 date: 2025-11-20T04:52:19.369Z
-image: "https://media.tmpnews.com/images/Epstein-Emails-Rock-Washington-With-Stark-Allegations-and-Political-Shockwaves.webp"
+image: "https://media.tmpnews.com/images/Epstein-Emails-Rock-Washington-With-Stark-Allegations-and-Political-Shockwaves01.webp"
 image_description: "According to the William J. Clinton Presidential Library and Museum, these pictures were captured by White House photographer Ralph Alswang on Sept. 29, 1993. Epstein and Maxwell were photographed speaking with Clinton after the president made remarks at an event for donors to the White House restoration project."
 tags: [breaking-news, analysis, jeffrey-epstein-case]
 categories: [world-politics, international-news]
