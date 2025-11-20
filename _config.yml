@@ -33,6 +33,7 @@ include:
   - news-hub.html 
   - post.html
   - .well-known
+  - auth-callback.html
 
 # Exclude from processing.
 exclude:
