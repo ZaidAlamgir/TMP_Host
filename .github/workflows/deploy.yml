@@ -31,6 +31,7 @@ jobs:
           mkdir -p ./main_site/_posts
           mkdir -p ./_article_repos
         
+      # --- CHECKOUT STEPS ---
       - name: 3. Checkout World Politics
         uses: actions/checkout@v4
         with:
@@ -108,7 +109,7 @@ jobs:
           token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
           path: ./_article_repos/international-news
       
-      # --- ROBUST CONSOLIDATION ---
+      # --- CONSOLIDATION ---
       - name: 14. Consolidate All Posts
         run: |
           echo "--- Starting Consolidation ---"
@@ -161,9 +162,32 @@ jobs:
           echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site
         
-      - name: 17. Deploy to Cloudflare Pages
+      - name: 17. Upload artifact for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: jekyll-site
+          path: ./main_site/_site
+          retention-days: 1
+
+  # --- SEPARATE DEPLOY JOB (The Correct Way) ---
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build 
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jekyll-site
+          # This downloads the site to a folder named '_site' in the current directory
+          path: ./_site
+          
+      - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} 
+          # Since we downloaded to ./_site, we simply deploy that folder
           command: pages deploy ./_site --project-name=tmp-host
