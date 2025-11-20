@@ -138,11 +138,14 @@ jobs:
         run: bundle exec jekyll build --trace
         working-directory: ./main_site 
 
+      # --- NEW STEP ADDED HERE ---
       - name: 16b. Force Copy .well-known to _site
         run: |
           echo "Manually copying .well-known folder to _site..."
+          # This forces the hidden folder into the build output
           cp -r .well-known _site/
         working-directory: ./main_site
+      # ---------------------------
         
       - name: 17. Upload artifact for deployment
         uses: actions/upload-artifact@v4
