@@ -169,7 +169,7 @@ jobs:
           path: ./main_site/_site
           retention-days: 1
 
-  # --- SEPARATE DEPLOY JOB (The Correct Way) ---
+  # --- SEPARATE DEPLOY JOB ---
   deploy:
     runs-on: ubuntu-latest
     needs: build 
@@ -177,6 +177,11 @@ jobs:
       contents: read
       deployments: write
     steps:
+      # 1. NEW: Download Source Code (Crucial for 'functions' folder)
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      # 2. Download the Built Site (Contains your .well-known/assetlinks.json)
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
@@ -184,10 +189,12 @@ jobs:
           # This downloads the site to a folder named '_site' in the current directory
           path: ./_site
           
+      # 3. Deploy
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} 
-          # Since we downloaded to ./_site, we simply deploy that folder
+          # Wrangler will automatically find the 'functions' folder in the root
+          # and deploy it alongside the './_site' static assets
           command: pages deploy ./_site --project-name=tmp-host
