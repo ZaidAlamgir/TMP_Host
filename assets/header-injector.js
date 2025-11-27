@@ -90,14 +90,19 @@ function updateProfileUI(user) {
 
     if (userLink) {
         if (isUserLoggedIn) {
-            // Standard link is sufficient because MainActivity intercepts based on URL pattern
-            userLink.href = PATHS.PROFILE;
+            if (isInsideApp) {
+                // USE CUSTOM SCHEME TO FORCE INTERCEPTION
+                // This guarantees MainActivity.kt's shouldOverrideUrlLoading catches it
+                userLink.href = "tmpnews://open/profile"; 
+            } else {
+                // Web behavior
+                userLink.href = PATHS.PROFILE;
+            }
+            userLink.onclick = null; 
         } else {
-            // Logic for Guest (Login link)
             userLink.href = PATHS.AUTH;
+            userLink.onclick = null;
         }
-        // Remove any previous onclick handlers to ensure clean navigation
-        userLink.onclick = null;
     }
     // --- ANDROID SPECIFIC LOGIC END ---
 
