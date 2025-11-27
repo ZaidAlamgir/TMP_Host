@@ -27,6 +27,18 @@ function completeLoadingAnimation() {
     }
 }
 
+// --- EXPOSED FUNCTION FOR ANDROID LOGOUT ---
+// Android App calls this to force header update immediately
+window.handleAndroidLogout = function() {
+    localStorage.removeItem('cachedUser');
+    updateProfileUI(null);
+    if (window.supabase) {
+        // Attempt to clear session from JS side too
+        const sb = window.supabase.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
+        sb.auth.signOut().catch(console.error);
+    }
+};
+
 // --- HELPER: GENERATE USER COLOR ---
 function generateColorForUser(userId) {
     const colors = ['#e53935', '#d81b60', '#8e24aa', '#5e35b1', '#3949ab', '#1e88e5', '#039be5', '#00acc1', '#00897b', '#43a047', '#7cb342', '#c0ca33', '#ffb300', '#fb8c00', '#f4511e', '#6d4c41', '#757575', '#546e7a'];
@@ -77,23 +89,12 @@ function updateProfileUI(user) {
 
     if (userLink) {
         if (isUserLoggedIn) {
-            // Logic for Logged In User
-            if (isInsideApp) {
-                // If in Android App, set href to a specific trigger or handle click
-                userLink.href = "#"; // Prevent default navigation initially
-                userLink.onclick = (e) => {
-                    e.preventDefault();
-                    // We can either navigate to a URL that MainActivity intercepts
-                    // OR call a JS Interface method if one exists.
-                    // Since MainActivity intercepts "/profile", navigating there works.
-                    // But explicitly setting window.location ensures the interception logic fires.
-                    window.location.href = PATHS.PROFILE; 
-                };
-            } else {
-                // If on Web, standard link
-                userLink.href = PATHS.PROFILE;
-                userLink.onclick = null; // Remove any previous handlers
-            }
+            // If inside Android App, we want to trigger the Native Profile Interception
+            // MainActivity intercepts "/profile/", so we ensure href is set to that.
+            userLink.href = PATHS.PROFILE;
+            
+            // Optional: If you want to be 100% sure no JS interference happens:
+            userLink.onclick = null; 
         } else {
             // Logic for Guest (Login link)
             userLink.href = PATHS.AUTH;
