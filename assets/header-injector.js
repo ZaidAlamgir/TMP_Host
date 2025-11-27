@@ -438,16 +438,19 @@ function initializeSupabaseHeader(forceRerender = false) {
     } catch (error) { localStorage.removeItem(CACHED_USER_KEY); }
 
     // 1. Handle Logout URL Hash
+    // When Android app loads 'auth.html#logout', this block will trigger a full cleanup.
     if (window.location.hash === '#logout') {
         localStorage.removeItem(CACHED_USER_KEY);
         if (window.supabase) {
              const sb = window.supabase.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
              sb.auth.signOut().then(() => {
-                 // Clear hash so we don't logout again on reload
+                 // Clear hash so we don't logout again on reload and update UI
                  history.replaceState(null, null, ' ');
                  renderSupabaseHeader(null);
              });
-             return; // Stop further auth checking for now
+             // Immediately render null state to avoid flash of logged-in content
+             renderSupabaseHeader(null);
+             return; 
         }
     }
 
