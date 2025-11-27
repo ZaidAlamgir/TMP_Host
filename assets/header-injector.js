@@ -27,19 +27,6 @@ function completeLoadingAnimation() {
     }
 }
 
-// --- EXPOSED FUNCTION FOR ANDROID LOGOUT ---
-// Android App calls this to force header update immediately
-window.handleAndroidLogout = function() {
-    localStorage.removeItem('cachedUser');
-    updateProfileUI(null); // Force UI update to "Logged Out" state
-    
-    if (window.supabase) {
-        // Attempt to clear session from JS side too
-        const sb = window.supabase.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
-        sb.auth.signOut().catch(console.error);
-    }
-};
-
 // --- HELPER: GENERATE USER COLOR ---
 function generateColorForUser(userId) {
     const colors = ['#e53935', '#d81b60', '#8e24aa', '#5e35b1', '#3949ab', '#1e88e5', '#039be5', '#00acc1', '#00897b', '#43a047', '#7cb342', '#c0ca33', '#ffb300', '#fb8c00', '#f4511e', '#6d4c41', '#757575', '#546e7a'];
@@ -85,26 +72,9 @@ function updateProfileUI(user) {
     const profilePicImg = document.getElementById('profile-pic-img');
     const userLink = document.querySelector('.header-right .user-icon-link');
 
-    // --- ANDROID SPECIFIC LOGIC START ---
-    const isInsideApp = typeof window.AndroidInterface !== 'undefined';
-
     if (userLink) {
-        if (isUserLoggedIn) {
-            if (isInsideApp) {
-                // USE CUSTOM SCHEME TO FORCE INTERCEPTION
-                // This guarantees MainActivity.kt's shouldOverrideUrlLoading catches it
-                userLink.href = "tmpnews://open/profile"; 
-            } else {
-                // Web behavior
-                userLink.href = PATHS.PROFILE;
-            }
-            userLink.onclick = null; 
-        } else {
-            userLink.href = PATHS.AUTH;
-            userLink.onclick = null;
-        }
+        userLink.href = isUserLoggedIn ? PATHS.PROFILE : PATHS.AUTH;
     }
-    // --- ANDROID SPECIFIC LOGIC END ---
 
     if (isUserLoggedIn && user) {
         if (loginIconSvg) loginIconSvg.style.display = 'none';
@@ -143,7 +113,6 @@ function renderSupabaseHeader(user) {
     }
 
     const isUserLoggedIn = !!user;
-    // Base link, will be updated by updateProfileUI for Android logic
     const mainIconLink = isUserLoggedIn ? PATHS.PROFILE : PATHS.AUTH;
     const categoryDropdown = generateCategoryDropdownHTML();
     const isInsideApp = typeof window.AndroidInterface !== 'undefined';
@@ -233,7 +202,7 @@ function renderWriterHeader() {
     
     const settingsMenuItemHTML = isInsideApp ? `
         <a href="#" id="app-settings-menu-item" class="app-settings-link">
-             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             Settings
         </a>
     ` : '';
@@ -437,27 +406,10 @@ function initializeSupabaseHeader(forceRerender = false) {
         if (cachedData) cachedUser = JSON.parse(cachedData);
     } catch (error) { localStorage.removeItem(CACHED_USER_KEY); }
 
-    // 1. Handle Logout URL Hash
-    // When Android app loads 'auth.html#logout', this block will trigger a full cleanup.
-    if (window.location.hash === '#logout') {
-        localStorage.removeItem(CACHED_USER_KEY);
-        if (window.supabase) {
-             const sb = window.supabase.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
-             sb.auth.signOut().then(() => {
-                 // Clear hash so we don't logout again on reload and update UI
-                 history.replaceState(null, null, ' ');
-                 renderSupabaseHeader(null);
-             });
-             // Immediately render null state to avoid flash of logged-in content
-             renderSupabaseHeader(null);
-             return; 
-        }
-    }
-
     renderSupabaseHeader(cachedUser);
 
     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
     
     if (window.supabase) {
          const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
