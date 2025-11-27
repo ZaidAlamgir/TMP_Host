@@ -72,9 +72,35 @@ function updateProfileUI(user) {
     const profilePicImg = document.getElementById('profile-pic-img');
     const userLink = document.querySelector('.header-right .user-icon-link');
 
+    // --- ANDROID SPECIFIC LOGIC START ---
+    const isInsideApp = typeof window.AndroidInterface !== 'undefined';
+
     if (userLink) {
-        userLink.href = isUserLoggedIn ? PATHS.PROFILE : PATHS.AUTH;
+        if (isUserLoggedIn) {
+            // Logic for Logged In User
+            if (isInsideApp) {
+                // If in Android App, set href to a specific trigger or handle click
+                userLink.href = "#"; // Prevent default navigation initially
+                userLink.onclick = (e) => {
+                    e.preventDefault();
+                    // We can either navigate to a URL that MainActivity intercepts
+                    // OR call a JS Interface method if one exists.
+                    // Since MainActivity intercepts "/profile", navigating there works.
+                    // But explicitly setting window.location ensures the interception logic fires.
+                    window.location.href = PATHS.PROFILE; 
+                };
+            } else {
+                // If on Web, standard link
+                userLink.href = PATHS.PROFILE;
+                userLink.onclick = null; // Remove any previous handlers
+            }
+        } else {
+            // Logic for Guest (Login link)
+            userLink.href = PATHS.AUTH;
+            userLink.onclick = null;
+        }
     }
+    // --- ANDROID SPECIFIC LOGIC END ---
 
     if (isUserLoggedIn && user) {
         if (loginIconSvg) loginIconSvg.style.display = 'none';
@@ -113,6 +139,7 @@ function renderSupabaseHeader(user) {
     }
 
     const isUserLoggedIn = !!user;
+    // Base link, will be updated by updateProfileUI for Android logic
     const mainIconLink = isUserLoggedIn ? PATHS.PROFILE : PATHS.AUTH;
     const categoryDropdown = generateCategoryDropdownHTML();
     const isInsideApp = typeof window.AndroidInterface !== 'undefined';
@@ -409,7 +436,7 @@ function initializeSupabaseHeader(forceRerender = false) {
     renderSupabaseHeader(cachedUser);
 
     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; 
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
     
     if (window.supabase) {
          const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
