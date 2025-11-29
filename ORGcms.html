@@ -3,125 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORG CMS (Testing)</title>
+    <title>ORG CMS - News Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .hidden { display: none; }
+        
+        /* UI Enhancements */
+        .glass-panel {
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        
         .dynamic-content-block {
-            border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem;
-            margin-top: 1.5rem; background-color: #f8fafc; position: relative;
+            border: 1px solid #e2e8f0; 
+            border-radius: 0.75rem; 
+            padding: 1.5rem;
+            margin-top: 1.5rem; 
+            background-color: #ffffff; 
+            position: relative;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
         }
+        .dynamic-content-block:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
         .tag-suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+        
         .tag-chip {
-            background-color: #e2e8f0; color: #475569; font-size: 0.8rem; padding: 0.25rem 0.75rem;
-            border-radius: 9999px; cursor: pointer; transition: background-color 0.2s;
+            background-color: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
+            border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
         }
-        .tag-chip:hover { background-color: #cbd5e1; }
+        .tag-chip:hover { background-color: #e2e8f0; transform: translateY(-1px); }
+        
         .category-chip {
-            background-color: #dbeafe; color: #1e40af; font-size: 0.8rem; padding: 0.25rem 0.75rem;
-            border-radius: 9999px; cursor: pointer; transition: background-color 0.2s; border: 1px solid #bfdbfe;
+            background-color: #eff6ff; color: #1d4ed8; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
+            border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid #bfdbfe;
         }
-        .category-chip:hover { background-color: #bfdbfe; }
-        textarea { resize: none; overflow: hidden; transition: height 0.1s ease-out; }
+        .category-chip:hover { background-color: #dbeafe; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
+        
+        textarea, input[type="text"], select { 
+            transition: all 0.2s ease-in-out; 
+            outline: none;
+        }
+        textarea:focus, input[type="text"]:focus, select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        textarea { resize: none; overflow: hidden; }
         #article-p1, .dynamic-paragraph { min-height: 150px; }
-        .remove-block-btn { position: absolute; top: 0.75rem; right: 0.75rem; color: #94a3b8; cursor: pointer; }
-        .remove-block-btn:hover { color: #ef4444; }
+        
+        .remove-block-btn { 
+            position: absolute; top: 1rem; right: 1rem; 
+            width: 2rem; height: 2rem;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            color: #94a3b8; cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .remove-block-btn:hover { background-color: #fee2e2; color: #ef4444; }
+        
+        /* Modal Styles */
         .link-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); z-index: 1000;
+            background-color: rgba(15, 23, 42, 0.4); z-index: 1000;
+            backdrop-filter: blur(2px);
             display: flex; justify-content: center; align-items: flex-start;
             padding-top: 15vh; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
         }
         .link-modal-overlay.visible { opacity: 1; pointer-events: all; }
         .link-modal-content {
-            background-color: white; padding: 1.5rem; border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px;
+            background-color: white; padding: 2rem; border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 90%; max-width: 500px;
             transform: scale(0.95); transition: transform 0.2s ease;
         }
         .link-modal-overlay.visible .link-modal-content { transform: scale(1); }
         .link-modal-input {
             width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;
-            font-size: 1rem; margin-bottom: 1rem;
+            font-size: 1rem; margin-bottom: 1.5rem;
         }
         .link-modal-buttons { display: flex; justify-content: flex-end; gap: 0.75rem; }
-        .link-modal-btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; border: none; cursor: pointer; }
+        .link-modal-btn { padding: 0.6rem 1.2rem; border-radius: 0.5rem; font-weight: 600; border: none; cursor: pointer; transition: opacity 0.2s;}
+        .link-modal-btn:hover { opacity: 0.9; }
         .link-modal-btn.primary { background-color: #4f46e5; color: white; }
-        .link-modal-btn.secondary { background-color: #e5e7eb; }
+        .link-modal-btn.secondary { background-color: #f3f4f6; color: #374151; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="text-slate-800 min-h-screen">
 
-    <div id="app" class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+    <div id="app" class="w-full max-w-5xl mx-auto p-4 sm:p-6 md:p-8">
 
-        <div id="login-view" class="bg-white p-8 rounded-xl shadow-lg text-center mt-12">
-             <h1 class="text-3xl font-bold mb-2">News CMS Login (ORG TEST)</h1>
-             <p class="text-slate-600 mb-6">Please log in with your GitHub account to continue.</p>
-             <button id="login-button" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 transition-colors flex items-center justify-center w-full max-w-xs mx-auto">
-                 <i class="fab fa-github mr-3"></i>
+        <div id="login-view" class="glass-panel p-10 rounded-2xl max-w-md mx-auto mt-20 text-center">
+             <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl text-slate-700">
+                <i class="fas fa-newspaper"></i>
+             </div>
+             <h1 class="text-3xl font-extrabold mb-3 text-slate-900">News CMS Login</h1>
+             <p class="text-slate-500 mb-8 leading-relaxed">Secure access for Organization Members.<br>Please authenticate to continue.</p>
+             <button id="login-button" class="bg-[#24292e] text-white font-bold py-3.5 px-6 rounded-xl hover:bg-[#1b1f23] transition-all transform hover:scale-[1.02] flex items-center justify-center w-full shadow-lg">
+                 <i class="fab fa-github mr-3 text-xl"></i>
                  Sign in with GitHub
              </button>
         </div>
 
-        <div id="editor-view" class="hidden bg-white p-6 sm:p-8 rounded-xl shadow-lg">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-2xl md:text-3xl font-bold">Create New Article (ORG TEST)</h1>
-                <button id="logout-button" class="text-sm text-slate-500 hover:text-slate-800 font-medium">Logout</button>
+        <div id="editor-view" class="hidden glass-panel p-6 sm:p-10 rounded-2xl">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-100 pb-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Create News Article</h1>
+                    <p class="text-sm text-slate-500 mt-1">Drafting for <span class="font-semibold text-indigo-600">TheMuslimPost Organization</span></p>
+                </div>
+                <button id="logout-button" class="mt-4 md:mt-0 text-sm text-slate-400 hover:text-red-500 font-medium transition-colors flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
 
-            <div class="mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                <label for="target-repo-select" class="block text-sm font-bold text-indigo-900 mb-2">Target Repository</label>
-                <p class="text-xs text-indigo-700 mb-2">Select the correct category repository for this article.</p>
-                <select id="target-repo-select" class="w-full p-2 border border-indigo-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm">
-                    <optgroup label="New Categories (Organization: TheMuslimPost)">
-                        <option value="tmp-articles-world-politics">World Politics</option>
-                        <option value="tmp-articles-indian-politics">Indian Politics</option>
-                        <option value="tmp-articles-muslim-world">Muslim World</option>
-                        <option value="tmp-articles-technology">Technology</option>
-                        <option value="tmp-articles-medical-science">Medical Science</option>
-                        <option value="tmp-articles-global-economy">Global Economy</option>
-                        <option value="tmp-articles-art-culture">Art & Culture</option>
-                        <option value="tmp-articles-weather">Weather</option>
-                        <option value="tmp-articles-sports">Sports</option>
-                        <option value="tmp-articles-national-news">National News</option>
-                        <option value="tmp-articles-international-news">International News</option>
-                    </optgroup>
-                    <optgroup label="Legacy (Owner: zaidalamgir)">
-                        <option value="TMP_Host">Main Site (TMP_Host)</option>
-                    </optgroup>
-                </select>
+            <div class="mb-8 p-5 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <i class="fas fa-folder-tree"></i>
+                    </div>
+                    <div>
+                        <label for="target-repo-select" class="block text-sm font-bold text-slate-800">Target Repository</label>
+                        <p class="text-xs text-slate-500">Choose where this article will be stored within the organization.</p>
+                    </div>
+                </div>
+                <div class="relative">
+                    <select id="target-repo-select" class="w-full p-3 pl-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm appearance-none cursor-pointer font-medium text-slate-700 shadow-sm">
+                        <optgroup label="New Categories (Organization: TheMuslimPost)">
+                            <option value="tmp-articles-world-politics">World Politics</option>
+                            <option value="tmp-articles-indian-politics">Indian Politics</option>
+                            <option value="tmp-articles-muslim-world">Muslim World</option>
+                            <option value="tmp-articles-technology">Technology</option>
+                            <option value="tmp-articles-medical-science">Medical Science</option>
+                            <option value="tmp-articles-global-economy">Global Economy</option>
+                            <option value="tmp-articles-art-culture">Art & Culture</option>
+                            <option value="tmp-articles-weather">Weather</option>
+                            <option value="tmp-articles-sports">Sports</option>
+                            <option value="tmp-articles-national-news">National News</option>
+                            <option value="tmp-articles-international-news">International News</option>
+                        </optgroup>
+                        <optgroup label="Legacy (Owner: zaidalamgir)">
+                            <option value="TMP_Host">Main Site (TMP_Host)</option>
+                        </optgroup>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
             </div>
-            <div class="mb-4">
-                <label for="article-headline" class="block text-sm font-medium text-slate-700 mb-1">Headline</label>
-                <textarea id="article-headline" rows="1" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-bold text-xl" placeholder="The main title of the article"></textarea>
+
+            <div class="space-y-6">
+                <div>
+                    <label for="article-headline" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Headline</label>
+                    <textarea id="article-headline" rows="1" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold text-xl md:text-2xl leading-normal text-slate-900 placeholder-slate-400" placeholder="The main title of the article"></textarea>
+                </div>
+                
+                <div>
+                    <label for="article-subheadline" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Subheadline</label>
+                    <textarea id="article-subheadline" rows="1" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base md:text-lg leading-normal text-slate-600 placeholder-slate-400" placeholder="A brief, engaging summary"></textarea>
+                </div>
             </div>
-             <div class="mb-6">
-                <label for="article-subheadline" class="block text-sm font-medium text-slate-700 mb-1">Subheadline</label>
-                <textarea id="article-subheadline" rows="1" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="A brief, engaging summary"></textarea>
+
+             <hr class="my-8 border-slate-100">
+
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                 <div>
+                    <label for="article-main-image-url" class="block text-sm font-medium text-slate-700 mb-1">Main Image URL</label>
+                    <div class="relative">
+                        <i class="fas fa-image absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" id="article-main-image-url" class="w-full p-2.5 pl-10 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="https://media.tmpnews.com/images/...">
+                    </div>
+                 </div>
+                 <div>
+                    <label for="article-author" class="block text-sm font-medium text-slate-700 mb-1">Author Name</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-3 top-3 text-slate-400"></i>
+                        <input type="text" id="article-author" class="w-full p-2.5 pl-10 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" value="TMP Staff">
+                    </div>
+                 </div>
              </div>
-             <hr class="my-6">
+             
+             <div class="mb-8">
+                <label for="article-main-image-desc" class="block text-sm font-medium text-slate-700 mb-1">Main Image Alt Text</label>
+                <textarea id="article-main-image-desc" rows="2" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400 leading-normal" placeholder="A short description of the main image (for accessibility)"></textarea>
+             </div>
+
+             <hr class="my-8 border-slate-100">
+
              <div class="mb-4">
-                <label for="article-main-image-url" class="block text-sm font-medium text-slate-700 mb-1">Main Image URL</label>
-                <input type="text" id="article-main-image-url" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://media.tmpnews.com/images/...">
+                <label for="article-p1" class="block text-sm font-bold text-slate-800 mb-2">Article Content (Start)</label>
+                <textarea id="article-p1" rows="6" class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 leading-relaxed text-slate-700 placeholder-slate-400" placeholder="The first paragraph of your article..."></textarea>
              </div>
-             <div class="mb-6">
-                <label for="article-main-image-desc" class="block text-sm font-medium text-slate-700 mb-1">Main Image Description</label>
-                <textarea id="article-main-image-desc" rows="1" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="A short description of the main image (for accessibility)"></textarea>
-             </div>
-             <div class="mb-6">
-                <label for="article-author" class="block text-sm font-medium text-slate-700 mb-1">Author Name</label>
-                <input type="text" id="article-author" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="TMP Staff">
-             </div>
-             <hr class="my-6">
-             <div class="mb-4">
-                <label for="article-p1" class="block text-sm font-medium text-slate-700 mb-1">Article Paragraph 1</label>
-                <textarea id="article-p1" rows="6" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="The first paragraph of your article..."></textarea>
-             </div>
+
              <div id="dynamic-content-blocks"></div>
-             <div class="my-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                 <select id="block-type-select" class="p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+             <div class="my-8 p-6 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-center gap-4">
+                 <select id="block-type-select" class="p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm min-w-[200px]">
                     <option value="paragraph">Paragraph</option>
                     <option value="headline-h2">Headline (H2)</option>
                     <option value="headline-h3">Headline (H3)</option>
@@ -141,14 +224,16 @@
                         <option value="telegram">Telegram</option>
                     </optgroup>
                  </select>
-                 <button id="add-block-button" class="bg-slate-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-500 transition-colors text-sm">
-                     <i class="fas fa-plus mr-2"></i>Add Block
+                 <button id="add-block-button" class="bg-slate-800 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-slate-700 transition-colors shadow-sm flex items-center">
+                     <i class="fas fa-plus mr-2"></i> Add Block
                  </button>
              </div>
-             <hr class="my-6">
+
+             <hr class="my-8 border-slate-100">
+
              <div class="mb-6">
                 <label for="article-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags</label>
-                <input type="text" id="article-tags" class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., technology, politics (comma-separated)">
+                <input type="text" id="article-tags" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., technology, politics (comma-separated)">
                 <div id="tag-suggestions-container" class="tag-suggestions">
                     <div class="tag-chip" data-tag="breaking-news">Breaking News</div>
                     <div class="tag-chip" data-tag="analysis">Analysis</div>
@@ -156,29 +241,41 @@
                     <div class="tag-chip" data-tag="updates">Updates</div>
                 </div>
              </div>
-             <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <label for="article-categories" class="block text-sm font-bold text-blue-800 mb-1">Categories (Required for URL)</label>
-                <p class="text-xs text-blue-600 mb-2">Select at least one category to ensure the link works correctly.</p>
-                <input type="text" id="article-categories" class="w-full p-2 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Click a suggestion below...">
-                <div id="category-suggestions-container" class="tag-suggestions">
+
+             <div class="mb-8 p-5 bg-blue-50 rounded-xl border border-blue-100">
+                <label for="article-categories" class="block text-sm font-bold text-blue-900 mb-1">Categories (Required for URL)</label>
+                <p class="text-xs text-blue-600 mb-3">Select at least one category to ensure the link works correctly.</p>
+                <input type="text" id="article-categories" class="w-full p-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white" placeholder="Click a suggestion below...">
+                
+                <div id="category-suggestions-container" class="tag-suggestions mt-3">
                     <div class="category-chip" data-cat="world-politics">World Politics</div>
                     <div class="category-chip" data-cat="indian-politics">Indian Politics</div>
                     <div class="category-chip" data-cat="muslim-world">Muslim World</div>
-                    </div>
+                    <div class="category-chip" data-cat="technology">Technology</div>
+                    <div class="category-chip" data-cat="medical-science">Medical Science</div>
+                    <div class="category-chip" data-cat="global-economy">Global Economy</div>
+                    <div class="category-chip" data-cat="art-culture">Art & Culture</div>
+                    <div class="category-chip" data-cat="weather">Weather</div>
+                    <div class="category-chip" data-cat="sports">Sports</div>
+                    <div class="category-chip" data-cat="national-news">National News</div>
+                    <div class="category-chip" data-cat="international-news">International News</div>
+                </div>
              </div>
-             <button id="publish-button" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-500 transition-colors w-full flex items-center justify-center">
+
+             <button id="publish-button" class="bg-indigo-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-indigo-500 transition-all shadow-lg hover:shadow-indigo-500/30 w-full flex items-center justify-center text-lg">
                  <span id="publish-text">Publish Article</span>
                  <span id="publish-spinner" class="hidden">
                      <i class="fas fa-spinner fa-spin mr-2"></i> Publishing...
                  </span>
              </button>
-             <p id="status-message" class="text-center mt-4 text-sm"></p>
+             <p id="status-message" class="text-center mt-4 text-sm font-medium"></p>
         </div>
     </div>
 
     <div id="link-modal" class="link-modal-overlay">
         <div class="link-modal-content">
-             <h3 class="text-lg font-bold mb-4">Add or Edit Link</h3>
+             <h3 class="text-xl font-bold mb-4 text-slate-800">Add or Edit Link</h3>
+             <p class="text-sm text-slate-500 mb-4">Paste the URL you want to link to.</p>
              <input type="text" id="link-url-input" class="link-modal-input" placeholder="https://example.com">
              <div class="link-modal-buttons">
                  <button id="cancel-link-btn" class="link-modal-btn secondary">Cancel</button>
@@ -319,24 +416,24 @@
             if (blockType.startsWith('headline')) {
                 blockTitle = `Headline (${blockType.slice(-2).toUpperCase()})`;
             }
-            let blockHTML = `<button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button><h3 class="text-lg font-semibold mb-4 text-slate-600">${blockTitle}</h3>`;
+            let blockHTML = `<button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button><h3 class="text-sm font-bold uppercase text-slate-400 mb-3">${blockTitle}</h3>`;
             switch (blockType) {
                 case 'paragraph':
-                    blockHTML += `<textarea class="dynamic-paragraph w-full p-2 border border-slate-300 rounded-md" rows="6" placeholder="Continue your article..."></textarea>`;
+                    blockHTML += `<textarea class="dynamic-paragraph w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="6" placeholder="Continue your article..."></textarea>`;
                     break;
                 case 'headline-h2':
                 case 'headline-h3':
                 case 'headline-h4':
-                    blockHTML += `<input type="text" class="dynamic-headline w-full p-2 border border-slate-300 rounded-md font-bold" placeholder="Enter headline text...">`;
+                    blockHTML += `<input type="text" class="dynamic-headline w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold" placeholder="Enter headline text...">`;
                     break;
                 case 'image':
-                    blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2 border border-slate-300 rounded-md" placeholder="https://example.com/image.jpg"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2 border border-slate-300 rounded-md" placeholder="A short description of this image"></textarea></div>`;
+                    blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short description of this image"></textarea></div>`;
                     break;
                 case 'quote':
-                    blockHTML += `<textarea class="dynamic-quote w-full p-2 border border-slate-300 rounded-md" rows="3" placeholder="Enter the quote here..."></textarea>`;
+                    blockHTML += `<textarea class="dynamic-quote w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="3" placeholder="Enter the quote here..."></textarea>`;
                     break;
                 default:
-                    blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2 border border-slate-300 rounded-md" placeholder="Paste the full post URL"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label><textarea rows="1" class="dynamic-social-caption w-full p-2 border border-slate-300 rounded-md" placeholder="A short caption for the embed"></textarea></div>`;
+                    blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste the full post URL"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label><textarea rows="1" class="dynamic-social-caption w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short caption for the embed"></textarea></div>`;
                     break;
             }
             newBlock.innerHTML = blockHTML;
@@ -405,7 +502,7 @@
             const selectedRepo = document.getElementById('target-repo-select').value;
             
             if (!headline || !paragraph1) {
-                updateStatus('Headline and Paragraph 1 are required.', 'red');
+                updateStatus('Headline and Paragraph 1 are required.', '#ef4444');
                 return;
             }
 
@@ -496,7 +593,7 @@
                     body: JSON.stringify({ message: commitMessage, content: btoa(unescape(encodeURIComponent(fileContent))), branch: GITHUB_CONFIG.repoBranch }),
                 });
                 if (response.status === 201) {
-                    updateStatus(`Successfully published to ${selectedRepo}!`, 'green');
+                    updateStatus(`Successfully published to ${selectedRepo}!`, '#16a34a');
                     // Reset form
                     editorView.querySelectorAll('input, textarea').forEach(el => { if(el.id !== 'article-author') el.value = ''; });
                     dynamicBlocksContainer.innerHTML = '';
@@ -506,7 +603,7 @@
                     throw new Error(error.message || `GitHub API returned status ${response.status}`);
                 }
             } catch (error) {
-                updateStatus(`Error: ${error.message}`, 'red');
+                updateStatus(`Error: ${error.message}`, '#ef4444');
             } finally {
                 setPublishingState(false);
             }
