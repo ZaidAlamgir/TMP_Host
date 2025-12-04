@@ -40,7 +40,6 @@
 <body class="bg-slate-100 text-slate-800">
 
     <div id="app" class="w-full min-h-screen">
-        <!-- AUTHENTICATION VIEW -->
         <div id="auth-view" class="flex items-center justify-center min-h-screen p-4">
              <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
                  <form id="sign-in-form">
@@ -81,7 +80,6 @@
              </div>
         </div>
 
-        <!-- EDITOR VIEW -->
         <div id="editor-view" class="hidden">
              <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-20">
                  <h1 class="text-xl font-bold">Live CMS</h1>
@@ -97,7 +95,7 @@
                          <div id="content-blocks-container"></div>
                          <div class="mt-6">
                             <label for="tags-input" class="block text-sm font-medium text-slate-700 mb-1">Tags (optional)</label>
-                            <input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg" placeholder="e.g. politics, sports, breaking-news">
+                            <input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg" value="BREAKING, TMP NEWS" placeholder="e.g. politics, sports, breaking-news">
                         </div>
                          <div class="mt-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
                              <select id="block-type-select" class="flex-grow p-3 border border-slate-300 rounded-lg">
@@ -140,7 +138,6 @@
              </main>
         </div>
 
-        <!-- EDIT MODAL -->
         <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 items-center justify-center p-4">
              <div id="edit-modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-2xl flex flex-col max-h-[95vh]">
                  <h2 class="text-2xl font-bold mb-4 p-8 pb-0 flex-shrink-0">Edit Post</h2>
@@ -474,7 +471,8 @@
                     createBlock('youtube');
                     createBlock('content');
 
-                    tagsInput.value = '';
+                    // EDITED: Reset tags to default value instead of empty string
+                    tagsInput.value = 'BREAKING, TMP NEWS';
                 }
                 setPublishingState(false);
 
