@@ -326,7 +326,16 @@
             async function fetchRecentPosts() {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return;
-                const { data, error } = await supabaseClient.from('live_posts').select('*').eq('user_id', user.id).order('timestamp', { ascending: false }).limit(15);
+                
+                // UPDATED SORTING: Pinned first, then by timestamp
+                const { data, error } = await supabaseClient
+                    .from('live_posts')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('is_pinned', { ascending: false })
+                    .order('timestamp', { ascending: false })
+                    .limit(15);
+                    
                 if (error) { console.error("Error fetching recent posts:", error); return; }
                 recentPostsFeed.innerHTML = '';
                 if(data) data.forEach(post => renderRecentPost(post));
@@ -362,6 +371,7 @@
                     else if (data && data.startsWith('Error:')) { 
                         console.error(data); 
                     }
+                    // The realtime subscription will handle the UI update via fetchRecentPosts
                 } else if (target.classList.contains('delete-btn')) {
                     // IMPORTANT: Replace alert/confirm with a custom modal in a production app.
                     if (window.confirm('Are you sure you want to delete this post?')) {
