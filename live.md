@@ -414,7 +414,10 @@ permalink: /live/
             if (!content) return '';
             const placeholders = [];
             let tempContent = content;
-            const allKeywords = 'twitter-video|twitter|instagram-video|instagram|facebook|youtube|tiktok|linkedin|reddit|telegram';
+            
+            // Updated to include 'link-button'
+            const allKeywords = 'link-button|twitter-video|twitter|instagram-video|instagram|facebook|youtube|tiktok|linkedin|reddit|telegram';
+            
             const regex = new RegExp(`\\[(${allKeywords})\\|?(.*)\\]\\((.*)\\)|!\\[(.*?)\\]\\((.*)\\)|\\[WIDGET\\|(.*)\\|(.*)\\]([\\s\\S]*?)(?=\\n\\n|$)`, 'g');
             tempContent = tempContent.replace(regex, (match, socialType, socialDesc, socialUrl, imgAlt, imgUrl, widgetType, widgetCaption, widgetContent) => {
                 let htmlBlock = '';
@@ -428,6 +431,12 @@ permalink: /live/
                     const caption = socialDesc ? `<p class="media-caption">${socialDesc}</p>` : '';
                     const url = socialUrl;
                     switch (socialType) {
+                        
+                        // NEW: Button Logic
+                        case 'link-button':
+                            htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="background-color: #2563eb; color: white; display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`;
+                            break;
+
                         case 'twitter': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'twitter-video': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-conversation="none"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'instagram': htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;

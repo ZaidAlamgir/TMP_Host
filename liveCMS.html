@@ -103,6 +103,7 @@
                                  <option value="content">Paragraph</option>
                                  <option value="image">Image</option>
                                  <option value="quote">Quote</option>
+                                 <option value="link-button">Link / Button</option>
                                  <optgroup label="Live Widgets & HTML">
                                      <option value="live-score-embed">Live Score/Game (Embed)</option>
                                      <option value="weather-embed">Weather/Map (Embed)</option>
@@ -222,7 +223,7 @@
                 });
             });
 
-            // --- AUTHENTICATION LOGIC (Simplified for direct access) ---
+            // --- AUTHENTICATION LOGIC ---
             signInForm.addEventListener('submit', async (e) => { 
                 e.preventDefault(); 
                 authMessage.textContent = ''; 
@@ -261,7 +262,6 @@
                 await supabaseClient.auth.signOut(); 
             });
 
-            // *** FIX: REMOVED AUTHORIZATION CHECK (Restores previous behavior) ***
             supabaseClient.auth.onAuthStateChange(async (event, session) => {
                 if (session) {
                     // User is successfully logged in. Grant access to editor.
@@ -273,7 +273,6 @@
                     if (blocksContainer.children.length === 0) {
                         createBlock('headline');
                         createBlock('image');
-                        createBlock('youtube');
                         createBlock('content');
                     }
                     fetchRecentPosts();
@@ -308,6 +307,12 @@
                     case 'image': mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste image URL">${descInput}`; break;
                     case 'quote': mainEl = `<textarea rows="2" class="${textareaClasses} quote-input" placeholder="Enter the quote here..."></textarea>`; break;
                     
+                    // NEW: Link / Button case
+                    case 'link-button':
+                        let btnDesc = descInput.replace('Description or Caption (optional)', 'Button Label (e.g. Read Full Article)');
+                        mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste the Link URL here (https://...)">${btnDesc}`; 
+                        break;
+
                     case 'live-score-embed':
                     case 'weather-embed':
                     case 'html-code':
@@ -327,7 +332,6 @@
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) return;
                 
-                // UPDATED SORTING: Pinned first, then by timestamp
                 const { data, error } = await supabaseClient
                     .from('live_posts')
                     .select('*')
@@ -365,15 +369,12 @@
                 if (target.classList.contains('pin-btn')) {
                     const { data, error } = await supabaseClient.rpc('toggle_pin', { post_id_to_toggle: postId, user_id_of_pinner: user.id });
                     if (error) { 
-                        // Using console.error for non-critical errors inside game/app to avoid blocking
                         console.error(`RPC Error: ${error.message}`); 
                     }
                     else if (data && data.startsWith('Error:')) { 
                         console.error(data); 
                     }
-                    // The realtime subscription will handle the UI update via fetchRecentPosts
                 } else if (target.classList.contains('delete-btn')) {
-                    // IMPORTANT: Replace alert/confirm with a custom modal in a production app.
                     if (window.confirm('Are you sure you want to delete this post?')) {
                         const { error } = await supabaseClient.from('live_posts').delete().match({ id: postId, user_id: user.id });
                         if (error) console.error(`Error deleting post: ${error.message}`);
@@ -441,11 +442,10 @@
                         case 'live-score-embed':
                         case 'weather-embed':
                         case 'html-code':
-                            // Uses a custom tag format to embed raw HTML on the reader side
                             bodyParts.push(`[WIDGET|${type}|${descValue || ''}]${mainValue}`); 
                             break;
                             
-                        default: // Handles all social media types by using their 'type' name as the keyword
+                        default: // Handles all social media types and the new 'link-button'
                             bodyParts.push(`[${type}|${descValue || ''}](${mainValue})`); break;
                     }
                 });
@@ -463,7 +463,6 @@
                 
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 
-                // Assuming RLS policy on live_posts allows insert for authenticated user
                 const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
                 
                 if (error) { 
@@ -475,22 +474,19 @@
                     statusMessage.style.color = 'green';
                     blocksContainer.innerHTML = '';
 
-                    // Reset the form to the new default state after publishing
+                    // Reset the form to the new default state
                     createBlock('headline');
                     createBlock('image');
-                    createBlock('youtube');
                     createBlock('content');
 
-                    // EDITED: Reset tags to default value instead of empty string
                     tagsInput.value = 'BREAKING, TMP NEWS';
                 }
                 setPublishingState(false);
 
-                // Clear status message after 3 seconds
                 setTimeout(() => { statusMessage.textContent = '', statusMessage.style.color = ''; }, 3000);
             });
 
-            // Realtime listener for post updates (to update the Recent Posts feed)
+            // Realtime listener
             supabaseClient.channel('public:live_posts:cms').on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => { 
                 fetchRecentPosts(); 
             }).subscribe();
