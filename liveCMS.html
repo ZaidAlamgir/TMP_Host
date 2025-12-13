@@ -273,6 +273,7 @@
                     if (blocksContainer.children.length === 0) {
                         createBlock('headline');
                         createBlock('image');
+                        createBlock('youtube'); // Added default YouTube block here
                         createBlock('content');
                     }
                     fetchRecentPosts();
@@ -289,7 +290,7 @@
             function autoExpand(textarea) { if (textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; } }
 
             function createBlock(type) {
-                const blockId = `block-${Date.now()}`;
+                const blockId = `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`; // slightly more unique ID
                 const blockWrapper = document.createElement('div');
                 blockWrapper.className = 'content-block bg-slate-50 border border-slate-200 p-6 rounded-xl relative mt-6';
                 blockWrapper.id = blockId;
@@ -319,7 +320,7 @@
                         mainEl = `<textarea rows="6" class="${textareaClasses} font-mono text-sm" placeholder="Paste the full HTML or iframe embed code here..."></textarea>`;
                         break;
 
-                    default: // Handles all social media embeds
+                    default: // Handles all social media embeds (including YouTube)
                         mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full post URL">${descInput}`; break;
                 }
                 innerHTML += mainEl;
@@ -477,6 +478,7 @@
                     // Reset the form to the new default state
                     createBlock('headline');
                     createBlock('image');
+                    createBlock('youtube'); // Added default YouTube block here
                     createBlock('content');
 
                     tagsInput.value = 'BREAKING, TMP NEWS';
