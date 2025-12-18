@@ -41,11 +41,29 @@
         }
         .tag-chip:hover { background-color: #e2e8f0; transform: translateY(-1px); }
         
+        /* Standard Category Chips (Blue) */
         .category-chip {
             background-color: #eff6ff; color: #1d4ed8; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
             border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid #bfdbfe;
         }
         .category-chip:hover { background-color: #dbeafe; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
+
+        /* NEW: Country Chips (Green) */
+        .country-chip {
+            background-color: #ecfdf5; color: #047857; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
+            border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid #6ee7b7;
+        }
+        .country-chip:hover { background-color: #d1fae5; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1); }
+        
+        /* Scrollable container for the country list */
+        .country-list-scroll {
+            max-height: 220px;
+            overflow-y: auto;
+            padding: 4px;
+            border: 1px solid #f1f5f9;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+        }
         
         textarea, input[type="text"], select { 
             transition: all 0.2s ease-in-out; 
@@ -245,21 +263,38 @@
              <div class="mb-8 p-5 bg-blue-50 rounded-xl border border-blue-100">
                 <label for="article-categories" class="block text-sm font-bold text-blue-900 mb-1">Categories (Required for URL)</label>
                 <p class="text-xs text-blue-600 mb-3">Select at least one category to ensure the link works correctly.</p>
-                <input type="text" id="article-categories" class="w-full p-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white" placeholder="Click a suggestion below...">
                 
-                <div id="category-suggestions-container" class="tag-suggestions mt-3">
-                    <div class="category-chip" data-cat="world-politics">World Politics</div>
-                    <div class="category-chip" data-cat="indian-politics">Indian Politics</div>
-                    <div class="category-chip" data-cat="muslim-world">Muslim World</div>
-                    <div class="category-chip" data-cat="technology">Technology</div>
-                    <div class="category-chip" data-cat="medical-science">Medical Science</div>
-                    <div class="category-chip" data-cat="global-economy">Global Economy</div>
-                    <div class="category-chip" data-cat="art-culture">Art & Culture</div>
-                    <div class="category-chip" data-cat="weather">Weather</div>
-                    <div class="category-chip" data-cat="sports">Sports</div>
-                    <div class="category-chip" data-cat="national-news">National News</div>
-                    <div class="category-chip" data-cat="international-news">International News</div>
-                    <div class="category-chip" data-cat="finance">Finance</div>
+                <input type="text" id="article-categories" class="w-full p-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white mb-4" placeholder="Selected categories will appear here...">
+                
+                <div class="mb-2">
+                    <p class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">General Topics</p>
+                    <div id="category-suggestions-container" class="tag-suggestions">
+                        <div class="category-chip" data-cat="world-politics">World Politics</div>
+                        <div class="category-chip" data-cat="indian-politics">Indian Politics</div>
+                        <div class="category-chip" data-cat="muslim-world">Muslim World</div>
+                        <div class="category-chip" data-cat="technology">Technology</div>
+                        <div class="category-chip" data-cat="medical-science">Medical Science</div>
+                        <div class="category-chip" data-cat="global-economy">Global Economy</div>
+                        <div class="category-chip" data-cat="art-culture">Art & Culture</div>
+                        <div class="category-chip" data-cat="weather">Weather</div>
+                        <div class="category-chip" data-cat="sports">Sports</div>
+                        <div class="category-chip" data-cat="national-news">National News</div>
+                        <div class="category-chip" data-cat="international-news">International News</div>
+                        <div class="category-chip" data-cat="finance">Finance</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-blue-200">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
+                        <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">OIC Member Countries (57)</p>
+                        <div class="relative w-full sm:w-1/2">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-emerald-400 text-xs"></i>
+                            <input type="text" id="country-search-input" class="w-full pl-8 p-2 text-xs border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Search country to add...">
+                        </div>
+                    </div>
+                    
+                    <div id="country-suggestions-container" class="tag-suggestions country-list-scroll">
+                        </div>
                 </div>
              </div>
 
@@ -286,18 +321,16 @@
      </div>
 
     <script>
-        // === UPDATED GITHUB_CONFIG ===
         const GITHUB_CONFIG = {
-            clientId: 'Ov23lissjbf3KA3blXGg', // From Step 1
+            clientId: 'Ov23lissjbf3KA3blXGg',
             redirectUri: 'https://www.tmpnews.com/auth-callback.html',
-            orgOwner: 'TheMuslimPost', // The GitHub Organization
-            legacyOwner: 'zaidalamgir', // The old personal account
+            orgOwner: 'TheMuslimPost',
+            legacyOwner: 'zaidalamgir',
             repoBranch: 'main',
             tokenExchangeUrl: 'https://github-auth-proxy-org.zaidkhan137782.workers.dev' 
         };
-        // === END UPDATED GITHUB_CONFIG ===
         
-        // === START: ***FIX*** - DEFINE ALL UI ELEMENTS ===
+        // DOM Elements
         const loginView = document.getElementById('login-view');
         const editorView = document.getElementById('editor-view');
         const loginButton = document.getElementById('login-button');
@@ -311,19 +344,18 @@
         const statusMessage = document.getElementById('status-message');
         const tagsInput = document.getElementById('article-tags');
         const categoriesInput = document.getElementById('article-categories');
+        
         const linkModal = document.getElementById('link-modal');
         const linkUrlInput = document.getElementById('link-url-input');
         const addLinkBtn = document.getElementById('add-link-btn');
         const cancelLinkBtn = document.getElementById('cancel-link-btn');
-        // === END: ***FIX*** ===
-        
-        // === Global State ===
+
+        // Global State
         let activeTextarea = null;
         let selectionStart = 0;
         let selectionEnd = 0;
         let accessToken = null;
         
-        // (autoExpandTextarea remains the same)
         const autoExpandTextarea = (textarea) => {
             if (!textarea) return;
             const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
@@ -333,10 +365,14 @@
             window.scrollTo(scrollLeft, scrollTop);
         };
 
-        // (window.onload remains the same)
+        // Initialize
         window.onload = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
+            
+            // OIC Logic Initialize
+            renderCountries();
+
             if (code) {
                 window.history.pushState({}, document.title, window.location.pathname);
                 try {
@@ -371,18 +407,13 @@
         const showLogin = () => { loginView.classList.remove('hidden'); editorView.classList.add('hidden'); };
         const showEditor = () => { loginView.classList.add('hidden'); editorView.classList.remove('hidden'); };
         
-        // === UPDATED LOGIN BUTTON CLICK ===
-        // This will now work because 'loginButton' is defined
         loginButton.addEventListener('click', () => {
             const finalDestination = window.location.origin + window.location.pathname;
-            localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'org_cms' })); // <-- IMPORTANT: I set this to 'org_cms'
-            // This now asks for permission to the TheMuslimPost ORG
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&scope=repo,user:email&org=${GITHUB_CONFIG.orgOwner}&state=org_cms`; // <-- IMPORTANT: State matches cms_id
+            localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'org_cms' })); 
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&scope=repo,user:email&org=${GITHUB_CONFIG.orgOwner}&state=org_cms`;
             window.location.href = authUrl;
         });
-        // === END UPDATED LOGIN BUTTON CLICK ===
 
-        // (logoutButton remains the same)
         logoutButton.addEventListener('click', async () => {
             if (accessToken) {
                 try {
@@ -398,14 +429,12 @@
             showLogin();
         });
 
-        // (editorView 'input' listener remains the same)
         editorView.addEventListener('input', e => {
             if (e.target.tagName.toLowerCase() === 'textarea') {
                 autoExpandTextarea(e.target);
             }
         });
 
-        // (addBlockButton 'click' listener remains the same)
         addBlockButton.addEventListener('click', () => {
             const blockType = blockTypeSelect.value;
             const blockId = `dynamic-block-${Date.now()}`;
@@ -442,7 +471,6 @@
             newBlock.querySelectorAll('textarea').forEach(autoExpandTextarea);
         });
 
-        // (Tag/Category/Link Modal listeners remain the same)
         document.getElementById('tag-suggestions-container').addEventListener('click', (e) => {
             if (e.target.classList.contains('tag-chip')) {
                 const newTag = e.target.dataset.tag;
@@ -452,6 +480,7 @@
                 }
             }
         });
+
         document.getElementById('category-suggestions-container').addEventListener('click', (e) => {
             if (e.target.classList.contains('category-chip')) {
                 const newCat = e.target.dataset.cat;
@@ -461,6 +490,71 @@
                 }
             }
         });
+
+        // ==========================================
+        // OIC COUNTRIES LOGIC START
+        // ==========================================
+        const oicCountriesList = [
+            "Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Benin", 
+            "Brunei", "Burkina Faso", "Cameroon", "Chad", "Comoros", "Côte d'Ivoire", "Djibouti", 
+            "Egypt", "Gabon", "Gambia", "Guinea", "Guinea-Bissau", "Guyana", "Indonesia", "Iran", 
+            "Iraq", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Lebanon", "Libya", "Malaysia", 
+            "Maldives", "Mali", "Mauritania", "Morocco", "Mozambique", "Niger", "Nigeria", "Oman", 
+            "Pakistan", "Palestine", "Qatar", "Saudi Arabia", "Senegal", "Sierra Leone", "Somalia", 
+            "Sudan", "Suriname", "Syria", "Tajikistan", "Togo", "Tunisia", "Turkey", "Turkmenistan", 
+            "Uganda", "United Arab Emirates", "Uzbekistan", "Yemen", "Kosovo"
+        ];
+        const countryContainer = document.getElementById('country-suggestions-container');
+        const countrySearchInput = document.getElementById('country-search-input');
+
+        function renderCountries(filterText = '') {
+            countryContainer.innerHTML = ''; 
+            const filtered = oicCountriesList.filter(country => 
+                country.toLowerCase().includes(filterText.toLowerCase())
+            );
+            if (filtered.length === 0) {
+                countryContainer.innerHTML = '<span class="text-xs text-slate-400 italic p-2">No country found</span>';
+                return;
+            }
+            filtered.forEach(country => {
+                const chip = document.createElement('div');
+                chip.className = 'country-chip'; 
+                chip.dataset.country = country; 
+                chip.textContent = country;
+                countryContainer.appendChild(chip);
+            });
+        }
+        countrySearchInput.addEventListener('input', (e) => {
+            renderCountries(e.target.value);
+        });
+        countryContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('country-chip')) {
+                const countryNameRaw = e.target.dataset.country;
+                // Convert to slug: Saudi Arabia -> saudi-arabia
+                const countrySlug = countryNameRaw.toLowerCase().replace(/\s+/g, '-');
+                
+                const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
+                
+                if (!currentCats.includes(countrySlug)) {
+                    categoriesInput.value = categoriesInput.value.trim() === '' ? countrySlug : `${categoriesInput.value.trim()}, ${countrySlug}`;
+                    
+                    // Visual feedback
+                    const originalText = e.target.textContent;
+                    e.target.textContent = "Added!";
+                    e.target.style.backgroundColor = "#10b981"; // Darker green
+                    e.target.style.color = "white";
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                        e.target.style.backgroundColor = ""; 
+                        e.target.style.color = ""; 
+                    }, 800);
+                }
+            }
+        });
+        // ==========================================
+        // OIC COUNTRIES LOGIC END
+        // ==========================================
+
         function showLinkModal(url = '') {
             linkUrlInput.value = url;
             linkModal.classList.add('visible');
@@ -494,12 +588,9 @@
         });
         cancelLinkBtn.addEventListener('click', hideLinkModal);
         
-        // --- UPDATED PUBLISH LOGIC ---
         publishButton.addEventListener('click', async () => {
             const headline = document.getElementById('article-headline').value.trim();
             const paragraph1 = document.getElementById('article-p1').value.trim();
-            
-            // NEW: Get selected repo
             const selectedRepo = document.getElementById('target-repo-select').value;
             
             if (!headline || !paragraph1) {
@@ -509,7 +600,6 @@
 
             setPublishingState(true);
             
-            // (All 'get value' code remains the same)
             const subheadline = document.getElementById('article-subheadline').value.trim();
             const mainImageUrl = document.getElementById('article-main-image-url').value.trim();
             const mainImageDesc = document.getElementById('article-main-image-desc').value.trim();
@@ -517,7 +607,6 @@
             const tags = tagsInput.value.trim();
             const categories = categoriesInput.value.trim(); 
 
-            // (Frontmatter logic remains the same)
             let frontmatter = `---\n`;
             frontmatter += `title: "${headline.replace(/"/g, '\\"')}"\n`;
             if (subheadline) frontmatter += `subheadline: "${subheadline.replace(/"/g, '\\"')}"\n`;
@@ -534,7 +623,6 @@
             frontmatter += `layout: post\n`;
             frontmatter += `---\n\n`;
 
-            // (Body logic remains the same)
             let body = `${paragraph1}\n\n`;
             document.querySelectorAll('.dynamic-content-block').forEach(block => {
                 const blockType = block.dataset.blockType;
@@ -561,8 +649,6 @@
             });
 
             const fileContent = frontmatter + body;
-            
-            // --- NEW: DYNAMIC PATH & OWNER LOGIC ---
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
             const slug = headline.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -570,21 +656,16 @@
             let filePath, owner;
 
             if (selectedRepo === 'TMP_Host') {
-                // Handle legacy repo
                 filePath = `_posts/${dateStr}-${slug}.md`;
-                owner = GITHUB_CONFIG.legacyOwner; // Use 'zaidalamgir'
+                owner = GITHUB_CONFIG.legacyOwner; 
             } else {
-                // Handle new organization repos
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
                 filePath = `posts/${year}/${month}/${dateStr}-${slug}.md`;
-                owner = GITHUB_CONFIG.orgOwner; // Use 'TheMuslimPost'
+                owner = GITHUB_CONFIG.orgOwner; 
             }
-            // --- END DYNAMIC LOGIC ---
 
             const commitMessage = `feat: Add new article "${headline}"`;
-            
-            // Use dynamic owner and repo
             const url = `https://api.github.com/repos/${owner}/${selectedRepo}/contents/${filePath}`;
             
             try {
@@ -595,7 +676,6 @@
                 });
                 if (response.status === 201) {
                     updateStatus(`Successfully published to ${selectedRepo}!`, '#16a34a');
-                    // Reset form
                     editorView.querySelectorAll('input, textarea').forEach(el => { if(el.id !== 'article-author') el.value = ''; });
                     dynamicBlocksContainer.innerHTML = '';
                     document.querySelectorAll('textarea').forEach(autoExpandTextarea);
@@ -610,7 +690,6 @@
             }
         });
 
-        // (updateStatus and setPublishingState remain the same)
         const updateStatus = (message, color) => {
             statusMessage.textContent = message;
             statusMessage.style.color = color;
