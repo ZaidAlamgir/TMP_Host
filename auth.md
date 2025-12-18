@@ -278,205 +278,171 @@ permalink: /auth.html
   </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 
 <script>
-    // --- SUPABASE CONFIGURATION ---
-    const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co'; // Your Supabase Project URL
+{ // <--- START BLOCK SCOPE (Prevents "Identifier already declared" crash)
+
+    const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    document.addEventListener('turbo:load', () => {
-        const basePath = document.body.getAttribute('data-base-path') || '';
-        const authFormContainer = document.getElementById('auth-form-container');
-
-        // --- HELPER FUNCTION: Cache user and redirect after login ---
-        function handleSuccessfulLogin(supabaseUser) {
-            const userToCache = { 
-                uid: supabaseUser.id, 
-                displayName: supabaseUser.user_metadata?.full_name, 
-                email: supabaseUser.email, 
-                photoURL: supabaseUser.user_metadata?.avatar_url 
-            };
-            localStorage.setItem('cachedUser', JSON.stringify(userToCache));
-            // Use location.replace() to prevent the login page from being added to the browser history.
-            // This allows the user to click "back" once on the profile page to return to where they were.
-            window.location.replace(`{{ '/profile/' | relative_url }}`);
+    function initAuth() {
+        // 1. Check if Supabase library is loaded
+        if (typeof window.supabase === 'undefined') {
+            console.error("Supabase library not loaded. Check standalone.html");
+            return;
         }
 
-        // --- AUTH GUARD ---
-        // If a user is already logged in, redirect them away from the login page.
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const authFormContainer = document.getElementById('auth-form-container');
+
+        if (!authFormContainer) return;
+
+        // 2. Auth Guard: Redirect if already logged in
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
-                // Redirect to the homepage using replace() to prevent history loops
-                window.location.replace(`{{ '/' | relative_url }}`); 
+                window.location.replace("{{ '/' | relative_url }}"); 
             }
         });
 
+        // 3. REVEAL THE FORM (Crucial Step)
         authFormContainer.classList.remove('hidden');
-        initializeAuthForm();
+        
+        // 4. Initialize Form Logic
+        setupFormListeners(supabase);
+    }
 
-        function initializeAuthForm() {
-            const stepSignUp1 = document.getElementById('stepSignUp1'), stepSignUp2 = document.getElementById('stepSignUp2'), stepSignIn = document.getElementById('stepSignIn');
-            const emailForm = document.getElementById('emailForm'), registerForm = document.getElementById('registerForm'), signInForm = document.getElementById('signInForm');
-            const emailInput = document.getElementById('email'), passwordInput = document.getElementById('password'), fullNameInput = document.getElementById('fullName');
-            const signInEmailInput = document.getElementById('signInEmail'), signInPasswordInput = document.getElementById('signInPassword');
-            const backToStep1Link = document.getElementById('backToStep1'), goToSignInLink = document.getElementById('goToSignIn'), goToSignUpLink = document.getElementById('goToSignUp');
-            
-            // --- MODIFIED: Get button references here ---
-            const googleSignInSignUpBtn = document.getElementById('googleSignInSignUp'), googleSignInBtn = document.getElementById('googleSignIn');
-            
-            const togglePasswordIcons = document.querySelectorAll('.toggle-password');
-            const emailError = document.getElementById('emailError'), registerError = document.getElementById('registerError'), signInError = document.getElementById('signInError');
-            const reqLength = document.getElementById('req-length'), reqNumber = document.getElementById('req-number'), reqUppercase = document.getElementById('req-uppercase');
-            let userEmail = '';
+    function setupFormListeners(supabase) {
+        const stepSignUp1 = document.getElementById('stepSignUp1'), stepSignUp2 = document.getElementById('stepSignUp2'), stepSignIn = document.getElementById('stepSignIn');
+        const emailForm = document.getElementById('emailForm'), registerForm = document.getElementById('registerForm'), signInForm = document.getElementById('signInForm');
+        const emailInput = document.getElementById('email'), passwordInput = document.getElementById('password'), fullNameInput = document.getElementById('fullName');
+        const signInEmailInput = document.getElementById('signInEmail'), signInPasswordInput = document.getElementById('signInPassword');
+        const backToStep1Link = document.getElementById('backToStep1'), goToSignInLink = document.getElementById('goToSignIn'), goToSignUpLink = document.getElementById('goToSignUp');
+        const googleSignInSignUpBtn = document.getElementById('googleSignInSignUp'), googleSignInBtn = document.getElementById('googleSignIn');
+        const authFormContainer = document.getElementById('auth-form-container');
+        
+        let userEmail = '';
 
-            function showStep(stepElement) {
-                document.querySelectorAll('.auth-step').forEach(step => step.classList.remove('active'));
-                stepElement.classList.add('active');
-            }
+        const signInError = document.getElementById('signInError');
+        const emailError = document.getElementById('emailError');
+        const registerError = document.getElementById('registerError');
 
-            goToSignInLink.addEventListener('click', e => { e.preventDefault(); showStep(stepSignIn); });
-            goToSignUpLink.addEventListener('click', e => { e.preventDefault(); showStep(stepSignUp1); });
-            backToStep1Link.addEventListener('click', e => { e.preventDefault(); showStep(stepSignUp1); registerError.textContent = ''; });
-
-            emailForm.addEventListener('submit', e => {
-                e.preventDefault();
-                userEmail = emailInput.value;
-                showStep(stepSignUp2);
-            });
-
-            registerForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const password = passwordInput.value;
-                const fullName = fullNameInput.value;
-                registerError.textContent = '';
-
-                const { data, error } = await supabase.auth.signUp({
-                    email: userEmail,
-                    password: password,
-                    options: {
-                        data: { full_name: fullName }
-                    }
-                });
-
-                if (error) {
-                    registerError.textContent = error.message;
-                } else if (data.session) {
-                    // If a session exists, confirmation is off or already done. Log them in.
-                    handleSuccessfulLogin(data.session.user);
-                } else if (data.user) {
-                    // If only a user object exists, they need to confirm their email.
-                    // Show a success message instead of redirecting.
-                    showStep(stepSignUp1); // Go back to the first step
-                    emailInput.value = ''; // Clear the input
-                    emailError.textContent = 'Success! Please check your email for a confirmation link.';
-                    emailError.style.color = '#42b72a'; // Make it green
-                }
-            });
-
-            signInForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = signInEmailInput.value;
-                const password = signInPasswordInput.value;
-                signInError.textContent = '';
-
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password,
-                });
-
-                if (error) {
-                    signInError.textContent = error.message;
-                } else if (data.user) {
-                    handleSuccessfulLogin(data.user);
-                }
-            });
-
-            // --- *** THIS IS THE UPDATED FUNCTION *** ---
-            const handleGoogleSignIn = async () => {
-                // 1. Get error fields
-                const signInError = document.getElementById('signInError');
-                const emailError = document.getElementById('emailError');
-                
-                // 2. Show loading state and disable buttons
-                googleSignInSignUpBtn.disabled = true;
-                googleSignInBtn.disabled = true;
-                googleSignInSignUpBtn.classList.add('loading');
-                googleSignInBtn.classList.add('loading');
-
-                // 3. Clear previous errors
-                signInError.textContent = '';
-                emailError.textContent = '';
-                
-                // 4. Check if we are inside your Android app
-                const isInsideApp = (window.AndroidInterface && typeof window.AndroidInterface.share === 'function');
-                
-                let redirectUrl;
-                
-                if (isInsideApp) {
-                    console.log("App detected. Redirecting to tmpnews://auth/callback");
-                    redirectUrl = 'tmpnews://auth/callback';
-                } else {
-                    console.log("Web browser detected. Redirecting to https://www.tmpnews.com/callback.html");
-                    redirectUrl = 'https://www.tmpnews.com/callback.html';
-                }
-            
-                // 5. Set the auth options
-                const authOptions = {
-                    provider: 'google',
-                    options: {
-                        redirectTo: redirectUrl // Use the correct URL based on the environment
-                    }
-                };
-                
-                // 6. Pass the options to Supabase
-                const { error } = await supabase.auth.signInWithOAuth(authOptions);
-                
-                // 7. Handle error (if redirect fails)
-                if (error) {
-                    // Display the error in the currently active form
-                    const activeErrorEl = document.getElementById('stepSignIn').classList.contains('active') ? signInError : emailError;
-                    activeErrorEl.textContent = error.message;
-
-                    // 8. Hide loading state and re-enable buttons
-                    googleSignInSignUpBtn.disabled = false;
-                    googleSignInBtn.disabled = false;
-                    googleSignInSignUpBtn.classList.remove('loading');
-                    googleSignInBtn.classList.remove('loading');
-                }
-                // If successful, the page redirects, so no 'else' is needed
-            };
-            // --- *** END OF UPDATED FUNCTION *** ---
-
-            googleSignInSignUpBtn.addEventListener('click', handleGoogleSignIn);
-            googleSignInBtn.addEventListener('click', handleGoogleSignIn);
-            
-            // CRITICAL FIX: Use event delegation for password toggle icons.
-            authFormContainer.addEventListener('click', (e) => {
-                if (e.target.classList.contains('toggle-password')) {
-                    const icon = e.target;
-                    const passwordField = icon.previousElementSibling;
-
-                    if (passwordField && (passwordField.id === 'password' || passwordField.id === 'signInPassword')) {
-                        const isPassword = passwordField.type === 'password';
-                        passwordField.type = isPassword ? 'text' : 'password';
-                        icon.classList.toggle('fa-eye');
-                        icon.classList.toggle('fa-eye-slash');
-                    } else {
-                        console.warn("Password toggle icon clicked, but associated input field not found or is not a password field.");
-                    }
-                }
-            });
-            
-            passwordInput.addEventListener('input', () => {
-                const value = passwordInput.value;
-                reqLength.classList.toggle('valid', value.length >= 8);
-                reqNumber.classList.toggle('valid', /\d/.test(value));
-                reqUppercase.classList.toggle('valid', /[A-Z]/.test(value));
-            });
+        function showStep(stepElement) {
+            document.querySelectorAll('.auth-step').forEach(step => step.classList.remove('active'));
+            stepElement.classList.add('active');
         }
-    });
+
+        // Navigation Listeners
+        if(goToSignInLink) goToSignInLink.onclick = (e) => { e.preventDefault(); showStep(stepSignIn); };
+        if(goToSignUpLink) goToSignUpLink.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); };
+        if(backToStep1Link) backToStep1Link.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); registerError.textContent = ''; };
+
+        // Form Submissions
+        if(emailForm) emailForm.onsubmit = (e) => {
+            e.preventDefault();
+            userEmail = emailInput.value;
+            showStep(stepSignUp2);
+        };
+
+        if(registerForm) registerForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const password = passwordInput.value;
+            const fullName = fullNameInput.value;
+            registerError.textContent = '';
+
+            const { data, error } = await supabase.auth.signUp({
+                email: userEmail,
+                password: password,
+                options: { data: { full_name: fullName } }
+            });
+
+            if (error) {
+                registerError.textContent = error.message;
+            } else if (data.session) {
+                handleSuccessfulLogin(data.session.user);
+            } else if (data.user) {
+                showStep(stepSignUp1);
+                emailInput.value = '';
+                emailError.textContent = 'Success! Please check your email for a confirmation link.';
+                emailError.style.color = '#42b72a';
+            }
+        };
+
+        if(signInForm) signInForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = signInEmailInput.value;
+            const password = signInPasswordInput.value;
+            signInError.textContent = '';
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                signInError.textContent = error.message;
+            } else if (data.user) {
+                handleSuccessfulLogin(data.user);
+            }
+        };
+
+        // Google Sign In Logic
+        const handleGoogleSignIn = async () => {
+            if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = true; googleSignInSignUpBtn.classList.add('loading'); }
+            if(googleSignInBtn) { googleSignInBtn.disabled = true; googleSignInBtn.classList.add('loading'); }
+            
+            signInError.textContent = '';
+            emailError.textContent = '';
+            
+            const isInsideApp = (window.AndroidInterface && typeof window.AndroidInterface.share === 'function');
+            let redirectUrl = isInsideApp ? 'tmpnews://auth/callback' : 'https://www.tmpnews.com/callback.html';
+        
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: redirectUrl }
+            });
+            
+            if (error) {
+                const activeErrorEl = document.getElementById('stepSignIn').classList.contains('active') ? signInError : emailError;
+                activeErrorEl.textContent = error.message;
+                if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = false; googleSignInSignUpBtn.classList.remove('loading'); }
+                if(googleSignInBtn) { googleSignInBtn.disabled = false; googleSignInBtn.classList.remove('loading'); }
+            }
+        };
+
+        if(googleSignInSignUpBtn) googleSignInSignUpBtn.onclick = handleGoogleSignIn;
+        if(googleSignInBtn) googleSignInBtn.onclick = handleGoogleSignIn;
+
+        // Password Toggle
+        authFormContainer.onclick = (e) => {
+            if (e.target.classList.contains('toggle-password')) {
+                const icon = e.target;
+                const passwordField = icon.previousElementSibling;
+                if (passwordField) {
+                    passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
+            }
+        };
+    }
+
+    function handleSuccessfulLogin(supabaseUser) {
+        const userToCache = { 
+            uid: supabaseUser.id, 
+            displayName: supabaseUser.user_metadata?.full_name, 
+            email: supabaseUser.email, 
+            photoURL: supabaseUser.user_metadata?.avatar_url 
+        };
+        localStorage.setItem('cachedUser', JSON.stringify(userToCache));
+        window.location.replace("{{ '/profile/' | relative_url }}");
+    }
+
+    // Run immediately if body is ready (Turbo handles body swap), otherwise wait
+    if (document.readyState === 'loading') {
+        document.addEventListener('turbo:load', initAuth, { once: true });
+    } else {
+        initAuth();
+    }
+} // <--- END BLOCK SCOPE
 </script>

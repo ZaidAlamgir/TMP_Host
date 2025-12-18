@@ -6,7 +6,7 @@
     <title>{{ page.title | default: site.title }}</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         (function() {
             try {
@@ -37,7 +37,6 @@
     
     {{ content }}
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="{{ '/assets/header-injector.js' | relative_url }}"></script>
 </body>
 </html>
