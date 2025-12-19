@@ -1,74 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Authenticating...</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .container { 
-            text-align: center; 
-            color: #606770; 
-            background: #fff;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            min-width: 320px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0073e6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        p {
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
+        p { color: #606770; margin-bottom: 25px; line-height: 1.5; text-align: center; font-weight: 500; }
+        .error { color: #dc3545; }
     </style>
 </head>
 <body>
-    <div class="container" id="loading-container">
+    <div id="loading-container">
         <div class="spinner"></div>
-        <p>Please wait while we sign you in...</p>
+        <p id="status-text">Please wait while we sign you in...</p>
     </div>
 
     <script>
+        // Configuration
         const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const loader = document.getElementById('loading-container');
-        
-        (async () => {
+
+        // Main Logic Wrapper
+        async function handleAuth() {
+            // 1. Safety Check: Is Supabase loaded?
+            if (typeof window.supabase === 'undefined') {
+                console.error('Supabase library not ready.');
+                document.getElementById('status-text').innerHTML = '<span class="error">Library Error. Please refresh the page.</span>';
+                return;
+            }
+
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             
-            // This is the only logic we need now.
-            // It gets the tokens from the URL hash (#)
+            // 2. Get URL Parameters
+            const urlParams = new URLSearchParams(window.location.search);
             const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            
+            const code = urlParams.get('code');
             const accessToken = hashParams.get('access_token');
             const refreshToken = hashParams.get('refresh_token');
 
-            if (accessToken && refreshToken) {
-                // FLOW: Google/Email Implicit Grant
-                console.log("Tokens found in hash. Manually setting session...");
-                
-                const { error } = await supabase.auth.setSession({
-                    access_token: accessToken,
-                    refresh_token: refreshToken
-                });
-
-                if (error) {
-                    console.error(error.message);
-                    loader.innerHTML = `<p style="color: red; font-weight: 500;">Login error: ${error.message}</p>`;
-                } else {
-                    // Success! Session is set in localStorage.
-                    // Now redirect to the homepage.
-                    console.log("Session set successfully. Redirecting to homepage.");
-                    window.location.replace('/');
+            try {
+                // CASE A: PKCE Flow (Code)
+                if (code) {
+                    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+                    if (error) throw error;
+                    finish(data.session);
+                } 
+                // CASE B: Implicit Flow (Hash Token)
+                else if (accessToken) {
+                    // Fallback: If refresh_token is missing, reuse access_token to prevent crash
+                    const { data, error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken || accessToken 
+                    });
+                    
+                    if (error) {
+                        // Double check if token is valid via getUser
+                        const { data: userData, error: userError } = await supabase.auth.getUser(accessToken);
+                        if (userError) throw error; // Original error was real
+                        finish({ user: userData.user });
+                    } else {
+                        finish(data.session);
+                    }
+                } 
+                // CASE C: No Tokens Found
+                else {
+                    // Redirect back to login if accessed directly
+                    console.warn("No tokens found.");
+                    setTimeout(() => window.location.replace('/auth.html'), 1000);
                 }
-            } else {
-                // This will show if the URL has no tokens
-                console.error("Callback loaded, but no token found in URL hash.");
-                loader.innerHTML = '<p style="color: red; font-weight: 500;">Login error. No token received. Please try again.</p>';
+            } catch (err) {
+                console.error("Login Error:", err);
+                
+                // If code is invalid (e.g. page refresh), send back to login
+                if (err.message.includes("code") || err.message.includes("flow")) {
+                    document.getElementById('status-text').innerText = "Session expired. Redirecting...";
+                    setTimeout(() => window.location.replace('/auth.html'), 2000);
+                } else {
+                    document.getElementById('status-text').innerHTML = `<span class="error">Login Failed: ${err.message}</span>`;
+                    document.querySelector('.spinner').style.display = 'none';
+                }
             }
-        })();
+        }
+
+        // Helper: Save User & Redirect
+        function finish(session) {
+            if (session?.user) {
+                const userToCache = { 
+                    uid: session.user.id, 
+                    email: session.user.email, 
+                    displayName: session.user.user_metadata?.full_name, 
+                    photoURL: session.user.user_metadata?.avatar_url 
+                };
+                localStorage.setItem('cachedUser', JSON.stringify(userToCache));
+
+                // Notify Android App if exists
+                if (window.AndroidInterface && typeof window.AndroidInterface.onLoginSuccess === 'function') {
+                    try { window.AndroidInterface.onLoginSuccess(); } catch(e) {}
+                }
+
+                document.getElementById('status-text').innerText = "Success! Redirecting...";
+                
+                // Small delay ensures LocalStorage is saved on all devices
+                setTimeout(() => {
+                    window.location.replace('/');
+                }, 500);
+            }
+        }
+
+        // Ensure DOM and Library are ready before running
+        if (document.readyState === 'complete' || (document.readyState !== 'loading' && !document.documentElement.doScroll)) {
+            handleAuth();
+        } else {
+            document.addEventListener('DOMContentLoaded', handleAuth);
+        }
     </script>
 </body>
 </html>

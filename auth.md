@@ -281,15 +281,14 @@ permalink: /auth.html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 
 <script>
-{ // <--- START BLOCK SCOPE (Prevents "Identifier already declared" crash)
+{ // Block Scope Start
 
     const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
 
     function initAuth() {
-        // 1. Check if Supabase library is loaded
         if (typeof window.supabase === 'undefined') {
-            console.error("Supabase library not loaded. Check standalone.html");
+            console.error("Supabase library not loaded. Ensure it is in the head of standalone.html");
             return;
         }
 
@@ -298,53 +297,73 @@ permalink: /auth.html
 
         if (!authFormContainer) return;
 
-        // 2. Auth Guard: Redirect if already logged in
+        // Reveal the form immediately if found
+        authFormContainer.classList.remove('hidden');
+
+        // Check if user is already logged in
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
+                // Redirect to home if logged in
                 window.location.replace("{{ '/' | relative_url }}"); 
             }
         });
 
-        // 3. REVEAL THE FORM (Crucial Step)
-        authFormContainer.classList.remove('hidden');
-        
-        // 4. Initialize Form Logic
+        // Initialize all event listeners
         setupFormListeners(supabase);
     }
 
     function setupFormListeners(supabase) {
-        const stepSignUp1 = document.getElementById('stepSignUp1'), stepSignUp2 = document.getElementById('stepSignUp2'), stepSignIn = document.getElementById('stepSignIn');
-        const emailForm = document.getElementById('emailForm'), registerForm = document.getElementById('registerForm'), signInForm = document.getElementById('signInForm');
-        const emailInput = document.getElementById('email'), passwordInput = document.getElementById('password'), fullNameInput = document.getElementById('fullName');
-        const signInEmailInput = document.getElementById('signInEmail'), signInPasswordInput = document.getElementById('signInPassword');
-        const backToStep1Link = document.getElementById('backToStep1'), goToSignInLink = document.getElementById('goToSignIn'), goToSignUpLink = document.getElementById('goToSignUp');
-        const googleSignInSignUpBtn = document.getElementById('googleSignInSignUp'), googleSignInBtn = document.getElementById('googleSignIn');
-        const authFormContainer = document.getElementById('auth-form-container');
+        const stepSignUp1 = document.getElementById('stepSignUp1');
+        const stepSignUp2 = document.getElementById('stepSignUp2');
+        const stepSignIn = document.getElementById('stepSignIn');
         
-        let userEmail = '';
-
-        const signInError = document.getElementById('signInError');
+        const emailForm = document.getElementById('emailForm');
+        const registerForm = document.getElementById('registerForm');
+        const signInForm = document.getElementById('signInForm');
+        
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const fullNameInput = document.getElementById('fullName');
+        
+        const signInEmailInput = document.getElementById('signInEmail');
+        const signInPasswordInput = document.getElementById('signInPassword');
+        
+        const backToStep1Link = document.getElementById('backToStep1');
+        const goToSignInLink = document.getElementById('goToSignIn');
+        const goToSignUpLink = document.getElementById('goToSignUp');
+        
+        const googleSignInSignUpBtn = document.getElementById('googleSignInSignUp');
+        const googleSignInBtn = document.getElementById('googleSignIn');
+        
         const emailError = document.getElementById('emailError');
         const registerError = document.getElementById('registerError');
+        const signInError = document.getElementById('signInError');
+        
+        const reqLength = document.getElementById('req-length');
+        const reqNumber = document.getElementById('req-number');
+        const reqUppercase = document.getElementById('req-uppercase');
+        
+        let userEmail = '';
 
         function showStep(stepElement) {
             document.querySelectorAll('.auth-step').forEach(step => step.classList.remove('active'));
             stepElement.classList.add('active');
         }
 
-        // Navigation Listeners
-        if(goToSignInLink) goToSignInLink.onclick = (e) => { e.preventDefault(); showStep(stepSignIn); };
-        if(goToSignUpLink) goToSignUpLink.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); };
-        if(backToStep1Link) backToStep1Link.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); registerError.textContent = ''; };
+        // Navigation
+        if (goToSignInLink) goToSignInLink.onclick = (e) => { e.preventDefault(); showStep(stepSignIn); };
+        if (goToSignUpLink) goToSignUpLink.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); };
+        if (backToStep1Link) backToStep1Link.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); registerError.textContent = ''; };
 
-        // Form Submissions
-        if(emailForm) emailForm.onsubmit = (e) => {
+        // Email Form Submit
+        if (emailForm) emailForm.onsubmit = (e) => {
             e.preventDefault();
             userEmail = emailInput.value;
             showStep(stepSignUp2);
         };
 
-        if(registerForm) registerForm.onsubmit = async (e) => {
+        // Register Form Submit
+        if (registerForm) registerForm.onsubmit = async (e) => {
             e.preventDefault();
             const password = passwordInput.value;
             const fullName = fullNameInput.value;
@@ -368,7 +387,8 @@ permalink: /auth.html
             }
         };
 
-        if(signInForm) signInForm.onsubmit = async (e) => {
+        // Sign In Form Submit
+        if (signInForm) signInForm.onsubmit = async (e) => {
             e.preventDefault();
             const email = signInEmailInput.value;
             const password = signInPasswordInput.value;
@@ -386,45 +406,80 @@ permalink: /auth.html
             }
         };
 
-        // Google Sign In Logic
-        const handleGoogleSignIn = async () => {
-            if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = true; googleSignInSignUpBtn.classList.add('loading'); }
-            if(googleSignInBtn) { googleSignInBtn.disabled = true; googleSignInBtn.classList.add('loading'); }
-            
-            signInError.textContent = '';
-            emailError.textContent = '';
-            
-            const isInsideApp = (window.AndroidInterface && typeof window.AndroidInterface.share === 'function');
-            let redirectUrl = isInsideApp ? 'tmpnews://auth/callback' : 'https://www.tmpnews.com/callback.html';
-        
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: redirectUrl }
-            });
-            
-            if (error) {
-                const activeErrorEl = document.getElementById('stepSignIn').classList.contains('active') ? signInError : emailError;
-                activeErrorEl.textContent = error.message;
-                if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = false; googleSignInSignUpBtn.classList.remove('loading'); }
-                if(googleSignInBtn) { googleSignInBtn.disabled = false; googleSignInBtn.classList.remove('loading'); }
-            }
-        };
+        // --- SMART GOOGLE SIGN IN LOGIC (Web + Android + Localhost) ---
+const handleGoogleSignIn = async () => {
+    // 1. UI Loading State
+    if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = true; googleSignInSignUpBtn.classList.add('loading'); }
+    if(googleSignInBtn) { googleSignInBtn.disabled = true; googleSignInBtn.classList.add('loading'); }
+    if(signInError) signInError.textContent = '';
+    if(emailError) emailError.textContent = '';
+    
+    // 2. Check Environment
+    const isInsideApp = (window.AndroidInterface && typeof window.AndroidInterface.share === 'function');
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    let redirectUrl;
 
+    if (isInsideApp) {
+        console.log("App detected. Redirecting to tmpnews://auth/callback");
+        redirectUrl = 'tmpnews://auth/callback';
+    } else if (isLocalhost) {
+        // Automatically uses http://localhost:4000/callback.html (or whatever port you are using)
+        console.log("Localhost detected.");
+        redirectUrl = `${window.location.origin}/callback.html`;
+    } else {
+        console.log("Production Web detected.");
+        redirectUrl = 'https://www.tmpnews.com/callback.html';
+    }
+
+    console.log("Using Redirect URL:", redirectUrl);
+
+    // 3. Call Supabase
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { 
+            redirectTo: redirectUrl,
+            skipBrowserRedirect: false 
+        }
+    });
+    
+    // 4. Handle Error
+    if (error) {
+        const activeErrorEl = document.getElementById('stepSignIn') && document.getElementById('stepSignIn').classList.contains('active') ? signInError : emailError;
+        if(activeErrorEl) activeErrorEl.textContent = error.message;
+        
+        if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = false; googleSignInSignUpBtn.classList.remove('loading'); }
+        if(googleSignInBtn) { googleSignInBtn.disabled = false; googleSignInBtn.classList.remove('loading'); }
+    }
+};
         if(googleSignInSignUpBtn) googleSignInSignUpBtn.onclick = handleGoogleSignIn;
         if(googleSignInBtn) googleSignInBtn.onclick = handleGoogleSignIn;
 
-        // Password Toggle
-        authFormContainer.onclick = (e) => {
-            if (e.target.classList.contains('toggle-password')) {
-                const icon = e.target;
-                const passwordField = icon.previousElementSibling;
-                if (passwordField) {
-                    passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
-                    icon.classList.toggle('fa-eye');
-                    icon.classList.toggle('fa-eye-slash');
+        // Password Toggle Logic
+        const authFormContainer = document.getElementById('auth-form-container');
+        if (authFormContainer) {
+            authFormContainer.onclick = (e) => {
+                if (e.target.classList.contains('toggle-password')) {
+                    const icon = e.target;
+                    const passwordField = icon.previousElementSibling;
+                    if (passwordField) {
+                        passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+                        icon.classList.toggle('fa-eye');
+                        icon.classList.toggle('fa-eye-slash');
+                    }
                 }
-            }
-        };
+            };
+        }
+
+        // Password Validation Logic
+        if (passwordInput) {
+            passwordInput.oninput = () => {
+                const value = passwordInput.value;
+                reqLength.classList.toggle('valid', value.length >= 8);
+                reqNumber.classList.toggle('valid', /\d/.test(value));
+                reqUppercase.classList.toggle('valid', /[A-Z]/.test(value));
+            };
+        }
     }
 
     function handleSuccessfulLogin(supabaseUser) {
@@ -438,11 +493,11 @@ permalink: /auth.html
         window.location.replace("{{ '/profile/' | relative_url }}");
     }
 
-    // Run immediately if body is ready (Turbo handles body swap), otherwise wait
+    // Trigger Init
     if (document.readyState === 'loading') {
         document.addEventListener('turbo:load', initAuth, { once: true });
     } else {
         initAuth();
     }
-} // <--- END BLOCK SCOPE
+} // Block Scope End
 </script>
