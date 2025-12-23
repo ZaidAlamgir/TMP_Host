@@ -1,0 +1,17 @@
+---
+layout: null
+permalink: /opinions/feed.json
+---
+[
+  {% assign opinion_posts = site.posts | where_exp: "item", "item.url contains '/opinions/'" %}
+  {% for post in opinion_posts limit:50 %}
+  {
+    "title": {{ post.title | jsonify }},
+    "url": {{ post.url | absolute_url | jsonify }},
+    "date": "{{ post.date | date_to_string }}",
+    "author": {{ post.author | default: "The Muslim Post" | jsonify }},
+    "image": "{% if post.image %}{{ post.image | absolute_url }}{% endif %}",
+    "preview": {{ post.excerpt | strip_html | truncatewords: 25 | jsonify }}
+  }{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+]

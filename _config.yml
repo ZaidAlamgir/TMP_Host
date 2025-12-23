@@ -34,7 +34,7 @@ include:
   - post.html
   - .well-known
   - auth-callback.html
-
+  - write.html
 # Exclude from processing.
 exclude:
   - .sass-cache/

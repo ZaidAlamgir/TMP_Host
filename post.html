@@ -1,17 +1,24 @@
 ---
 layout: default
-title: Post Your Thoughts
+title: Community Feed
 extra_css:
   - /assets/style/post.css
 extra_js:
-  - post.js
+  - /assets/js/post.js
 ---
 
 <script>
-    window.TMP_LINKS = {
+    window.TMP_CONFIG = {
+        // Your Worker for "Recent" (User) Posts
+        FEED_API_URL: "https://tmp-feed-api.zaidkhan137782.workers.dev",
+        
+        // NEW: The Local Archive Feed
+        FOR_YOU_API: "{{ '/opinions/feed.json' | relative_url }}",
+
+        // Links
         postOpen: "{{ '/postopen.html' | relative_url }}",
-        auth: "{{ 'auth.html' | relative_url }}",
-        approval: "{{ 'approval.html' | relative_url }}"
+        auth: "{{ '/auth' | relative_url }}",
+        writePage: "{{ '/write' | relative_url }}"
     };
 </script>
 
@@ -19,91 +26,21 @@ extra_js:
     <div class="post-container">
         <div class="feed-tabs">
             <div class="feed-tab" data-feed="for-you">For You</div>
-            <div class="feed-tab active" data-feed="recent">Recent Posts</div>
+            <div class="feed-tab active" data-feed="recent">Recent Opinions</div>
         </div>
 
         <div id="search-container">
-            <input type="text" id="tagSearchInput" placeholder="Search posts by tag...">
+            <input type="text" id="tagSearchInput" placeholder="Search opinions by tag...">
         </div>
 
         <div id="forYouFeed" style="display: none;"></div>
 
         <div id="recentPostsContainer">
             <div id="postsFeed"></div>
-            <div id="postsLoader" class="loader" style="display: none; margin-top: 20px;"></div>
+            <div id="postsLoader" class="loader"></div>
         </div>
         
-        <div id="endOfFeedMessage">You've reached the end!</div>
+        <div id="endOfFeedMessage">You're all caught up!</div>
         <div id="scrollSentinel" style="height: 50px;"></div>
     </div>
-
-    <button id="writerFab" class="fab-writer" title="Write a Post">
-        <i class="fas fa-pen"></i>
-    </button>
-
-    <div id="writerModalOverlay" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Create Post</h2>
-                <button id="closeModalBtn" class="modal-close-btn">&times;</button>
-            </div>
-
-            <div id="userInfoContainer">
-                <div class="user-info-header">
-                    <div class="user-avatar" id="userAvatar"></div>
-                    <div class="user-details">
-                        <strong id="userName"></strong>
-                        <span style="font-size: 12px; color: #606770;">Posting as Writer</span>
-                    </div>
-                </div>
-                <form id="postForm">
-                    <div class="form-group">
-                        <label for="writerHeadline">Headline (Optional)</label>
-                        <input type="text" id="writerHeadline" placeholder="A catchy title">
-                    </div>
-                    <div class="form-group">
-                        <label for="writerQualification">Qualification</label>
-                        <input type="text" id="writerQualification" placeholder="e.g., Journalist, PhD" required>
-                    </div>
-
-                    <div class="suggestions-container">
-                        <label class="form-group" for="postContent">Content</label>
-                        <textarea id="postContent" placeholder="Start writing..." required rows="5"></textarea>
-                        <div id="suggestions-box"></div>
-                    </div>
-
-                    <div id="dynamic-blocks-container"></div>
-
-                    <div class="add-block-controls">
-                        <select id="block-type-select">
-                            <option value="paragraph">Paragraph</option>
-                            <option value="headline">Headline</option>
-                            <option value="image">Image URL</option>
-                            <option value="quote">Quote</option>
-                        </select>
-                        <button type="button" id="add-block-btn"><i class="fas fa-plus"></i> Add</button>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 1rem;">
-                        <label for="postTags">Tags</label>
-                        <input type="text" id="postTags" placeholder="comma, separated, tags">
-                    </div>
-                    
-                    <div class="post-actions-bar">
-                        <span id="charCounter">1000 words remaining</span>
-                        <button type="button" id="clearDraftBtn" class="btn-secondary" style="display: none;">Clear</button>
-                    </div>
-                    
-                    <div class="submit-container">
-                        <button type="submit" id="submitPost">Publish</button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="loader" id="postSubmitLoader"></div>
-        </div>
-    </div>
-
-    <div id="loginPromptContainer" style="display:none;"></div> 
-    <div id="verificationPromptContainer" style="display:none;"></div>
 </main>

@@ -1,0 +1,41 @@
+---
+layout: default
+title: Writer Studio
+permalink: /write/
+extra_css:
+  - /assets/style/write.css
+extra_js:
+  - /assets/js/write.js
+---
+
+<div class="writer-studio-container">
+    <div class="studio-header">
+        <h1>Writer Studio</h1>
+        <div class="studio-actions">
+            <span id="word-count">0 words</span>
+            <button id="publishBtn" class="btn-publish" disabled>Publish</button>
+        </div>
+    </div>
+
+    <div id="auth-loader" class="loader"></div>
+
+    <div id="editor-area" style="display: none;">
+        <input type="text" id="headline" placeholder="Headline" class="input-headline" autocomplete="off">
+        <input type="text" id="qualification" placeholder="Your Qualification" class="input-subtle">
+        <textarea id="main-content" placeholder="Start your article here..." class="input-body"></textarea>
+        
+        <div id="dynamic-blocks"></div>
+
+        <div class="add-block-bar">
+            <span>Add:</span>
+            <button type="button" onclick="window.dispatchEvent(new CustomEvent('tmp:add-block', { detail: { type: 'subhead' } }))">Heading</button>
+            <button type="button" onclick="window.dispatchEvent(new CustomEvent('tmp:add-block', { detail: { type: 'image' } }))">Image</button>
+            <button type="button" onclick="window.dispatchEvent(new CustomEvent('tmp:add-block', { detail: { type: 'quote' } }))">Quote</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <input type="text" id="tags" placeholder="Tags (comma separated)" class="input-subtle">
+        </div>
+        <div id="error-msg" class="error-banner" style="display: none;"></div>
+    </div>
+</div>

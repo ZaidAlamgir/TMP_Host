@@ -109,12 +109,21 @@ jobs:
           token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
           path: ./_article_repos/international-news
       
+      # --- NEW STEP: Checkout User Archives ---
+      - name: 14. Checkout User Archives
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-user-archives
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/user-archives
+
       # --- CONSOLIDATION ---
-      - name: 14. Consolidate All Posts
+      - name: 15. Consolidate All Posts
         run: |
           echo "--- Starting Consolidation ---"
           mkdir -p ./main_site/_posts
 
+          # Function for standard repos (using 'posts' folder)
           copy_posts() {
             src="./_article_repos/$1/posts"
             if [ -d "$src" ]; then
@@ -137,22 +146,31 @@ jobs:
           copy_posts "national-news"
           copy_posts "international-news"
           
+          # --- SPECIAL COPY FOR USER ARCHIVES ---
+          # (This repo uses '_posts' instead of 'posts')
+          if [ -d "./_article_repos/user-archives/_posts" ]; then
+             echo "Processing user-archives..."
+             cp -r "./_article_repos/user-archives/_posts/." ./main_site/_posts/
+          else
+             echo "Skipping user-archives (No _posts folder found yet)"
+          fi
+          
           echo "--- Verification: Files in _posts ---"
           ls -R ./main_site/_posts
       
-      - name: 15. Setup Ruby
+      - name: 16. Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: ./main_site 
           
-      - name: 16. Build with Jekyll
+      - name: 17. Build with Jekyll
         run: bundle exec jekyll build --trace
         working-directory: ./main_site 
 
       # --- ASSET LINKS FIX ---
-      - name: 16b. Setup AssetLinks Rewrite for Cloudflare
+      - name: 17b. Setup AssetLinks Rewrite for Cloudflare
         run: |
           echo "Setting up AssetLinks Rewrite..."
           cp .well-known/assetlinks.json _site/assetlinks.json
@@ -162,7 +180,7 @@ jobs:
           echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site
         
-      - name: 17. Upload artifact for deployment
+      - name: 18. Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: jekyll-site
