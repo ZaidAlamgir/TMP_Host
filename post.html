@@ -9,9 +9,11 @@ extra_js:
 
 <script>
     window.TMP_CONFIG = {
-        // Your Worker for "Recent" (User) Posts
-        FEED_API_URL: "https://tmp-feed-api.zaidkhan137782.workers.dev",
-        
+    // This points to the new file you just deployed
+        FEED_API_URL: "/feed", 
+    
+        FOR_YOU_API: "/opinions/feed.json",
+ 
         // NEW: The Local Archive Feed
         FOR_YOU_API: "{{ '/opinions/feed.json' | relative_url }}",
 

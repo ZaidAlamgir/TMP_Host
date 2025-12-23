@@ -1,41 +1,56 @@
 export async function onRequest(context) {
-  // 1. CONFIGURATION
-  const FIREBASE_URL = "https://tmp-news-userpost-feed-default-rtdb.asia-southeast1.firebasedatabase.app/live_feed.json";
-  
-  // --- FIX START: Get the Secret Key ---
-  const SECRET = context.env.FIREBASE_AUTH_SECRET; 
-  if (!SECRET) {
-    return new Response(JSON.stringify({ error: "Configuration Error: FIREBASE_AUTH_SECRET is missing in Cloudflare" }), { status: 500 });
-  }
-  // --- FIX END ---
+  // 1. DEFINE HEADERS (Allow Everyone)
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
 
-  // 2. CHECK CACHE (Cloudflare Cache API)
+  // 2. HANDLE "OPTIONS" REQUEST (Browser Pre-check)
+  if (context.request.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  // 3. CONFIGURATION
+  const FIREBASE_URL = "https://tmp-news-userpost-feed-default-rtdb.asia-southeast1.firebasedatabase.app/live_feed.json";
+  const SECRET = context.env.FIREBASE_AUTH_SECRET;
+
+  if (!SECRET) {
+    return new Response(JSON.stringify({ error: "Configuration Error" }), { 
+      status: 500, 
+      headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    });
+  }
+
+  // 4. CHECK CACHE
   const cacheKey = new Request(context.request.url, context.request);
   const cache = caches.default;
   let response = await cache.match(cacheKey);
 
   if (response) {
-    console.log("Serving from Cloudflare Cache");
-    return response;
+    // Re-add CORS headers to cached response just in case
+    const newHeaders = new Headers(response.headers);
+    newHeaders.set("Access-Control-Allow-Origin", "*");
+    return new Response(response.body, {
+      status: response.status,
+      headers: newHeaders
+    });
   }
 
-  // 3. IF NO CACHE -> FETCH FROM FIREBASE (SECURELY)
-  console.log("Cache Miss - Fetching from Firebase...");
-  
-  // --- FIX START: Use Authenticated URL ---
+  // 5. FETCH FROM FIREBASE
   const authenticatedUrl = `${FIREBASE_URL}?auth=${SECRET}`;
   const fbResponse = await fetch(authenticatedUrl);
-  // --- FIX END ---
   
   if (!fbResponse.ok) {
-    // Read the error message from Firebase
-    const errText = await fbResponse.text();
-    return new Response(JSON.stringify({ error: "Firebase Permission Denied", details: errText }), { status: 500 });
+    return new Response(JSON.stringify({ error: "Firebase Permission Denied" }), { 
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
   }
 
   const data = await fbResponse.json();
 
-  // 4. TRANSFORM DATA (Dictionary -> Array)
+  // 6. TRANSFORM DATA
   let postsArray = [];
   if (data) {
     if (Array.isArray(data)) {
@@ -44,18 +59,14 @@ export async function onRequest(context) {
         postsArray = Object.values(data); 
     }
   }
-
-  // Sort by Date (Newest First)
   postsArray.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // 5. CREATE RESPONSE & SAVE TO CACHE
-  const jsonResponse = JSON.stringify({ posts: postsArray });
-  
-  response = new Response(jsonResponse, {
+  // 7. RETURN RESPONSE
+  response = new Response(JSON.stringify({ posts: postsArray }), {
     headers: {
+      ...corsHeaders, // Add CORS headers here
       "Content-Type": "application/json",
       "Cache-Control": "public, max-age=60, s-maxage=300", 
-      "Access-Control-Allow-Origin": "*"
     }
   });
 
