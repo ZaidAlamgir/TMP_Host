@@ -140,17 +140,32 @@ async function setupPostPage() {
         try {
             const res = await fetch(CONFIG.WORKER_API);
             if(!res.ok) throw new Error("API Fail");
-            let posts = await res.json();
+            
+            // --- FIX START ---
+            const data = await res.json();
+            
+            // Check if the data is wrapped in "posts" (Cloudflare style)
+            // or if it's already an array (Direct style)
+            let posts = [];
+            if (data.posts && Array.isArray(data.posts)) {
+                posts = data.posts;
+            } else if (Array.isArray(data)) {
+                posts = data;
+            }
+            // --- FIX END ---
             
             if (tags.length > 0) {
                 const q = tags[0].toLowerCase();
                 posts = posts.filter(p => (p.title + p.preview).toLowerCase().includes(q));
             }
             renderFeed(feedDiv, posts);
-        } catch(e) { console.error(e); } 
+        } catch(e) { 
+            console.error("Feed Error:", e);
+            if(feedDiv) feedDiv.innerHTML = '<p style="text-align:center;color:red">Unable to load feed.</p>';
+        } 
         finally { if(loader) loader.style.display = 'none'; }
     }
-
+    
     function renderFeed(container, posts) {
         container.innerHTML = ''; 
         if(!posts.length) { container.innerHTML = '<p style="text-align:center;padding:20px;color:#666">No active discussions.</p>'; return; }
