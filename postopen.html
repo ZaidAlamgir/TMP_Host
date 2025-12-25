@@ -7,7 +7,7 @@ title: Article
     .article-wrapper {
         max-width: 720px;
         margin: 2rem auto;
-        padding: 0 15px; /* Prevent edge touching on mobile */
+        padding: 0 15px;
     }
 
     /* Card Design */
@@ -26,7 +26,7 @@ title: Article
 
     /* Typography */
     .article-title {
-        font-family: 'Merriweather', serif; /* Or your site font */
+        font-family: 'Merriweather', serif; 
         font-size: 2.5rem;
         font-weight: 800;
         color: #1c1e21;
@@ -67,13 +67,14 @@ title: Article
         font-size: 1.1rem;
         line-height: 1.8;
         color: #292929;
-        font-family: 'Georgia', serif; /* Better reading font */
+        font-family: 'Georgia', serif;
     }
     .article-body p { margin-bottom: 1.5em; }
     .article-body img { max-width: 100%; border-radius: 8px; margin: 1.5rem 0; display: block; }
     .article-body h2, .article-body h3 { margin-top: 2rem; margin-bottom: 1rem; color: #111; font-weight: 700; }
+    .article-body blockquote { border-left: 4px solid #0073e6; padding-left: 1rem; color: #555; font-style: italic; }
 
-    /* Footer / Tags */
+    /* Footer */
     .article-footer {
         margin-top: 3rem;
         padding-top: 1.5rem;
@@ -116,44 +117,90 @@ title: Article
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. Get ID from URL (e.g. ?id=1)
     const urlParams = new URLSearchParams(window.location.search);
     const postId = urlParams.get('id');
     const container = document.getElementById('article-content');
 
     if (!postId) {
-        container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Article not found</h3><a href="/" class="read-more-btn">Go Home</a></div>`;
+        showError("No Article ID provided.");
         return;
     }
 
+    // --- SMART SOURCE CHECKER ---
+    // We check multiple places where the post might exist:
+    // 1. The Production API (/feed) - For "Recent" posts
+    // 2. The Opinions JSON (/opinions/feed.json) - For "For You" posts
+    // 3. The Local Fallback (/feed.json) - For localhost testing
+    const sources = [
+        '/feed',               
+        '/opinions/feed.json', 
+        '/feed.json'           
+    ];
+
+    let post = null;
+
     try {
-        // 2. Fetch the local feed.json
-        // Note: We use a relative path. If your file is at root, this works.
-        const response = await fetch('/feed.json'); 
-        if (!response.ok) throw new Error("Could not load feed data");
-        
-        const posts = await response.json();
+        for (const source of sources) {
+            try {
+                // Fetch with a simple timeout so we don't hang forever on bad links
+                const response = await fetch(source);
+                
+                // If 404 or error, skip to next source
+                if (!response.ok) continue;
 
-        // 3. Find the specific post by ID
-        // We convert both to strings to ensure '1' matches 1
-        const post = posts.find(p => String(p.id) === String(postId));
+                // If it returns HTML (like a 404 page), skip it
+                const contentType = response.headers.get("content-type");
+                if (contentType && !contentType.includes("application/json")) continue;
 
-        if (!post) {
-            throw new Error("Post ID not found in feed");
+                const data = await response.json();
+
+                // Handle different data structures (Array vs Object with .posts)
+                let postsArray = [];
+                if (Array.isArray(data)) {
+                    postsArray = data;
+                } else if (data.posts && Array.isArray(data.posts)) {
+                    postsArray = data.posts;
+                }
+
+                // Try to find the post
+                const found = postsArray.find(p => String(p.id) === String(postId));
+                
+                if (found) {
+                    post = found;
+                    break; // Stop looking, we found it!
+                }
+            } catch (err) {
+                console.warn(`Skipping source ${source}:`, err);
+            }
         }
 
-        // 4. Render the Post
-        // Note: If 'content' key is missing in json, we fall back to 'preview'
+        if (!post) {
+            throw new Error("Article not found in any feed.");
+        }
+
+        // --- RENDER POST ---
         const title = post.title || "Untitled Article";
         const author = post.author || "Staff Writer";
-        const qual = post.qual || "Contributor";
+        const qual = post.qual || "Contributor"; // Handles both qualification fields
         const date = post.date ? new Date(post.date).toLocaleDateString() : "Recently";
         const imageHtml = post.image ? `<img src="${post.image}" alt="${title}">` : '';
         
-        // Simple formatter: converts newlines to paragraphs if it's plain text
+        // Smart Body Formatter
         let bodyContent = post.content || post.preview || "No content available.";
-        if (!bodyContent.includes('<p>')) {
-            bodyContent = bodyContent.split('\n').map(para => para.trim() ? `<p>${para}</p>` : '').join('');
+        
+        // Convert Markdown-style image/quote/headlines to HTML if strictly plain text
+        if (!bodyContent.includes('<p>') && !bodyContent.includes('<div>')) {
+             // Basic Markdown replacements
+             bodyContent = bodyContent
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
+                .replace(/\!\[(.*?)\]\((.*?)\)/gim, "<img src='$2' alt='$1'>")
+                .split('\n').map(para => {
+                    const clean = para.trim();
+                    return clean ? `<p>${clean}</p>` : '';
+                }).join('');
         }
 
         container.innerHTML = `
@@ -180,18 +227,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             </div>
         `;
-
-        // Update Page Title
         document.title = `${title} - The Muslim Post`;
 
     } catch (error) {
         console.error(error);
+        showError("Unable to load article. It may have been deleted or moved.");
+    }
+
+    function showError(msg) {
         container.innerHTML = `
             <div style="text-align:center; padding:40px; color:#666;">
-                <h3>Unable to load article</h3>
-                <p>Error: ${error.message}</p>
+                <h3>${msg}</h3>
                 <br>
-                <a href="/post.html" class="read-more-btn">Return to Feed</a>
+                <a href="/post" class="read-more-btn">Return to Feed</a>
             </div>
         `;
     }
