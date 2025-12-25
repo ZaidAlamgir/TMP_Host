@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         // 2. Fetch the local feed.json
         // Note: We use a relative path. If your file is at root, this works.
-        const response = await fetch('/feed'); 
+        const response = await fetch('/feed.json'); 
         if (!response.ok) throw new Error("Could not load feed data");
         
         const posts = await response.json();
