@@ -4,86 +4,212 @@
 .post-container { 
     max-width: 680px; 
     margin: 20px auto; 
-    background-color: #fff; 
-    border-radius: 15px; 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
-    padding: 25px; 
-    font-family: sans-serif;
+    background-color: #ffffff; 
+    border-radius: 8px; /* Sharper corners */
+    border: 1px solid #e0e0e0; 
+    box-shadow: none; /* Removed heavy shadow for decent look */
+    padding: 30px; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* FIX: Scoped Headings so they don't break other pages */
+/* Headings */
 .post-container h1, 
 .post-container h2 { 
     text-align: center; 
-    color: #1c1e21; 
-    margin-bottom: 20px; 
+    color: #202124; 
+    margin-bottom: 25px; 
     font-weight: 700; 
+    letter-spacing: -0.5px;
 }
 
-/* Tabs */
-.post-container .feed-tabs { display: flex; border-bottom: 1px solid #dddfe2; margin-bottom: 1.5rem; }
-.post-container .feed-tab { padding: 10px 20px; cursor: pointer; font-weight: 600; color: #606770; border-bottom: 3px solid transparent; transition: all 0.2s ease; }
-.post-container .feed-tab.active { color: #0073e6; border-bottom-color: #0073e6; }
+/* =========================================
+   PROFESSIONAL TABS (Decent Style)
+   ========================================= */
+.post-container .feed-tabs-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ebebeb; 
+    padding-bottom: 20px;
+}
 
-/* Search */
-.post-container #search-container { padding: 10px 0; margin-bottom: 20px; }
-.post-container #search-container input { width: 100%; padding: 14px; border: 1px solid #dddfe2; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
-.post-container #search-container input:focus { border-color: #0073e6; outline: none; }
+.post-container .feed-tabs { 
+    display: inline-flex; 
+    background-color: #f8f9fa; /* Light gray bg */
+    padding: 4px; 
+    border-radius: 6px; 
+    border: 1px solid #dadce0;
+}
 
-/* Post Cards */
-.post-container .user-post { 
+.post-container .feed-tab { 
+    padding: 8px 24px; 
+    cursor: pointer; 
+    font-weight: 500; 
+    color: #5f6368; 
+    font-size: 14px;
+    border-radius: 4px; 
+    transition: all 0.2s ease; 
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.post-container .feed-tab i {
+    font-size: 13px;
+}
+
+/* Hover State */
+.post-container .feed-tab:not(.active):hover {
+    color: #202124;
+    background-color: #e8eaed;
+}
+
+/* Active State */
+.post-container .feed-tab.active { 
+    background-color: #ffffff; 
+    color: #1a73e8; /* Professional Blue */
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+    border: 1px solid rgba(0,0,0,0.05); 
+}
+
+/* =========================================
+   SEARCH BAR
+   ========================================= */
+.post-container #search-container { padding: 0; margin-bottom: 25px; }
+.post-container #search-container input { 
+    width: 100%; 
+    padding: 12px 16px; 
+    border: 1px solid #dadce0; 
+    border-radius: 6px; 
+    font-size: 15px; 
+    box-sizing: border-box; 
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+.post-container #search-container input:focus { 
+    border-color: #1a73e8; 
     background-color: #fff; 
-    border: 1px solid #dddfe2; 
-    border-radius: 15px; 
-    padding: 15px; 
-    margin-bottom: 15px; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-    transition: box-shadow 0.3s ease; 
+    outline: none; 
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.1);
 }
-.post-container .user-post:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
 
-/* Typography inside posts */
-.post-container .post-content p { font-size: 16px; line-height: 1.6; color: #374151; white-space: pre-wrap; word-wrap: break-word; font-weight: 500; margin-bottom: 1rem; }
-.post-container .post-body-image { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
-.post-container .post-body-quote { font-style: italic; color: #606770; border-left: 3px solid #0073e6; padding-left: 1rem; margin: 1rem 0; white-space: pre-wrap; }
+/* =========================================
+   POST CARD DESIGN
+   ========================================= */
+.post-container .user-post { 
+    position: relative;
+    background-color: #fff; 
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px; 
+    padding: 24px; 
+    margin-bottom: 20px; 
+    transition: border-color 0.2s ease;
+    cursor: pointer; 
+    overflow: hidden;
+}
 
-/* Meta & Footer */
-.post-container .post-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
-.post-container .post-author-details { text-align: left; }
-.post-container .post-author { font-size: 14px; color: #1c1e21; font-weight: bold; }
-.post-container .post-qualification { font-size: 13px; color: #606770; }
-.post-container .post-timestamp { font-size: 12px; color: #606770; text-align: right; margin-left: 1rem; }
+/* Hover Effect: Only border darkens */
+.post-container .user-post:hover { 
+    border-color: #1a73e8;
+}
 
-.post-container .post-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f2f5; }
+/* Post Headline */
+.post-container .post-headline { 
+    font-size: 19px; 
+    font-weight: 600; 
+    color: #202124; 
+    margin: 0 0 12px 0; 
+    line-height: 1.5;
+}
 
-/* Tags */
-.post-container .post-tags-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-.post-container .post-tag { background-color: #e7f3ff; color: #0073e6; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background-color 0.2s; }
-.post-container .post-tag:hover { background-color: #cfe7ff; }
+/* Image Preview */
+.post-container .post-image-preview {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    background-color: #f1f3f4;
+    border: 1px solid #ebebeb;
+}
 
-/* Read More */
-.post-container .read-more-btn { display: inline-block; margin-top: 1rem; font-weight: 600; color: #0073e6; text-decoration: none; cursor: pointer; }
-.post-container .read-more-btn:hover { text-decoration: underline; }
+/* =========================================
+   FIXED FOOTER LAYOUT (No Overlap)
+   ========================================= */
+
+/* The Footer Container */
+.post-container .post-footer { 
+    display: flex; 
+    justify-content: space-between; /* Pushes Info to left, Button to right */
+    align-items: center; 
+    margin-top: 16px; 
+    padding-top: 16px; 
+    border-top: 1px solid #f1f3f4;
+}
+
+/* Left Side: Author and Date */
+.post-container .post-info {
+    font-size: 13px;
+    color: #5f6368;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.post-container .post-info .author {
+    font-weight: 500;
+    color: #202124;
+}
+
+.post-container .post-info .separator {
+    color: #dadce0;
+}
+
+/* Right Side: Read Full Button */
+.post-container .read-full-action {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a73e8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+    white-space: nowrap; /* Prevents text breaking */
+}
+
+.post-container .user-post:hover .read-full-action {
+    color: #1557b0;
+    text-decoration: underline;
+}
+
+.post-container .read-full-action i {
+    font-size: 11px;
+}
 
 /* Loader */
 .post-container .loader { 
     display: none; 
-    margin: 20px auto; 
-    border: 5px solid #f3f3f3; 
-    border-top: 5px solid #0073e6; 
+    margin: 30px auto; 
+    border: 3px solid #f3f3f3; 
+    border-top: 3px solid #1a73e8; 
     border-radius: 50%; 
-    width: 50px; 
-    height: 50px; 
-    animation: spin 1s linear infinite; 
+    width: 30px; 
+    height: 30px; 
+    animation: spin 0.8s linear infinite; 
 }
-
-.post-container #endOfFeedMessage { text-align: center; color: #8a8d91; padding: 20px; display: none; font-style: italic; }
-
+.post-container #endOfFeedMessage { text-align: center; color: #5f6368; padding: 20px; display: none; font-size: 14px; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Transitions */
+#forYouFeed, #recentPostsContainer {
+    transition: opacity 0.3s ease-in-out;
+}
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-    .post-container { margin: 10px; padding: 15px; }
-    .post-container h1 { font-size: 1.8rem; }
-    .post-container .post-footer { row-gap: 1rem; }
+    .post-container { margin: 0; border: none; border-radius: 0; padding: 20px; }
+    .post-container .post-headline { font-size: 18px; }
+    .post-container .post-image-preview { height: 180px; }
 }

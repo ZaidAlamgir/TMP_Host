@@ -1,42 +1,49 @@
 // =========================================
-// 1. DEFINE THE TAB CLICK HANDLER GLOBALLY
+// 1. GLOBAL TAB CLICK HANDLER
 // =========================================
-// We define this OUTSIDE the setup function so it doesn't get duplicated.
 function handleGlobalTabClick(e) {
     const tab = e.target.closest('.feed-tab');
-    if (!tab) return; // Not a tab click? Ignore.
+    if (!tab) return; 
 
-    console.log("👆 Tab Clicked:", tab.dataset.feed);
+    // Prevent clicking if already active
+    if (tab.classList.contains('active')) return;
 
     // UI Updates
     document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
-    // Toggle Views
     const recentDiv = document.getElementById('recentPostsContainer');
     const forYouDiv = document.getElementById('forYouFeed');
     const searchDiv = document.getElementById('search-container');
-    
     const isForYou = tab.dataset.feed === 'for-you';
 
+    // Smooth Switch Function (Fade)
+    const switchFeed = (showDiv, hideDiv) => {
+        if(hideDiv) {
+            hideDiv.style.opacity = '0';
+            setTimeout(() => {
+                hideDiv.style.display = 'none';
+                if(showDiv) {
+                    showDiv.style.display = 'block';
+                    // Trigger reflow to restart transition
+                    void showDiv.offsetWidth; 
+                    showDiv.style.opacity = '1';
+                }
+            }, 300);
+        }
+    };
+
     if (isForYou) {
-        if(recentDiv) recentDiv.style.display = 'none';
-        if(searchDiv) searchDiv.style.display = 'none';
-        if(forYouDiv) {
-            forYouDiv.style.display = 'block';
-            // Only load content if it's empty
-            if(forYouDiv.innerHTML.trim() === '') {
-                // We need to trigger the load function. 
-                // Since loadForYouPosts is inside the scope, we dispatch a custom event or call it if available.
-                // Better approach: We rely on the setup function to trigger the load if needed, 
-                // but for simplicity, we trigger a helper attached to window.
-                if (window.triggerForYouLoad) window.triggerForYouLoad();
-            }
+        switchFeed(forYouDiv, recentDiv);
+        if(searchDiv) searchDiv.style.display = 'none'; // Hide search
+        
+        // Load content if empty
+        if(forYouDiv && forYouDiv.innerHTML.trim() === '') {
+            if (window.triggerForYouLoad) window.triggerForYouLoad();
         }
     } else {
-        if(recentDiv) recentDiv.style.display = 'block';
-        if(searchDiv) searchDiv.style.display = 'block';
-        if(forYouDiv) forYouDiv.style.display = 'none';
+        switchFeed(recentDiv, forYouDiv);
+        if(searchDiv) searchDiv.style.display = 'block'; // Show search
     }
 }
 
@@ -46,7 +53,7 @@ function handleGlobalTabClick(e) {
 // =========================================
 async function setupPostPage() {
     const feedContainer = document.getElementById('recentPostsContainer');
-    // If we are NOT on the post page, clean up and exit
+    // If not on post page, exit
     if (!feedContainer) {
         document.removeEventListener('click', handleGlobalTabClick);
         return; 
@@ -54,26 +61,38 @@ async function setupPostPage() {
 
     console.log("🚀 Post Page Loaded. Initializing...");
 
-    // --- CONFIGURATION ---
+    // Store posts globally within this scope for real-time search
+    let allCachedPosts = [];
+
     const CONFIG = {
         WORKER_API: window.TMP_CONFIG?.FEED_API_URL || "https://tmp-feed-api.zaidkhan137782.workers.dev",
         FOR_YOU_API: window.TMP_CONFIG?.FOR_YOU_API || "/opinions/feed.json"
     };
 
-    // --- SETUP GLOBAL LISTENER ---
-    // Remove first to ensure we never have duplicates
+    // --- SETUP LISTENER ---
     document.removeEventListener('click', handleGlobalTabClick);
     document.addEventListener('click', handleGlobalTabClick);
 
-    // --- EXPOSE FOR YOU LOADER ---
-    // This allows the global click handler to call this function
     window.triggerForYouLoad = loadForYouPosts;
+
+    // --- REAL-TIME SEARCH SETUP ---
+    const searchInput = document.getElementById('tagSearchInput');
+    // Remove old listeners to prevent duplicates (optional but safe)
+    if (searchInput) {
+        const newSearch = searchInput.cloneNode(true);
+        searchInput.parentNode.replaceChild(newSearch, searchInput);
+        
+        newSearch.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            filterAndRenderPosts(searchTerm);
+        });
+    }
 
     // --- INSTANT WRITER BUTTON ---
     const cachedRole = localStorage.getItem('tmp_user_role');
     if (cachedRole === 'writer') injectWriterButton();
 
-    // --- REUSE SUPABASE ---
+    // --- SUPABASE SETUP ---
     let supabase;
     if (window.supabaseClient) {
         supabase = window.supabaseClient;
@@ -85,16 +104,15 @@ async function setupPostPage() {
         window.supabaseClient = supabase;
     }
 
-    // --- LOAD DEFAULT FEED ---
-    // Only fetch if the container is empty (prevents double fetch on back button)
+    // --- LOAD FEED (FIXED) ---
+    // We ALWAYS fetch now to ensure 'allCachedPosts' is populated for the search bar.
+    // The browser cache will handle repeated requests efficiently.
     const feedDiv = document.getElementById('postsFeed');
-    if (feedDiv && feedDiv.innerHTML.trim() === '') {
+    if (feedDiv) {
         fetchRecentPosts();
     }
 
-    // --- BACKGROUND CHECKS ---
     if (supabase) verifyWriterStatus();
-
 
     // ================= HELPER FUNCTIONS =================
 
@@ -109,9 +127,6 @@ async function setupPostPage() {
                 localStorage.removeItem('tmp_user_role');
                 removeWriterButton();
             }
-        } else {
-            localStorage.removeItem('tmp_user_role');
-            removeWriterButton();
         }
     }
 
@@ -132,7 +147,7 @@ async function setupPostPage() {
         if (btn) btn.remove();
     }
 
-    async function fetchRecentPosts(tags = []) {
+    async function fetchRecentPosts() {
         const feedDiv = document.getElementById('postsFeed');
         const loader = document.getElementById('postsLoader');
         if(loader) loader.style.display = 'block';
@@ -141,48 +156,87 @@ async function setupPostPage() {
             const res = await fetch(CONFIG.WORKER_API);
             if(!res.ok) throw new Error("API Fail");
             
-            // --- FIX START ---
             const data = await res.json();
             
-            // Check if the data is wrapped in "posts" (Cloudflare style)
-            // or if it's already an array (Direct style)
+            // Normalize data
             let posts = [];
             if (data.posts && Array.isArray(data.posts)) {
                 posts = data.posts;
             } else if (Array.isArray(data)) {
                 posts = data;
             }
-            // --- FIX END ---
             
-            if (tags.length > 0) {
-                const q = tags[0].toLowerCase();
-                posts = posts.filter(p => (p.title + p.preview).toLowerCase().includes(q));
-            }
-            renderFeed(feedDiv, posts);
+            // CRITICAL: Update the cache variable
+            allCachedPosts = posts;
+
+            // Render all
+            renderFeed(feedDiv, allCachedPosts);
+
         } catch(e) { 
             console.error("Feed Error:", e);
-            if(feedDiv) feedDiv.innerHTML = '<p style="text-align:center;color:red">Unable to load feed.</p>';
+            if(feedDiv && feedDiv.innerHTML === '') feedDiv.innerHTML = '<p style="text-align:center;color:red">Unable to load feed.</p>';
         } 
         finally { if(loader) loader.style.display = 'none'; }
+    }
+
+    function filterAndRenderPosts(term) {
+        const feedDiv = document.getElementById('postsFeed');
+        
+        // If search is empty, show EVERYTHING
+        if (!term || term === '') {
+            renderFeed(feedDiv, allCachedPosts);
+            return;
+        }
+
+        // Filter based on Title, Preview, or Author
+        const filtered = allCachedPosts.filter(p => {
+            const title = (p.title || '').toLowerCase();
+            const preview = (p.preview || '').toLowerCase();
+            const author = (p.author || '').toLowerCase();
+            return title.includes(term) || preview.includes(term) || author.includes(term);
+        });
+
+        renderFeed(feedDiv, filtered);
     }
     
     function renderFeed(container, posts) {
         container.innerHTML = ''; 
-        if(!posts.length) { container.innerHTML = '<p style="text-align:center;padding:20px;color:#666">No active discussions.</p>'; return; }
+        if(!posts.length) { 
+            container.innerHTML = '<p style="text-align:center;padding:20px;color:#666">No results found.</p>'; 
+            return; 
+        }
 
         posts.forEach(p => {
             const el = document.createElement('div');
             el.className = 'user-post';
-            const link = p.link ? p.link : `${window.TMP_CONFIG?.postOpen || '/postopen.html'}?id=${p.id}`;
+            
+            // Link Logic
+            let basePath = window.TMP_CONFIG?.postOpen || '/postopen';
+            if (basePath.includes('{{')) basePath = '/postopen';
+            
+            let link = (p.link && p.link !== '#') ? p.link : `${basePath}?id=${p.id}`;
+
+            el.onclick = function() { window.location.href = link; };
+
+            const imageHtml = p.image 
+                ? `<img src="${p.image}" class="post-image-preview" alt="Post Image">` 
+                : '';
+
             el.innerHTML = `
-                <div class="post-content" onclick="window.location.href='${link}'" style="cursor:pointer">
-                    <h3 style="margin:0 0 10px 0;font-size:18px;color:#1c1e21">${p.title||'Untitled'}</h3>
-                    <p style="font-size:15px;color:#4b5563;margin:0">${p.preview||''}</p>
+                ${imageHtml}
+                <h3 class="post-headline">${p.title || 'Untitled'}</h3>
+                
+                <div class="post-footer">
+                    <div class="post-info">
+                        <span class="author">${p.author || 'Writer'}</span>
+                        <span class="separator">•</span>
+                        <span class="date">${new Date(p.date).toLocaleDateString()}</span>
+                    </div>
+                    <div class="read-full-action">
+                        Read Full <i class="fas fa-arrow-right"></i>
+                    </div>
                 </div>
-                <div class="post-meta" style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:#666">
-                    <span>${p.author||'Writer'} • ${p.qual||'Contributor'}</span>
-                    <span>${new Date(p.date).toLocaleDateString()}</span>
-                </div>`;
+            `;
             container.appendChild(el);
         });
     }
@@ -205,13 +259,31 @@ async function setupPostPage() {
             posts.forEach(p => {
                 const el = document.createElement('div');
                 el.className = 'user-post';
-                const imgHtml = p.image ? `<img src="${p.image}" style="width:100%; height:180px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : '';
+                
+                let basePath = window.TMP_CONFIG?.postOpen || '/postopen';
+                if (basePath.includes('{{')) basePath = '/postopen';
+                let link = p.url ? p.url : `${basePath}?id=${p.id}`;
+
+                el.onclick = function() { window.location.href = link; };
+
+                const imageHtml = p.image 
+                    ? `<img src="${p.image}" class="post-image-preview" alt="Post Image">` 
+                    : '';
+
                 el.innerHTML = `
-                    ${imgHtml}
-                    <h3 style="margin-bottom:5px;">${p.title}</h3>
-                    <p style="color:#555; font-size:14px;">${p.preview}</p>
-                    <div class="post-meta" style="margin-top:10px; font-size:12px; color:#888;">${p.author} • ${p.date}</div>
-                    <a href="${p.url}" class="read-more-btn" style="color:#0073e6;text-decoration:none;font-weight:bold;margin-top:10px;display:block">Read Full Article</a>
+                    ${imageHtml}
+                    <h3 class="post-headline">${p.title}</h3>
+                    
+                    <div class="post-footer">
+                        <div class="post-info">
+                            <span class="author">${p.author}</span>
+                            <span class="separator">•</span>
+                            <span class="date">${p.date}</span>
+                        </div>
+                        <div class="read-full-action">
+                            Read Full <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
                 `;
                 div.appendChild(el);
             });
@@ -222,12 +294,5 @@ async function setupPostPage() {
     }
 }
 
-// =========================================
-// 3. RUN IMMEDIATELY + ON NAVIGATION
-// =========================================
-
-// Run immediately (This fixes the "First Click Frozen" bug)
 setupPostPage();
-
-// Run on future Turbo navigations
 document.addEventListener('turbo:load', setupPostPage);

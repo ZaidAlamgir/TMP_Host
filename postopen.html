@@ -1,328 +1,199 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Muslim Post</title>
-    <link rel="stylesheet" href="assets/style/header.css">
-    <link rel="stylesheet" href="assets/style/style.css">
-    <link rel="stylesheet" href="assets/style/index-menu.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+---
+layout: default
+title: Article
+---
+
+<style>
+    .article-wrapper {
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 15px; /* Prevent edge touching on mobile */
+    }
+
+    /* Card Design */
+    .article-container {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 2.5rem;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typography */
+    .article-title {
+        font-family: 'Merriweather', serif; /* Or your site font */
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1c1e21;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Meta (Author/Date) */
+    .article-meta {
+        display: flex;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .author-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0073e6, #005bb5);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+
+    .author-details .author-name { font-weight: 600; color: #1c1e21; }
+    .author-details .author-qual { font-size: 0.85rem; color: #606770; }
+    .article-date { font-size: 0.85rem; color: #606770; margin-left: auto; }
+
+    /* Content Body */
+    .article-body {
+        margin-top: 2rem;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #292929;
+        font-family: 'Georgia', serif; /* Better reading font */
+    }
+    .article-body p { margin-bottom: 1.5em; }
+    .article-body img { max-width: 100%; border-radius: 8px; margin: 1.5rem 0; display: block; }
+    .article-body h2, .article-body h3 { margin-top: 2rem; margin-bottom: 1rem; color: #111; font-weight: 700; }
+
+    /* Footer / Tags */
+    .article-footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f0f2f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .read-more-btn {
+        display: inline-block;
+        margin-top: 20px;
+        color: #0073e6;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* Loader */
+    .loader-container { text-align: center; padding: 50px; }
+    .spinner {
+        border: 4px solid #f3f3f3; border-top: 4px solid #0073e6;
+        border-radius: 50%; width: 40px; height: 40px;
+        animation: spin 1s linear infinite; margin: 0 auto 15px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+        .article-container { padding: 1.5rem; }
+        .article-title { font-size: 1.8rem; }
+    }
+</style>
+
+<div class="article-wrapper">
+    <div id="article-content">
+        <div class="loader-container">
+            <div class="spinner"></div>
+            <p>Loading article...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    // 1. Get ID from URL (e.g. ?id=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+    const container = document.getElementById('article-content');
+
+    if (!postId) {
+        container.innerHTML = `<div style="text-align:center; padding:40px;"><h3>Article not found</h3><a href="/" class="read-more-btn">Go Home</a></div>`;
+        return;
+    }
+
+    try {
+        // 2. Fetch the local feed.json
+        // Note: We use a relative path. If your file is at root, this works.
+        const response = await fetch('/feed'); 
+        if (!response.ok) throw new Error("Could not load feed data");
+        
+        const posts = await response.json();
+
+        // 3. Find the specific post by ID
+        // We convert both to strings to ensure '1' matches 1
+        const post = posts.find(p => String(p.id) === String(postId));
+
+        if (!post) {
+            throw new Error("Post ID not found in feed");
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        // 4. Render the Post
+        // Note: If 'content' key is missing in json, we fall back to 'preview'
+        const title = post.title || "Untitled Article";
+        const author = post.author || "Staff Writer";
+        const qual = post.qual || "Contributor";
+        const date = post.date ? new Date(post.date).toLocaleDateString() : "Recently";
+        const imageHtml = post.image ? `<img src="${post.image}" alt="${title}">` : '';
+        
+        // Simple formatter: converts newlines to paragraphs if it's plain text
+        let bodyContent = post.content || post.preview || "No content available.";
+        if (!bodyContent.includes('<p>')) {
+            bodyContent = bodyContent.split('\n').map(para => para.trim() ? `<p>${para}</p>` : '').join('');
         }
 
-        .article-container {
-            max-width: 720px;
-            margin: 2rem auto;
-            background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
-            padding: 2rem 2.5rem;
-            opacity: 0;
-            animation: fadeIn 0.6s 0.2s ease-out forwards;
-        }
-
-        .article-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #1c1e21;
-            line-height: 1.2;
-            margin-bottom: 0.5rem;
-        }
-
-        .article-meta {
-            display: flex;
-            align-items: center;
-            margin-top: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .author-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #0073e6;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-right: 15px;
-        }
-
-        .author-details .author-name { font-weight: 600; color: #1c1e21; }
-        .author-details .author-qual { font-size: 0.9rem; color: #606770; }
-        .article-date { font-size: 0.9rem; color: #606770; margin-left: auto; }
-
-        .article-body {
-            margin-top: 2rem;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #374151;
-        }
-        .article-body p { margin-bottom: 1.5em; }
-        .article-body img { max-width: 100%; border-radius: 12px; margin: 2rem 0; }
-        .article-body blockquote {
-            font-style: italic;
-            color: #606770;
-            border-left: 4px solid #0073e6;
-            padding-left: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .article-footer {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .post-stats { display: flex; align-items: center; gap: 1rem; }
-        .stat-item { display: flex; align-items: center; gap: 0.4rem; color: #606770; }
-        .like-btn-canvas { width: 40px; height: 40px; cursor: pointer; }
-
-        .article-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-        .tag { background-color: #e7f3ff; color: #0073e6; padding: 6px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; }
-
-        .loader { text-align: center; padding: 4rem; font-size: 1.2rem; color: #606770; }
-
-        @media (max-width: 768px) {
-            .article-container { margin: 1rem; padding: 1.5rem; }
-            .article-title { font-size: 1.8rem; }
-            .article-body { font-size: 1rem; }
-        }
-    </style>
-</head>
-<body data-base-path="">
-
-    <div id="header-placeholder"></div>
-
-    <main id="main-content">
-        <!-- Post will be loaded here -->
-    </main>
-
-    <div id="bottom-nav-placeholder"></div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assets/header-injector.js"></script>
-    <script src="assets/bottom-nav.js"></script>
-
-    <script>
-        // This script is almost identical to the one in post.html, but simplified for a single page.
-        // It's kept separate to ensure this page is self-contained.
-        class CanvasLikeButton {
-            constructor(canvas, initialIsLiked) {
-                this.canvas = canvas;
-                this.ctx = canvas.getContext('2d');
-                this.dpr = window.devicePixelRatio || 1;
-                this.logicalWidth = canvas.width;
-                this.logicalHeight = canvas.height;
-                this.canvas.width = this.logicalWidth * this.dpr;
-                this.canvas.height = this.logicalHeight * this.dpr;
-                this.canvas.style.width = `${this.logicalWidth}px`;
-                this.canvas.style.height = `${this.logicalHeight}px`;
-                this.ctx.scale(this.dpr, this.dpr);
-                this.isLiked = initialIsLiked;
-                this.isHovered = false;
-                this.buttonCenter = { x: this.logicalWidth / 2, y: this.logicalHeight / 2 };
-                this.starAnimation = { scale: 1, isAnimating: false, direction: 'up', rotation: 0, targetRotation: 0 };
-                this.circleAnimation = { radius: 0, opacity: 1, isAnimating: false };
-                this.particles = [];
-                this.setupEventListeners();
-                this.animate();
-            }
-            drawStar(centerX, centerY, scale = 1, rotation = 0) {
-                this.ctx.save();
-                this.ctx.translate(centerX, centerY);
-                this.ctx.scale(scale, scale);
-                this.ctx.rotate(rotation);
-                const starStrokeColor = this.isLiked ? '#facc15' : '#6b7280';
-                const starFillColor = this.isLiked ? '#fde047' : '#374151';
-                this.ctx.lineWidth = 2; this.ctx.lineCap = 'round'; this.ctx.lineJoin = 'round';
-                this.ctx.strokeStyle = starStrokeColor; this.ctx.fillStyle = starFillColor;
-                const spikes = 5, outerRadius = 16, innerRadius = 8;
-                let rot = Math.PI / 2 * 3, x = 0, y = 0, step = Math.PI / spikes;
-                this.ctx.beginPath(); this.ctx.moveTo(0, -outerRadius);
-                for (let i = 0; i < spikes; i++) {
-                    x = Math.cos(rot) * outerRadius; y = Math.sin(rot) * outerRadius; this.ctx.lineTo(x, y); rot += step;
-                    x = Math.cos(rot) * innerRadius; y = Math.sin(rot) * innerRadius; this.ctx.lineTo(x, y); rot += step;
-                }
-                this.ctx.lineTo(0, -outerRadius); this.ctx.closePath();
-                this.ctx.shadowColor = this.isLiked ? 'rgba(250, 204, 21, 0.5)' : 'transparent'; this.ctx.shadowBlur = 8;
-                this.ctx.fill(); this.ctx.stroke(); this.ctx.restore();
-            }
-            createParticles(x, y) {
-                const particleCount = 15, colors = ['#ec4899', '#38bdf8', '#facc15', '#4ade80'];
-                for (let i = 0; i < particleCount; i++) {
-                    const angle = Math.random() * Math.PI * 2, speed = Math.random() * 2.5 + 1.5, radius = Math.random() * 2 + 1;
-                    this.particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, radius, color: colors[Math.floor(Math.random() * colors.length)], opacity: 1 });
-                }
-            }
-            animate() {
-                this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
-                if (this.circleAnimation.isAnimating) {
-                    this.circleAnimation.radius += 2.5; this.circleAnimation.opacity -= 0.04;
-                    if (this.circleAnimation.opacity <= 0) this.circleAnimation.isAnimating = false;
-                    else { this.ctx.beginPath(); this.ctx.arc(this.buttonCenter.x, this.buttonCenter.y, this.circleAnimation.radius, 0, Math.PI * 2); this.ctx.strokeStyle = `rgba(59, 130, 246, ${this.circleAnimation.opacity})`; this.ctx.lineWidth = 2; this.ctx.stroke(); }
-                }
-                this.particles.forEach((p, index) => {
-                    p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.vx *= 0.99; p.opacity -= 0.02;
-                    if (p.opacity <= 0) this.particles.splice(index, 1);
-                    else { this.ctx.globalAlpha = p.opacity; this.ctx.fillStyle = p.color; this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); this.ctx.fill(); this.ctx.globalAlpha = 1; }
-                });
-                let targetScale = this.isHovered ? 1.1 : 1;
-                if (this.starAnimation.isAnimating) {
-                    if (this.starAnimation.direction === 'up') { this.starAnimation.scale += 0.07; if (this.starAnimation.scale >= 1.25) this.starAnimation.direction = 'down'; } 
-                    else { this.starAnimation.scale -= 0.09; if (this.starAnimation.scale <= targetScale) { this.starAnimation.scale = targetScale; this.starAnimation.isAnimating = false; } }
-                } else { this.starAnimation.scale += (targetScale - this.starAnimation.scale) * 0.2; }
-                const rotDiff = this.starAnimation.targetRotation - this.starAnimation.rotation;
-                if (Math.abs(rotDiff) > 0.01) { this.starAnimation.rotation += rotDiff * 0.15; } else { this.starAnimation.rotation = this.starAnimation.targetRotation; }
-                this.drawStar(this.buttonCenter.x, this.buttonCenter.y, this.starAnimation.scale, this.starAnimation.rotation);
-                requestAnimationFrame(() => this.animate());
-            }
-            setupEventListeners() {
-                this.canvas.addEventListener('mousemove', (e) => {
-                    const rect = this.canvas.getBoundingClientRect(); const mouseX = (e.clientX - rect.left); const mouseY = (e.clientY - rect.top);
-                    const dist = Math.sqrt(Math.pow(mouseX - this.buttonCenter.x, 2) + Math.pow(mouseY - this.buttonCenter.y, 2));
-                    this.isHovered = dist < 25;
-                });
-                this.canvas.addEventListener('mouseleave', () => { this.isHovered = false; });
-            }
-            triggerClick() {
-                this.isLiked = !this.isLiked; this.starAnimation.isAnimating = true; this.starAnimation.direction = 'up';
-                if (this.isLiked) { this.starAnimation.targetRotation += Math.PI * 2; this.circleAnimation.isAnimating = true; this.circleAnimation.radius = 0; this.circleAnimation.opacity = 1; this.createParticles(this.buttonCenter.x, this.buttonCenter.y); } 
-                else { this.starAnimation.targetRotation -= Math.PI * 2; }
-            }
-        }
-
-        document.addEventListener('turbo:load', () => {
-            const supabase = window.supabase.createClient('https://yfrqnghduttudqbnodwr.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU');
-            const mainContent = document.getElementById('main-content');
-
-            async function loadPost() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const postId = urlParams.get('id');
-
-                if (!postId) {
-                    mainContent.innerHTML = `<div class="loader">Invalid post ID.</div>`;
-                    return;
-                }
-
-                mainContent.innerHTML = `<div class="loader">Loading Post...</div>`;
-
-                try {
-                    // 1. Increment view count
-                    await supabase.rpc('increment_view_count', { post_id_to_inc: postId });
-
-                    // 2. Fetch post data
-                    const { data: sessionData } = await supabase.auth.getSession();
-                    const userId = sessionData.session?.user?.id || null;
-
-                    const { data: post, error } = await supabase
-                        .rpc('get_posts_with_likes', {
-                            requesting_user_id: userId,
-                            post_id_filter: parseInt(postId),
-                            page_limit: 1 // We only need one post
-                        });
-
-                    if (error || !post || post.length === 0) throw error || new Error("Post not found.");
-
-                    // 3. Render the post
-                    const singlePost = post[0]; // Get the first (and only) item from the array
-                    document.title = `${singlePost.author_name || 'Post'} - The Muslim Post`;
-                    
-                    let contentHTML = '';
-                    singlePost.content.split('\n\n').forEach(part => {
-                        if (part.startsWith('![')) { // Image
-                            const url = part.match(/\((.*?)\)/)?.[1];
-                            if (url) contentHTML += `<img src="${url}" class="post-body-image" alt="Post image">`;
-                        } else if (part.startsWith('>')) {
-                            contentHTML += `<blockquote>${part.substring(1).trim()}</blockquote>`;
-                        } else if (part.startsWith('## ')) { // Headline
-                            contentHTML += `<h3>${part.substring(3).trim()}</h3>`;
-                        } else {
-                            contentHTML += `<p>${part}</p>`;
-                        }
-                    });
-
-                    let tagsHTML = '';
-                    if (singlePost.tags && singlePost.tags.length > 0) {
-                        tagsHTML = singlePost.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-                    }
-
-                    mainContent.innerHTML = `
-                        <div class="article-container">
-                            <h1 class="article-title">${singlePost.content.split('\n')[0]}</h1>
-                            <div class="article-meta">
-                                <div class="author-avatar">${(singlePost.author_name || 'U').charAt(0).toUpperCase()}</div>
-                                <div class="author-details">
-                                    <div class="author-name">${singlePost.author_name}</div>
-                                    <div class="author-qual">${singlePost.qualification || singlePost.author_qual}</div>
-                                </div>
-                                <div class="article-date">${new Date(singlePost.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                            </div>
-                            <div class="article-body">${contentHTML}</div>
-                            <div class="article-footer">
-                                <div class="post-stats" data-post-id="${singlePost.id}">
-                                    <canvas id="like-canvas-${singlePost.id}" class="like-btn-canvas" width="40" height="40" title="Like"></canvas>
-                                    <span class="like-count">${singlePost.like_count || 0}</span>
-                                    <div class="stat-item" title="Views">
-                                        <i class="far fa-eye"></i> <span>${singlePost.view_count || 0}</span>
-                                    </div>
-                                </div>
-                                <div class="article-tags">${tagsHTML}</div>
-                            </div>
+        container.innerHTML = `
+            <div class="article-container">
+                <header>
+                    <h1 class="article-title">${title}</h1>
+                    <div class="article-meta">
+                        <div class="author-avatar">${author.charAt(0)}</div>
+                        <div class="author-details">
+                            <div class="author-name">${author}</div>
+                            <div class="author-qual">${qual}</div>
                         </div>
-                    `;
+                        <div class="article-date">${date}</div>
+                    </div>
+                </header>
 
-                    // 4. Initialize interactive elements
-                    const canvasEl = document.getElementById(`like-canvas-${singlePost.id}`);
-                    const canvasButton = new CanvasLikeButton(canvasEl, singlePost.is_liked_by_user);
+                <div class="article-body">
+                    ${imageHtml}
+                    ${bodyContent}
+                </div>
 
-                    canvasEl.addEventListener('click', () => {
-                        if (!userId) {
-                            alert("Please log in to like posts.");
-                            window.location.href = 'auth.html';
-                            return;
-                        }
-                        canvasButton.triggerClick();
-                        const likeCountSpan = document.querySelector('.like-count');
-                        const currentCount = parseInt(likeCountSpan.textContent);
-                        likeCountSpan.textContent = canvasButton.isLiked ? currentCount + 1 : currentCount - 1;
+                <div class="article-footer">
+                    <a href="/post" class="read-more-btn">&larr; Back to Feed</a>
+                </div>
+            </div>
+        `;
 
-                        supabase.rpc('toggle_like', { post_id_to_toggle: postId, user_id_to_check: userId })
-                            .then(({ data, error }) => {
-                                if (error) {
-                                    console.error("Like error:", error);
-                                    alert("Could not save like. Please try again.");
-                                    canvasButton.triggerClick(); // Revert animation
-                                    likeCountSpan.textContent = currentCount; // Revert count
-                                } else {
-                                    likeCountSpan.textContent = data[0].new_like_count;
-                                }
-                            });
-                    });
+        // Update Page Title
+        document.title = `${title} - The Muslim Post`;
 
-                } catch (error) {
-                    console.error("Failed to load post:", error);
-                    mainContent.innerHTML = `<div class="loader">Could not load the post. It may have been deleted or the link is incorrect.</div>`;
-                }
-            }
-
-            loadPost();
-        });
-    </script>
-</body>
-</html>
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = `
+            <div style="text-align:center; padding:40px; color:#666;">
+                <h3>Unable to load article</h3>
+                <p>Error: ${error.message}</p>
+                <br>
+                <a href="/post.html" class="read-more-btn">Return to Feed</a>
+            </div>
+        `;
+    }
+});
+</script>

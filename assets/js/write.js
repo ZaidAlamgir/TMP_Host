@@ -1,7 +1,6 @@
 // Define the setup function clearly
 async function initWriterStudio() {
     const editorArea = document.getElementById('editor-area');
-    
     // Safety: Are we on the write page?
     if (!editorArea) return;
 
@@ -9,13 +8,11 @@ async function initWriterStudio() {
     if (window.hasInitializedWriter) return;
     window.hasInitializedWriter = true;
 
-    console.log("🚀 Writer Studio Script Started");
+    console.log("🚀 Writer Studio Script Started (Instant Mode)");
 
-    const authLoader = document.getElementById('auth-loader');
-    const errorMsg = document.getElementById('error-msg');
     const publishBtn = document.getElementById('publishBtn');
 
-    // 1. GET SUPABASE CLIENT
+    // 1. GET SUPABASE CLIENT (Non-blocking)
     let supabase;
     if (window.supabaseClient) {
         supabase = window.supabaseClient;
@@ -25,58 +22,14 @@ async function initWriterStudio() {
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU'
         );
         window.supabaseClient = supabase;
-    } else {
-        // Fallback: If script loaded too fast, wait 500ms and try again
-        console.warn("Supabase not ready, retrying...");
-        setTimeout(() => { window.hasInitializedWriter=false; initWriterStudio(); }, 500);
-        return;
     }
 
-    // 2. CHECK AUTH
-    try {
-        console.log("🔐 Verifying User...");
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error || !session) {
-            console.log("User not logged in.");
-            window.location.href = '/auth';
-            return;
-        }
-
-        // Check Role
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-        if (profile?.role !== 'writer') {
-            alert("Access Denied: Writers Only.");
-            window.location.href = '/post';
-            return;
-        }
-
-        // 3. SUCCESS - SHOW EDITOR
-        console.log("✅ Authorized. Showing Editor.");
-        if(authLoader) authLoader.style.display = 'none';
-        if(editorArea) editorArea.style.display = 'block';
-
-    } catch (err) {
-        console.error("Auth Error:", err);
-        if(authLoader) authLoader.style.display = 'none';
-        if(errorMsg) {
-            errorMsg.innerText = "Error: " + err.message;
-            errorMsg.style.display = 'block';
-        }
-    }
-
-    // 4. SETUP EVENTS (Only if not already attached)
+    // 2. SETUP EVENTS
     setupDynamicEvents();
 
     function setupDynamicEvents() {
         // Dynamic Blocks
         const blocksContainer = document.getElementById('dynamic-blocks');
-        // Clean up old listeners to prevent duplicates
         window.removeEventListener('tmp:add-block', handleAddBlock); 
         window.addEventListener('tmp:add-block', handleAddBlock);
 
@@ -109,43 +62,76 @@ async function initWriterStudio() {
             };
         }
 
-        // Publish Button
+        // 3. PUBLISH BUTTON (Verify User HERE)
         if (publishBtn) {
             publishBtn.onclick = async () => {
                 const headline = document.getElementById('headline').value.trim();
+                const qualification = document.getElementById('qualification').value.trim();
                 const contentBody = document.getElementById('main-content').value.trim();
                 const tags = document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t);
 
                 if (!headline || !contentBody) { alert("Headline and Content required."); return; }
 
-                publishBtn.textContent = "Publishing...";
+                publishBtn.textContent = "Verifying...";
                 publishBtn.disabled = true;
 
-                // Build Markdown
-                let finalMarkdown = contentBody;
-                document.querySelectorAll('.dynamic-block').forEach(block => {
-                    const val = block.querySelector('input, textarea').value.trim();
-                    if (val) {
-                        const type = block.dataset.type;
-                        if (type === 'subhead') finalMarkdown += `\n\n## ${val}`;
-                        if (type === 'quote') finalMarkdown += `\n\n> ${val}`;
-                        if (type === 'image') finalMarkdown += `\n\n![Image](${val})`;
+                try {
+                    if (!supabase) throw new Error("Supabase not initialized.");
+                    
+                    // A. Check Auth Just-In-Time
+                    const { data: { session }, error: authError } = await supabase.auth.getSession();
+                    if (authError || !session) {
+                        alert("Please log in to publish.");
+                        window.location.href = '/auth';
+                        return;
                     }
-                });
 
-                // --- CRITICAL FIX: CALL THE NEW FUNCTION ---
-                const { error } = await supabase.functions.invoke('push-to-firebase', {
-                    body: { headline, content: finalMarkdown, tags }
-                });
+                    // B. Check Writer Role
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', session.user.id)
+                        .single();
 
-                if (error) {
-                    console.error("Publish Error:", error);
-                    alert("Error: " + error.message);
-                    publishBtn.textContent = "Publish";
-                    publishBtn.disabled = false;
-                } else {
+                    if (profile?.role !== 'writer') {
+                        throw new Error("Access Denied: You do not have permission to publish.");
+                    }
+
+                    publishBtn.textContent = "Publishing...";
+
+                    // C. Format Content
+                    let finalMarkdown = `## ${headline}\n\n${contentBody}`;
+                    document.querySelectorAll('.dynamic-block').forEach(block => {
+                        const val = block.querySelector('input, textarea').value.trim();
+                        if (val) {
+                            const type = block.dataset.type;
+                            if (type === 'subhead') finalMarkdown += `\n\n## ${val}`;
+                            if (type === 'quote') finalMarkdown += `\n\n> ${val}`;
+                            if (type === 'image') finalMarkdown += `\n\n![Image](${val})`;
+                        }
+                    });
+
+                    // D. Insert to 'user_posts'
+                    const { error: insertError } = await supabase
+                        .from('user_posts') 
+                        .insert({
+                            user_id: session.user.id,
+                            content: finalMarkdown,
+                            tags: tags,
+                            author_name: session.user.user_metadata.full_name || 'Writer',
+                            qualification: qualification
+                        });
+
+                    if (insertError) throw insertError;
+
                     alert("Published Successfully!");
                     window.location.href = '/post';
+
+                } catch (err) {
+                    console.error("Publish Error:", err);
+                    alert(err.message);
+                    publishBtn.textContent = "Publish";
+                    publishBtn.disabled = false;
                 }
             };
         }

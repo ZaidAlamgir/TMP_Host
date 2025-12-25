@@ -9,16 +9,17 @@ extra_js:
 
 <script>
     window.TMP_CONFIG = {
-    // This points to the new file you just deployed
+        // PRODUCTION URL (Use this for the live website)
         FEED_API_URL: "/feed", 
-    
-        FOR_YOU_API: "/opinions/feed.json",
- 
-        // NEW: The Local Archive Feed
+        
+        // LOCAL TESTING (Uncomment the line below when testing on localhost)
+        // FEED_API_URL: "/feed.json",
+
+        // FOR YOU API
         FOR_YOU_API: "{{ '/opinions/feed.json' | relative_url }}",
 
         // Links
-        postOpen: "{{ '/postopen.html' | relative_url }}",
+        postOpen: "{{ '/postopen' | relative_url }}",
         auth: "{{ '/auth' | relative_url }}",
         writePage: "{{ '/write' | relative_url }}"
     };
@@ -26,18 +27,24 @@ extra_js:
 
 <main>
     <div class="post-container">
-        <div class="feed-tabs">
-            <div class="feed-tab" data-feed="for-you">For You</div>
-            <div class="feed-tab active" data-feed="recent">Recent Opinions</div>
+        <div class="feed-tabs-wrapper">
+            <div class="feed-tabs">
+                <div class="feed-tab" data-feed="for-you">
+                    <i class="fas fa-sparkles"></i> For You
+                </div>
+                <div class="feed-tab active" data-feed="recent">
+                    <i class="fas fa-clock"></i> Recent
+                </div>
+            </div>
         </div>
 
         <div id="search-container">
             <input type="text" id="tagSearchInput" placeholder="Search opinions by tag...">
         </div>
 
-        <div id="forYouFeed" style="display: none;"></div>
+        <div id="forYouFeed" style="display: none; opacity: 0;"></div>
 
-        <div id="recentPostsContainer">
+        <div id="recentPostsContainer" style="opacity: 1;">
             <div id="postsFeed"></div>
             <div id="postsLoader" class="loader"></div>
         </div>
