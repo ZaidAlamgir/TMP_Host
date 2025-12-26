@@ -166,6 +166,10 @@ async function setupPostPage() {
                 posts = data;
             }
             
+            // --- GHOST FILTER ADDED HERE ---
+            // This line removes any item that is null, has no title, or is just a timestamp
+            posts = posts.filter(p => p && p.title && p.title.trim() !== "");
+            
             // CRITICAL: Update the cache variable
             allCachedPosts = posts;
 
