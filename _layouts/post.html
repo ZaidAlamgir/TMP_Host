@@ -41,7 +41,6 @@ layout: default
         margin: 0 auto;
         padding: 0.5rem 1rem 2rem 1rem;
         color: #111827;
-        /* * IMPORTANT: Pushes footer down */
         flex-grow: 1;
     }
     .article-headline {
@@ -57,35 +56,138 @@ layout: default
         margin-bottom: 1.5rem;
     }
     
-    /* --- FIX START: List Styles --- */
+    /* --- List Styles --- */
     .article-body ol { 
-        list-style-type: decimal; 
-        padding-left: 2rem; 
-        margin-bottom: 1.5rem; 
-        font-family: 'Merriweather', serif; 
-        font-size: 18px; 
-        line-height: 1.8;
+        list-style-type: decimal; padding-left: 2rem; margin-bottom: 1.5rem; 
+        font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
     }
     .article-body ul { 
-        list-style-type: disc; 
-        padding-left: 2rem; 
-        margin-bottom: 1.5rem; 
-        font-family: 'Merriweather', serif; 
-        font-size: 18px; 
-        line-height: 1.8;
+        list-style-type: disc; padding-left: 2rem; margin-bottom: 1.5rem; 
+        font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
     }
-    .article-body li { 
-        margin-bottom: 0.5rem; 
-        padding-left: 0.25rem;
-    }
-    /* Handles the nested lists (like 10. a. b. c.) */
-    .article-body ol ol {
-        list-style-type: lower-alpha;
-        margin-top: 0.5rem;
-    }
-    /* --- FIX END --- */
+    .article-body li { margin-bottom: 0.5rem; padding-left: 0.25rem; }
+    .article-body ol ol { list-style-type: lower-alpha; margin-top: 0.5rem; }
 
     .article-body a { color: #1d4ed8; text-decoration: underline; }
+    
+    /* --- NEW: Advanced Table Styles --- */
+    
+    /* Wrapper */
+    .table-scroll-wrapper {
+        position: relative;
+        margin: 1.5rem 0; 
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden; 
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    .article-body .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        background: white;
+    }
+
+    /* Base Table */
+    .article-body table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px; 
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        margin: 0;
+    }
+
+    /* Caption Styling */
+    .article-body caption {
+        caption-side: bottom;
+        padding: 8px;
+        font-size: 0.85rem;
+        color: #6b7280;
+        text-align: left;
+        border-top: 1px solid #f3f4f6;
+        background: #fdfdfd;
+        font-style: italic;
+    }
+
+    /* Cells */
+    .article-body th, .article-body td {
+        padding: 12px 16px;
+        vertical-align: top;
+        line-height: 1.5;
+        color: #374151;
+    }
+
+    .article-body th {
+        background-color: #f8fafc;
+        font-weight: 700;
+        text-align: left;
+        color: #111827;
+        white-space: nowrap;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* --- THEMES --- */
+    
+    /* Default (Minimal/Clean) */
+    .article-body td { border-bottom: 1px solid #f1f5f9; }
+    .article-body tr:last-child td { border-bottom: none; }
+
+    /* Theme: Striped */
+    .table-container.striped tr:nth-child(even) { background-color: #f9fafb; }
+    
+    /* Theme: Grid (Excel style borders) */
+    .table-container.grid table { border: 1px solid #cbd5e1; }
+    .table-container.grid th, .table-container.grid td { border: 1px solid #cbd5e1; }
+
+    /* --- SORTABLE --- */
+    table.sortable th {
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+        padding-right: 24px; /* Space for icon */
+    }
+    table.sortable th:hover { background-color: #eff6ff; color: #1d4ed8; }
+    table.sortable th::after {
+        content: '\f0dc'; /* FontAwesome Sort Icon */
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 10px;
+        opacity: 0.5;
+    }
+    table.sortable th.asc::after { content: '\f0de'; opacity: 1; color: #1d4ed8; } /* Up */
+    table.sortable th.desc::after { content: '\f0dd'; opacity: 1; color: #1d4ed8; } /* Down */
+
+    /* --- Fade & Arrow Overlay (Mobile) --- */
+    .table-scroll-wrapper::after {
+        content: '\f061'; 
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 40px; 
+        background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1) 80%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8; 
+        pointer-events: none; 
+        opacity: 0; 
+        transition: opacity 0.3s ease;
+        font-size: 12px;
+        padding-left: 10px;
+    }
+    .table-scroll-wrapper.is-scrollable::after { opacity: 1; }
+    .table-scroll-wrapper.scrolled-end::after { opacity: 0; }
+
+    /* --- End Table Styles --- */
+
     .article-meta {
         display: flex; justify-content: space-between; align-items: center;
         margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;
@@ -101,30 +203,20 @@ layout: default
     .tag {
         background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
         border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
-        margin-bottom: -0.8rem;
         margin-bottom: 0.1rem;
     } 
     .article-figure {
-        max-width: 100%;
-        margin: 2rem auto;
-        padding: 0;
-        border: none;
+        max-width: 100%; margin: 2rem auto; padding: 0; border: none;
     }
     .article-figure img {
-        max-width: 100%; height: auto; display: block;
-        margin: 0 auto; 
-        border-radius: 8px;
+        max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px;
     }
     .article-body > p > img:only-child, .article-body > img {
-         max-width: 100%; height: auto; display: block;
-         margin: 2rem auto; border-radius: 8px;
+         max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px;
     }
     .article-image-caption {
         font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280;
-        margin-top: 0.5rem; 
-        margin-bottom: 2rem;
-        text-align: center;
-        display: block; 
+        margin-top: 0.5rem; margin-bottom: 2rem; text-align: center; display: block; 
     }
     .article-body h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1rem; }
     .article-body h3 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
@@ -171,6 +263,8 @@ layout: default
         document.addEventListener('turbo:load', () => {
             const articleBody = document.querySelector('.article-body');
             if (!articleBody) return;
+
+            // 1. Handle Images
             const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
             images.forEach((img) => {
                 if (img.closest('figure')) return;
@@ -192,44 +286,185 @@ layout: default
                     }
                 }
             });
+
+            // 2. Handle Tables (Fade + Arrow + SORTING Logic)
+            const tablesContainers = articleBody.querySelectorAll('.table-container');
+            tablesContainers.forEach(container => {
+                // A. Wrapper for Fade
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-scroll-wrapper';
+                const table = container.querySelector('table');
+                
+                // Copy classes from container (striped/grid) to wrapper for styling scope if needed, 
+                // but CSS targets .table-container inside wrapper usually. 
+                // Actually, structure is: div.table-container.striped > table
+                
+                const checkOverflow = () => {
+                    const isOverflowing = container.scrollWidth > container.clientWidth;
+                    if (isOverflowing) wrapper.classList.add('is-scrollable');
+                    else wrapper.classList.remove('is-scrollable');
+                };
+
+                container.addEventListener('scroll', () => {
+                    if (container.scrollWidth - container.scrollLeft - container.clientWidth < 5) {
+                        wrapper.classList.add('scrolled-end');
+                    } else {
+                        wrapper.classList.remove('scrolled-end');
+                    }
+                });
+
+                container.parentNode.insertBefore(wrapper, container);
+                wrapper.appendChild(container);
+                checkOverflow();
+                window.addEventListener('resize', checkOverflow);
+
+                // B. Sorting Logic
+                if (table && table.classList.contains('sortable')) {
+                    const headers = table.querySelectorAll('th');
+                    headers.forEach((header, index) => {
+                        header.addEventListener('click', () => {
+                            const tbody = table.querySelector('tbody');
+                            const rows = Array.from(tbody.querySelectorAll('tr'));
+                            const isAsc = header.classList.contains('asc');
+                            
+                            // Reset other headers
+                            headers.forEach(h => h.classList.remove('asc', 'desc'));
+                            
+                            // Toggle sort
+                            header.classList.toggle('asc', !isAsc);
+                            header.classList.toggle('desc', isAsc);
+                            
+                            const direction = !isAsc ? 1 : -1;
+
+                            const sortedRows = rows.sort((a, b) => {
+                                const aCol = a.children[index].textContent.trim();
+                                const bCol = b.children[index].textContent.trim();
+                                
+                                // Check if number
+                                const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,""));
+                                const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
+
+                                if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) {
+                                    return (aNum - bNum) * direction;
+                                }
+                                return aCol.localeCompare(bCol) * direction;
+                            });
+
+                            tbody.innerHTML = '';
+                            sortedRows.forEach(row => tbody.appendChild(row));
+                        });
+                    });
+                }
+            });
         });
         </script>
     </article> 
 </div> 
 
-<script> 
+<script>
 document.addEventListener('turbo:load', () => {
-    const shareButton = document.getElementById('native-share-button');
-    if (shareButton) {
-        shareButton.addEventListener('click', async () => {
-            const postUrl = window.location.href;
-            const postTitle = "{{ page.title | escape }}";
-            const postText = `Read: "${postTitle}"`;
+    const articleBody = document.querySelector('.article-body');
+    if (!articleBody) return;
 
-            if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') {
-                window.AndroidInterface.share(postTitle, postText, postUrl);
-            } else if (navigator.share) {
-                try {
-                    await navigator.share({ title: postTitle, text: postText, url: postUrl });
-                } catch (err) { console.error('Web Share failed:', err.message); }
+    // 1. Handle Images (Standard Logic)
+    const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
+    images.forEach((img) => {
+        if (img.closest('figure')) return;
+        const altText = img.getAttribute('alt');
+        const hasMeaningfulAlt = altText && altText.trim() !== '' && altText.toLowerCase() !== 'article image' && altText.toLowerCase() !== 'image';
+        const needsWrapping = img.parentElement && img.parentElement.tagName !== 'FIGURE';
+        if (needsWrapping) {
+            const figure = document.createElement('figure'); figure.classList.add('article-figure');
+            const clonedImg = img.cloneNode(true); figure.appendChild(clonedImg);
+            if (hasMeaningfulAlt) {
+                const figcaption = document.createElement('figcaption'); figcaption.classList.add('article-image-caption');
+                figcaption.textContent = altText; figure.appendChild(figcaption);
+            }
+            const parent = img.parentElement;
+            if (parent && parent.tagName === 'P' && parent.children.length === 1 && parent.childNodes.length === 1) {
+                parent.parentNode.replaceChild(figure, parent);
             } else {
-                try {
-                    // Fallback for clipboard copy using document.execCommand
-                    const tempInput = document.createElement('input');
-                    tempInput.style.position = 'absolute';
-                    tempInput.style.left = '-9999px';
-                    tempInput.value = postUrl;
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempInput);
-                    
-                    const originalIcon = shareButton.innerHTML;
-                    shareButton.innerHTML = '<i class="fas fa-check"></i>';
-                    setTimeout(() => { shareButton.innerHTML = originalIcon; }, 2000);
-                } catch (err) { alert('Could not copy link.'); }
+                 img.parentNode.replaceChild(figure, img);
+            }
+        }
+    });
+
+    // 2. Handle Tables (FIXED: Auto-Cleaning Logic)
+    const tablesContainers = articleBody.querySelectorAll('.table-container');
+    
+    tablesContainers.forEach(container => {
+        
+        // --- ⚡ THE FIX: STRIP EXISTING WRAPPERS FIRST ⚡ ---
+        // If the container is already inside a wrapper (or multiple wrappers), 
+        // remove the wrappers and put the container back in the main body.
+        while (container.parentNode.classList.contains('table-scroll-wrapper')) {
+            const wrapper = container.parentNode;
+            // This replaces the wrapper with the container (effectively unwrapping it)
+            wrapper.replaceWith(container); 
+        }
+        // ----------------------------------------------------
+
+        // A. Now create the ONE FRESH wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'table-scroll-wrapper';
+        const table = container.querySelector('table');
+        
+        // B. Scroll Logic
+        const checkOverflow = () => {
+            const isOverflowing = container.scrollWidth > container.clientWidth;
+            if (isOverflowing) wrapper.classList.add('is-scrollable');
+            else wrapper.classList.remove('is-scrollable');
+        };
+
+        container.addEventListener('scroll', () => {
+            if (container.scrollWidth - container.scrollLeft - container.clientWidth < 5) {
+                wrapper.classList.add('scrolled-end');
+            } else {
+                wrapper.classList.remove('scrolled-end');
             }
         });
-    }
+
+        // Insert wrapper
+        container.parentNode.insertBefore(wrapper, container);
+        wrapper.appendChild(container);
+        
+        checkOverflow();
+        window.addEventListener('resize', checkOverflow);
+
+        // C. Sorting Logic
+        if (table && table.classList.contains('sortable')) {
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                // Prevent duplicate listeners on the header itself
+                if (header.getAttribute('data-sort-initialized')) return;
+                header.setAttribute('data-sort-initialized', 'true');
+
+                header.addEventListener('click', () => {
+                    const tbody = table.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    const isAsc = header.classList.contains('asc');
+                    
+                    headers.forEach(h => h.classList.remove('asc', 'desc'));
+                    header.classList.toggle('asc', !isAsc);
+                    header.classList.toggle('desc', isAsc);
+                    const direction = !isAsc ? 1 : -1;
+
+                    const sortedRows = rows.sort((a, b) => {
+                        const aCol = a.children[index].textContent.trim();
+                        const bCol = b.children[index].textContent.trim();
+                        const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,""));
+                        const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
+
+                        if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) {
+                            return (aNum - bNum) * direction;
+                        }
+                        return aCol.localeCompare(bCol) * direction;
+                    });
+                    tbody.innerHTML = '';
+                    sortedRows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        }
+    });
 });
 </script>

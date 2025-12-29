@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORG CMS - News Editor</title>
+    <title>ORG CMS - Professional Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -11,98 +11,54 @@
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .hidden { display: none; }
         
-        /* UI Enhancements */
-        .glass-panel {
-            background: white;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        }
-        
+        /* Glass Panel & General UI */
+        .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .dynamic-content-block {
-            border: 1px solid #e2e8f0; 
-            border-radius: 0.75rem; 
-            padding: 1.5rem;
-            margin-top: 1.5rem; 
-            background-color: #ffffff; 
-            position: relative;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem;
+            margin-top: 1.5rem; background-color: #ffffff; position: relative;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: all 0.2s ease;
         }
-        .dynamic-content-block:hover {
-            border-color: #cbd5e1;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
+        .dynamic-content-block:hover { border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
 
+        /* Chips */
         .tag-suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-        
-        .tag-chip {
-            background-color: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
+        .tag-chip, .category-chip, .country-chip {
+            font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
             border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
         }
+        .tag-chip { background-color: #f1f5f9; color: #475569; }
         .tag-chip:hover { background-color: #e2e8f0; transform: translateY(-1px); }
-        
-        /* Standard Category Chips (Blue) */
-        .category-chip {
-            background-color: #eff6ff; color: #1d4ed8; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
-            border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid #bfdbfe;
-        }
-        .category-chip:hover { background-color: #dbeafe; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1); }
+        .category-chip { background-color: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .category-chip:hover { background-color: #dbeafe; transform: translateY(-1px); }
+        .country-chip { background-color: #ecfdf5; color: #047857; border-color: #6ee7b7; }
+        .country-chip:hover { background-color: #d1fae5; transform: translateY(-1px); }
+        .country-list-scroll { max-height: 220px; overflow-y: auto; padding: 4px; border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 0.5rem; }
 
-        /* NEW: Country Chips (Green) */
-        .country-chip {
-            background-color: #ecfdf5; color: #047857; font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
-            border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid #6ee7b7;
-        }
-        .country-chip:hover { background-color: #d1fae5; transform: translateY(-1px); box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1); }
-        
-        /* Scrollable container for the country list */
-        .country-list-scroll {
-            max-height: 220px;
-            overflow-y: auto;
-            padding: 4px;
-            border: 1px solid #f1f5f9;
-            border-radius: 0.5rem;
-            background-color: #f8fafc;
-        }
-        
-        textarea, input[type="text"], select { 
-            transition: all 0.2s ease-in-out; 
-            outline: none;
-        }
-        textarea:focus, input[type="text"]:focus, select:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-        
-        textarea { resize: none; overflow: hidden; }
-        #article-p1, .dynamic-paragraph { min-height: 150px; }
-        
+        /* Inputs */
+        textarea, input, select { transition: all 0.2s; outline: none; }
+        textarea:focus, input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         .remove-block-btn { 
-            position: absolute; top: 1rem; right: 1rem; 
-            width: 2rem; height: 2rem;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%;
-            color: #94a3b8; cursor: pointer; 
-            transition: all 0.2s;
+            position: absolute; top: 1rem; right: 1rem; width: 2rem; height: 2rem;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%;
+            color: #94a3b8; cursor: pointer; transition: all 0.2s;
         }
         .remove-block-btn:hover { background-color: #fee2e2; color: #ef4444; }
-        
-        /* Modal Styles */
-        .link-modal-overlay {
+
+        /* Modals */
+        .link-modal-overlay, .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(15, 23, 42, 0.4); z-index: 1000;
-            backdrop-filter: blur(2px);
-            display: flex; justify-content: center; align-items: flex-start;
-            padding-top: 15vh; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+            background-color: rgba(15, 23, 42, 0.4); z-index: 1000; backdrop-filter: blur(2px);
+            display: flex; justify-content: center; align-items: flex-start; padding-top: 15vh;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
         }
-        .link-modal-overlay.visible { opacity: 1; pointer-events: all; }
-        .link-modal-content {
+        .link-modal-overlay.visible, .modal-overlay.visible { opacity: 1; pointer-events: all; }
+        .link-modal-content, .modal-content {
             background-color: white; padding: 2rem; border-radius: 1rem;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             width: 90%; max-width: 500px;
             transform: scale(0.95); transition: transform 0.2s ease;
         }
-        .link-modal-overlay.visible .link-modal-content { transform: scale(1); }
+        .link-modal-overlay.visible .link-modal-content, .modal-overlay.visible .modal-content { transform: scale(1); }
         .link-modal-input {
             width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;
             font-size: 1rem; margin-bottom: 1.5rem;
@@ -112,6 +68,85 @@
         .link-modal-btn:hover { opacity: 0.9; }
         .link-modal-btn.primary { background-color: #4f46e5; color: white; }
         .link-modal-btn.secondary { background-color: #f3f4f6; color: #374151; }
+
+        /* --- TABLE FEATURE STYLES --- */
+        .table-wrapper { 
+            overflow-x: auto; 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 0.5rem; 
+            margin-top: 10px; 
+            max-width: 100%; 
+        }
+        .sheet-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 600px; /* Force scroll on mobile */
+        }
+        .sheet-table th, .sheet-table td { border: 1px solid #e2e8f0; padding: 0; vertical-align: top; position: relative; }
+        .sheet-table thead td { background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+        
+        .sheet-cell { 
+            width: 100%; 
+            outline: none; 
+            padding: 12px; 
+            min-height: 44px; 
+            font-size: 0.9rem; 
+            color: #334155; 
+            cursor: text;
+        }
+        .sheet-cell:focus { background-color: rgba(99, 102, 241, 0.05); box-shadow: inset 0 0 0 2px #6366f1; }
+        .sheet-cell:empty:before { content: attr(data-placeholder); color: #94a3b8; }
+        .sheet-table thead .sheet-cell { font-weight: 700; color: #1e293b; text-align: center; }
+        
+        /* Table Toolbar */
+        .table-toolbar-container {
+            background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 4px;
+        }
+        .table-toolbar-row {
+            display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 4px;
+        }
+        .table-toolbar-row:not(:last-child) {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 4px;
+        }
+        .table-tool-group { display: flex; gap: 2px; border-right: 1px solid #cbd5e1; padding-right: 6px; margin-right: 2px; }
+        .table-tool-group:last-child { border-right: none; }
+        
+        .tool-btn { 
+            padding: 6px 8px; border-radius: 4px; border: 1px solid transparent; 
+            cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border-color: #cbd5e1;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .tool-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
+        .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+        
+        .color-picker-wrapper { position: relative; display: flex; align-items: center; }
+        input[type="color"] { width: 28px; height: 28px; padding: 0; border: none; background: none; cursor: pointer; }
+        
+        /* Table Settings */
+        .table-settings-container {
+            margin-top: 10px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+        .table-caption-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 10px; 
+            font-size: 0.9rem;
+            background: white;
+            display: block;
+        }
+        .table-footer-options {
+            display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b;
+        }
+        .section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-right: 4px; }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen">
@@ -181,7 +216,6 @@
                     <label for="article-headline" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Headline</label>
                     <textarea id="article-headline" rows="1" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold text-xl md:text-2xl leading-normal text-slate-900 placeholder-slate-400" placeholder="The main title of the article"></textarea>
                 </div>
-                
                 <div>
                     <label for="article-subheadline" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Subheadline</label>
                     <textarea id="article-subheadline" rows="1" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base md:text-lg leading-normal text-slate-600 placeholder-slate-400" placeholder="A brief, engaging summary"></textarea>
@@ -224,6 +258,7 @@
              <div class="my-8 p-6 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-center gap-4">
                  <select id="block-type-select" class="p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm min-w-[200px]">
                     <option value="paragraph">Paragraph</option>
+                    <option value="table">Table (Pro Spreadsheet)</option>
                     <option value="headline-h2">Headline (H2)</option>
                     <option value="headline-h3">Headline (H3)</option>
                     <option value="headline-h4">Headline (H4)</option>
@@ -261,9 +296,8 @@
              </div>
 
              <div class="mb-8 p-5 bg-blue-50 rounded-xl border border-blue-100">
-                <label for="article-categories" class="block text-sm font-bold text-blue-900 mb-1">Categories (Required for URL)</label>
+                <label class="block text-sm font-bold text-blue-900 mb-1">Categories (Required for URL)</label>
                 <p class="text-xs text-blue-600 mb-3">Select at least one category to ensure the link works correctly.</p>
-                
                 <input type="text" id="article-categories" class="w-full p-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white mb-4" placeholder="Selected categories will appear here...">
                 
                 <div class="mb-2">
@@ -292,9 +326,7 @@
                             <input type="text" id="country-search-input" class="w-full pl-8 p-2 text-xs border border-emerald-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Search country to add...">
                         </div>
                     </div>
-                    
-                    <div id="country-suggestions-container" class="tag-suggestions country-list-scroll">
-                        </div>
+                    <div id="country-suggestions-container" class="tag-suggestions country-list-scroll"></div>
                 </div>
              </div>
 
@@ -311,16 +343,30 @@
     <div id="link-modal" class="link-modal-overlay">
         <div class="link-modal-content">
              <h3 class="text-xl font-bold mb-4 text-slate-800">Add or Edit Link</h3>
-             <p class="text-sm text-slate-500 mb-4">Paste the URL you want to link to.</p>
              <input type="text" id="link-url-input" class="link-modal-input" placeholder="https://example.com">
              <div class="link-modal-buttons">
                  <button id="cancel-link-btn" class="link-modal-btn secondary">Cancel</button>
                  <button id="add-link-btn" class="link-modal-btn primary">Add Link</button>
              </div>
         </div>
-     </div>
+    </div>
+
+    <div id="paste-modal" class="modal-overlay">
+        <div class="modal-content">
+             <h3 class="text-xl font-bold mb-2">Paste from Excel/Sheets</h3>
+             <p class="text-xs text-slate-500 mb-4">Copy your table cells and paste them here.</p>
+             <textarea id="paste-input" class="w-full h-32 border p-2 rounded mb-4 text-xs font-mono" placeholder="Paste data here..."></textarea>
+             <div class="link-modal-buttons">
+                 <button onclick="document.getElementById('paste-modal').classList.remove('visible')" class="link-modal-btn secondary">Cancel</button>
+                 <button id="confirm-paste-btn" class="link-modal-btn primary">Import</button>
+             </div>
+        </div>
+    </div>
 
     <script>
+        // ==========================================
+        // 1. CONFIG & DATA
+        // ==========================================
         const GITHUB_CONFIG = {
             clientId: 'Ov23lissjbf3KA3blXGg',
             redirectUri: 'https://www.tmpnews.com/auth-callback.html',
@@ -329,49 +375,174 @@
             repoBranch: 'main',
             tokenExchangeUrl: 'https://github-auth-proxy-org.zaidkhan137782.workers.dev' 
         };
+
+        const oicCountriesList = [
+            "Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Benin", 
+            "Brunei", "Burkina Faso", "Cameroon", "Chad", "Comoros", "Côte d'Ivoire", "Djibouti", 
+            "Egypt", "Gabon", "Gambia", "Guinea", "Guinea-Bissau", "Guyana", "Indonesia", "Iran", 
+            "Iraq", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Lebanon", "Libya", "Malaysia", 
+            "Maldives", "Mali", "Mauritania", "Morocco", "Mozambique", "Niger", "Nigeria", "Oman", 
+            "Pakistan", "Palestine", "Qatar", "Saudi Arabia", "Senegal", "Sierra Leone", "Somalia", 
+            "Sudan", "Suriname", "Syria", "Tajikistan", "Togo", "Tunisia", "Turkey", "Turkmenistan", 
+            "Uganda", "United Arab Emirates", "Uzbekistan", "Yemen", "Kosovo"
+        ];
         
-        // DOM Elements
-        const loginView = document.getElementById('login-view');
-        const editorView = document.getElementById('editor-view');
-        const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
-        const addBlockButton = document.getElementById('add-block-button');
-        const blockTypeSelect = document.getElementById('block-type-select');
+        // --- ELEMENTS ---
+        const loginView = document.getElementById('login-view'), editorView = document.getElementById('editor-view');
+        const loginButton = document.getElementById('login-button'), logoutButton = document.getElementById('logout-button');
+        const addBlockButton = document.getElementById('add-block-button'), blockTypeSelect = document.getElementById('block-type-select');
         const dynamicBlocksContainer = document.getElementById('dynamic-content-blocks');
-        const publishButton = document.getElementById('publish-button');
-        const publishText = document.getElementById('publish-text');
-        const publishSpinner = document.getElementById('publish-spinner');
-        const statusMessage = document.getElementById('status-message');
+        const publishButton = document.getElementById('publish-button'), statusMessage = document.getElementById('status-message');
+        const linkModal = document.getElementById('link-modal'), linkUrlInput = document.getElementById('link-url-input');
+        const addLinkBtn = document.getElementById('add-link-btn'), cancelLinkBtn = document.getElementById('cancel-link-btn');
+        const pasteModal = document.getElementById('paste-modal'), confirmPasteBtn = document.getElementById('confirm-paste-btn');
         const tagsInput = document.getElementById('article-tags');
         const categoriesInput = document.getElementById('article-categories');
-        
-        const linkModal = document.getElementById('link-modal');
-        const linkUrlInput = document.getElementById('link-url-input');
-        const addLinkBtn = document.getElementById('add-link-btn');
-        const cancelLinkBtn = document.getElementById('cancel-link-btn');
+        const countryContainer = document.getElementById('country-suggestions-container');
+        const countrySearchInput = document.getElementById('country-search-input');
+        const publishText = document.getElementById('publish-text');
+        const publishSpinner = document.getElementById('publish-spinner');
 
         // Global State
-        let activeTextarea = null;
-        let selectionStart = 0;
-        let selectionEnd = 0;
-        let accessToken = null;
-        
+        let accessToken = null, activeTextarea = null, activeContentEditable = null, activeTableBlockId = null;
+        let selectionStart = 0, selectionEnd = 0;
+
+        // ==========================================
+        // 2. HELPER FUNCTIONS
+        // ==========================================
         const autoExpandTextarea = (textarea) => {
             if (!textarea) return;
-            const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             textarea.style.height = 'auto';
             textarea.style.height = `${textarea.scrollHeight}px`;
-            window.scrollTo(scrollLeft, scrollTop);
         };
 
-        // Initialize
+        function renderCountries(filterText = '') {
+            countryContainer.innerHTML = ''; 
+            const filtered = oicCountriesList.filter(country => 
+                country.toLowerCase().includes(filterText.toLowerCase())
+            );
+            if (filtered.length === 0) {
+                countryContainer.innerHTML = '<span class="text-xs text-slate-400 italic p-2">No country found</span>';
+                return;
+            }
+            filtered.forEach(country => {
+                const chip = document.createElement('div');
+                chip.className = 'country-chip'; 
+                chip.dataset.country = country; 
+                chip.textContent = country;
+                countryContainer.appendChild(chip);
+            });
+        }
+
+        // --- HISTORY MANAGER ---
+        const tableHistory = {}; 
+        
+        function initTableHistory(blockId) {
+            tableHistory[blockId] = { undo: [], redo: [], timeout: null };
+            setTimeout(() => saveTableState(blockId, true), 50);
+        }
+
+        function saveTableState(blockId, isInitialState = false) {
+            if (!tableHistory[blockId]) return;
+            const history = tableHistory[blockId];
+            const block = document.getElementById(blockId);
+            if (!block || block.classList.contains('restoring-state')) return;
+
+            const theadHtml = block.querySelector('.sheet-head').innerHTML;
+            const tbodyHtml = block.querySelector('.sheet-body').innerHTML;
+            const stateSnapshot = { thead: theadHtml, tbody: tbodyHtml };
+
+            if (isInitialState) {
+                history.undo.push(stateSnapshot);
+            } else {
+                const lastState = history.undo[history.undo.length - 1];
+                if (lastState && lastState.thead === theadHtml && lastState.tbody === tbodyHtml) return;
+                history.undo.push(stateSnapshot);
+                history.redo = []; 
+            }
+            updateHistoryButtons(blockId);
+        }
+
+        function undoTable(blockId) {
+            const history = tableHistory[blockId];
+            if (!history || history.undo.length <= 1) return;
+            const block = document.getElementById(blockId);
+            block.classList.add('restoring-state');
+            history.redo.push(history.undo.pop());
+            const previous = history.undo[history.undo.length - 1];
+            applyTableState(blockId, previous);
+            block.classList.remove('restoring-state');
+            updateHistoryButtons(blockId);
+        }
+
+        function redoTable(blockId) {
+            const history = tableHistory[blockId];
+            if (!history || history.redo.length === 0) return;
+            const block = document.getElementById(blockId);
+            block.classList.add('restoring-state');
+            const next = history.redo.pop();
+            history.undo.push(next);
+            applyTableState(blockId, next);
+            block.classList.remove('restoring-state');
+            updateHistoryButtons(blockId);
+        }
+
+        function applyTableState(blockId, state) {
+            const block = document.getElementById(blockId);
+            block.querySelector('.sheet-head').innerHTML = state.thead;
+            block.querySelector('.sheet-body').innerHTML = state.tbody;
+        }
+
+        function updateHistoryButtons(blockId) {
+            const history = tableHistory[blockId];
+            if (!history) return;
+            const undoBtn = document.getElementById(`btn-undo-${blockId}`);
+            const redoBtn = document.getElementById(`btn-redo-${blockId}`);
+            if (undoBtn) undoBtn.disabled = (history.undo.length <= 1);
+            if (redoBtn) redoBtn.disabled = (history.redo.length === 0);
+        }
+
+        function debouncedSave(blockId) {
+            if (tableHistory[blockId]) {
+                clearTimeout(tableHistory[blockId].timeout);
+                tableHistory[blockId].timeout = setTimeout(() => {
+                    saveTableState(blockId);
+                }, 1000);
+            }
+        }
+
+        const updateStatus = (message, color) => {
+            statusMessage.textContent = message;
+            statusMessage.style.color = color;
+            setTimeout(() => statusMessage.textContent = '', 6000);
+        };
+
+        const setPublishingState = (isPublishing) => {
+            publishButton.disabled = isPublishing;
+            publishText.classList.toggle('hidden', isPublishing);
+            publishSpinner.classList.toggle('hidden', !isPublishing);
+        };
+
+        function showLinkModal(url = '') {
+            linkUrlInput.value = url;
+            linkModal.classList.add('visible');
+            linkUrlInput.focus();
+        }
+        function hideLinkModal() {
+            linkModal.classList.remove('visible');
+            activeTextarea = null;
+        }
+        const showLogin = () => { loginView.classList.remove('hidden'); editorView.classList.add('hidden'); };
+        const showEditor = () => { loginView.classList.add('hidden'); editorView.classList.remove('hidden'); };
+
+
+        // ==========================================
+        // 3. MAIN LOGIC (Auth & Init)
+        // ==========================================
         window.onload = async () => {
+            renderCountries();
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-            
-            // OIC Logic Initialize
-            renderCountries();
 
             if (code) {
                 window.history.pushState({}, document.title, window.location.pathname);
@@ -404,9 +575,7 @@
             }
         };
 
-        const showLogin = () => { loginView.classList.remove('hidden'); editorView.classList.add('hidden'); };
-        const showEditor = () => { loginView.classList.add('hidden'); editorView.classList.remove('hidden'); };
-        
+        // --- AUTH EVENTS ---
         loginButton.addEventListener('click', () => {
             const finalDestination = window.location.origin + window.location.pathname;
             localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'org_cms' })); 
@@ -429,12 +598,291 @@
             showLogin();
         });
 
+        // --- GLOBAL EVENTS ---
         editorView.addEventListener('input', e => {
             if (e.target.tagName.toLowerCase() === 'textarea') {
                 autoExpandTextarea(e.target);
             }
         });
 
+        editorView.addEventListener('mouseup', (e) => {
+            if (e.target.classList.contains('sheet-cell')) return; // Ignore table cells
+            if (e.target.tagName.toLowerCase() === 'textarea') {
+                const textarea = e.target;
+                if (textarea.selectionStart !== textarea.selectionEnd) {
+                    activeTextarea = textarea;
+                    selectionStart = textarea.selectionStart;
+                    selectionEnd = textarea.selectionEnd;
+                    showLinkModal();
+                }
+            }
+        });
+
+        document.addEventListener('focusin', (e) => {
+            if (e.target.classList.contains('sheet-cell')) {
+                activeContentEditable = e.target;
+                const block = e.target.closest('.dynamic-content-block');
+                if (block && block.dataset.blockType === 'table') {
+                    debouncedSave(block.id);
+                }
+            }
+        });
+
+        countrySearchInput.addEventListener('input', (e) => {
+            renderCountries(e.target.value);
+        });
+
+        countryContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('country-chip')) {
+                const countryNameRaw = e.target.dataset.country;
+                const countrySlug = countryNameRaw.toLowerCase().replace(/\s+/g, '-');
+                const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
+                if (!currentCats.includes(countrySlug)) {
+                    categoriesInput.value = categoriesInput.value.trim() === '' ? countrySlug : `${categoriesInput.value.trim()}, ${countrySlug}`;
+                    const originalText = e.target.textContent;
+                    e.target.textContent = "Added!";
+                    e.target.style.backgroundColor = "#10b981"; e.target.style.color = "white";
+                    setTimeout(() => { e.target.textContent = originalText; e.target.style.backgroundColor = ""; e.target.style.color = ""; }, 800);
+                }
+            }
+        });
+
+        // Link Modal
+        addLinkBtn.addEventListener('click', () => {
+            if (activeTextarea) {
+                const url = linkUrlInput.value.trim();
+                if (url) {
+                    const selectedText = activeTextarea.value.substring(selectionStart, selectionEnd);
+                    const linkMarkdown = `[${selectedText}](${url})`;
+                    activeTextarea.setRangeText(linkMarkdown, selectionStart, selectionEnd, 'select');
+                }
+                hideLinkModal();
+            } else if (activeContentEditable) {
+                const url = linkUrlInput.value.trim();
+                if(url) {
+                    activeContentEditable.focus();
+                    document.execCommand('createLink', false, url);
+                }
+                hideLinkModal();
+            }
+        });
+        cancelLinkBtn.addEventListener('click', hideLinkModal);
+        
+        // Tag Suggestions
+        document.getElementById('tag-suggestions-container').addEventListener('click', (e) => {
+            if (e.target.classList.contains('tag-chip')) {
+                const newTag = e.target.dataset.tag;
+                const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
+                if (!currentTags.includes(newTag)) {
+                    tagsInput.value = tagsInput.value.trim() === '' ? newTag : `${tagsInput.value.trim()}, ${newTag}`;
+                }
+            }
+        });
+
+        // Cat Suggestions
+        document.getElementById('category-suggestions-container').addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-chip')) {
+                const newCat = e.target.dataset.cat;
+                const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
+                if (!currentCats.includes(newCat)) {
+                    categoriesInput.value = categoriesInput.value.trim() === '' ? newCat : `${categoriesInput.value.trim()}, ${newCat}`;
+                }
+            }
+        });
+
+
+        // ==========================================
+        // 4. TABLE LOGIC (FIXED)
+        // ==========================================
+        window.createTable = function(id) {
+            const block = document.getElementById(id);
+            const rows = parseInt(block.querySelector('.row-input').value)||2;
+            const cols = parseInt(block.querySelector('.col-input').value)||2;
+            block.querySelector('.setup-stage').classList.add('hidden');
+            block.querySelector('.editor-stage').classList.remove('hidden');
+            
+            // --- FIX: Separate Head and Body ---
+            // 1. Create Header
+            const thead = block.querySelector('.sheet-head');
+            let headHtml = '<tr>';
+            for(let c=0; c<cols; c++) {
+                headHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Header ${c+1}"></div></td>`;
+            }
+            headHtml += '</tr>';
+            thead.innerHTML = headHtml;
+
+            // 2. Create Body (Loop starts at 1 because row 0 is header)
+            const tbody = block.querySelector('.sheet-body');
+            let bodyHtml = '';
+            for(let r=1; r<rows; r++) {
+                bodyHtml += '<tr>';
+                for(let c=0; c<cols; c++) {
+                    bodyHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div></td>`;
+                }
+                bodyHtml += '</tr>';
+            }
+            tbody.innerHTML = bodyHtml;
+
+            // Init history
+            initTableHistory(id);
+        };
+
+        window.tableCmd = function(cmd, id, arg=null) {
+            const block = document.getElementById(id);
+            if(!block) return;
+
+            // Undo/Redo
+            if(cmd === 'undo') { undoTable(id); return; }
+            if(cmd === 'redo') { redoTable(id); return; }
+
+            // Save State Before Action
+            if(['addRow','addCol','delRow','delCol','mergeRight','mergeDown','bold','italic','underline','justifyLeft','justifyCenter','justifyRight','hiliteColor','formatBlock'].includes(cmd)) {
+                saveTableState(id);
+            }
+
+            // Formatting
+            if(['bold','italic','underline','justifyLeft','justifyCenter','justifyRight','removeFormat','formatBlock'].includes(cmd)) {
+                if(activeContentEditable && block.contains(activeContentEditable)) {
+                    if(cmd.startsWith('justify')) {
+                        activeContentEditable.parentElement.style.textAlign = cmd.replace('justify','').toLowerCase();
+                    } else {
+                        document.execCommand(cmd, false, arg);
+                    }
+                    activeContentEditable.focus();
+                } else alert("Click a cell first.");
+                return;
+            }
+
+            // Color
+            if(cmd === 'hiliteColor') {
+                if(activeContentEditable && block.contains(activeContentEditable)) {
+                    activeContentEditable.parentElement.style.backgroundColor = arg;
+                }
+                return;
+            }
+
+            // Merge
+            if(cmd === 'mergeRight') {
+                if(!activeContentEditable) return alert("Click cell to merge.");
+                const td = activeContentEditable.parentElement;
+                const nextTd = td.nextElementSibling;
+                if(nextTd) {
+                    const nextContent = nextTd.querySelector('.sheet-cell').innerHTML;
+                    const currentColspan = parseInt(td.getAttribute('colspan')||1);
+                    const nextColspan = parseInt(nextTd.getAttribute('colspan')||1);
+                    td.setAttribute('colspan', currentColspan + nextColspan);
+                    if(nextContent) activeContentEditable.innerHTML += ' ' + nextContent;
+                    nextTd.remove();
+                }
+                return;
+            }
+            if(cmd === 'mergeDown') {
+                if(!activeContentEditable) return alert("Click cell to merge.");
+                const td = activeContentEditable.parentElement;
+                const tr = td.parentElement;
+                const nextTr = tr.nextElementSibling;
+                if(nextTr) {
+                    const cellIndex = Array.from(tr.children).indexOf(td);
+                    const targetTd = nextTr.children[cellIndex]; 
+                    if(targetTd) {
+                        const targetContent = targetTd.querySelector('.sheet-cell').innerHTML;
+                        const currentRowspan = parseInt(td.getAttribute('rowspan')||1);
+                        const targetRowspan = parseInt(targetTd.getAttribute('rowspan')||1);
+                        td.setAttribute('rowspan', currentRowspan + targetRowspan);
+                        if(targetContent) activeContentEditable.innerHTML += '<br>' + targetContent;
+                        targetTd.remove();
+                    }
+                }
+                return;
+            }
+
+            // Import
+            if(cmd === 'openPaste') {
+                activeTableBlockId = id;
+                document.getElementById('paste-input').value = '';
+                pasteModal.classList.add('visible');
+            }
+
+            // Structure
+            if (cmd === 'addRow') {
+                const tbody = block.querySelector('.sheet-body');
+                const colInput = block.querySelector('.col-input');
+                const colCount = colInput ? parseInt(colInput.value) : 2;
+                
+                let targetRow = null;
+                if(activeContentEditable && block.contains(activeContentEditable)) {
+                    const td = activeContentEditable.closest('td');
+                    if(td) targetRow = td.parentElement;
+                }
+
+                const newRow = document.createElement('tr');
+                for(let i=0; i<colCount; i++) {
+                     const td = document.createElement('td');
+                     td.innerHTML = `<div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div>`;
+                     newRow.appendChild(td);
+                }
+
+                if(targetRow) targetRow.after(newRow); 
+                else tbody.appendChild(newRow);
+            }
+            else if (cmd === 'addCol') {
+                const headRow = block.querySelector('.sheet-head tr'); // Now this will find the row
+                const tbody = block.querySelector('.sheet-body');
+                
+                // Add to Header
+                const newTh = document.createElement('td');
+                newTh.innerHTML = `<div contenteditable="true" class="sheet-cell" data-placeholder="Header"></div>`;
+                headRow.appendChild(newTh);
+                
+                // Add to Body
+                tbody.querySelectorAll('tr').forEach(tr => {
+                    const td = document.createElement('td');
+                    td.innerHTML = `<div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div>`;
+                    tr.appendChild(td);
+                });
+
+                // Update input
+                const colInput = block.querySelector('.col-input');
+                if(colInput) colInput.value = parseInt(colInput.value) + 1;
+            }
+            else if (cmd === 'delRow') {
+                const tbody = block.querySelector('.sheet-body');
+                if(activeContentEditable && block.contains(activeContentEditable)) {
+                    const tr = activeContentEditable.closest('tr');
+                    if(tr && tr.parentElement === tbody) { tr.remove(); return; }
+                }
+                if(tbody.children.length > 0) tbody.removeChild(tbody.lastElementChild);
+            }
+            else if (cmd === 'delCol') {
+                const allRows = block.querySelectorAll('tr'); 
+                if(allRows[0].children.length > 1) {
+                    allRows.forEach(row => row.removeChild(row.lastElementChild));
+                    const colInput = block.querySelector('.col-input');
+                    if(colInput) colInput.value = Math.max(1, parseInt(colInput.value) - 1);
+                }
+            }
+        };
+
+        // Handle Paste Import
+        confirmPasteBtn.onclick = () => {
+            if(!activeTableBlockId) return;
+            saveTableState(activeTableBlockId);
+            const data = document.getElementById('paste-input').value;
+            const rows = data.trim().split('\n');
+            let html = '';
+            rows.forEach(row => {
+                html += '<tr>';
+                const cells = row.split('\t'); 
+                cells.forEach(cell => {
+                    html += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`;
+                });
+                html += '</tr>';
+            });
+            document.querySelector(`#${activeTableBlockId} .sheet-body`).innerHTML = html;
+            pasteModal.classList.remove('visible');
+        };
+
+        // --- BLOCK MANAGEMENT ---
         addBlockButton.addEventListener('click', () => {
             const blockType = blockTypeSelect.value;
             const blockId = `dynamic-block-${Date.now()}`;
@@ -446,148 +894,98 @@
             if (blockType.startsWith('headline')) {
                 blockTitle = `Headline (${blockType.slice(-2).toUpperCase()})`;
             }
-            let blockHTML = `<button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button><h3 class="text-sm font-bold uppercase text-slate-400 mb-3">${blockTitle}</h3>`;
-            switch (blockType) {
-                case 'paragraph':
-                    blockHTML += `<textarea class="dynamic-paragraph w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="6" placeholder="Continue your article..."></textarea>`;
-                    break;
-                case 'headline-h2':
-                case 'headline-h3':
-                case 'headline-h4':
-                    blockHTML += `<input type="text" class="dynamic-headline w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold" placeholder="Enter headline text...">`;
-                    break;
-                case 'image':
-                    blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short description of this image"></textarea></div>`;
-                    break;
-                case 'quote':
-                    blockHTML += `<textarea class="dynamic-quote w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="3" placeholder="Enter the quote here..."></textarea>`;
-                    break;
-                default:
-                    blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste the full post URL"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label><textarea rows="1" class="dynamic-social-caption w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short caption for the embed"></textarea></div>`;
-                    break;
+            
+            let blockHTML = `<button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button>`;
+            
+            if (blockType === 'table') {
+                 // Added flex-wrap for mobile responsiveness
+                 blockHTML += `
+                    <h3 class="text-sm font-bold uppercase text-slate-400 mb-3">Data Table</h3>
+                    <div class="setup-stage flex flex-wrap items-end gap-4 mb-4">
+                        <div><label class="block text-xs text-slate-500 mb-1">Rows</label><input type="number" class="row-input border border-slate-300 p-2 rounded w-20 text-sm" value="3"></div>
+                        <div><label class="block text-xs text-slate-500 mb-1">Cols</label><input type="number" class="col-input border border-slate-300 p-2 rounded w-20 text-sm" value="3"></div>
+                        <button onclick="createTable('${blockId}')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm h-10 font-medium">Create</button>
+                        <button onclick="tableCmd('openPaste','${blockId}')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 text-sm h-10 font-medium ml-2"><i class="fas fa-file-import"></i> Paste Excel</button>
+                    </div>
+                    
+                    <div class="editor-stage hidden">
+                        <div class="table-settings-container">
+                            <input type="text" class="table-caption-input" placeholder="Table Caption (e.g. Source: World Bank, 2024)">
+                            <div class="table-footer-options">
+                                <select class="table-theme border border-slate-300 p-1 rounded text-xs"><option value="">Default Theme</option><option value="striped">Striped</option><option value="grid">Grid Border</option></select>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-500"><input type="checkbox" class="table-sortable"> Sortable</label>
+                            </div>
+                        </div>
+
+                        <div class="table-toolbar-container">
+                            <div class="table-toolbar-row">
+                                <div class="table-tool-group border-r-2 border-indigo-100 pr-4">
+                                    <button id="btn-undo-${blockId}" class="tool-btn" onclick="tableCmd('undo', '${blockId}')" title="Undo"><i class="fas fa-undo"></i></button>
+                                    <button id="btn-redo-${blockId}" class="tool-btn" onclick="tableCmd('redo', '${blockId}')" title="Redo"><i class="fas fa-redo"></i></button>
+                                </div>
+                                <span class="section-label">Style</span>
+                                <div class="table-tool-group">
+                                    <button class="tool-btn" onclick="tableCmd('bold', '${blockId}')" title="Bold"><i class="fas fa-bold"></i></button>
+                                    <button class="tool-btn" onclick="tableCmd('italic', '${blockId}')" title="Italic"><i class="fas fa-italic"></i></button>
+                                    <button class="tool-btn" onclick="tableCmd('underline', '${blockId}')" title="Underline"><i class="fas fa-underline"></i></button>
+                                </div>
+                                <div class="table-tool-group">
+                                    <button class="tool-btn" onclick="tableCmd('justifyLeft', '${blockId}')"><i class="fas fa-align-left"></i></button>
+                                    <button class="tool-btn" onclick="tableCmd('justifyCenter', '${blockId}')"><i class="fas fa-align-center"></i></button>
+                                    <button class="tool-btn" onclick="tableCmd('justifyRight', '${blockId}')"><i class="fas fa-align-right"></i></button>
+                                </div>
+                                <div class="table-tool-group">
+                                    <div class="color-picker-wrapper tool-btn">
+                                        <i class="fas fa-fill-drip mr-1"></i>
+                                        <input type="color" onchange="tableCmd('hiliteColor','${blockId}',this.value)" title="Cell Background">
+                                    </div>
+                                </div>
+                                <div class="table-tool-group">
+                                    <button class="tool-btn" onclick="tableCmd('formatBlock', '${blockId}', '<h1>')">H1</button>
+                                    <button class="tool-btn" onclick="tableCmd('formatBlock', '${blockId}', '<h2>')">H2</button>
+                                </div>
+                            </div>
+
+                            <div class="table-toolbar-row">
+                                <span class="section-label">Structure</span>
+                                <div class="table-tool-group">
+                                    <button class="tool-btn text-indigo-600" onclick="tableCmd('addRow', '${blockId}')" title="Insert Row Below"><i class="fas fa-plus"></i> Row</button>
+                                    <button class="tool-btn text-indigo-600" onclick="tableCmd('addCol', '${blockId}')" title="Insert Column Right"><i class="fas fa-plus"></i> Col</button>
+                                </div>
+                                <div class="table-tool-group">
+                                    <button class="tool-btn" onclick="tableCmd('mergeRight', '${blockId}')" title="Merge Right"><i class="fas fa-arrows-alt-h"></i></button>
+                                    <button class="tool-btn" onclick="tableCmd('mergeDown', '${blockId}')" title="Merge Down"><i class="fas fa-arrows-alt-v"></i></button>
+                                </div>
+                                <div class="table-tool-group">
+                                    <button class="tool-btn text-red-500 hover:text-red-700" onclick="tableCmd('delRow', '${blockId}')" title="Delete Row"><i class="fas fa-trash-alt"></i> Row</button>
+                                    <button class="tool-btn text-red-500 hover:text-red-700" onclick="tableCmd('delCol', '${blockId}')" title="Delete Column"><i class="fas fa-trash-alt"></i> Col</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-wrapper">
+                            <table class="sheet-table">
+                                <thead class="sheet-head"></thead>
+                                <tbody class="sheet-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                blockHTML += `<h3 class="text-sm font-bold uppercase text-slate-400 mb-3">${blockTitle}</h3>`;
+                switch (blockType) {
+                    case 'paragraph': blockHTML += `<textarea class="dynamic-paragraph w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="6" placeholder="Continue your article..."></textarea>`; break;
+                    case 'headline-h2': case 'headline-h3': case 'headline-h4': blockHTML += `<input type="text" class="dynamic-headline w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold" placeholder="Enter headline text...">`; break;
+                    case 'image': blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short description of this image"></textarea></div>`; break;
+                    case 'quote': blockHTML += `<textarea class="dynamic-quote w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="3" placeholder="Enter the quote here..."></textarea>`; break;
+                    default: blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste the full post URL"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label><textarea rows="1" class="dynamic-social-caption w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short caption for the embed"></textarea></div>`; break;
+                }
             }
             newBlock.innerHTML = blockHTML;
             dynamicBlocksContainer.appendChild(newBlock);
             newBlock.querySelectorAll('textarea').forEach(autoExpandTextarea);
         });
 
-        document.getElementById('tag-suggestions-container').addEventListener('click', (e) => {
-            if (e.target.classList.contains('tag-chip')) {
-                const newTag = e.target.dataset.tag;
-                const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
-                if (!currentTags.includes(newTag)) {
-                    tagsInput.value = tagsInput.value.trim() === '' ? newTag : `${tagsInput.value.trim()}, ${newTag}`;
-                }
-            }
-        });
-
-        document.getElementById('category-suggestions-container').addEventListener('click', (e) => {
-            if (e.target.classList.contains('category-chip')) {
-                const newCat = e.target.dataset.cat;
-                const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
-                if (!currentCats.includes(newCat)) {
-                    categoriesInput.value = categoriesInput.value.trim() === '' ? newCat : `${categoriesInput.value.trim()}, ${newCat}`;
-                }
-            }
-        });
-
-        // ==========================================
-        // OIC COUNTRIES LOGIC START
-        // ==========================================
-        const oicCountriesList = [
-            "Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Benin", 
-            "Brunei", "Burkina Faso", "Cameroon", "Chad", "Comoros", "Côte d'Ivoire", "Djibouti", 
-            "Egypt", "Gabon", "Gambia", "Guinea", "Guinea-Bissau", "Guyana", "Indonesia", "Iran", 
-            "Iraq", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Lebanon", "Libya", "Malaysia", 
-            "Maldives", "Mali", "Mauritania", "Morocco", "Mozambique", "Niger", "Nigeria", "Oman", 
-            "Pakistan", "Palestine", "Qatar", "Saudi Arabia", "Senegal", "Sierra Leone", "Somalia", 
-            "Sudan", "Suriname", "Syria", "Tajikistan", "Togo", "Tunisia", "Turkey", "Turkmenistan", 
-            "Uganda", "United Arab Emirates", "Uzbekistan", "Yemen", "Kosovo"
-        ];
-        const countryContainer = document.getElementById('country-suggestions-container');
-        const countrySearchInput = document.getElementById('country-search-input');
-
-        function renderCountries(filterText = '') {
-            countryContainer.innerHTML = ''; 
-            const filtered = oicCountriesList.filter(country => 
-                country.toLowerCase().includes(filterText.toLowerCase())
-            );
-            if (filtered.length === 0) {
-                countryContainer.innerHTML = '<span class="text-xs text-slate-400 italic p-2">No country found</span>';
-                return;
-            }
-            filtered.forEach(country => {
-                const chip = document.createElement('div');
-                chip.className = 'country-chip'; 
-                chip.dataset.country = country; 
-                chip.textContent = country;
-                countryContainer.appendChild(chip);
-            });
-        }
-        countrySearchInput.addEventListener('input', (e) => {
-            renderCountries(e.target.value);
-        });
-        countryContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('country-chip')) {
-                const countryNameRaw = e.target.dataset.country;
-                // Convert to slug: Saudi Arabia -> saudi-arabia
-                const countrySlug = countryNameRaw.toLowerCase().replace(/\s+/g, '-');
-                
-                const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
-                
-                if (!currentCats.includes(countrySlug)) {
-                    categoriesInput.value = categoriesInput.value.trim() === '' ? countrySlug : `${categoriesInput.value.trim()}, ${countrySlug}`;
-                    
-                    // Visual feedback
-                    const originalText = e.target.textContent;
-                    e.target.textContent = "Added!";
-                    e.target.style.backgroundColor = "#10b981"; // Darker green
-                    e.target.style.color = "white";
-                    setTimeout(() => {
-                        e.target.textContent = originalText;
-                        e.target.style.backgroundColor = ""; 
-                        e.target.style.color = ""; 
-                    }, 800);
-                }
-            }
-        });
-        // ==========================================
-        // OIC COUNTRIES LOGIC END
-        // ==========================================
-
-        function showLinkModal(url = '') {
-            linkUrlInput.value = url;
-            linkModal.classList.add('visible');
-            linkUrlInput.focus();
-        }
-        function hideLinkModal() {
-            linkModal.classList.remove('visible');
-            activeTextarea = null;
-        }
-        editorView.addEventListener('mouseup', (e) => {
-            if (e.target.tagName.toLowerCase() === 'textarea') {
-                const textarea = e.target;
-                if (textarea.selectionStart !== textarea.selectionEnd) {
-                    activeTextarea = textarea;
-                    selectionStart = textarea.selectionStart;
-                    selectionEnd = textarea.selectionEnd;
-                    showLinkModal();
-                }
-            }
-        });
-        addLinkBtn.addEventListener('click', () => {
-            if (activeTextarea) {
-                const url = linkUrlInput.value.trim();
-                if (url) {
-                    const selectedText = activeTextarea.value.substring(selectionStart, selectionEnd);
-                    const linkMarkdown = `[${selectedText}](${url})`;
-                    activeTextarea.setRangeText(linkMarkdown, selectionStart, selectionEnd, 'select');
-                }
-                hideLinkModal();
-            }
-        });
-        cancelLinkBtn.addEventListener('click', hideLinkModal);
-        
         publishButton.addEventListener('click', async () => {
             const headline = document.getElementById('article-headline').value.trim();
             const paragraph1 = document.getElementById('article-p1').value.trim();
@@ -626,25 +1024,60 @@
             let body = `${paragraph1}\n\n`;
             document.querySelectorAll('.dynamic-content-block').forEach(block => {
                 const blockType = block.dataset.blockType;
-                switch (blockType) {
-                    case 'paragraph': body += `${block.querySelector('.dynamic-paragraph').value.trim()}\n\n`; break;
-                    case 'headline-h2': body += `## ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
-                    case 'headline-h3': body += `### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
-                    case 'headline-h4': body += `#### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
-                    case 'image':
-                        const imageUrl = block.querySelector('.dynamic-image-url').value.trim();
-                        const imageDesc = block.querySelector('.dynamic-image-desc').value.trim();
-                        if (imageUrl) body += `![${imageDesc || 'Article image'}](${imageUrl})\n\n`;
-                        break;
-                    case 'quote':
-                        const quote = block.querySelector('.dynamic-quote').value.trim();
-                        if (quote) body += `> ${quote.replace(/\n/g, '\n> ')}\n\n`;
-                        break;
-                    default:
-                        const url = block.querySelector('.dynamic-social-url').value.trim();
-                        const caption = block.querySelector('.dynamic-social-caption').value.trim();
-                        if (url) body += `[${blockType}|${caption}](${url})\n\n`;
-                        break;
+                
+                if (blockType === 'table') {
+                    const caption = block.querySelector('.table-caption-input').value;
+                    const theme = block.querySelector('.table-theme').value;
+                    const sortable = block.querySelector('.table-sortable').checked ? 'sortable' : '';
+                    
+                    let tableHtml = `<div class="table-container ${theme}"><table class="${sortable}">\n`;
+                    if(caption) tableHtml += `<caption>${caption}</caption>\n`;
+                    
+                    tableHtml += '  <thead>\n    <tr>\n';
+                    block.querySelectorAll('.sheet-head .sheet-cell').forEach(cell => {
+                         tableHtml += `      <th>${cell.innerHTML.trim()}</th>\n`;
+                    });
+                    tableHtml += '    </tr>\n  </thead>\n  <tbody>\n';
+                    
+                    block.querySelectorAll('.sheet-body tr').forEach(row => {
+                        tableHtml += '    <tr>\n';
+                        row.querySelectorAll('td').forEach(td => {
+                            const style = td.getAttribute('style') || '';
+                            const colspan = td.getAttribute('colspan');
+                            const rowspan = td.getAttribute('rowspan');
+                            let attrs = style ? ` style="${style}"` : '';
+                            if(colspan) attrs += ` colspan="${colspan}"`;
+                            if(rowspan) attrs += ` rowspan="${rowspan}"`;
+                            
+                            const cell = td.querySelector('.sheet-cell');
+                            tableHtml += `      <td${attrs}>${cell.innerHTML.trim()}</td>\n`;
+                        });
+                        tableHtml += '    </tr>\n';
+                    });
+                    tableHtml += '  </tbody>\n</table></div>\n\n';
+                    body += tableHtml;
+                }
+                else {
+                    switch (blockType) {
+                        case 'paragraph': body += `${block.querySelector('.dynamic-paragraph').value.trim()}\n\n`; break;
+                        case 'headline-h2': body += `## ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
+                        case 'headline-h3': body += `### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
+                        case 'headline-h4': body += `#### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
+                        case 'image':
+                            const imageUrl = block.querySelector('.dynamic-image-url').value.trim();
+                            const imageDesc = block.querySelector('.dynamic-image-desc').value.trim();
+                            if (imageUrl) body += `![${imageDesc || 'Article image'}](${imageUrl})\n\n`;
+                            break;
+                        case 'quote':
+                            const quote = block.querySelector('.dynamic-quote').value.trim();
+                            if (quote) body += `> ${quote.replace(/\n/g, '\n> ')}\n\n`;
+                            break;
+                        default:
+                            const url = block.querySelector('.dynamic-social-url').value.trim();
+                            const caption = block.querySelector('.dynamic-social-caption').value.trim();
+                            if (url) body += `[${blockType}|${caption}](${url})\n\n`;
+                            break;
+                    }
                 }
             });
 
@@ -676,7 +1109,7 @@
                 });
                 if (response.status === 201) {
                     updateStatus(`Successfully published to ${selectedRepo}!`, '#16a34a');
-                    editorView.querySelectorAll('input, textarea').forEach(el => { if(el.id !== 'article-author') el.value = ''; });
+                    editorView.querySelectorAll('input:not(.sheet-cell), textarea').forEach(el => { if(el.id !== 'article-author') el.value = ''; });
                     dynamicBlocksContainer.innerHTML = '';
                     document.querySelectorAll('textarea').forEach(autoExpandTextarea);
                 } else {
@@ -689,18 +1122,6 @@
                 setPublishingState(false);
             }
         });
-
-        const updateStatus = (message, color) => {
-            statusMessage.textContent = message;
-            statusMessage.style.color = color;
-            setTimeout(() => statusMessage.textContent = '', 6000);
-        };
-
-        const setPublishingState = (isPublishing) => {
-            publishButton.disabled = isPublishing;
-            publishText.classList.toggle('hidden', isPublishing);
-            publishSpinner.classList.toggle('hidden', !isPublishing);
-        };
     </script>
 </body>
 </html>
