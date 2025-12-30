@@ -33,199 +33,61 @@ layout: default
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-    /* Article-specific styles */
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
 
-    .article-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 0.5rem 1rem 2rem 1rem;
-        color: #111827;
-        flex-grow: 1;
-    }
-    .article-headline {
-        font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px;
-        line-height: 1.2; margin-bottom: 0.75rem;
-    }
-    .article-subheadline {
-        font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563;
-        line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400;
-    }
-    .article-body p {
-        font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
-        margin-bottom: 1.5rem;
+    .article-container { max-width: 1000px; margin: 0 auto; padding: 0.5rem 1rem 2rem 1rem; color: #111827; flex-grow: 1; }
+    .article-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px; line-height: 1.2; margin-bottom: 0.75rem; }
+    .article-subheadline { font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563; line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400; }
+    .article-body p { font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8; margin-bottom: 1.5rem; }
+    
+    /* FIX: Force long links (like x.com) to break so they don't break mobile layout */
+    .article-body a { 
+        color: #1d4ed8; 
+        text-decoration: underline; 
+        word-break: break-all;
+        overflow-wrap: anywhere; 
     }
     
-    /* --- List Styles --- */
-    .article-body ol { 
-        list-style-type: decimal; padding-left: 2rem; margin-bottom: 1.5rem; 
-        font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
-    }
-    .article-body ul { 
-        list-style-type: disc; padding-left: 2rem; margin-bottom: 1.5rem; 
-        font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
-    }
-    .article-body li { margin-bottom: 0.5rem; padding-left: 0.25rem; }
-    .article-body ol ol { list-style-type: lower-alpha; margin-top: 0.5rem; }
-
-    .article-body a { color: #1d4ed8; text-decoration: underline; }
-    
-    /* --- NEW: Advanced Table Styles --- */
-    
-    /* Wrapper */
-    .table-scroll-wrapper {
-        position: relative;
-        margin: 1.5rem 0; 
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        overflow: hidden; 
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    }
-    
-    .article-body .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        width: 100%;
-        background: white;
-    }
-
-    /* Base Table */
-    .article-body table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 600px; 
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        margin: 0;
-    }
-
-    /* Caption Styling */
-    .article-body caption {
-        caption-side: bottom;
-        padding: 8px;
-        font-size: 0.85rem;
-        color: #6b7280;
-        text-align: left;
-        border-top: 1px solid #f3f4f6;
-        background: #fdfdfd;
-        font-style: italic;
-    }
-
-    /* Cells */
-    .article-body th, .article-body td {
-        padding: 12px 16px;
-        vertical-align: top;
-        line-height: 1.5;
-        color: #374151;
-    }
-
-    .article-body th {
-        background-color: #f8fafc;
-        font-weight: 700;
-        text-align: left;
-        color: #111827;
-        white-space: nowrap;
-        border-bottom: 2px solid #e2e8f0;
-    }
-
-    /* --- THEMES --- */
-    
-    /* Default (Minimal/Clean) */
+    /* Table Styles */
+    .table-scroll-wrapper { position: relative; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .article-body .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; background: white; }
+    .article-body table { width: 100%; border-collapse: collapse; min-width: 600px; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0; }
+    .article-body caption { caption-side: bottom; padding: 8px; font-size: 0.85rem; color: #6b7280; text-align: left; border-top: 1px solid #f3f4f6; background: #fdfdfd; font-style: italic; }
+    .article-body th, .article-body td { padding: 12px 16px; vertical-align: top; line-height: 1.5; color: #374151; }
+    .article-body th { background-color: #f8fafc; font-weight: 700; text-align: left; color: #111827; white-space: nowrap; border-bottom: 2px solid #e2e8f0; }
     .article-body td { border-bottom: 1px solid #f1f5f9; }
     .article-body tr:last-child td { border-bottom: none; }
-
-    /* Theme: Striped */
     .table-container.striped tr:nth-child(even) { background-color: #f9fafb; }
-    
-    /* Theme: Grid (Excel style borders) */
     .table-container.grid table { border: 1px solid #cbd5e1; }
     .table-container.grid th, .table-container.grid td { border: 1px solid #cbd5e1; }
-
-    /* --- SORTABLE --- */
-    table.sortable th {
-        cursor: pointer;
-        user-select: none;
-        position: relative;
-        padding-right: 24px; /* Space for icon */
-    }
+    table.sortable th { cursor: pointer; user-select: none; position: relative; padding-right: 24px; }
     table.sortable th:hover { background-color: #eff6ff; color: #1d4ed8; }
-    table.sortable th::after {
-        content: '\f0dc'; /* FontAwesome Sort Icon */
-        font-family: "Font Awesome 6 Free";
-        font-weight: 900;
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 10px;
-        opacity: 0.5;
-    }
-    table.sortable th.asc::after { content: '\f0de'; opacity: 1; color: #1d4ed8; } /* Up */
-    table.sortable th.desc::after { content: '\f0dd'; opacity: 1; color: #1d4ed8; } /* Down */
-
-    /* --- Fade & Arrow Overlay (Mobile) --- */
-    .table-scroll-wrapper::after {
-        content: '\f061'; 
-        font-family: "Font Awesome 6 Free";
-        font-weight: 900;
-        position: absolute;
-        top: 0; right: 0; bottom: 0;
-        width: 40px; 
-        background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1) 80%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #94a3b8; 
-        pointer-events: none; 
-        opacity: 0; 
-        transition: opacity 0.3s ease;
-        font-size: 12px;
-        padding-left: 10px;
-    }
+    table.sortable th::after { content: '\f0dc'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 10px; opacity: 0.5; }
+    .table-scroll-wrapper::after { content: '\f061'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 0; right: 0; bottom: 0; width: 40px; background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1) 80%); display: flex; align-items: center; justify-content: center; color: #94a3b8; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; font-size: 12px; padding-left: 10px; }
     .table-scroll-wrapper.is-scrollable::after { opacity: 1; }
     .table-scroll-wrapper.scrolled-end::after { opacity: 0; }
 
-    /* --- End Table Styles --- */
+    /* Embed Styles */
+    .embed-container { margin: 2rem 0; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 100%; }
+    .embed-caption { margin-top: 10px; padding: 12px; background: #f9fafb; border-left: 4px solid #1d4ed8; color: #374151; font-family: 'Inter', sans-serif; font-size: 0.95rem; width: 100%; max-width: 550px; text-align: left; border-radius: 4px; line-height: 1.5; word-wrap: break-word; }
+    iframe.embed-responsive { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .twitter-tweet { margin: 0 auto !important; max-width: 550px !important; width: 100% !important; }
 
-    .article-meta {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;
-    }
+    .article-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; }
     .author-name { font-weight: 600; font-family: 'Inter', sans-serif; }
     .publish-date { font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif; }
-    .share-btn {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 36px; height: 36px; border-radius: 50%; background-color: #f3f4f6;
-        color: #374151; border: none; cursor: pointer; font-size: 1rem;
-    }
+    .share-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: #f3f4f6; color: #374151; border: none; cursor: pointer; font-size: 1rem; }
     .article-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .tag {
-        background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
-        border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
-        margin-bottom: 0.1rem;
-    } 
-    .article-figure {
-        max-width: 100%; margin: 2rem auto; padding: 0; border: none;
-    }
-    .article-figure img {
-        max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px;
-    }
-    .article-body > p > img:only-child, .article-body > img {
-         max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px;
-    }
-    .article-image-caption {
-        font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280;
-        margin-top: 0.5rem; margin-bottom: 2rem; text-align: center; display: block; 
-    }
+    .tag { background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; margin-bottom: 0.1rem; } 
+    .article-figure { max-width: 100%; margin: 2rem auto; padding: 0; border: none; }
+    .article-figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px; }
+    .article-body > p > img:only-child, .article-body > img { max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; }
+    .article-image-caption { font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280; margin-top: 0.5rem; margin-bottom: 2rem; text-align: center; display: block; }
     .article-body h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1rem; }
     .article-body h3 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
     .article-body h4 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; }
     .article-body blockquote { border-left: 3px solid #ccc; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #606770; }
-    @media (max-width: 768px) {
-        .article-headline { font-size: 32px; }
-        .article-subheadline { font-size: 18px; }
-    }
+    @media (max-width: 768px) { .article-headline { font-size: 32px; } .article-subheadline { font-size: 18px; } }
 </style>
 
 <div class="article-container">
@@ -262,61 +124,141 @@ layout: default
 </div> 
 
 <script>
-document.addEventListener('turbo:load', () => {
+// Main function to process the article content
+const processArticle = () => {
+    const articleBody = document.querySelector('.article-body');
+    if (!articleBody) return;
 
-    // --- 1. Share Button Logic (App & Browser Compatible) ---
+    // --- 1. Share Button Logic ---
     const shareBtn = document.getElementById('native-share-button');
     if (shareBtn) {
         const newBtn = shareBtn.cloneNode(true);
         shareBtn.parentNode.replaceChild(newBtn, shareBtn);
-
         newBtn.addEventListener('click', async () => {
-            const shareData = {
-                title: document.title,
-                text: 'Read this article on The Muslim Post',
-                url: window.location.href
-            };
-
-            // Function to copy to clipboard as fallback
+            const shareData = { title: document.title, text: 'Read this article on The Muslim Post', url: window.location.href };
             const copyFallback = async () => {
-                try {
-                    await navigator.clipboard.writeText(shareData.url);
-                    alert('Link copied to clipboard!');
-                } catch (err) {
-                    console.error('Copy failed', err);
-                    prompt("Copy this link:", shareData.url); // Ultimate fallback
-                }
+                try { await navigator.clipboard.writeText(shareData.url); alert('Link copied to clipboard!'); } 
+                catch (err) { prompt("Copy this link:", shareData.url); }
             };
-
-            // Attempt Share
             if (navigator.share) {
-                try {
-                    await navigator.share(shareData);
-                } catch (err) {
-                    // If user cancelled (AbortError), do nothing.
-                    // If error is something else (like App not supporting share despite API existing), run fallback.
-                    if (err.name !== 'AbortError') {
-                        copyFallback();
-                    }
-                }
-            } else {
-                // Browser/App doesn't support share API at all -> Copy
-                copyFallback();
-            }
+                try { await navigator.share(shareData); } 
+                catch (err) { if (err.name !== 'AbortError') copyFallback(); }
+            } else { copyFallback(); }
         });
     }
 
-    const articleBody = document.querySelector('.article-body');
-    if (!articleBody) return;
+    // --- 2. SOCIAL EMBED LOGIC ---
+    // Finds raw links and converts them to widgets
+    const links = articleBody.querySelectorAll('a:not([data-processed])');
+    links.forEach(link => {
+        link.setAttribute('data-processed', 'true');
+        const url = link.href;
+        let text = link.textContent.trim();
+        let type = null;
+        let caption = text;
 
-    // --- 2. Handle Images (Standard Logic) ---
+        // Detect Twitter / X (Matches x.com or twitter.com)
+        const twitterMatch = url.match(/(?:twitter\.com|x\.com)\/.*\/status\/(\d+)/);
+        if (twitterMatch && twitterMatch[1]) {
+            type = 'twitter';
+            // Remove "twitter-video" or similar prefixes from caption
+            caption = text.replace(/^(twitter-video|twitter|x\.com|video)(\s*\|?\s*)?/i, '').trim();
+        } 
+        // Detect YouTube
+        else if (url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)) {
+            type = 'youtube';
+            caption = text.replace(/^(youtube-video|youtube|video)(\s*\|?\s*)?/i, '').trim();
+        }
+        // Detect Instagram
+        else if (url.match(/instagram\.com\/(?:p|reel)/)) {
+            type = 'instagram';
+            caption = text.replace(/^(instagram-video|instagram)(\s*\|?\s*)?/i, '').trim();
+        }
+        // Detect TikTok
+        else if (url.match(/tiktok\.com\/.*\/video\/\d+/)) {
+            type = 'tiktok';
+            caption = text.replace(/^(tiktok-video|tiktok)(\s*\|?\s*)?/i, '').trim();
+        }
+
+        if (type) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'embed-container';
+            let embedHTML = '';
+
+            if (type === 'twitter') {
+                const tweetId = twitterMatch[1]; 
+                // Force use of twitter.com domain for widget compatibility
+                const cleanUrl = `https://twitter.com/i/status/${tweetId}`;
+                embedHTML = `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${cleanUrl}"></a></blockquote>`;
+            } 
+            else if (type === 'youtube') {
+                const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+                if (ytMatch && ytMatch[1]) {
+                    embedHTML = `<iframe class="embed-responsive" width="100%" height="315" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                }
+            } 
+            else if (type === 'instagram') {
+                embedHTML = `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"></blockquote>`;
+            } 
+            else if (type === 'tiktok') {
+                const ttMatch = url.match(/video\/(\d+)/);
+                if(ttMatch && ttMatch[1]) {
+                    embedHTML = `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${ttMatch[1]}" style="max-width: 605px;min-width: 325px;"> <section> <a target="_blank" href="${url}">@tiktok</a> </section> </blockquote>`;
+                }
+            }
+
+            if (embedHTML) {
+                wrapper.innerHTML = embedHTML;
+                // Add Caption if it exists and isn't just the URL
+                if(caption && caption.length > 5 && caption.toLowerCase() !== type && !caption.includes('http')) {
+                    const capDiv = document.createElement('div');
+                    capDiv.className = 'embed-caption';
+                    capDiv.textContent = caption;
+                    wrapper.appendChild(capDiv);
+                }
+                
+                // Replace the paragraph if link is the only content, otherwise just the link
+                if (link.parentElement.tagName === 'P' && link.parentElement.children.length === 1 && link.parentElement.textContent.trim() === link.textContent.trim()) {
+                    link.parentElement.replaceWith(wrapper);
+                } else {
+                    link.replaceWith(wrapper);
+                }
+            }
+        }
+    });
+
+    // Load Twitter widgets if any twitter-tweet elements exist
+    if (document.querySelector('.twitter-tweet') && typeof twttr === 'undefined') {
+        const twitterScript = document.createElement('script');
+        twitterScript.src = 'https://platform.twitter.com/widgets.js';
+        twitterScript.async = true;
+        twitterScript.charset = 'utf-8';
+        document.body.appendChild(twitterScript);
+    }
+
+    // Load Instagram widgets if any instagram-media elements exist
+    if (document.querySelector('.instagram-media') && typeof instgrm === 'undefined') {
+        const instagramScript = document.createElement('script');
+        instagramScript.src = 'https://www.instagram.com/embed.js';
+        instagramScript.async = true;
+        document.body.appendChild(instagramScript);
+    }
+
+    // Load TikTok widgets if any tiktok-embed elements exist
+    if (document.querySelector('.tiktok-embed') && typeof tiktok === 'undefined') {
+        const tiktokScript = document.createElement('script');
+        tiktokScript.src = 'https://www.tiktok.com/embed.js';
+        tiktokScript.async = true;
+        document.body.appendChild(tiktokScript);
+    }
+
+    // --- 3. Handle Images ---
     const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
     images.forEach((img) => {
         if (img.closest('figure')) return;
         const altText = img.getAttribute('alt');
         const hasMeaningfulAlt = altText && altText.trim() !== '' && altText.toLowerCase() !== 'article image' && altText.toLowerCase() !== 'image';
-        const needsWrapping = img.parentElement && img.parentElement.tagName !== 'FIGURE';
-        if (needsWrapping) {
+        if (img.parentElement && img.parentElement.tagName !== 'FIGURE') {
             const figure = document.createElement('figure'); figure.classList.add('article-figure');
             const clonedImg = img.cloneNode(true); figure.appendChild(clonedImg);
             if (hasMeaningfulAlt) {
@@ -326,77 +268,45 @@ document.addEventListener('turbo:load', () => {
             const parent = img.parentElement;
             if (parent && parent.tagName === 'P' && parent.children.length === 1 && parent.childNodes.length === 1) {
                 parent.parentNode.replaceChild(figure, parent);
-            } else {
-                 img.parentNode.replaceChild(figure, img);
-            }
+            } else { img.parentNode.replaceChild(figure, img); }
         }
     });
 
-    // --- 3. Handle Tables (FIXED: Auto-Cleaning Logic) ---
+    // --- 4. Handle Tables ---
     const tablesContainers = articleBody.querySelectorAll('.table-container');
-    
     tablesContainers.forEach(container => {
-        while (container.parentNode.classList.contains('table-scroll-wrapper')) {
-            const wrapper = container.parentNode;
-            wrapper.replaceWith(container); 
-        }
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'table-scroll-wrapper';
+        while (container.parentNode.classList.contains('table-scroll-wrapper')) { const wrapper = container.parentNode; wrapper.replaceWith(container); }
+        const wrapper = document.createElement('div'); wrapper.className = 'table-scroll-wrapper';
         const table = container.querySelector('table');
+        const checkOverflow = () => { if (container.scrollWidth > container.clientWidth) wrapper.classList.add('is-scrollable'); else wrapper.classList.remove('is-scrollable'); };
+        container.addEventListener('scroll', () => { if (container.scrollWidth - container.scrollLeft - container.clientWidth < 5) wrapper.classList.add('scrolled-end'); else wrapper.classList.remove('scrolled-end'); });
+        container.parentNode.insertBefore(wrapper, container); wrapper.appendChild(container); checkOverflow(); window.addEventListener('resize', checkOverflow);
         
-        const checkOverflow = () => {
-            const isOverflowing = container.scrollWidth > container.clientWidth;
-            if (isOverflowing) wrapper.classList.add('is-scrollable');
-            else wrapper.classList.remove('is-scrollable');
-        };
-
-        container.addEventListener('scroll', () => {
-            if (container.scrollWidth - container.scrollLeft - container.clientWidth < 5) {
-                wrapper.classList.add('scrolled-end');
-            } else {
-                wrapper.classList.remove('scrolled-end');
-            }
-        });
-
-        container.parentNode.insertBefore(wrapper, container);
-        wrapper.appendChild(container);
-        
-        checkOverflow();
-        window.addEventListener('resize', checkOverflow);
-
         if (table && table.classList.contains('sortable')) {
             const headers = table.querySelectorAll('th');
             headers.forEach((header, index) => {
                 if (header.getAttribute('data-sort-initialized')) return;
                 header.setAttribute('data-sort-initialized', 'true');
-
                 header.addEventListener('click', () => {
-                    const tbody = table.querySelector('tbody');
-                    const rows = Array.from(tbody.querySelectorAll('tr'));
-                    const isAsc = header.classList.contains('asc');
-                    
-                    headers.forEach(h => h.classList.remove('asc', 'desc'));
-                    header.classList.toggle('asc', !isAsc);
-                    header.classList.toggle('desc', isAsc);
+                    const tbody = table.querySelector('tbody'); const rows = Array.from(tbody.querySelectorAll('tr')); const isAsc = header.classList.contains('asc');
+                    headers.forEach(h => h.classList.remove('asc', 'desc')); header.classList.toggle('asc', !isAsc); header.classList.toggle('desc', isAsc);
                     const direction = !isAsc ? 1 : -1;
-
                     const sortedRows = rows.sort((a, b) => {
-                        const aCol = a.children[index].textContent.trim();
-                        const bCol = b.children[index].textContent.trim();
-                        const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,""));
-                        const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
-
-                        if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) {
-                            return (aNum - bNum) * direction;
-                        }
+                        const aCol = a.children[index].textContent.trim(); const bCol = b.children[index].textContent.trim();
+                        const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,"")); const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
+                        if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) return (aNum - bNum) * direction;
                         return aCol.localeCompare(bCol) * direction;
                     });
-                    tbody.innerHTML = '';
-                    sortedRows.forEach(row => tbody.appendChild(row));
+                    tbody.innerHTML = ''; sortedRows.forEach(row => tbody.appendChild(row));
                 });
             });
         }
     });
-});
+};
+
+// Run Immediately
+processArticle();
+
+// Also hook into Turbo for navigation
+document.addEventListener('turbo:load', processArticle);
 </script>
