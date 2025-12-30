@@ -6,11 +6,6 @@
     <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
-    
-    <!-- Social Media Widget Scripts - Load these for embeds to work -->
-    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-    <script async src="https://www.instagram.com/embed.js"></script>
-    <script async src="https://www.tiktok.com/embed.js"></script>
 
     <meta name="description" content="{{ page.subheadline | default: site.description | strip_html }}">
     {% assign meta_keywords = page.tags | default: site.keywords %}
