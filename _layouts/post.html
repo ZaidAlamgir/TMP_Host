@@ -258,115 +258,47 @@ layout: default
             {% endif %}
             {{ content }}
         </div> 
-        
-        <script>
-        document.addEventListener('turbo:load', () => {
-            const articleBody = document.querySelector('.article-body');
-            if (!articleBody) return;
-
-            // 1. Handle Images
-            const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
-            images.forEach((img) => {
-                if (img.closest('figure')) return;
-                const altText = img.getAttribute('alt');
-                const hasMeaningfulAlt = altText && altText.trim() !== '' && altText.toLowerCase() !== 'article image' && altText.toLowerCase() !== 'image';
-                const needsWrapping = img.parentElement && img.parentElement.tagName !== 'FIGURE';
-                if (needsWrapping) {
-                    const figure = document.createElement('figure'); figure.classList.add('article-figure');
-                    const clonedImg = img.cloneNode(true); figure.appendChild(clonedImg);
-                    if (hasMeaningfulAlt) {
-                        const figcaption = document.createElement('figcaption'); figcaption.classList.add('article-image-caption');
-                        figcaption.textContent = altText; figure.appendChild(figcaption);
-                    }
-                    const parent = img.parentElement;
-                    if (parent && parent.tagName === 'P' && parent.children.length === 1 && parent.childNodes.length === 1) {
-                        parent.parentNode.replaceChild(figure, parent);
-                    } else {
-                         img.parentNode.replaceChild(figure, img);
-                    }
-                }
-            });
-
-            // 2. Handle Tables (Fade + Arrow + SORTING Logic)
-            const tablesContainers = articleBody.querySelectorAll('.table-container');
-            tablesContainers.forEach(container => {
-                // A. Wrapper for Fade
-                const wrapper = document.createElement('div');
-                wrapper.className = 'table-scroll-wrapper';
-                const table = container.querySelector('table');
-                
-                // Copy classes from container (striped/grid) to wrapper for styling scope if needed, 
-                // but CSS targets .table-container inside wrapper usually. 
-                // Actually, structure is: div.table-container.striped > table
-                
-                const checkOverflow = () => {
-                    const isOverflowing = container.scrollWidth > container.clientWidth;
-                    if (isOverflowing) wrapper.classList.add('is-scrollable');
-                    else wrapper.classList.remove('is-scrollable');
-                };
-
-                container.addEventListener('scroll', () => {
-                    if (container.scrollWidth - container.scrollLeft - container.clientWidth < 5) {
-                        wrapper.classList.add('scrolled-end');
-                    } else {
-                        wrapper.classList.remove('scrolled-end');
-                    }
-                });
-
-                container.parentNode.insertBefore(wrapper, container);
-                wrapper.appendChild(container);
-                checkOverflow();
-                window.addEventListener('resize', checkOverflow);
-
-                // B. Sorting Logic
-                if (table && table.classList.contains('sortable')) {
-                    const headers = table.querySelectorAll('th');
-                    headers.forEach((header, index) => {
-                        header.addEventListener('click', () => {
-                            const tbody = table.querySelector('tbody');
-                            const rows = Array.from(tbody.querySelectorAll('tr'));
-                            const isAsc = header.classList.contains('asc');
-                            
-                            // Reset other headers
-                            headers.forEach(h => h.classList.remove('asc', 'desc'));
-                            
-                            // Toggle sort
-                            header.classList.toggle('asc', !isAsc);
-                            header.classList.toggle('desc', isAsc);
-                            
-                            const direction = !isAsc ? 1 : -1;
-
-                            const sortedRows = rows.sort((a, b) => {
-                                const aCol = a.children[index].textContent.trim();
-                                const bCol = b.children[index].textContent.trim();
-                                
-                                // Check if number
-                                const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,""));
-                                const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
-
-                                if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) {
-                                    return (aNum - bNum) * direction;
-                                }
-                                return aCol.localeCompare(bCol) * direction;
-                            });
-
-                            tbody.innerHTML = '';
-                            sortedRows.forEach(row => tbody.appendChild(row));
-                        });
-                    });
-                }
-            });
-        });
-        </script>
     </article> 
 </div> 
 
 <script>
 document.addEventListener('turbo:load', () => {
+
+    // --- 1. Share Button Logic ---
+    const shareBtn = document.getElementById('native-share-button');
+    if (shareBtn) {
+        // Clone to remove old listeners
+        const newBtn = shareBtn.cloneNode(true);
+        shareBtn.parentNode.replaceChild(newBtn, shareBtn);
+
+        newBtn.addEventListener('click', async () => {
+            if (navigator.share) {
+                // Mobile / Native Share
+                try {
+                    await navigator.share({
+                        title: document.title,
+                        text: 'Read this article on The Muslim Post',
+                        url: window.location.href
+                    });
+                } catch (err) {
+                    // console.log('Share canceled', err);
+                }
+            } else {
+                // Desktop Fallback
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied to clipboard!');
+                } catch (err) {
+                    console.error('Failed to copy', err);
+                }
+            }
+        });
+    }
+
     const articleBody = document.querySelector('.article-body');
     if (!articleBody) return;
 
-    // 1. Handle Images (Standard Logic)
+    // --- 2. Handle Images (Standard Logic) ---
     const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
     images.forEach((img) => {
         if (img.closest('figure')) return;
@@ -389,27 +321,23 @@ document.addEventListener('turbo:load', () => {
         }
     });
 
-    // 2. Handle Tables (FIXED: Auto-Cleaning Logic)
+    // --- 3. Handle Tables (FIXED: Auto-Cleaning Logic) ---
     const tablesContainers = articleBody.querySelectorAll('.table-container');
     
     tablesContainers.forEach(container => {
         
-        // --- ⚡ THE FIX: STRIP EXISTING WRAPPERS FIRST ⚡ ---
-        // If the container is already inside a wrapper (or multiple wrappers), 
-        // remove the wrappers and put the container back in the main body.
+        // A. Clean existing wrappers if re-running
         while (container.parentNode.classList.contains('table-scroll-wrapper')) {
             const wrapper = container.parentNode;
-            // This replaces the wrapper with the container (effectively unwrapping it)
             wrapper.replaceWith(container); 
         }
-        // ----------------------------------------------------
 
-        // A. Now create the ONE FRESH wrapper
+        // B. Create wrapper
         const wrapper = document.createElement('div');
         wrapper.className = 'table-scroll-wrapper';
         const table = container.querySelector('table');
         
-        // B. Scroll Logic
+        // C. Scroll Logic
         const checkOverflow = () => {
             const isOverflowing = container.scrollWidth > container.clientWidth;
             if (isOverflowing) wrapper.classList.add('is-scrollable');
@@ -424,18 +352,16 @@ document.addEventListener('turbo:load', () => {
             }
         });
 
-        // Insert wrapper
         container.parentNode.insertBefore(wrapper, container);
         wrapper.appendChild(container);
         
         checkOverflow();
         window.addEventListener('resize', checkOverflow);
 
-        // C. Sorting Logic
+        // D. Sorting Logic
         if (table && table.classList.contains('sortable')) {
             const headers = table.querySelectorAll('th');
             headers.forEach((header, index) => {
-                // Prevent duplicate listeners on the header itself
                 if (header.getAttribute('data-sort-initialized')) return;
                 header.setAttribute('data-sort-initialized', 'true');
 
