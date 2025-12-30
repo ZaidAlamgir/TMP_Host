@@ -264,33 +264,44 @@ layout: default
 <script>
 document.addEventListener('turbo:load', () => {
 
-    // --- 1. Share Button Logic ---
+    // --- 1. Share Button Logic (App & Browser Compatible) ---
     const shareBtn = document.getElementById('native-share-button');
     if (shareBtn) {
-        // Clone to remove old listeners
         const newBtn = shareBtn.cloneNode(true);
         shareBtn.parentNode.replaceChild(newBtn, shareBtn);
 
         newBtn.addEventListener('click', async () => {
-            if (navigator.share) {
-                // Mobile / Native Share
+            const shareData = {
+                title: document.title,
+                text: 'Read this article on The Muslim Post',
+                url: window.location.href
+            };
+
+            // Function to copy to clipboard as fallback
+            const copyFallback = async () => {
                 try {
-                    await navigator.share({
-                        title: document.title,
-                        text: 'Read this article on The Muslim Post',
-                        url: window.location.href
-                    });
-                } catch (err) {
-                    // console.log('Share canceled', err);
-                }
-            } else {
-                // Desktop Fallback
-                try {
-                    await navigator.clipboard.writeText(window.location.href);
+                    await navigator.clipboard.writeText(shareData.url);
                     alert('Link copied to clipboard!');
                 } catch (err) {
-                    console.error('Failed to copy', err);
+                    console.error('Copy failed', err);
+                    prompt("Copy this link:", shareData.url); // Ultimate fallback
                 }
+            };
+
+            // Attempt Share
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    // If user cancelled (AbortError), do nothing.
+                    // If error is something else (like App not supporting share despite API existing), run fallback.
+                    if (err.name !== 'AbortError') {
+                        copyFallback();
+                    }
+                }
+            } else {
+                // Browser/App doesn't support share API at all -> Copy
+                copyFallback();
             }
         });
     }
@@ -325,19 +336,15 @@ document.addEventListener('turbo:load', () => {
     const tablesContainers = articleBody.querySelectorAll('.table-container');
     
     tablesContainers.forEach(container => {
-        
-        // A. Clean existing wrappers if re-running
         while (container.parentNode.classList.contains('table-scroll-wrapper')) {
             const wrapper = container.parentNode;
             wrapper.replaceWith(container); 
         }
 
-        // B. Create wrapper
         const wrapper = document.createElement('div');
         wrapper.className = 'table-scroll-wrapper';
         const table = container.querySelector('table');
         
-        // C. Scroll Logic
         const checkOverflow = () => {
             const isOverflowing = container.scrollWidth > container.clientWidth;
             if (isOverflowing) wrapper.classList.add('is-scrollable');
@@ -358,7 +365,6 @@ document.addEventListener('turbo:load', () => {
         checkOverflow();
         window.addEventListener('resize', checkOverflow);
 
-        // D. Sorting Logic
         if (table && table.classList.contains('sortable')) {
             const headers = table.querySelectorAll('th');
             headers.forEach((header, index) => {
