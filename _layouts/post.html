@@ -147,7 +147,7 @@ const processArticle = () => {
         });
     }
 
-    // --- 2. SOCIAL EMBED LOGIC ---
+    // --- 2. SOCIAL EMBED LOGIC (Restored & Fixed) ---
     // Finds raw links and converts them to widgets
     const links = articleBody.querySelectorAll('a:not([data-processed])');
     links.forEach(link => {
@@ -227,30 +227,9 @@ const processArticle = () => {
         }
     });
 
-    // Load Twitter widgets if any twitter-tweet elements exist
-    if (document.querySelector('.twitter-tweet') && typeof twttr === 'undefined') {
-        const twitterScript = document.createElement('script');
-        twitterScript.src = 'https://platform.twitter.com/widgets.js';
-        twitterScript.async = true;
-        twitterScript.charset = 'utf-8';
-        document.body.appendChild(twitterScript);
-    }
-
-    // Load Instagram widgets if any instagram-media elements exist
-    if (document.querySelector('.instagram-media') && typeof instgrm === 'undefined') {
-        const instagramScript = document.createElement('script');
-        instagramScript.src = 'https://www.instagram.com/embed.js';
-        instagramScript.async = true;
-        document.body.appendChild(instagramScript);
-    }
-
-    // Load TikTok widgets if any tiktok-embed elements exist
-    if (document.querySelector('.tiktok-embed') && typeof tiktok === 'undefined') {
-        const tiktokScript = document.createElement('script');
-        tiktokScript.src = 'https://www.tiktok.com/embed.js';
-        tiktokScript.async = true;
-        document.body.appendChild(tiktokScript);
-    }
+    // Reload Widgets
+    if (window.twttr) window.twttr.widgets.load();
+    if (window.instgrm) window.instgrm.Embeds.process();
 
     // --- 3. Handle Images ---
     const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
@@ -310,8 +289,3 @@ processArticle();
 // Also hook into Turbo for navigation
 document.addEventListener('turbo:load', processArticle);
 </script>
-
-<!-- Social Media Widget Scripts - Load these for embeds to work -->
-    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-    <script async src="https://www.instagram.com/embed.js"></script>
-    <script async src="https://www.tiktok.com/embed.js"></script>
