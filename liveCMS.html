@@ -204,16 +204,82 @@
             
             let currentEditingPostId = null;
 
+            // --- AUTO-SAVE SYSTEM (NEW) ---
+            
+            function saveDraft() {
+                const blocks = [];
+                document.querySelectorAll('.content-block').forEach(block => {
+                    const inputs = block.querySelectorAll('textarea, input');
+                    blocks.push({
+                        type: block.dataset.blockType,
+                        mainValue: inputs[0]?.value || '',
+                        descValue: inputs[1]?.value || ''
+                    });
+                });
+
+                const draftData = {
+                    tags: tagsInput.value,
+                    blocks: blocks,
+                    timestamp: Date.now()
+                };
+
+                localStorage.setItem('cms_autosave_draft', JSON.stringify(draftData));
+            }
+
+            function loadDraft() {
+                const saved = localStorage.getItem('cms_autosave_draft');
+                if (!saved) {
+                    resetEditor(); // No draft? Load default
+                    return;
+                }
+
+                try {
+                    const draft = JSON.parse(saved);
+                    
+                    // Clear current container
+                    blocksContainer.innerHTML = '';
+                    
+                    // Restore Tags
+                    if(draft.tags) tagsInput.value = draft.tags;
+
+                    // Restore Blocks
+                    if (draft.blocks && draft.blocks.length > 0) {
+                        draft.blocks.forEach(blockData => {
+                            // Create the block structure
+                            const newBlock = createBlock(blockData.type, false); // false = don't save immediately
+                            
+                            // Fill the values
+                            const inputs = newBlock.querySelectorAll('textarea, input');
+                            if (inputs[0]) inputs[0].value = blockData.mainValue;
+                            if (inputs[1]) inputs[1].value = blockData.descValue;
+
+                            // Adjust height for textareas
+                            newBlock.querySelectorAll('textarea').forEach(ta => autoExpand(ta));
+                        });
+                    } else {
+                        resetEditor();
+                    }
+                } catch (e) {
+                    console.error("Error loading draft", e);
+                    resetEditor();
+                }
+            }
+
+            function clearDraft() {
+                localStorage.removeItem('cms_autosave_draft');
+            }
+
             // --- HELPER: RESET EDITOR TO DEFAULT STATE ---
             function resetEditor() {
                 blocksContainer.innerHTML = '';
                 createBlock('headline');
                 createBlock('image');
-                createBlock('twitter');        // Default Twitter
-                createBlock('twitter-video');  // Default Twitter Cleaner
-                createBlock('youtube');        // Default YouTube
+                createBlock('twitter');        
+                createBlock('twitter-video');  
+                createBlock('youtube');        
                 createBlock('content');
                 tagsInput.value = 'BREAKING, TMP NEWS';
+                saveDraft(); // Save the reset state
             }
 
             // --- UI TOGGLES ---
@@ -286,9 +352,9 @@
                     editorView.classList.remove('hidden');
                     writerEmailSpan.textContent = session.user.email;
                     
-                    // Initialize content blocks if empty
+                    // CHECK FOR DRAFT INSTEAD OF JUST RESETTING
                     if (blocksContainer.children.length === 0) {
-                        resetEditor();
+                        loadDraft();
                     }
                     fetchRecentPosts();
                 } else {
@@ -301,7 +367,8 @@
 
             function autoExpand(textarea) { if (textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; } }
 
-            function createBlock(type) {
+            // Updated createBlock to support saving
+            function createBlock(type, triggerSave = true) {
                 const blockId = `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 const blockWrapper = document.createElement('div');
                 blockWrapper.className = 'content-block bg-slate-50 border border-slate-200 p-6 rounded-xl relative mt-6';
@@ -309,7 +376,7 @@
                 blockWrapper.dataset.blockType = type;
                 
                 let blockTitle = type.replace('-',' ').replace(/\b\w/g, l => l.toUpperCase());
-                let innerHTML = `<h3 class="font-bold text-slate-600 uppercase text-sm mb-3">${blockTitle}</h3><button class="absolute top-4 right-4 text-slate-400 hover:text-red-500" onclick="document.getElementById('${blockId}').remove()"><i class="fas fa-times"></i></button>`;
+                let innerHTML = `<h3 class="font-bold text-slate-600 uppercase text-sm mb-3">${blockTitle}</h3><button class="absolute top-4 right-4 text-slate-400 hover:text-red-500 delete-block-btn"><i class="fas fa-times"></i></button>`;
                 
                 const inputClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
                 const textareaClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
@@ -338,7 +405,7 @@
                     case 'html-code':
                         mainEl = `<textarea rows="6" class="${textareaClasses} font-mono text-sm" placeholder="Paste the full HTML or iframe embed code here..."></textarea>`;
                         break;
-                    default: // Handles all social media embeds
+                    default: 
                         mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full post URL (e.g. ${type})">${descInput}`; 
                         break;
                 }
@@ -346,11 +413,29 @@
                 blockWrapper.innerHTML = innerHTML;
                 blocksContainer.appendChild(blockWrapper);
                 
-                blockWrapper.querySelectorAll('textarea').forEach(textarea => { 
-                    textarea.addEventListener('input', () => autoExpand(textarea)); 
-                    setTimeout(() => autoExpand(textarea), 0); 
+                // Add Event Listeners for Auto-Expand AND Auto-Save
+                blockWrapper.querySelectorAll('textarea, input').forEach(el => { 
+                    if(el.tagName === 'TEXTAREA') {
+                        el.addEventListener('input', () => autoExpand(el)); 
+                        setTimeout(() => autoExpand(el), 0);
+                    }
+                    // IMPORTANT: Save on any input change
+                    el.addEventListener('input', saveDraft);
                 });
+
+                // Handle Delete Button
+                blockWrapper.querySelector('.delete-block-btn').addEventListener('click', () => {
+                    blockWrapper.remove();
+                    saveDraft(); // Save after deleting
+                });
+
+                if(triggerSave) saveDraft();
+                
+                return blockWrapper; // Return the element so loadDraft can use it
             }
+
+            // Tags listener
+            tagsInput.addEventListener('input', saveDraft);
 
             async function fetchRecentPosts() {
                 const { data: { user } } = await supabaseClient.auth.getUser();
@@ -459,7 +544,7 @@
                         case 'html-code':
                             bodyParts.push(`[WIDGET|${type}|${descValue || ''}]${mainValue}`); 
                             break;
-                        default: // Handles all social media types and the new 'link-button'
+                        default: 
                             bodyParts.push(`[${type}|${descValue || ''}](${mainValue})`); break;
                     }
                 });
@@ -468,7 +553,6 @@
                 const content = bodyParts.join('\n\n');
                 
                 if (!content && !headline) { 
-                    console.warn("Cannot publish an empty update."); 
                     statusMessage.textContent = "Cannot publish an empty update.";
                     statusMessage.style.color = 'orange';
                     setPublishingState(false); 
@@ -487,7 +571,8 @@
                     statusMessage.textContent = 'Successfully published!';
                     statusMessage.style.color = 'green';
                     
-                    // RESET FORM TO DEFAULTS
+                    // --- SUCCESS: CLEAR DRAFT AND RESET ---
+                    clearDraft();
                     resetEditor();
                 }
                 setPublishingState(false);
