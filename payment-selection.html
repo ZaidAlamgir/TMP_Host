@@ -23,20 +23,50 @@ extra_css:
 
         <div class="payment-methods-grid">
             
-            <div class="method-card" id="paytm-verification-card" style="border: 2px solid #00b2ef; background-color: #f9fafb;">
-                <div class="logo-container">
+            <div class="method-card" id="qr-code-card" style="border: 2px solid #28a745; background-color: #f0fff4; position: relative; overflow: hidden;">
+             <div style="background: #28a745; color: white; padding: 4px 12px; position: absolute; top: 0; right: 0; font-size: 0.8rem; border-bottom-left-radius: 8px;">Recommended</div>
+    
+               <h3 style="font-weight: 600; color: #1c1e21; margin-bottom: 1rem;">Pay via UPI QR</h3>
+    
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                <div style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                <img src="/assets/images/QR/TMPnewsQR.jpg" alt="Payment QR Code" style="max-width: 180px; display: block;">
+            </div>
+        
+            <div style="text-align: center;">
+            <p style="margin-bottom: 0.5rem; color: #333;"><strong>Step 1:</strong> Scan with any UPI App (Paytm, GPay, PhonePe)</p>
+            <p style="margin-bottom: 0.5rem; color: #333;"><strong>Step 2:</strong> Pay the amount shown above</p>
+            
+            <div style="margin-bottom: 0.5rem;">
+                <a href="{{ '/the-muslim-post/Ammar-khan/founder' | relative_url }}" style="color: #28a745; font-weight: 700; font-size: 0.85rem; text-decoration: underline;">
+                    ⓘ Who is AMMAR KHAN?
+                </a>
+            </div>
+
+            <p style="font-size: 0.9rem; color: #155724; background: rgba(40, 167, 69, 0.1); padding: 8px; border-radius: 4px; border: 1px solid #c3e6cb;">
+                <strong>Note:</strong> Currently, all premium features (Ad-Free) are unlocked for everyone. This subscription is a voluntary contribution to <strong>#SupportTMPNews</strong>.
+            </p>
+           </div>
+          </div>
+        </div>
+
+            <div class="method-card" id="paytm-verification-card" style="border: 1px solid #e5e7eb; background-color: #f9fafb; opacity: 0.7;">
+                <div style="background: #dc3545; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">⚠️ TEMPORARILY UNAVAILABLE</div>
+                <div class="logo-container" style="filter: grayscale(100%);">
                     <svg class="method-logo" style="max-width: 140px;" viewBox="0 0 110 32" xmlns="http://www.w3.org/2000/svg"><path fill="#00b2ef" d="M108.8 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-9-1.1h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-15.1 14.3 3.6 3.6c.4.4.4 1.1 0 1.5l-4.1 4.1c-.2.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-6.9c0-.6.2-1.1.6-1.5l5-5c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5l-3.6 3.6c-.4.4-1 .4-1.4 0l-.8-.8c-.4-.4-.4-1.1 0-1.5m-1 15.6h-4.6c-.3 0-.5-.2-.5-.5V18.1c0-.6.2-1.1.6-1.5l10.3-10.3c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5L71 15.6c-.4.4-1 .4-1.4 0l-5.7-5.7c-.4-.4-.4-1.1 0-1.5l3.6-3.6c.4-.4.4-1.1 0-1.5l-4.1-4.1c-.2-.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-1c0-.3-.2-.5-.5-.5h-6.1c-.3 0-.5.2-.5.5v1c0 .3-.2.5-.5.5h-4.6c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5m-9-29.9h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 0h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9 0H14c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M12.9 0H4.7C4.4 0 4.2.2 4.2.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M3.6 1.1H.5C.2 1.1 0 1.3 0 1.6v28.8c0 .3.2.5.5.5h3.1c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5"></path></svg>
                 </div>
-                <h3 id="paytm-card-title" style="font-weight: 600; color: #1c1e21; font-size: 1.1rem; margin-bottom: 0.5rem;">Loading...</h3>
-                <p id="paytm-card-description" class="method-description" style="color: #374151;">
-                    Please wait while we check your account status...
+                <h3 id="paytm-card-title" style="font-weight: 600; color: #6b7280; font-size: 1.1rem; margin-bottom: 0.5rem;">Gateway Paused</h3>
+                <p id="paytm-card-description" class="method-description" style="color: #6b7280;">
+                    Gateway under maintenance. Please use the QR code option above.
                 </p>
-                <button id="temp-free-access-btn" class="payment-button" style="background-color: #00b2ef; color: white; display: none;">
-                    ...
+                <button id="temp-free-access-btn" class="payment-button" style="background-color: #9ca3af; color: white; display: none; cursor: not-allowed;" disabled>
+                    Unavailable
                 </button>
             </div>
-            <div class="method-card" id="paypal-card">
-                <div class="logo-container">
+
+            <div class="method-card" id="paypal-card" style="opacity: 0.7; pointer-events: none;">
+                 <div style="background: #dc3545; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">⚠️ TEMPORARILY UNAVAILABLE</div>
+                <div class="logo-container" style="filter: grayscale(100%);">
                     <svg class="method-logo paypal-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78 50">
                         <path fill="#003087" d="m38 3-1.9.1c-1 .1-1.8 1-2 2L33.5 10c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L43 3.5c0-1.9-1.5-3.4-3.3-3.4H38zm12.2 0c-1.9 0-3.3 1.5-3.3 3.5l-.6 4.3c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L58 3.5c0-1.9-1.5-3.4-3.3-3.4h-1.5zm12.3 0c-1.9 0-3.3 1.5-3.3 3.5l-.6 4.3c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L70.5 3.5c0-1.9-1.5-3.4-3.3-3.4h-1.5z"/>
                         <path fill="#009CDE" d="m69.3 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6h-12c-.7 0-1.3-.4-1.5-1.1l-3.4-12.2c-.2-.7-.8-1.1-1.5-1.1h-1.3c-1 0-1.8-.7-1.9-1.7l-.9-7.1c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
@@ -49,12 +79,11 @@ extra_css:
                 <p class="method-description" id="paypal-description">
                     <strong>For International Customers & Reviewers.</strong>
                     <br>
-                    (Note: PayPal does not support India-to-India payments).
+                    Current unavailable due to maintenance.
                 </p>
-                <div id="paypal-button-container">
-                    </div>
+                <div id="paypal-button-container" style="display:none;"></div>
             </div>
-            </div>
+        </div>
         
         <div class="back-link-container">
             <a href="{{ '/support/' | relative_url }}" class="back-link">&larr; Change Subscription Plan</a>
@@ -84,7 +113,6 @@ extra_css:
         const cycle = urlParams.get('cycle');
         
         if (!plan || !amount || !cycle) {
-            // FIX: Use root-relative link to the support page's permalink
             document.querySelector('.selection-card').innerHTML = '<p class="error-message">Invalid subscription details. Please <a href="{{ '/support/' | relative_url }}">go back</a> and select a plan.</p>';
             return;
         }
@@ -107,96 +135,36 @@ extra_css:
             const paypalCard = document.getElementById('paypal-card');
             const paypalDescription = document.getElementById('paypal-description');
 
+            // NOTE: Overriding standard logic to enforce "Unavailable" status as requested
+            // Use QR code as primary. 
+            
             const { data: { session } } = await supabase.auth.getSession();
 
-            // Case 0: One-time Support (Donation)
-            if (plan === 'One-time Support') {
-                paytmCardTitle.textContent = 'Paytm (Under Verification)';
-                paytmCardDescription.innerHTML = 'Our Paytm Gateway is under verification. <br><br>Please use PayPal for one-time support.';
-                tempButton.style.display = 'none';
-                
-                // Render PayPal for the donation
-                paypalCard.style.display = 'block';
-                paypalDescription.style.display = 'block';
-                renderPayPal(true); // 'true' means it's a donation
-                return;
-            }
-
-            // === THIS IS THE UPDATED LOGIC ===
-
-            // Case 1: User is Logged In
+            // We keep the logic here in case you revert later, but currently everything directs to QR
             if (session) {
-                // --- User is Logged In & It's a Subscription ---
-                paytmCardTitle.textContent = 'All Benefits Activated';
-                paytmCardDescription.innerHTML = 'As a logged-in user, your benefits are active. <br><br><strong>Our Paytm gateway is in verification. For testing, you can use the PayPal option.</strong>';
-                tempButton.style.display = 'none'; // Hide button
-                
-                paypalCard.style.display = 'block'; // Show PayPal card
-                paypalDescription.style.display = 'block'; // Make sure description is visible
-                renderPayPal(false); // 'false' for subscription
-            
+                // Logged in but Gateway Unavailable
+                paytmCardDescription.innerHTML = 'Account active, but gateway is paused. <br><strong>Please use the QR option above.</strong>';
             } else {
-                // --- Case 2: User is Logged Out ---
-                paytmCardTitle.textContent = 'Please Log In';
-                paytmCardDescription.innerHTML = 'Please log in to activate your free subscription benefits. <br><br><strong>Our Paytm gateway is in verification. For testing, you can use the PayPal option.</strong>';
+                // Logged out
+                paytmCardDescription.innerHTML = 'Please log in and use the QR option. <br><strong>Gateway is currently paused.</strong>';
+                
+                // If you want to allow them to go to login page still:
                 tempButton.style.display = 'block';
-                tempButton.textContent = 'Log In to Activate';
-
-                tempButton.addEventListener('click', () => {
-                    sessionStorage.setItem('postLoginRedirect', window.location.href);
-                    // FIX: Use root-relative link to auth page
-                    window.location.href = "{{ '/auth.html' | relative_url }}";
-                });
-
-                paypalCard.style.display = 'block'; // Show PayPal card
-                paypalDescription.style.display = 'block'; // Make sure description is visible
-                renderPayPal(false); // 'false' for subscription
+                tempButton.textContent = 'Log In (Required)';
+                tempButton.style.background = '#6c757d'; // Greyed out style
+                tempButton.onclick = () => {
+                     sessionStorage.setItem('postLoginRedirect', window.location.href);
+                     window.location.href = "{{ '/auth.html' | relative_url }}";
+                };
             }
+            
+            // PayPal is hidden via CSS pointer-events/display none on button, so we don't need to render it.
+            // renderPayPal(false); 
         }
 
+        // Kept for future use if needed
         function renderPayPal(isDonation = false) {
-            const exchangeRate = 83.0;
-            const amountUSD = (amount / exchangeRate).toFixed(2);
-            const paypalContainer = document.getElementById('paypal-button-container');
-
-            // The <p> tag is now safe outside this div.
-            paypalContainer.innerHTML = ''; 
-
-            try {
-                paypal.Buttons({
-                    createOrder: (data, actions) => {
-                        return actions.order.create({
-                            purchase_units: [{
-                                description: `The Muslim Post - ${plan} Subscription`,
-                                amount: { value: amountUSD, currency_code: 'USD' }
-                            }]
-                        });
-                    },
-                    
-                    onApprove: (data, actions) => {
-                        document.querySelector('.selection-card').style.display = 'none';
-                        document.getElementById('payment-loader').style.display = 'block';
-
-                        return actions.order.capture().then(async (details) => {
-                            // Redirect to success
-                            // FIX: Use root-relative link to payment-status page
-                            window.location.href = "{{ '/payment-status.html' | relative_url }}?code=PAYMENT_SUCCESS";
-                        });
-                    },
-
-                    onError: (err) => {
-                        console.error('PayPal Button Error:', err);
-                        // FIX: Use root-relative link to payment-status page
-                        window.location.href = "{{ '/payment-status.html' | relative_url }}?code=PAYMENT_FAILED";
-                    },
-
-                    style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'paypal' }
-                }).render(paypalContainer); // Render directly into the container
-            
-            } catch (error) {
-                console.error("Failed to render PayPal buttons:", error);
-                paypalContainer.innerHTML = "<p class='error-message'>Could not load PayPal. Please refresh the page.</p>";
-            }
+             // Disabled for now
         }
     });
 </script>
