@@ -267,7 +267,7 @@
                     <option value="quote">Quote</option>
                     <optgroup label="Social Media Embeds">
                         <option value="twitter">Twitter</option>
-                        <option value="twitter-video">Twitter (Cleaner)</option>
+                        <option value="twitter-video">Twitter (Video)</option>
                         <option value="instagram">Instagram</option>
                         <option value="instagram-video">Instagram (Video Only)</option>
                         <option value="facebook">Facebook</option>
@@ -828,9 +828,9 @@
 
                 const newRow = document.createElement('tr');
                 for(let i=0; i<colCount; i++) {
-                     const td = document.createElement('td');
-                     td.innerHTML = `<div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div>`;
-                     newRow.appendChild(td);
+                      const td = document.createElement('td');
+                      td.innerHTML = `<div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div>`;
+                      newRow.appendChild(td);
                 }
 
                 if(targetRow) targetRow.after(newRow); 
@@ -1086,7 +1086,44 @@
                         default:
                             const url = block.querySelector('.dynamic-social-url').value.trim();
                             const caption = block.querySelector('.dynamic-social-caption').value.trim();
-                            if (url) body += `[${blockType}|${caption}](${url})\n\n`;
+                            
+                            if (url) {
+                                let embedHtml = '';
+
+                                // Logic to generate specific embed tags based on platform
+                                if (blockType.startsWith('twitter')) {
+                                    // 1. Twitter/X: Replace x.com with twitter.com
+                                    const cleanUrl = url.replace('x.com', 'twitter.com');
+                                    embedHtml = `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${cleanUrl}"></a></blockquote>`;
+                                } 
+                                else if (blockType.startsWith('instagram')) {
+                                    // 2. Instagram
+                                    embedHtml = `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>`;
+                                }
+                                else if (blockType === 'tiktok') {
+                                    // 3. TikTok
+                                    const videoId = url.split('/').pop();
+                                    embedHtml = `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${videoId}" style="max-width: 605px;min-width: 325px;"> <section> <a target="_blank" href="${url}"></a> </section> </blockquote>`;
+                                }
+                                else if (blockType === 'youtube') {
+                                    // 4. YouTube
+                                    let videoId = '';
+                                    if(url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
+                                    else if(url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1];
+                                    
+                                    if(videoId) {
+                                        embedHtml = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%; aspect-ratio:16/9;"></iframe>`;
+                                    } else {
+                                        embedHtml = `<a href="${url}">${url}</a>`;
+                                    }
+                                }
+                                else {
+                                    // 5. Fallback for others
+                                    embedHtml = `<a href="${url}" target="_blank" rel="noopener">View Post on ${blockType}</a>`;
+                                }
+
+                                body += `<div class="embed-container">\n${embedHtml}\n<div class="embed-caption">${caption}</div>\n</div>\n\n`;
+                            }
                             break;
                     }
                 }

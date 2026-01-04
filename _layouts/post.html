@@ -40,7 +40,7 @@ layout: default
     .article-subheadline { font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563; line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400; }
     .article-body p { font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8; margin-bottom: 1.5rem; }
     
-    /* FIX: Force long links (like x.com) to break so they don't break mobile layout */
+    /* FIX: Force long links to break */
     .article-body a { 
         color: #1d4ed8; 
         text-decoration: underline; 
@@ -90,6 +90,24 @@ layout: default
     @media (max-width: 768px) { .article-headline { font-size: 32px; } .article-subheadline { font-size: 18px; } }
 </style>
 
+<!-- Social Widget Scripts - Load only when needed -->
+{% if content contains 'twitter-tweet' %}
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+{% endif %}
+
+{% if content contains 'instagram-media' %}
+<script async src="//www.instagram.com/embed.js"></script>
+{% endif %}
+
+{% if content contains 'tiktok-embed' %}
+<script async src="https://www.tiktok.com/embed.js"></script>
+{% endif %}
+
+{% if content contains 'fb-post' %}
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0"></script>
+{% endif %}
+
 <div class="article-container">
     <article>
         <header>
@@ -124,168 +142,81 @@ layout: default
 </div> 
 
 <script>
-// Main function to process the article content
-const processArticle = () => {
-    const articleBody = document.querySelector('.article-body');
-    if (!articleBody) return;
-
-    // --- 1. Share Button Logic ---
+// Only minimal JavaScript for share button and tables
+document.addEventListener('DOMContentLoaded', function() {
+    // Share button
     const shareBtn = document.getElementById('native-share-button');
     if (shareBtn) {
-        const newBtn = shareBtn.cloneNode(true);
-        shareBtn.parentNode.replaceChild(newBtn, shareBtn);
-        newBtn.addEventListener('click', async () => {
-            const shareData = { title: document.title, text: 'Read this article on The Muslim Post', url: window.location.href };
-            const copyFallback = async () => {
-                try { await navigator.clipboard.writeText(shareData.url); alert('Link copied to clipboard!'); } 
-                catch (err) { prompt("Copy this link:", shareData.url); }
+        shareBtn.addEventListener('click', async () => {
+            const shareData = { 
+                title: document.title, 
+                text: 'Read this article on The Muslim Post', 
+                url: window.location.href 
             };
+            
             if (navigator.share) {
-                try { await navigator.share(shareData); } 
-                catch (err) { if (err.name !== 'AbortError') copyFallback(); }
-            } else { copyFallback(); }
+                try { 
+                    await navigator.share(shareData); 
+                } catch (err) { 
+                    if (err.name !== 'AbortError') {
+                        try { 
+                            await navigator.clipboard.writeText(shareData.url); 
+                            alert('Link copied to clipboard!'); 
+                        } catch { 
+                            prompt("Copy this link:", shareData.url); 
+                        }
+                    }
+                }
+            } else {
+                try { 
+                    await navigator.clipboard.writeText(shareData.url); 
+                    alert('Link copied to clipboard!'); 
+                } catch { 
+                    prompt("Copy this link:", shareData.url); 
+                }
+            }
         });
     }
-
-    // --- 2. SOCIAL EMBED LOGIC (Restored & Fixed) ---
-    // Finds raw links and converts them to widgets
-    const links = articleBody.querySelectorAll('a:not([data-processed])');
-    links.forEach(link => {
-        link.setAttribute('data-processed', 'true');
-        const url = link.href;
-        let text = link.textContent.trim();
-        let type = null;
-        let caption = text;
-
-        // Detect Twitter / X (Matches x.com or twitter.com)
-        const twitterMatch = url.match(/(?:twitter\.com|x\.com)\/.*\/status\/(\d+)/);
-        if (twitterMatch && twitterMatch[1]) {
-            type = 'twitter';
-            // Remove "twitter-video" or similar prefixes from caption
-            caption = text.replace(/^(twitter-video|twitter|x\.com|video)(\s*\|?\s*)?/i, '').trim();
-        } 
-        // Detect YouTube
-        else if (url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)) {
-            type = 'youtube';
-            caption = text.replace(/^(youtube-video|youtube|video)(\s*\|?\s*)?/i, '').trim();
-        }
-        // Detect Instagram
-        else if (url.match(/instagram\.com\/(?:p|reel)/)) {
-            type = 'instagram';
-            caption = text.replace(/^(instagram-video|instagram)(\s*\|?\s*)?/i, '').trim();
-        }
-        // Detect TikTok
-        else if (url.match(/tiktok\.com\/.*\/video\/\d+/)) {
-            type = 'tiktok';
-            caption = text.replace(/^(tiktok-video|tiktok)(\s*\|?\s*)?/i, '').trim();
-        }
-
-        if (type) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'embed-container';
-            let embedHTML = '';
-
-            if (type === 'twitter') {
-                const tweetId = twitterMatch[1]; 
-                // Force use of twitter.com domain for widget compatibility
-                const cleanUrl = `https://twitter.com/i/status/${tweetId}`;
-                embedHTML = `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${cleanUrl}"></a></blockquote>`;
-            } 
-            else if (type === 'youtube') {
-                const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-                if (ytMatch && ytMatch[1]) {
-                    embedHTML = `<iframe class="embed-responsive" width="100%" height="315" src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                }
-            } 
-            else if (type === 'instagram') {
-                embedHTML = `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" style="background:#FFF; border:0; border-radius:3px; margin: 1px; max-width:540px; min-width:326px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"></blockquote>`;
-            } 
-            else if (type === 'tiktok') {
-                const ttMatch = url.match(/video\/(\d+)/);
-                if(ttMatch && ttMatch[1]) {
-                    embedHTML = `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${ttMatch[1]}" style="max-width: 605px;min-width: 325px;"> <section> <a target="_blank" href="${url}">@tiktok</a> </section> </blockquote>`;
-                }
-            }
-
-            if (embedHTML) {
-                wrapper.innerHTML = embedHTML;
-                // Add Caption if it exists and isn't just the URL
-                if(caption && caption.length > 5 && caption.toLowerCase() !== type && !caption.includes('http')) {
-                    const capDiv = document.createElement('div');
-                    capDiv.className = 'embed-caption';
-                    capDiv.textContent = caption;
-                    wrapper.appendChild(capDiv);
-                }
+    
+    // Table sorting and overflow detection (keep this minimal)
+    const tables = document.querySelectorAll('.table-container.sortable table');
+    tables.forEach(table => {
+        const headers = table.querySelectorAll('th');
+        headers.forEach((header, index) => {
+            header.addEventListener('click', () => {
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const isAsc = header.classList.contains('asc');
                 
-                // Replace the paragraph if link is the only content, otherwise just the link
-                if (link.parentElement.tagName === 'P' && link.parentElement.children.length === 1 && link.parentElement.textContent.trim() === link.textContent.trim()) {
-                    link.parentElement.replaceWith(wrapper);
-                } else {
-                    link.replaceWith(wrapper);
-                }
-            }
-        }
-    });
-
-    // Reload Widgets
-    if (window.twttr) window.twttr.widgets.load();
-    if (window.instgrm) window.instgrm.Embeds.process();
-
-    // --- 3. Handle Images ---
-    const images = articleBody.querySelectorAll('.article-body > img:not(figure img), .article-body > p:has(> img:only-child) img');
-    images.forEach((img) => {
-        if (img.closest('figure')) return;
-        const altText = img.getAttribute('alt');
-        const hasMeaningfulAlt = altText && altText.trim() !== '' && altText.toLowerCase() !== 'article image' && altText.toLowerCase() !== 'image';
-        if (img.parentElement && img.parentElement.tagName !== 'FIGURE') {
-            const figure = document.createElement('figure'); figure.classList.add('article-figure');
-            const clonedImg = img.cloneNode(true); figure.appendChild(clonedImg);
-            if (hasMeaningfulAlt) {
-                const figcaption = document.createElement('figcaption'); figcaption.classList.add('article-image-caption');
-                figcaption.textContent = altText; figure.appendChild(figcaption);
-            }
-            const parent = img.parentElement;
-            if (parent && parent.tagName === 'P' && parent.children.length === 1 && parent.childNodes.length === 1) {
-                parent.parentNode.replaceChild(figure, parent);
-            } else { img.parentNode.replaceChild(figure, img); }
-        }
-    });
-
-    // --- 4. Handle Tables ---
-    const tablesContainers = articleBody.querySelectorAll('.table-container');
-    tablesContainers.forEach(container => {
-        while (container.parentNode.classList.contains('table-scroll-wrapper')) { const wrapper = container.parentNode; wrapper.replaceWith(container); }
-        const wrapper = document.createElement('div'); wrapper.className = 'table-scroll-wrapper';
-        const table = container.querySelector('table');
-        const checkOverflow = () => { if (container.scrollWidth > container.clientWidth) wrapper.classList.add('is-scrollable'); else wrapper.classList.remove('is-scrollable'); };
-        container.addEventListener('scroll', () => { if (container.scrollWidth - container.scrollLeft - container.clientWidth < 5) wrapper.classList.add('scrolled-end'); else wrapper.classList.remove('scrolled-end'); });
-        container.parentNode.insertBefore(wrapper, container); wrapper.appendChild(container); checkOverflow(); window.addEventListener('resize', checkOverflow);
-        
-        if (table && table.classList.contains('sortable')) {
-            const headers = table.querySelectorAll('th');
-            headers.forEach((header, index) => {
-                if (header.getAttribute('data-sort-initialized')) return;
-                header.setAttribute('data-sort-initialized', 'true');
-                header.addEventListener('click', () => {
-                    const tbody = table.querySelector('tbody'); const rows = Array.from(tbody.querySelectorAll('tr')); const isAsc = header.classList.contains('asc');
-                    headers.forEach(h => h.classList.remove('asc', 'desc')); header.classList.toggle('asc', !isAsc); header.classList.toggle('desc', isAsc);
-                    const direction = !isAsc ? 1 : -1;
-                    const sortedRows = rows.sort((a, b) => {
-                        const aCol = a.children[index].textContent.trim(); const bCol = b.children[index].textContent.trim();
-                        const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,"")); const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
-                        if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) return (aNum - bNum) * direction;
-                        return aCol.localeCompare(bCol) * direction;
-                    });
-                    tbody.innerHTML = ''; sortedRows.forEach(row => tbody.appendChild(row));
+                headers.forEach(h => h.classList.remove('asc', 'desc'));
+                header.classList.toggle('asc', !isAsc);
+                header.classList.toggle('desc', isAsc);
+                
+                const direction = !isAsc ? 1 : -1;
+                const sortedRows = rows.sort((a, b) => {
+                    const aCol = a.children[index].textContent.trim();
+                    const bCol = b.children[index].textContent.trim();
+                    const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,""));
+                    const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
+                    
+                    if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) {
+                        return (aNum - bNum) * direction;
+                    }
+                    return aCol.localeCompare(bCol) * direction;
                 });
+                
+                tbody.innerHTML = '';
+                sortedRows.forEach(row => tbody.appendChild(row));
             });
-        }
+        });
     });
-};
+});
 
-// Run Immediately
-processArticle();
-
-// Also hook into Turbo for navigation
-document.addEventListener('turbo:load', processArticle);
+// Load widgets if needed
+if (window.twttr && window.twttr.widgets) {
+    window.twttr.widgets.load();
+}
+if (window.instgrm) {
+    window.instgrm.Embeds.process();
+}
 </script>
