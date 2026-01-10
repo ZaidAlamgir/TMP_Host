@@ -1156,7 +1156,27 @@
                     body: JSON.stringify({ message: commitMessage, content: btoa(unescape(encodeURIComponent(fileContent))), branch: GITHUB_CONFIG.repoBranch }),
                 });
                 if (response.status === 201) {
-                    updateStatus(`Successfully published to ${selectedRepo}!`, '#16a34a');
+                    updateStatus(`Article saved to ${selectedRepo}! Triggering build...`, '#16a34a');
+
+                    // --- DIRECT DISPATCH LOGIC START ---
+                    // Trigger the build in the Public Repo (TMP_Host) immediately
+                    try {
+                        await fetch(`https://api.github.com/repos/zaidalamgir/TMP_Host/dispatches`, {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': `token ${accessToken}`, 
+                                'Accept': 'application/vnd.github.v3+json' 
+                            },
+                            body: JSON.stringify({ event_type: 'new-article-post' })
+                        });
+                        console.log("Build signal sent to TMP_Host");
+                    } catch (err) {
+                        console.error("Failed to trigger build:", err);
+                        // We do not stop the UI reset because the article IS saved successfully.
+                    }
+                    // --- DIRECT DISPATCH LOGIC END ---
+
+                    updateStatus(`Published & Build Triggered!`, '#16a34a');
                     editorView.querySelectorAll('input:not(.sheet-cell), textarea').forEach(el => { if(el.id !== 'article-author') el.value = ''; });
                     dynamicBlocksContainer.innerHTML = '';
                     document.querySelectorAll('textarea').forEach(autoExpandTextarea);
