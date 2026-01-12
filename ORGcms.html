@@ -6,6 +6,7 @@
     <title>ORG CMS - Professional Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
@@ -13,12 +14,25 @@
         
         /* Glass Panel & General UI */
         .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        
+        /* MODIFIED: Added padding-left to accommodate drag handle */
         .dynamic-content-block {
-            border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem;
+            border: 1px solid #e2e8f0; border-radius: 0.75rem; 
+            padding: 1.5rem 1.5rem 1.5rem 3.5rem; /* Increased left padding */
             margin-top: 1.5rem; background-color: #ffffff; position: relative;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: all 0.2s ease;
         }
         .dynamic-content-block:hover { border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+
+        /* ADDED: Drag Handle Styles */
+        .drag-handle {
+            position: absolute; top: 1rem; left: 0.75rem; width: 2rem; height: 2rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: grab; color: #cbd5e1; transition: all 0.2s; border-radius: 6px;
+            z-index: 10;
+        }
+        .drag-handle:hover { color: #64748b; background-color: #f1f5f9; cursor: grabbing; }
+        .sortable-ghost { opacity: 0.4; background: #f8fafc; border: 2px dashed #cbd5e1; }
 
         /* Chips */
         .tag-suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
@@ -551,6 +565,15 @@
         // 3. MAIN LOGIC (Auth & Init)
         // ==========================================
         window.onload = async () => {
+            
+            // --- ADDED: SORTABLE INITIALIZATION ---
+            Sortable.create(dynamicBlocksContainer, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost'
+            });
+            // --------------------------------------
+
             renderCountries();
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
@@ -906,7 +929,12 @@
                 blockTitle = `Headline (${blockType.slice(-2).toUpperCase()})`;
             }
             
-            let blockHTML = `<button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button>`;
+            // --- MODIFIED: ADDED DRAG HANDLE TO HTML ---
+            let blockHTML = `
+                <div class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></div>
+                <button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button>
+            `;
+            // -------------------------------------------
             
             if (blockType === 'table') {
                  // Added flex-wrap for mobile responsiveness
@@ -1044,9 +1072,9 @@
                     let tableHtml = `<div class="table-container ${theme}"><table class="${sortable}">\n`;
                     if(caption) tableHtml += `<caption>${caption}</caption>\n`;
                     
-                    tableHtml += '  <thead>\n    <tr>\n';
+                    tableHtml += '  <thead>\n   <tr>\n';
                     block.querySelectorAll('.sheet-head .sheet-cell').forEach(cell => {
-                         tableHtml += `      <th>${cell.innerHTML.trim()}</th>\n`;
+                          tableHtml += `      <th>${cell.innerHTML.trim()}</th>\n`;
                     });
                     tableHtml += '    </tr>\n  </thead>\n  <tbody>\n';
                     
