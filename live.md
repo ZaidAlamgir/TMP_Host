@@ -2,6 +2,8 @@
 layout: default
 title: Live Updates
 permalink: /live/
+description: "Follow the latest live updates, breaking news, and real-time coverage from TMP News."
+image: /assets/images/live/TMPnewsliveBanner.webp
 ---
 
 <style>
