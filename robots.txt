@@ -28,7 +28,6 @@ Disallow: /.bundle/
 Disallow: /vendor/
 Disallow: /.sass-cache/
 Disallow: /.jekyll-cache/
-Disallow: /assets/
 
 Allow: /
 
