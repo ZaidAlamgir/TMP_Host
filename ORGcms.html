@@ -15,23 +15,65 @@
         /* Glass Panel & General UI */
         .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        /* MODIFIED: Added padding-left to accommodate drag handle */
+        /* --- UPDATED BLOCK STYLES (Full Width Mobile Fix) --- */
+        
         .dynamic-content-block {
             border: 1px solid #e2e8f0; border-radius: 0.75rem; 
-            padding: 1.5rem 1.5rem 1.5rem 3.5rem; /* Increased left padding */
-            margin-top: 1.5rem; background-color: #ffffff; position: relative;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: all 0.2s ease;
+            /* changed padding: large top padding for the bar, small side padding for full width */
+            padding: 3.5rem 1.25rem 1.5rem 1.25rem; margin-top: 1.5rem; background-color: #ffffff; position: relative; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: all 0.2s ease;
         }
+        
         .dynamic-content-block:hover { border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
 
-        /* ADDED: Drag Handle Styles */
-        .drag-handle {
-            position: absolute; top: 1rem; left: 0.75rem; width: 2rem; height: 2rem;
-            display: flex; align-items: center; justify-content: center;
-            cursor: grab; color: #cbd5e1; transition: all 0.2s; border-radius: 6px;
+        /* UPDATED: Drag Handle is now a Top Bar */
+        .drag-handle { position: absolute; top: 0; left: 0; width: 100%; /* Spans full width */ height: 2.5rem; /* Height of the header bar */ display: flex; 
+            align-items: center; justify-content: center; /* Centers the dots */
+            cursor: grab; color: #94a3b8; 
+            background-color: #f8fafc; /* Light grey background for the bar */
+            border-bottom: 1px solid #e2e8f0; /* Separator line */
+            border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners only */
             z-index: 10;
         }
-        .drag-handle:hover { color: #64748b; background-color: #f1f5f9; cursor: grabbing; }
+        
+        .drag-handle:hover { 
+            background-color: #f1f5f9; 
+            color: #64748b; 
+            cursor: grabbing; 
+        }
+
+        /* UPDATED: Delete Button - Centered using Transform */
+        .remove-block-btn { 
+            position: absolute; 
+            
+            /* Vertical Centering Magic */
+            /* 1.25rem is exactly half of the header height (2.5rem) */
+            top: 1.25rem; 
+            transform: translateY(-50%); /* Pulls the button up exactly 50% to center it */
+            
+            right: 0.75rem; /* Slightly away from the right edge */
+            
+            width: 1.75rem; 
+            height: 1.75rem; 
+            border-radius: 50%; /* Perfect circle */
+            
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            
+            /* Reset defaults */
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            
+            color: #ef4444; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            z-index: 20; 
+        }
+        
+        .remove-block-btn:hover { 
+            background-color: #fee2e2; 
+        }
         .sortable-ghost { opacity: 0.4; background: #f8fafc; border: 2px dashed #cbd5e1; }
 
         /* Chips */
