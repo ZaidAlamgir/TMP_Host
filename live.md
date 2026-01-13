@@ -8,11 +8,18 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    /* Ensure icons are available */
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-    .live-container { max-width: 1440px; margin: 0 auto; padding: 0 1rem 4rem 1rem; }
+    
+    /* FIX: Force container to take full height so footer stays down during load */
+    .live-container { 
+        max-width: 1440px; 
+        margin: 0 auto; 
+        padding: 0 1rem 4rem 1rem; 
+        min-height: 100vh; /* Keeps footer at bottom even when feed is loading */
+    }
+    
     .live-header { text-align: center; margin-bottom: 2.5rem; }
     .live-post { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin: 0 auto 2rem auto; max-width: 800px; }
     .live-post-content { padding: 1.5rem; }
@@ -34,10 +41,21 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     .live-indicator { display: flex; align-items: center; gap: 0.5rem; }
     .live-indicator .dot { width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 8px 2px #ef4444; animation: glow 1.5s infinite ease-in-out; }
     @keyframes glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
     .post-body p { font-size: 1.125rem; line-height: 1.7; color: #374151; margin-bottom: 1.25rem; }
     .post-body img { max-width: 100%; border-radius: 8px; margin-bottom: 0.25rem; }
     .post-body blockquote { font-style: italic; color: #4b5563; border-left: 3px solid #d1d5db; padding-left: 1.5rem; margin: 1.5rem 0; font-size: 1.1rem; }
     .post-body .media-caption { text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; padding-bottom: 1rem; font-style: italic; }
+    
+    /* Table Styles */
+    .table-container { overflow-x: auto; margin: 1.5rem 0; border-radius: 8px; border: 1px solid #e5e7eb; background: white; }
+    .table-container caption { caption-side: top; text-align: left; padding: 0.75rem; font-size: 0.9rem; font-weight: 600; color: #4b5563; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    .live-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .live-table th, .live-table td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; font-size: 0.95rem; }
+    .live-table thead th { background-color: #f3f4f6; font-weight: 700; color: #111827; }
+    .table-container.striped .live-table tbody tr:nth-child(even) { background-color: #f9fafb; }
+    .table-container.grid .live-table th, .table-container.grid .live-table td { border: 1px solid #d1d5db; }
+
     .tags-container { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .tag-badge { background-color: #eef2ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
     .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
@@ -85,11 +103,15 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         <h1 class="text-4xl font-extrabold text-gray-800 flex items-center justify-center gap-3">Live Coverage <div class="live-indicator"><div class="dot"></div></div></h1>
     </header>
 
-    <div id="pinned-post-container"></div>
-    <div id="live-feed"></div>
+    <div id="live-feed-persistence-wrapper" data-turbo-permanent>
+        <div id="pinned-post-container"></div>
+        <div id="live-feed">
+             <div class="loader"></div>
+        </div>
+    </div>
 
     <div id="feed-controls" class="text-center mt-8">
-        <button id="load-more-btn" class="professional-btn">Load Previous Updates</button>
+        <button id="load-more-btn" class="professional-btn" onclick="if(window.triggerLoadMoreLivePosts) window.triggerLoadMoreLivePosts(event)">Load Previous Updates</button>
         <a href="https://archive-live.tmpnews.com" id="archive-btn" class="professional-btn" style="display: none;">Check Archive History</a>
         <p id="no-more-posts-msg" class="text-gray-500 font-medium py-3" style="display: none;">This is the end. No more updates.</p>
     </div>
@@ -99,6 +121,10 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+(function() {
+    // --- IIFE START ---
+    
+    // --- Translation Logic (Standard) ---
     window.currentTranslatingPostId = null;
     const SEPARATOR_TOKEN = "|||||"; 
 
@@ -176,13 +202,14 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
     };
 
+    // --- Star Button Class ---
     class CanvasLikeButton {
         constructor(canvas, initialIsLiked) {
             this.canvas = canvas; 
             this.ctx = canvas.getContext('2d'); 
             this.dpr = window.devicePixelRatio || 1;
-            this.logicalWidth = canvas.width; 
-            this.logicalHeight = canvas.height;
+            this.logicalWidth = parseInt(canvas.getAttribute('width')) || 40; 
+            this.logicalHeight = parseInt(canvas.getAttribute('height')) || 40;
             this.canvas.width = this.logicalWidth * this.dpr; 
             this.canvas.height = this.logicalHeight * this.dpr;
             this.canvas.style.width = `${this.logicalWidth}px`; 
@@ -190,13 +217,13 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             this.ctx.scale(this.dpr, this.dpr);
             this.isLiked = initialIsLiked; 
             this.isHovered = false;
-            this.isLooping = false; // FIX: Idle flag
+            this.isLooping = false; 
             this.buttonCenter = { x: this.logicalWidth / 2, y: this.logicalHeight / 2 };
             this.starAnimation = { scale: 1, isAnimating: false, direction: 'up', rotation: 0, targetRotation: 0 };
             this.circleAnimation = { radius: 0, opacity: 1, isAnimating: false };
             this.particles = [];
             this.setupEventListeners(); 
-            this.startAnimationLoop(); // Start only if needed
+            this.drawStar(this.buttonCenter.x, this.buttonCenter.y, 1, 0);
         }
 
         drawStar(centerX, centerY, scale = 1, rotation = 0) {
@@ -252,8 +279,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
         animate() {
             this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
-            
-            // Animation Update Logic
             let isDirty = false;
 
             if (this.circleAnimation.isAnimating) {
@@ -300,7 +325,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     } 
                 }
             } else { 
-                // Smooth scale return
                 const diff = targetScale - this.starAnimation.scale;
                 if (Math.abs(diff) > 0.001) {
                     this.starAnimation.scale += diff * 0.2;
@@ -318,10 +342,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 this.starAnimation.rotation = this.starAnimation.targetRotation; 
             }
 
-            // Always draw the star
             this.drawStar(this.buttonCenter.x, this.buttonCenter.y, this.starAnimation.scale, this.starAnimation.rotation);
 
-            // FIX: Stop looping if nothing is changing
             if (isDirty) {
                 requestAnimationFrame(() => this.animate());
             } else {
@@ -330,6 +352,14 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         setupEventListeners() {
+            const newCanvas = this.canvas.cloneNode(true);
+            if(this.canvas.parentNode) {
+                this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
+                this.canvas = newCanvas;
+                this.ctx = this.canvas.getContext('2d');
+                this.ctx.scale(this.dpr, this.dpr);
+            }
+
             this.canvas.addEventListener('mousemove', (e) => { 
                 const rect = this.canvas.getBoundingClientRect(); 
                 const mouseX = (e.clientX - rect.left); 
@@ -349,24 +379,28 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             this.isLiked = !this.isLiked; 
             this.starAnimation.isAnimating = true; 
             this.starAnimation.direction = 'up';
+            this.starAnimation.targetRotation += Math.PI * 2;
+
             if (this.isLiked) { 
-                this.starAnimation.targetRotation += Math.PI * 2; 
                 this.circleAnimation.isAnimating = true; 
                 this.circleAnimation.radius = 0; 
                 this.circleAnimation.opacity = 1; 
                 this.createParticles(this.buttonCenter.x, this.buttonCenter.y); 
-            } else { 
-                this.starAnimation.targetRotation -= Math.PI * 2; 
             }
             this.startAnimationLoop();
         }
     }
 
-    document.addEventListener('turbo:load', () => {
+    // --- MAIN INITIALIZATION FUNCTION ---
+    function initLiveFeed() {
         if (window.AndroidTranslator) {
             console.log("Android App Detected: Enabling Native Features");
             document.body.classList.add('android-app-view');
         }
+
+        const pinnedPostContainer = document.getElementById('pinned-post-container');
+        const liveFeed = document.getElementById('live-feed');
+        if (!liveFeed) return; 
 
         document.addEventListener('turbo:before-visit', () => {
             sessionStorage.setItem('liveFeedScroll', window.scrollY);
@@ -377,9 +411,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json'; 
-        const pinnedPostContainer = document.getElementById('pinned-post-container');
-        const liveFeed = document.getElementById('live-feed');
-        const loadMoreBtn = document.getElementById('load-more-btn');
+        
+        // --- BUTTON RESET LOGIC (Crucial for Turbo) ---
+
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
         const INITIAL_LOAD_COUNT = 30; 
@@ -390,6 +424,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         
         let allPosts = []; 
         let loadedPostsCount = 0; 
+        
         const viewedPosts = new Set(JSON.parse(sessionStorage.getItem('viewedLivePosts') || '[]'));
         const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
         const animatedPosts = new Set(JSON.parse(sessionStorage.getItem('animatedLivePosts') || '[]'));
@@ -416,10 +451,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             if (!content) return '';
             const placeholders = [];
             let tempContent = content;
-            
-            // Updated to include 'link-button'
             const allKeywords = 'link-button|twitter-video|twitter|instagram-video|instagram|facebook|youtube|tiktok|linkedin|reddit|telegram';
-            
             const regex = new RegExp(`\\[(${allKeywords})\\|?(.*)\\]\\((.*)\\)|!\\[(.*?)\\]\\((.*)\\)|\\[WIDGET\\|(.*)\\|(.*)\\]([\\s\\S]*?)(?=\\n\\n|$)`, 'g');
             tempContent = tempContent.replace(regex, (match, socialType, socialDesc, socialUrl, imgAlt, imgUrl, widgetType, widgetCaption, widgetContent) => {
                 let htmlBlock = '';
@@ -433,12 +465,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     const caption = socialDesc ? `<p class="media-caption">${socialDesc}</p>` : '';
                     const url = socialUrl;
                     switch (socialType) {
-                        
-                        // NEW: Button Logic
-                        case 'link-button':
-                            htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="background-color: #2563eb; color: white; display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`;
-                            break;
-
+                        case 'link-button': htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="background-color: #2563eb; color: white; display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`; break;
                         case 'twitter': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'twitter-video': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-conversation="none"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'instagram': htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;
@@ -457,6 +484,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             const processedText = tempContent.split('\n\n').map(p => {
                 if (p.startsWith('__PLACEHOLDER_')) return p;
                 if (p.trim() === '') return '';
+                if (p.trim().startsWith('<div class="table-container"') || p.trim().startsWith('<table')) { return p; }
                 return p.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>').trim() === '' ? '' : `<p>${p.replace(/\n/g, '<br>')}</p>`;
             }).join('');
             return processedText.replace(/__PLACEHOLDER_(\d+)__/g, (match, index) => placeholders[parseInt(index, 10)]);
@@ -491,7 +519,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             const postIdStr = postId.toString();
             const action = canvasButtonInstance.isLiked ? 'increment' : 'decrement';
             const likeCountSpan = postElement.querySelector(`#like-count-${postId}`);
-            const initialCount = parseInt(likeCountSpan.textContent.replace(/,/g, '')) || 0;
             
             fetch(`${ANALYTICS_WRITE_URL}?log=like&post_id=${postId}&action=${action}&client_id=${localStorage.getItem('anonClientId')}`, { method: 'GET', cache: 'no-store' })
                 .then(() => {
@@ -502,8 +529,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 .catch(error => {
                     console.error("Like log failed.", error); alert("Like failed!");
                     canvasButtonInstance.triggerClick(); 
-                    const newCount = canvasButtonInstance.isLiked ? initialCount + 1 : Math.max(0, initialCount - 1);
-                    animateCountUp(likeCountSpan, initialCount, newCount);
                 });
         }
         
@@ -529,7 +554,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             
             if (insertAtTop) { container.prepend(postElement); } else { container.appendChild(postElement); }
             
-            // FIX: Use scoped selector for reliability
             const canvasEl = postElement.querySelector(`#like-canvas-${postData.id}`);
             if (canvasEl) {
                 const canvasButton = new CanvasLikeButton(canvasEl, isLiked);
@@ -576,6 +600,12 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         async function loadMorePosts(isFullRefresh = false) {
+             const loadMoreBtn = document.getElementById('load-more-btn');
+             if (!loadMoreBtn) return;
+
+             // 1. Recalculate how many posts are ALREADY visible
+             loadedPostsCount = document.querySelectorAll('#live-feed .live-post').length;
+
              if (isFullRefresh) {
                 animatedPosts.clear();
                 sessionStorage.removeItem('animatedLivePosts');
@@ -583,15 +613,13 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 liveFeed.innerHTML = '';
                 loadedPostsCount = 0;
              }
-             if (loadedPostsCount === 0 && liveFeed.childElementCount === 0) {
-                 liveFeed.innerHTML = `<div class="loader"></div>`;
-                 loadMoreBtn.disabled = true;
-                 loadMoreBtn.textContent = 'Loading...';
-             } else {
-                 loadMoreBtn.disabled = true;
-                 loadMoreBtn.textContent = 'Loading...';
-             }
 
+             // Show Loading State
+             loadMoreBtn.disabled = true;
+             loadMoreBtn.textContent = 'Loading...';
+
+             // 2. CRITICAL FIX: If allPosts is empty (lost from memory), FETCH IT AGAIN
+             // Do this BEFORE checking if loadedPostsCount >= allPosts.length
              if (allPosts.length === 0 || isFullRefresh) {
                  const fullFeed = await fetchFullFeed(isFullRefresh);
                  if (fullFeed.length === 0) {
@@ -601,38 +629,61 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     noMorePostsMsg.style.display = 'block';
                     return;
                  }
+                 
                  const pinned = fullFeed.find(p => p.is_pinned);
-                 allPosts = fullFeed.filter(p => !p.is_pinned); 
-                 if (pinned) {
+                 if (pinned && (isFullRefresh || pinnedPostContainer.innerHTML.trim() === '')) {
                      pinnedPostContainer.innerHTML = '';
                      renderPost(pinned, pinnedPostContainer, false);
                  }
+                 allPosts = fullFeed.filter(p => !p.is_pinned); 
              }
             
-            if (loadedPostsCount === 0) {
-                liveFeed.innerHTML = '';
+            if (loadedPostsCount === 0 && liveFeed.innerHTML.includes('loader')) {
+                liveFeed.innerHTML = ''; 
             }
 
+            // 3. NOW it is safe to check if we have more to show
             if (loadedPostsCount >= allPosts.length) {
-                loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'inline-block'; noMorePostsMsg.style.display = 'block';
+                loadMoreBtn.style.display = 'none'; 
+                archiveBtn.style.display = 'inline-block'; 
+                noMorePostsMsg.style.display = 'block';
                 return;
             }
+
             const startIndex = loadedPostsCount;
             const limit = (loadedPostsCount === 0) ? INITIAL_LOAD_COUNT : SUBSEQUENT_LOAD_COUNT;
             const endIndex = startIndex + limit;
             const batch = allPosts.slice(startIndex, endIndex);
-            batch.forEach(post => renderPost(post, liveFeed, false));
-            loadedPostsCount += batch.length;
             
-            // BATCH OPTIMIZATION: Load social scripts once after batch render
+            batch.forEach(post => renderPost(post, liveFeed, false));
+            
+            loadedPostsCount += batch.length;
             loadSocialScripts();
 
+            if (startIndex === 0) {
+                const savedScroll = sessionStorage.getItem('liveFeedScroll');
+                if (savedScroll) {
+                    setTimeout(() => window.scrollTo(0, parseInt(savedScroll)), 50);
+                }
+            }
+
+            // 4. Update Button State again after render
             if (loadedPostsCount >= allPosts.length) {
                 loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'inline-block'; noMorePostsMsg.style.display = 'block';
             } else {
-                loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load Previous Updates'; loadMoreBtn.style.display = 'inline-block'; archiveBtn.style.display = 'none'; noMorePostsMsg.style.display = 'none';
+                loadMoreBtn.disabled = false; 
+                loadMoreBtn.textContent = 'Load Previous Updates'; 
+                loadMoreBtn.style.display = 'inline-block'; 
+                archiveBtn.style.display = 'none'; 
+                noMorePostsMsg.style.display = 'none';
             }
         }
+
+        // Expose to window for the inline onclick handler
+        window.triggerLoadMoreLivePosts = (e) => {
+            if(e) e.preventDefault();
+            loadMorePosts(false);
+        };
         
         supabaseClient.channel('live_updates_listener')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
@@ -662,7 +713,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     const elementToRemove = document.getElementById(`post-${payload.old.id}`);
                     if (elementToRemove) elementToRemove.remove();
                     allPosts = allPosts.filter(p => p.id !== payload.old.id);
-                    loadedPostsCount = allPosts.filter(p => !p.is_pinned).length;
+                    loadedPostsCount = document.querySelectorAll('#live-feed .live-post').length; 
                     if (payload.old.is_pinned) loadMorePosts(true);
                 }
             }).subscribe();
@@ -696,23 +747,50 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             shareHandler(e);
         };
         
-        liveFeed.addEventListener('click', likeButtonClickHandler);
-        pinnedPostContainer.addEventListener('click', likeButtonClickHandler);
-        loadMoreBtn.addEventListener('click', () => loadMorePosts(false));
+        liveFeed.onclick = likeButtonClickHandler;
+        pinnedPostContainer.onclick = likeButtonClickHandler;
 
-        if (liveFeed.childElementCount > 0) {
+        // --- RESTORE LOGIC ---
+        const totalPostsOnScreen = document.querySelectorAll('#live-feed .live-post').length;
+        
+        if (totalPostsOnScreen > 0) {
+            const posts = document.querySelectorAll('.live-post');
+            posts.forEach(postEl => {
+                const postId = postEl.id.replace('post-', '');
+                const isLiked = likedPosts.has(postId);
+                const canvasEl = postEl.querySelector(`#like-canvas-${postId}`);
+                if (canvasEl) {
+                    const canvasButton = new CanvasLikeButton(canvasEl, isLiked);
+                    postEl.canvasButtonInstance = canvasButton; 
+                }
+            });
+
             const cachedData = sessionStorage.getItem(CACHE_KEY);
-            if (cachedData) { allPosts = JSON.parse(cachedData); }
-            loadedPostsCount = liveFeed.querySelectorAll('.live-post').length;
-            
+            if (cachedData) { 
+                const fullFeed = JSON.parse(cachedData);
+                const loadMoreBtn = document.getElementById('load-more-btn');
+                allPosts = fullFeed.filter(p => !p.is_pinned); 
+                
+                if (allPosts.length > 0 && totalPostsOnScreen >= allPosts.length) {
+                     if(loadMoreBtn) loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'inline-block'; noMorePostsMsg.style.display = 'block';
+                } else {
+                     if(loadMoreBtn) { loadMoreBtn.style.display = 'inline-block'; loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load Previous Updates'; }
+                }
+            } else {
+                fetchFullFeed(false).then((data) => {
+                     // IMPORTANT: Ensure we count ignoring pinned for button state
+                     const loadMoreBtn = document.getElementById('load-more-btn');
+                     const feedCount = data.length - (data.find(p=>p.is_pinned)?1:0);
+                     if (totalPostsOnScreen >= feedCount) {
+                        if(loadMoreBtn) loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'inline-block'; noMorePostsMsg.style.display = 'block';
+                     } else {
+                        if(loadMoreBtn) { loadMoreBtn.style.display = 'inline-block'; loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load Previous Updates'; }
+                     }
+                });
+            }
+
             const stuckLoader = liveFeed.querySelector('.loader');
             if (stuckLoader) stuckLoader.remove();
-
-            if (loadedPostsCount >= allPosts.length && allPosts.length > 0) {
-                loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'inline-block'; noMorePostsMsg.style.display = 'block';
-            } else {
-                loadMoreBtn.style.display = 'inline-block'; loadMoreBtn.disabled = false; loadMoreBtn.textContent = 'Load Previous Updates';
-            }
 
             const savedScroll = sessionStorage.getItem('liveFeedScroll');
             if (savedScroll) {
@@ -723,5 +801,10 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         } else {
             setTimeout(() => loadMorePosts(false), 100);
         }
-    });
+    }
+
+    // Run Immediately
+    initLiveFeed();
+
+})();
 </script>

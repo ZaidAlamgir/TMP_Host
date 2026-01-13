@@ -3,168 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Content CMS</title>
+    <title>Live CMS - Professional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none; }
-        #edit-modal.open { display: flex; }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .hidden { display: none !important; }
+        
+        /* --- GLASS UI & PANELS --- */
+        .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        
+        /* --- BLOCK STYLES (With Drag Handle Bar) --- */
+        .dynamic-content-block {
+            border: 1px solid #e2e8f0; 
+            border-radius: 0.75rem; 
+            padding: 3.5rem 1.25rem 1.5rem 1.25rem; /* Top padding for handle */
+            margin-top: 1.5rem; 
+            background-color: #ffffff; 
+            position: relative;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
+            transition: all 0.2s ease;
+        }
+        .dynamic-content-block:hover { border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+
+        /* Drag Handle - Top Bar */
+        .drag-handle {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2.5rem; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: grab; color: #94a3b8; background-color: #f8fafc; 
+            border-bottom: 1px solid #e2e8f0; border-radius: 0.75rem 0.75rem 0 0; 
+            z-index: 10;
+        }
+        .drag-handle:hover { background-color: #f1f5f9; color: #64748b; cursor: grabbing; }
+        .sortable-ghost { opacity: 0.4; background: #f8fafc; border: 2px dashed #cbd5e1; }
+
+        /* Delete Button - Centered in Top Bar */
+        .remove-block-btn { 
+            position: absolute; top: 1.25rem; transform: translateY(-50%); right: 0.75rem; 
+            width: 1.75rem; height: 1.75rem; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 0; margin: 0; line-height: 1; 
+            color: #ef4444; cursor: pointer; transition: all 0.2s; z-index: 20; 
+        }
+        .remove-block-btn:hover { background-color: #fee2e2; }
+
+        /* --- CHIPS & TAGS --- */
+        .tag-suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+        .tag-chip, .category-chip, .country-chip {
+            font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem;
+            border-radius: 9999px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+        }
+        .tag-chip { background-color: #f1f5f9; color: #475569; }
+        .tag-chip:hover { background-color: #e2e8f0; transform: translateY(-1px); }
+        .country-chip { background-color: #ecfdf5; color: #047857; border-color: #6ee7b7; }
+        .country-chip:hover { background-color: #d1fae5; transform: translateY(-1px); }
+        .country-list-scroll { max-height: 220px; overflow-y: auto; padding: 4px; border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 0.5rem; }
+
+        /* --- TABLE STYLES (FULL PRO FEATURE SET) --- */
+        .table-wrapper { overflow-x: auto; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-top: 10px; max-width: 100%; }
+        .sheet-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .sheet-table th, .sheet-table td { border: 1px solid #e2e8f0; padding: 0; vertical-align: top; position: relative; }
+        .sheet-table thead td { background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+        .sheet-cell { width: 100%; outline: none; padding: 12px; min-height: 44px; font-size: 0.9rem; color: #334155; cursor: text; }
+        .sheet-cell:focus { background-color: rgba(99, 102, 241, 0.05); box-shadow: inset 0 0 0 2px #6366f1; }
+        .sheet-cell:empty:before { content: attr(data-placeholder); color: #94a3b8; }
+        
+        /* Table Toolbar */
+        .table-toolbar-container { background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 4px; }
+        .table-toolbar-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 4px; }
+        .table-toolbar-row:not(:last-child) { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; }
+        .table-tool-group { display: flex; gap: 2px; border-right: 1px solid #cbd5e1; padding-right: 6px; margin-right: 2px; }
+        .table-tool-group:last-child { border-right: none; }
+        
+        .tool-btn { padding: 6px 8px; border-radius: 4px; cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 4px; }
+        .tool-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
+        .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+
+        .color-picker-wrapper { position: relative; display: flex; align-items: center; }
+        input[type="color"] { width: 28px; height: 28px; padding: 0; border: none; background: none; cursor: pointer; }
+        
+        /* Table Settings */
+        .table-settings-container { margin-top: 10px; padding: 12px; background: #f1f5f9; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
+        .table-caption-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; background: white; display: block; }
+        .table-footer-options { display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b; }
+        .section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-right: 4px; }
+
+        /* --- GENERAL --- */
+        textarea, input, select { transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+        textarea:focus, input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .password-wrapper { position: relative; }
+        .toggle-password { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
+        
+        /* Modal Animation */
+        #edit-modal.open { display: flex !important; }
         #edit-modal-content { animation: slideUp 0.3s ease-out forwards; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        textarea { resize: none; overflow: hidden; }
-        textarea.quote-input { font-style: italic; }
-        .content-block { 
-            /* Styles for the editor blocks */
-            border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem;
-            margin-top: 1.5rem; background-color: #f8fafc; position: relative;
-        }
-        .password-wrapper { 
-            position: relative;
-        }
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #9ca3af; 
-            transition: color 0.2s;
-        }
-        .toggle-password:hover {
-            color: #4b5563;
-        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="bg-slate-100 text-slate-800 min-h-screen">
 
-    <div id="app" class="w-full min-h-screen">
+    <div id="app" class="w-full">
+        
         <div id="auth-view" class="flex items-center justify-center min-h-screen p-4">
-             <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
+             <div class="glass-panel p-8 rounded-2xl shadow-xl w-full max-w-md mx-auto">
                  <form id="sign-in-form">
-                     <h1 class="text-3xl font-bold mb-6 text-center">Writer CMS Login</h1>
+                     <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-600"><i class="fas fa-bolt text-xl"></i></div>
+                     <h1 class="text-2xl font-extrabold mb-6 text-center text-slate-900">Live CMS Login</h1>
                      <div class="mb-4">
-                        <label for="sign-in-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Email</label>
                         <input type="email" id="sign-in-email" class="w-full p-3 border border-slate-300 rounded-lg" required>
                      </div>
                      <div class="mb-6">
-                        <label for="sign-in-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Password</label>
                          <div class="password-wrapper">
                              <input type="password" id="sign-in-password" class="w-full p-3 border border-slate-300 rounded-lg" required data-target="sign-in-password">
                              <i class="fas fa-eye-slash toggle-password" data-target="sign-in-password"></i>
                          </div>
                      </div>
-                     <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign In</button>
-                     <p class="text-sm text-center text-slate-600 mt-4">Don't have an account? <a href="#" id="show-sign-up" class="font-semibold text-blue-600 hover:underline">Sign Up</a></p>
+                     <button type="submit" class="bg-slate-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-800 w-full transition-all">Sign In</button>
+                     <p class="text-sm text-center text-slate-600 mt-4">Writer Access Only. <a href="#" id="show-sign-up" class="font-semibold text-indigo-600 hover:underline">New?</a></p>
                  </form>
 
                  <form id="sign-up-form" class="hidden">
-                     <h1 class="text-3xl font-bold mb-6 text-center">Create Writer Account</h1>
+                     <h1 class="text-2xl font-bold mb-6 text-center">Create Account</h1>
                      <div class="mb-4">
-                        <label for="sign-up-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Email</label>
                         <input type="email" id="sign-up-email" class="w-full p-3 border border-slate-300 rounded-lg" required>
                      </div>
                      <div class="mb-6">
-                        <label for="sign-up-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Password</label>
                          <div class="password-wrapper">
                              <input type="password" id="sign-up-password" class="w-full p-3 border border-slate-300 rounded-lg" required data-target="sign-up-password">
                              <i class="fas fa-eye-slash toggle-password" data-target="sign-up-password"></i>
                          </div>
                      </div>
-                     <button type="submit" class="bg-slate-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-700 w-full">Sign Up</button>
-                     <p class="text-sm text-center text-slate-600 mt-4">Already have an account? <a href="#" id="show-sign-in" class="font-semibold text-blue-600 hover:underline">Sign In</a></p>
+                     <button type="submit" class="bg-slate-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-slate-800 w-full">Sign Up</button>
+                     <p class="text-sm text-center text-slate-600 mt-4"><a href="#" id="show-sign-in" class="font-semibold text-indigo-600 hover:underline">Back to Login</a></p>
                  </form>
-                 
                  <p id="auth-message" class="text-center mt-4 text-sm font-medium"></p>
              </div>
         </div>
 
         <div id="editor-view" class="hidden">
-             <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-20">
-                 <h1 class="text-xl font-bold">Live CMS</h1>
-                 <div class="flex items-center gap-4">
-                    <span id="writer-email" class="text-sm text-slate-500 hidden md:block"></span>
-                    <button id="logout-button" class="text-sm font-semibold text-slate-600 hover:text-red-500">Logout</button>
+             <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 p-4 sticky top-0 z-30">
+                 <div class="max-w-7xl mx-auto flex justify-between items-center">
+                     <div class="flex items-center gap-2">
+                        <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">LIVE</span>
+                        <h1 class="text-lg font-bold text-slate-800">Content Management</h1>
+                     </div>
+                     <div class="flex items-center gap-4">
+                        <span id="writer-email" class="text-xs font-medium text-slate-500 hidden md:block"></span>
+                        <button id="logout-button" class="text-sm font-medium text-slate-600 hover:text-red-500 bg-slate-100 px-3 py-1 rounded-md transition-colors">Logout</button>
+                    </div>
                 </div>
              </header>
-             <main class="w-full max-w-screen-2xl mx-auto p-4 md:p-8 lg:grid lg:grid-cols-12 lg:gap-8">
-                 <div class="lg:col-span-7 mb-8 lg:mb-0">
-                     <div class="bg-white p-6 rounded-2xl shadow-lg">
-                         <h2 class="text-2xl font-bold mb-6">Create New Update</h2>
+
+             <main class="w-full max-w-7xl mx-auto p-4 md:p-6 lg:grid lg:grid-cols-12 lg:gap-8">
+                 <div class="lg:col-span-8 mb-8 lg:mb-0">
+                     <div class="glass-panel p-6 sm:p-8 rounded-2xl">
+                         <h2 class="text-2xl font-extrabold mb-6 text-slate-900">New Update</h2>
                          
                          <div id="content-blocks-container"></div>
                          
-                         <div class="mt-6">
-                            <label for="tags-input" class="block text-sm font-medium text-slate-700 mb-1">Tags (optional)</label>
-                            <input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg" value="BREAKING, TMP NEWS" placeholder="e.g. politics, sports, breaking-news">
-                        </div>
-
-                         <div class="mt-6 flex items-center gap-4 p-4 bg-slate-50 rounded-lg">
-                             <select id="block-type-select" class="flex-grow p-3 border border-slate-300 rounded-lg">
+                         <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-center gap-3">
+                             <select id="block-type-select" class="p-2.5 border border-slate-300 rounded-lg bg-white shadow-sm min-w-[200px] text-sm">
                                  <option value="headline">Headline</option>
                                  <option value="content">Paragraph</option>
+                                 <option value="table">Table (Pro Spreadsheet)</option>
                                  <option value="image">Image</option>
                                  <option value="quote">Quote</option>
                                  <option value="link-button">Link / Button</option>
-                                 <optgroup label="Live Widgets & HTML">
-                                     <option value="live-score-embed">Live Score/Game (Embed)</option>
-                                     <option value="weather-embed">Weather/Map (Embed)</option>
-                                     <option value="html-code">Custom HTML/Script</option>
+                                 <optgroup label="Live Widgets">
+                                     <option value="live-score-embed">Live Score Embed</option>
+                                     <option value="weather-embed">Weather Map</option>
+                                     <option value="html-code">Custom HTML</option>
                                  </optgroup>
                                  <optgroup label="Social Media">
                                      <option value="twitter">Twitter</option>
-                                     <option value="twitter-video">Twitter (Cleaner)</option>
                                      <option value="instagram">Instagram</option>
-                                     <option value="instagram-video">Instagram (Video Only)</option>
-                                     <option value="facebook">Facebook</option>
-                                     <option value="tiktok">TikTok</option>
                                      <option value="youtube">YouTube</option>
-                                     <option value="linkedin">LinkedIn</option>
-                                     <option value="reddit">Reddit</option>
                                      <option value="telegram">Telegram</option>
                                  </optgroup>
                              </select>
-                             <button id="add-block-button" class="bg-slate-600 text-white font-bold p-3 rounded-lg hover:bg-slate-500"><i class="fas fa-plus"></i></button>
+                             <button id="add-block-button" class="bg-slate-800 text-white font-bold py-2.5 px-6 rounded-lg hover:bg-slate-700 shadow-sm flex items-center gap-2">
+                                <i class="fas fa-plus"></i> Add
+                             </button>
                          </div>
-                         <button id="publish-button" class="mt-6 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-500 w-full flex items-center justify-center text-lg">
-                             <span id="publish-text">Publish</span><span id="publish-spinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Publishing...</span>
+
+                         <div class="mt-8 pt-6 border-t border-slate-100">
+                             <label class="block text-sm font-bold text-slate-700 mb-2">Tags & Topics</label>
+                             <input type="text" id="tags-input" class="w-full p-3 border border-slate-300 rounded-lg text-sm" value="BREAKING, TMP NEWS" placeholder="comma, separated, tags">
+                             
+                             <div class="tag-suggestions mt-2">
+                                 <div class="tag-chip" data-tag="breaking">Breaking</div>
+                                 <div class="tag-chip" data-tag="update">Update</div>
+                                 <div class="tag-chip" data-tag="analysis">Analysis</div>
+                             </div>
+
+                             <div class="mt-4">
+                                <label class="block text-xs font-bold text-emerald-600 uppercase mb-1">Add Country Tag</label>
+                                <input type="text" id="country-search-input" class="w-full p-2 text-xs border border-emerald-200 rounded-lg mb-2" placeholder="Search OIC Country...">
+                                <div id="country-suggestions-container" class="tag-suggestions country-list-scroll"></div>
+                             </div>
+                         </div>
+
+                         <button id="publish-button" class="mt-8 bg-indigo-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-indigo-500 shadow-lg hover:shadow-indigo-500/30 w-full flex items-center justify-center text-lg transition-all">
+                             <span id="publish-text">Publish Update</span>
+                             <span id="publish-spinner" class="hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Publishing...</span>
                          </button>
-                         <p id="status-message" class="text-center mt-4 text-sm"></p>
+                         <p id="status-message" class="text-center mt-4 text-sm font-medium"></p>
                      </div>
                  </div>
                  
-                 <div class="lg:col-span-5">
-                     <div class="bg-white p-6 rounded-2xl shadow-lg sticky top-24">
-                        <h2 class="text-2xl font-bold mb-4">Your Recent Posts</h2>
-                        <div id="recent-posts-feed" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2"></div>
+                 <div class="lg:col-span-4">
+                     <div class="glass-panel p-6 rounded-2xl sticky top-24">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-lg font-bold text-slate-800">Recent Feed</h2>
+                            <button onclick="fetchRecentPosts()" class="text-xs text-indigo-600 hover:underline"><i class="fas fa-sync"></i> Refresh</button>
+                        </div>
+                        <div id="recent-posts-feed" class="space-y-3 max-h-[70vh] overflow-y-auto pr-1 scrollbar-thin"></div>
                     </div>
                  </div>
              </main>
         </div>
 
-        <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 items-center justify-center p-4">
-             <div id="edit-modal-content" class="bg-white rounded-2xl shadow-lg w-full max-w-2xl flex flex-col max-h-[95vh]">
-                 <h2 class="text-2xl font-bold mb-4 p-8 pb-0 flex-shrink-0">Edit Post</h2>
-                 <div class="px-8 pb-6 overflow-y-auto">
+        <div id="edit-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
+             <div id="edit-modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+                 <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h2 class="text-xl font-bold">Edit Post</h2>
+                    <button id="cancel-edit-btn-x" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+                 </div>
+                 <div class="p-6 overflow-y-auto">
                      <div class="mb-4">
-                        <label for="edit-headline" class="block text-sm font-medium text-slate-700 mb-1">Headline</label>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Headline</label>
                         <input type="text" id="edit-headline" class="w-full p-3 border border-slate-300 rounded-lg">
                     </div>
                      <div class="mb-4">
-                        <label for="edit-content" class="block text-sm font-medium text-slate-700 mb-1">Content (Markdown)</label>
-                        <textarea id="edit-content" class="w-full p-3 border border-slate-300 rounded-lg min-h-[250px] font-mono text-sm"></textarea>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Content (Markdown/HTML)</label>
+                        <textarea id="edit-content" class="w-full p-3 border border-slate-300 rounded-lg min-h-[200px] font-mono text-sm leading-relaxed"></textarea>
                     </div>
-                     <div class="mb-6">
-                        <label for="edit-tags" class="block text-sm font-medium text-slate-700 mb-1">Tags</label>
+                     <div class="mb-4">
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Tags</label>
                         <input type="text" id="edit-tags" class="w-full p-3 border border-slate-300 rounded-lg">
                     </div>
                  </div>
-                 <div class="flex justify-end gap-4 p-8 pt-0 mt-auto border-t border-slate-200 flex-shrink-0">
-                    <button id="cancel-edit-btn" class="bg-slate-200 text-slate-800 font-bold py-2 px-6 rounded-lg">Cancel</button>
-                    <button id="save-edit-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">Save Changes</button>
+                 <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                    <button id="cancel-edit-btn" class="px-5 py-2.5 rounded-lg text-slate-600 font-bold hover:bg-slate-200 transition-colors">Cancel</button>
+                    <button id="save-edit-btn" class="px-5 py-2.5 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-500 shadow-md transition-colors">Save Changes</button>
                 </div>
              </div>
+        </div>
+        
+        <div id="paste-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+                 <h3 class="text-lg font-bold mb-2">Paste from Excel</h3>
+                 <p class="text-xs text-slate-500 mb-4">Copy cells from your spreadsheet and paste below.</p>
+                 <textarea id="paste-input" class="w-full h-32 border p-2 rounded mb-4 text-xs font-mono"></textarea>
+                 <div class="flex justify-end gap-2">
+                     <button onclick="document.getElementById('paste-modal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 rounded text-sm font-bold">Cancel</button>
+                     <button id="confirm-paste-btn" class="px-4 py-2 bg-indigo-600 text-white rounded text-sm font-bold">Import</button>
+                 </div>
+            </div>
         </div>
     </div>
 
@@ -178,412 +280,598 @@
             const { createClient } = supabase;
             const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+            const oicCountriesList = [
+                "Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Benin", "Brunei", "Burkina Faso", "Cameroon", "Chad", "Comoros", "Côte d'Ivoire", "Djibouti", "Egypt", "Gabon", "Gambia", "Guinea", "Guinea-Bissau", "Guyana", "Indonesia", "Iran", "Iraq", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Lebanon", "Libya", "Malaysia", "Maldives", "Mali", "Mauritania", "Morocco", "Mozambique", "Niger", "Nigeria", "Oman", "Pakistan", "Palestine", "Qatar", "Saudi Arabia", "Senegal", "Sierra Leone", "Somalia", "Sudan", "Suriname", "Syria", "Tajikistan", "Togo", "Tunisia", "Turkey", "Turkmenistan", "Uganda", "United Arab Emirates", "Uzbekistan", "Yemen", "Kosovo"
+            ];
+
             // --- DOM ELEMENTS ---
-            const authView = document.getElementById('auth-view');
-            const editorView = document.getElementById('editor-view');
-            const signInForm = document.getElementById('sign-in-form');
-            const signUpForm = document.getElementById('sign-up-form');
-            const logoutButton = document.getElementById('logout-button');
-            const authMessage = document.getElementById('auth-message');
-            const writerEmailSpan = document.getElementById('writer-email');
-            
+            const authView = document.getElementById('auth-view'), editorView = document.getElementById('editor-view');
+            const signInForm = document.getElementById('sign-in-form'), signUpForm = document.getElementById('sign-up-form');
+            const logoutButton = document.getElementById('logout-button'), authMessage = document.getElementById('auth-message');
             const blocksContainer = document.getElementById('content-blocks-container');
-            const publishButton = document.getElementById('publish-button');
-            const statusMessage = document.getElementById('status-message');
-            const addBlockBtn = document.getElementById('add-block-button');
-            const blockTypeSelect = document.getElementById('block-type-select');
+            const publishButton = document.getElementById('publish-button'), statusMessage = document.getElementById('status-message');
+            const addBlockBtn = document.getElementById('add-block-button'), blockTypeSelect = document.getElementById('block-type-select');
             const tagsInput = document.getElementById('tags-input');
             const recentPostsFeed = document.getElementById('recent-posts-feed');
             
+            // Modal Elements
             const editModal = document.getElementById('edit-modal');
-            const editHeadline = document.getElementById('edit-headline');
-            const editContent = document.getElementById('edit-content');
-            const editTags = document.getElementById('edit-tags');
-            const saveEditBtn = document.getElementById('save-edit-btn');
-            const cancelEditBtn = document.getElementById('cancel-edit-btn');
-            
-            let currentEditingPostId = null;
+            const editHeadline = document.getElementById('edit-headline'), editContent = document.getElementById('edit-content'), editTags = document.getElementById('edit-tags');
+            const saveEditBtn = document.getElementById('save-edit-btn'), cancelEditBtn = document.getElementById('cancel-edit-btn');
+            const countrySearchInput = document.getElementById('country-search-input'), countryContainer = document.getElementById('country-suggestions-container');
 
-            // --- AUTO-SAVE SYSTEM (NEW) ---
-            
+            let currentEditingPostId = null;
+            let activeContentEditable = null;
+            let activeTableBlockId = null;
+
+            // --- TABLE HISTORY MANAGER ---
+            const tableHistory = {}; 
+            function initTableHistory(blockId) {
+                tableHistory[blockId] = { undo: [], redo: [], timeout: null };
+                setTimeout(() => saveTableState(blockId, true), 50);
+            }
+            function saveTableState(blockId, isInitialState = false) {
+                if (!tableHistory[blockId]) return;
+                const history = tableHistory[blockId];
+                const block = document.getElementById(blockId);
+                if (!block || block.classList.contains('restoring-state')) return;
+                const theadHtml = block.querySelector('.sheet-head').innerHTML;
+                const tbodyHtml = block.querySelector('.sheet-body').innerHTML;
+                const stateSnapshot = { thead: theadHtml, tbody: tbodyHtml };
+                if (isInitialState) {
+                    history.undo.push(stateSnapshot);
+                } else {
+                    const lastState = history.undo[history.undo.length - 1];
+                    if (lastState && lastState.thead === theadHtml && lastState.tbody === tbodyHtml) return;
+                    history.undo.push(stateSnapshot);
+                    history.redo = []; 
+                }
+                updateHistoryButtons(blockId);
+                saveDraft(); // Sync with global auto-save
+            }
+            function undoTable(blockId) {
+                const history = tableHistory[blockId];
+                if (!history || history.undo.length <= 1) return;
+                const block = document.getElementById(blockId);
+                block.classList.add('restoring-state');
+                history.redo.push(history.undo.pop());
+                const previous = history.undo[history.undo.length - 1];
+                applyTableState(blockId, previous);
+                block.classList.remove('restoring-state');
+                updateHistoryButtons(blockId);
+                saveDraft();
+            }
+            function redoTable(blockId) {
+                const history = tableHistory[blockId];
+                if (!history || history.redo.length === 0) return;
+                const block = document.getElementById(blockId);
+                block.classList.add('restoring-state');
+                const next = history.redo.pop();
+                history.undo.push(next);
+                applyTableState(blockId, next);
+                block.classList.remove('restoring-state');
+                updateHistoryButtons(blockId);
+                saveDraft();
+            }
+            function applyTableState(blockId, state) {
+                const block = document.getElementById(blockId);
+                block.querySelector('.sheet-head').innerHTML = state.thead;
+                block.querySelector('.sheet-body').innerHTML = state.tbody;
+            }
+            function updateHistoryButtons(blockId) {
+                const history = tableHistory[blockId];
+                if (!history) return;
+                const undoBtn = document.getElementById(`btn-undo-${blockId}`);
+                const redoBtn = document.getElementById(`btn-redo-${blockId}`);
+                if (undoBtn) undoBtn.disabled = (history.undo.length <= 1);
+                if (redoBtn) redoBtn.disabled = (history.redo.length === 0);
+            }
+
+            // --- INITIALIZATION ---
+            Sortable.create(blocksContainer, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                onEnd: saveDraft
+            });
+
+            renderCountries();
+
+            // --- AUTO-SAVE SYSTEM ---
             function saveDraft() {
                 const blocks = [];
-                document.querySelectorAll('.content-block').forEach(block => {
-                    const inputs = block.querySelectorAll('textarea, input');
-                    blocks.push({
-                        type: block.dataset.blockType,
-                        mainValue: inputs[0]?.value || '',
-                        descValue: inputs[1]?.value || ''
-                    });
+                document.querySelectorAll('.dynamic-content-block').forEach(block => {
+                    const type = block.dataset.blockType;
+                    if (type === 'table') {
+                        const thead = block.querySelector('.sheet-head').innerHTML;
+                        const tbody = block.querySelector('.sheet-body').innerHTML;
+                        const caption = block.querySelector('.table-caption-input').value;
+                        const theme = block.querySelector('.table-theme').value;
+                        const sortable = block.querySelector('.table-sortable').checked;
+                        blocks.push({ type: 'table', thead, tbody, caption, theme, sortable });
+                    } else {
+                        const inputs = block.querySelectorAll('textarea, input');
+                        blocks.push({
+                            type: type,
+                            mainValue: inputs[0]?.value || '',
+                            descValue: inputs[1]?.value || ''
+                        });
+                    }
                 });
-
-                const draftData = {
-                    tags: tagsInput.value,
-                    blocks: blocks,
-                    timestamp: Date.now()
-                };
-
+                const draftData = { tags: tagsInput.value, blocks: blocks, timestamp: Date.now() };
                 localStorage.setItem('cms_autosave_draft', JSON.stringify(draftData));
             }
 
             function loadDraft() {
                 const saved = localStorage.getItem('cms_autosave_draft');
-                if (!saved) {
-                    resetEditor(); // No draft? Load default
-                    return;
-                }
-
+                if (!saved) { resetEditor(); return; }
                 try {
                     const draft = JSON.parse(saved);
-                    
-                    // Clear current container
                     blocksContainer.innerHTML = '';
-                    
-                    // Restore Tags
                     if(draft.tags) tagsInput.value = draft.tags;
-
-                    // Restore Blocks
                     if (draft.blocks && draft.blocks.length > 0) {
                         draft.blocks.forEach(blockData => {
-                            // Create the block structure
-                            const newBlock = createBlock(blockData.type, false); // false = don't save immediately
-                            
-                            // Fill the values
-                            const inputs = newBlock.querySelectorAll('textarea, input');
-                            if (inputs[0]) inputs[0].value = blockData.mainValue;
-                            if (inputs[1]) inputs[1].value = blockData.descValue;
-
-                            // Adjust height for textareas
-                            newBlock.querySelectorAll('textarea').forEach(ta => autoExpand(ta));
+                            createBlock(blockData.type, false, blockData);
                         });
-                    } else {
-                        resetEditor();
-                    }
-                } catch (e) {
-                    console.error("Error loading draft", e);
-                    resetEditor();
-                }
+                    } else { resetEditor(); }
+                } catch (e) { resetEditor(); }
             }
 
-            function clearDraft() {
-                localStorage.removeItem('cms_autosave_draft');
-            }
-
-            // --- HELPER: RESET EDITOR TO DEFAULT STATE ---
+            function clearDraft() { localStorage.removeItem('cms_autosave_draft'); }
             function resetEditor() {
                 blocksContainer.innerHTML = '';
                 createBlock('headline');
-                createBlock('image');
-                createBlock('twitter');        
-                createBlock('twitter-video');  
-                createBlock('youtube');        
                 createBlock('content');
                 tagsInput.value = 'BREAKING, TMP NEWS';
-                saveDraft(); // Save the reset state
+                saveDraft();
             }
 
-            // --- UI TOGGLES ---
-            document.getElementById('show-sign-up').addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                signInForm.classList.add('hidden'); 
-                signUpForm.classList.remove('hidden'); 
-                authMessage.textContent = ''; 
-            });
-            document.getElementById('show-sign-in').addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                signUpForm.classList.add('hidden'); 
-                signInForm.classList.remove('hidden'); 
-                authMessage.textContent = ''; 
-            });
-
-            // Password Visibility Toggle
-            document.querySelectorAll('.toggle-password').forEach(icon => {
-                icon.addEventListener('click', () => {
-                    const targetId = icon.dataset.target;
-                    const passwordField = document.getElementById(targetId);
-                    const isPassword = passwordField.type === 'password';
-                    passwordField.type = isPassword ? 'text' : 'password';
-                    icon.classList.toggle('fa-eye');
-                    icon.classList.toggle('fa-eye-slash');
-                });
-            });
-
-            // --- AUTHENTICATION LOGIC ---
-            signInForm.addEventListener('submit', async (e) => { 
-                e.preventDefault(); 
-                authMessage.textContent = ''; 
-                const email = document.getElementById('sign-in-email').value; 
-                const password = document.getElementById('sign-in-password').value; 
-                
-                const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); 
-                
-                if (error) { 
-                    authMessage.textContent = error.message; 
-                    authMessage.style.color = 'red'; 
-                }
-            });
-            
-            signUpForm.addEventListener('submit', async (e) => { 
-                e.preventDefault(); 
-                authMessage.textContent = ''; 
-                const email = document.getElementById('sign-up-email').value; 
-                const password = document.getElementById('sign-up-password').value; 
-                
-                const { error, data } = await supabaseClient.auth.signUp({ email, password }); 
-                
-                if (error) { 
-                    authMessage.textContent = error.message; 
-                    authMessage.style.color = 'red'; 
-                } else if (data.user) {
-                    authMessage.textContent = 'Account created! Please check your email for a verification link. Sign in now.'; 
-                    authMessage.style.color = 'green'; 
-                    signUpForm.classList.add('hidden');
-                    signInForm.classList.remove('hidden');
-                }
-            });
-
-            logoutButton.addEventListener('click', async () => { 
-                await supabaseClient.auth.signOut(); 
-            });
-
-            supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (session) {
-                    authView.classList.add('hidden');
-                    editorView.classList.remove('hidden');
-                    writerEmailSpan.textContent = session.user.email;
-                    
-                    // CHECK FOR DRAFT INSTEAD OF JUST RESETTING
-                    if (blocksContainer.children.length === 0) {
-                        loadDraft();
-                    }
-                    fetchRecentPosts();
-                } else {
-                    authView.classList.remove('hidden');
-                    editorView.classList.add('hidden');
-                }
-            });
-
-            // --- EDITOR FUNCTIONS ---
-
-            function autoExpand(textarea) { if (textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; } }
-
-            // Updated createBlock to support saving
-            function createBlock(type, triggerSave = true) {
+            // --- BLOCK CREATION ---
+            function createBlock(type, triggerSave = true, data = null) {
                 const blockId = `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 const blockWrapper = document.createElement('div');
-                blockWrapper.className = 'content-block bg-slate-50 border border-slate-200 p-6 rounded-xl relative mt-6';
+                blockWrapper.className = 'dynamic-content-block';
                 blockWrapper.id = blockId;
                 blockWrapper.dataset.blockType = type;
                 
-                let blockTitle = type.replace('-',' ').replace(/\b\w/g, l => l.toUpperCase());
-                let innerHTML = `<h3 class="font-bold text-slate-600 uppercase text-sm mb-3">${blockTitle}</h3><button class="absolute top-4 right-4 text-slate-400 hover:text-red-500 delete-block-btn"><i class="fas fa-times"></i></button>`;
-                
-                const inputClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
-                const textareaClasses = "w-full p-3 border border-slate-300 rounded-lg bg-white";
-                const descInput = `<input type="text" class="${inputClasses} mt-2 text-sm" placeholder="Description or Caption (optional)">`;
-                let mainEl;
+                let innerHTML = `
+                    <div class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-lines"></i></div>
+                    <button class="remove-block-btn" onclick="this.closest('.dynamic-content-block').remove(); saveDraft();"><i class="fas fa-times"></i></button>
+                `;
 
-                switch (type) {
-                    case 'headline': 
-                        mainEl = `<textarea rows="1" class="${textareaClasses} font-bold text-2xl" placeholder="Main title of the update"></textarea>`; 
-                        break;
-                    case 'content': 
-                        mainEl = `<textarea rows="3" class="${textareaClasses}" placeholder="Write the update details..."></textarea>`; 
-                        break;
-                    case 'image': 
-                        mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste image URL">${descInput}`; 
-                        break;
-                    case 'quote': 
-                        mainEl = `<textarea rows="2" class="${textareaClasses} quote-input" placeholder="Enter the quote here..."></textarea>`; 
-                        break;
-                    case 'link-button':
-                        let btnDesc = descInput.replace('Description or Caption (optional)', 'Button Label (e.g. Read Full Article)');
-                        mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste the Link URL here (https://...)">${btnDesc}`; 
-                        break;
-                    case 'live-score-embed':
-                    case 'weather-embed':
-                    case 'html-code':
-                        mainEl = `<textarea rows="6" class="${textareaClasses} font-mono text-sm" placeholder="Paste the full HTML or iframe embed code here..."></textarea>`;
-                        break;
-                    default: 
-                        mainEl = `<input type="text" class="${inputClasses}" placeholder="Paste full post URL (e.g. ${type})">${descInput}`; 
-                        break;
+                const inputClass = "w-full p-3 border border-slate-300 rounded-lg bg-white text-sm mt-2";
+                const descInput = `<input type="text" class="${inputClass}" placeholder="Caption / Description (optional)" value="${data ? data.descValue : ''}">`;
+                
+                let mainEl = '';
+                let mainVal = data ? data.mainValue : '';
+
+                if (type === 'table') {
+                    // FULL TABLE FEATURE SET
+                    innerHTML += `
+                        <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Data Table</h3>
+                        <div class="setup-stage ${data ? 'hidden' : ''} flex gap-2 mb-4">
+                            <input type="number" class="row-input border p-2 rounded w-16 text-sm" value="3" placeholder="Rows">
+                            <input type="number" class="col-input border p-2 rounded w-16 text-sm" value="3" placeholder="Cols">
+                            <button onclick="createTable('${blockId}')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Create</button>
+                            <button onclick="tableCmd('openPaste','${blockId}')" class="bg-emerald-600 text-white px-3 py-1 rounded text-sm">Paste Excel</button>
+                        </div>
+                        <div class="editor-stage ${data ? '' : 'hidden'}">
+                            <div class="table-settings-container">
+                                <input type="text" class="table-caption-input" placeholder="Table Caption (Source...)" value="${data ? (data.caption||'') : ''}">
+                                <div class="table-footer-options">
+                                    <select class="table-theme border border-slate-300 p-1 rounded text-xs">
+                                        <option value="" ${data && !data.theme ? 'selected':''}>Default Theme</option>
+                                        <option value="striped" ${data && data.theme === 'striped' ? 'selected':''}>Striped</option>
+                                        <option value="grid" ${data && data.theme === 'grid' ? 'selected':''}>Grid Border</option>
+                                    </select>
+                                    <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-500">
+                                        <input type="checkbox" class="table-sortable" ${data && data.sortable ? 'checked':''}> Sortable
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="table-toolbar-container">
+                                <div class="table-toolbar-row">
+                                    <div class="table-tool-group border-r-2 border-indigo-100 pr-4">
+                                        <button id="btn-undo-${blockId}" class="tool-btn" onclick="tableCmd('undo', '${blockId}')" title="Undo"><i class="fas fa-undo"></i></button>
+                                        <button id="btn-redo-${blockId}" class="tool-btn" onclick="tableCmd('redo', '${blockId}')" title="Redo"><i class="fas fa-redo"></i></button>
+                                    </div>
+                                    <span class="section-label">Style</span>
+                                    <div class="table-tool-group">
+                                        <button class="tool-btn" onclick="tableCmd('bold', '${blockId}')" title="Bold"><i class="fas fa-bold"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('italic', '${blockId}')" title="Italic"><i class="fas fa-italic"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('underline', '${blockId}')" title="Underline"><i class="fas fa-underline"></i></button>
+                                    </div>
+                                    <div class="table-tool-group">
+                                        <button class="tool-btn" onclick="tableCmd('justifyLeft', '${blockId}')"><i class="fas fa-align-left"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('justifyCenter', '${blockId}')"><i class="fas fa-align-center"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('justifyRight', '${blockId}')"><i class="fas fa-align-right"></i></button>
+                                    </div>
+                                    <div class="table-tool-group">
+                                        <div class="color-picker-wrapper tool-btn">
+                                            <i class="fas fa-fill-drip mr-1"></i>
+                                            <input type="color" onchange="tableCmd('hiliteColor','${blockId}',this.value)" title="Cell Background">
+                                        </div>
+                                    </div>
+                                    <div class="table-tool-group">
+                                        <button class="tool-btn" onclick="tableCmd('formatBlock', '${blockId}', '<h1>')">H1</button>
+                                        <button class="tool-btn" onclick="tableCmd('formatBlock', '${blockId}', '<h2>')">H2</button>
+                                    </div>
+                                </div>
+
+                                <div class="table-toolbar-row">
+                                    <span class="section-label">Structure</span>
+                                    <div class="table-tool-group">
+                                        <button class="tool-btn text-indigo-600" onclick="tableCmd('addRow', '${blockId}')" title="Insert Row Below"><i class="fas fa-plus"></i> Row</button>
+                                        <button class="tool-btn text-indigo-600" onclick="tableCmd('addCol', '${blockId}')" title="Insert Column Right"><i class="fas fa-plus"></i> Col</button>
+                                    </div>
+                                    <div class="table-tool-group">
+                                        <button class="tool-btn" onclick="tableCmd('mergeRight', '${blockId}')" title="Merge Right"><i class="fas fa-arrows-alt-h"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('mergeDown', '${blockId}')" title="Merge Down"><i class="fas fa-arrows-alt-v"></i></button>
+                                    </div>
+                                    <div class="table-tool-group">
+                                        <button class="tool-btn text-red-500" onclick="tableCmd('delRow', '${blockId}')" title="Delete Row"><i class="fas fa-trash-alt"></i> Row</button>
+                                        <button class="tool-btn text-red-500" onclick="tableCmd('delCol', '${blockId}')" title="Delete Column"><i class="fas fa-trash-alt"></i> Col</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="table-wrapper">
+                                <table class="sheet-table">
+                                    <thead class="sheet-head">${data ? data.thead : ''}</thead>
+                                    <tbody class="sheet-body">${data ? data.tbody : ''}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    let title = type.replace(/-/g, ' ').toUpperCase();
+                    innerHTML += `<h3 class="text-xs font-bold uppercase text-slate-400 mb-2">${title}</h3>`;
+                    
+                    switch (type) {
+                        case 'headline': 
+                            mainEl = `<textarea rows="1" class="${inputClass} font-bold text-xl" placeholder="Main Headline">${mainVal}</textarea>`; break;
+                        case 'content': 
+                            mainEl = `<textarea rows="4" class="${inputClass}" placeholder="Write update...">${mainVal}</textarea>`; break;
+                        case 'quote': 
+                            mainEl = `<textarea rows="2" class="${inputClass} italic" placeholder="Quote text...">${mainVal}</textarea>`; break;
+                        case 'image': 
+                            mainEl = `<input type="text" class="${inputClass}" placeholder="Image URL" value="${mainVal}">${descInput}`; break;
+                        case 'link-button':
+                            mainEl = `<input type="text" class="${inputClass}" placeholder="Link URL" value="${mainVal}">${descInput.replace('Caption', 'Button Label')}`; break;
+                        default: 
+                            mainEl = `<input type="text" class="${inputClass}" placeholder="Embed Code or URL" value="${mainVal}">${descInput}`; break;
+                    }
+                    innerHTML += mainEl;
                 }
-                innerHTML += mainEl;
+
                 blockWrapper.innerHTML = innerHTML;
                 blocksContainer.appendChild(blockWrapper);
                 
-                // Add Event Listeners for Auto-Expand AND Auto-Save
-                blockWrapper.querySelectorAll('textarea, input').forEach(el => { 
-                    if(el.tagName === 'TEXTAREA') {
-                        el.addEventListener('input', () => autoExpand(el)); 
-                        setTimeout(() => autoExpand(el), 0);
-                    }
-                    // IMPORTANT: Save on any input change
+                // Event Listeners
+                blockWrapper.querySelectorAll('textarea, input').forEach(el => {
+                    if(el.tagName==='TEXTAREA') { el.addEventListener('input', () => { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }); }
                     el.addEventListener('input', saveDraft);
                 });
-
-                // Handle Delete Button
-                blockWrapper.querySelector('.delete-block-btn').addEventListener('click', () => {
-                    blockWrapper.remove();
-                    saveDraft(); // Save after deleting
-                });
+                
+                // Track editable focus for table commands
+                if(type === 'table') {
+                    blockWrapper.addEventListener('focusin', (e) => {
+                        if(e.target.classList.contains('sheet-cell')) activeContentEditable = e.target;
+                    });
+                    initTableHistory(blockId);
+                }
 
                 if(triggerSave) saveDraft();
-                
-                return blockWrapper; // Return the element so loadDraft can use it
             }
 
-            // Tags listener
+            // --- TABLE LOGIC (FULL SET) ---
+            window.createTable = function(id) {
+                const block = document.getElementById(id);
+                const rows = parseInt(block.querySelector('.row-input').value)||2;
+                const cols = parseInt(block.querySelector('.col-input').value)||2;
+                block.querySelector('.setup-stage').classList.add('hidden');
+                block.querySelector('.editor-stage').classList.remove('hidden');
+                
+                let headHtml = '<tr>';
+                for(let c=0; c<cols; c++) headHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Head"></div></td>`;
+                headHtml += '</tr>';
+                block.querySelector('.sheet-head').innerHTML = headHtml;
+
+                let bodyHtml = '';
+                for(let r=1; r<rows; r++) {
+                    bodyHtml += '<tr>';
+                    for(let c=0; c<cols; c++) bodyHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div></td>`;
+                    bodyHtml += '</tr>';
+                }
+                block.querySelector('.sheet-body').innerHTML = bodyHtml;
+                initTableHistory(id);
+                saveDraft();
+            };
+
+            window.tableCmd = function(cmd, id, arg=null) {
+                const block = document.getElementById(id);
+                if(!block) return;
+                
+                if(cmd === 'undo') { undoTable(id); return; }
+                if(cmd === 'redo') { redoTable(id); return; }
+                if(cmd === 'openPaste') { activeTableBlockId = id; document.getElementById('paste-input').value=''; document.getElementById('paste-modal').classList.remove('hidden'); return; }
+
+                if(['addRow','addCol','delRow','delCol','mergeRight','mergeDown','bold','italic','underline','justifyLeft','justifyCenter','justifyRight','hiliteColor','formatBlock'].includes(cmd)) {
+                    saveTableState(id);
+                }
+
+                if(['bold','italic','underline','justifyLeft','justifyCenter','justifyRight','removeFormat','formatBlock'].includes(cmd)) {
+                    if(activeContentEditable && block.contains(activeContentEditable)) {
+                        if(cmd.startsWith('justify')) activeContentEditable.parentElement.style.textAlign = cmd.replace('justify','').toLowerCase();
+                        else document.execCommand(cmd, false, arg);
+                        activeContentEditable.focus();
+                    }
+                    saveDraft();
+                    return;
+                }
+
+                if(cmd === 'hiliteColor') {
+                    if(activeContentEditable && block.contains(activeContentEditable)) activeContentEditable.parentElement.style.backgroundColor = arg;
+                    saveDraft();
+                    return;
+                }
+
+                // Merging Logic
+                if(cmd === 'mergeRight' || cmd === 'mergeDown') {
+                    if(!activeContentEditable) return;
+                    const td = activeContentEditable.parentElement;
+                    if(cmd === 'mergeRight') {
+                        const nextTd = td.nextElementSibling;
+                        if(nextTd) {
+                            td.setAttribute('colspan', (parseInt(td.getAttribute('colspan')||1)) + (parseInt(nextTd.getAttribute('colspan')||1)));
+                            if(nextTd.innerText) activeContentEditable.innerHTML += ' ' + nextTd.innerText;
+                            nextTd.remove();
+                        }
+                    } else {
+                        const tr = td.parentElement;
+                        const nextTr = tr.nextElementSibling;
+                        if(nextTr) {
+                            const idx = Array.from(tr.children).indexOf(td);
+                            const targetTd = nextTr.children[idx];
+                            if(targetTd) {
+                                td.setAttribute('rowspan', (parseInt(td.getAttribute('rowspan')||1)) + (parseInt(targetTd.getAttribute('rowspan')||1)));
+                                if(targetTd.innerText) activeContentEditable.innerHTML += '<br>' + targetTd.innerText;
+                                targetTd.remove();
+                            }
+                        }
+                    }
+                    saveDraft();
+                    return;
+                }
+
+                // Structure Logic
+                const tbody = block.querySelector('.sheet-body');
+                const headRow = block.querySelector('.sheet-head tr');
+
+                if (cmd === 'addRow') {
+                    const colCount = headRow.children.length; // Approximate
+                    const tr = document.createElement('tr');
+                    // Better logic: count cols based on first row
+                    let cols = 0;
+                    Array.from(headRow.children).forEach(td => cols += parseInt(td.getAttribute('colspan')||1));
+                    for(let i=0; i<cols; i++) tr.innerHTML += `<td><div contenteditable="true" class="sheet-cell"></div></td>`;
+                    tbody.appendChild(tr);
+                }
+                if (cmd === 'addCol') {
+                    headRow.innerHTML += `<td><div contenteditable="true" class="sheet-cell"></div></td>`;
+                    tbody.querySelectorAll('tr').forEach(tr => tr.innerHTML += `<td><div contenteditable="true" class="sheet-cell"></div></td>`);
+                }
+                if (cmd === 'delRow') {
+                    if(activeContentEditable && block.contains(activeContentEditable)) {
+                        const tr = activeContentEditable.closest('tr');
+                        if(tr && tr.parentElement === tbody) tr.remove();
+                    } else if(tbody.children.length > 0) tbody.removeChild(tbody.lastElementChild);
+                }
+                if (cmd === 'delCol') {
+                     // Simple removal from end. Complex removal requires index tracking which is verbose.
+                     if(headRow.children.length > 1) {
+                        headRow.removeChild(headRow.lastElementChild);
+                        tbody.querySelectorAll('tr').forEach(tr => { if(tr.children.length > 0) tr.removeChild(tr.lastElementChild); });
+                    }
+                }
+                saveDraft();
+            };
+
+            document.getElementById('confirm-paste-btn').onclick = () => {
+                const data = document.getElementById('paste-input').value;
+                const rows = data.trim().split('\n');
+                let html = '';
+                rows.forEach(row => {
+                    html += '<tr>';
+                    row.split('\t').forEach(cell => html += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`);
+                    html += '</tr>';
+                });
+                document.querySelector(`#${activeTableBlockId} .sheet-body`).innerHTML = html;
+                document.getElementById('paste-modal').classList.add('hidden');
+                saveTableState(activeTableBlockId);
+            };
+
+            // --- TAGS & COUNTRIES ---
+            function renderCountries(filter = '') {
+                countryContainer.innerHTML = '';
+                oicCountriesList.filter(c => c.toLowerCase().includes(filter.toLowerCase())).forEach(c => {
+                    const chip = document.createElement('div');
+                    chip.className = 'country-chip'; chip.textContent = c;
+                    chip.onclick = () => { tagsInput.value += `, ${c.toLowerCase().replace(/\s/g, '-')}`; saveDraft(); };
+                    countryContainer.appendChild(chip);
+                });
+            }
+            countrySearchInput.addEventListener('input', (e) => renderCountries(e.target.value));
+            
+            document.querySelectorAll('.tag-chip').forEach(chip => {
+                chip.onclick = () => { tagsInput.value += `, ${chip.dataset.tag}`; saveDraft(); };
+            });
+
+            // --- UI HANDLERS ---
+            addBlockBtn.addEventListener('click', () => createBlock(blockTypeSelect.value));
             tagsInput.addEventListener('input', saveDraft);
 
-            async function fetchRecentPosts() {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) return;
-                
-                const { data, error } = await supabaseClient
-                    .from('live_posts')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('is_pinned', { ascending: false })
-                    .order('timestamp', { ascending: false })
-                    .limit(15);
-                    
-                if (error) { console.error("Error fetching recent posts:", error); return; }
-                recentPostsFeed.innerHTML = '';
-                if(data) data.forEach(post => renderRecentPost(post));
-            }
-
-            function renderRecentPost(post, prepend = false) {
-                const postEl = document.createElement('div');
-                const isPinned = post.is_pinned;
-                postEl.className = `p-4 border rounded-lg flex justify-between items-center ${isPinned ? 'border-yellow-400 bg-yellow-50' : 'border-slate-200'}`;
-                postEl.id = `recent-post-${post.id}`;
-                const pinButtonHTML = isPinned ? `<button class="pin-btn text-sm font-semibold text-yellow-600" data-post-id="${post.id}"><i class="fas fa-thumbtack mr-1"></i> Unpin</button>` : `<button class="pin-btn text-sm font-semibold text-slate-500 hover:text-slate-800" data-post-id="${post.id}"><i class="fas fa-thumbtack"></i></button>`;
-                postEl.innerHTML = `<div><p class="font-semibold">${post.headline || 'Update'}</p><p class="text-xs text-slate-500">${new Date(post.timestamp).toLocaleString()}</p></div><div class="flex items-center gap-3">${pinButtonHTML}<button class="edit-btn text-sm font-semibold text-blue-600" data-post-id="${post.id}">Edit</button><button class="delete-btn text-sm font-semibold text-red-600" data-post-id="${post.id}">Delete</button></div>`;
-                if (prepend) { recentPostsFeed.prepend(postEl); } else { recentPostsFeed.appendChild(postEl); }
-            }
-
-            // --- EVENT LISTENERS ---
-            
-            addBlockBtn.addEventListener('click', () => createBlock(blockTypeSelect.value));
-
-            recentPostsFeed.addEventListener('click', async (e) => {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) return;
-                const target = e.target.closest('.pin-btn, .edit-btn, .delete-btn');
-                if (!target) return;
-                const postId = target.dataset.postId;
-                
-                if (target.classList.contains('pin-btn')) {
-                    const { data, error } = await supabaseClient.rpc('toggle_pin', { post_id_to_toggle: postId, user_id_of_pinner: user.id });
-                    if (error) { console.error(`RPC Error: ${error.message}`); }
-                } else if (target.classList.contains('delete-btn')) {
-                    if (window.confirm('Are you sure you want to delete this post?')) {
-                        const { error } = await supabaseClient.from('live_posts').delete().match({ id: postId, user_id: user.id });
-                        if (error) console.error(`Error deleting post: ${error.message}`);
-                    }
-                } else if (target.classList.contains('edit-btn')) {
-                    const { data, error } = await supabaseClient.from('live_posts').select('*').eq('id', postId).single();
-                    if (data) { 
-                        currentEditingPostId = postId; 
-                        editHeadline.value = data.headline; 
-                        editContent.value = data.content; 
-                        editTags.value = data.tags ? data.tags.join(', ') : ''; 
-                        editModal.classList.add('open'); 
-                        setTimeout(() => autoExpand(editContent), 50); 
-                    }
-                }
+            // Auth Toggles
+            document.getElementById('show-sign-up').onclick = (e) => { e.preventDefault(); signInForm.classList.add('hidden'); signUpForm.classList.remove('hidden'); };
+            document.getElementById('show-sign-in').onclick = (e) => { e.preventDefault(); signUpForm.classList.add('hidden'); signInForm.classList.remove('hidden'); };
+            document.querySelectorAll('.toggle-password').forEach(icon => {
+                icon.onclick = () => {
+                    const input = document.getElementById(icon.dataset.target);
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye'); icon.classList.toggle('fa-eye-slash');
+                };
             });
 
-            // Edit Modal Handlers
-            editContent.addEventListener('input', () => autoExpand(editContent));
-            cancelEditBtn.addEventListener('click', () => editModal.classList.remove('open'));
-
-            saveEditBtn.addEventListener('click', async () => {
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!currentEditingPostId || !user) return;
-                const updatedTags = editTags.value.split(',').map(t => t.trim()).filter(Boolean);
-                const { error } = await supabaseClient.from('live_posts').update({ 
-                    headline: editHeadline.value, 
-                    content: editContent.value, 
-                    tags: updatedTags 
-                }).match({ id: currentEditingPostId, user_id: user.id });
-                
-                if (error) { console.error(`Error saving changes: ${error.message}`); } 
-                else { editModal.classList.remove('open'); }
-            });
-
-            // Publishing Logic
-            const setPublishingState = (isPublishing) => { 
-                publishButton.disabled = isPublishing; 
-                document.getElementById("publish-text").classList.toggle("hidden", isPublishing); 
-                document.getElementById("publish-spinner").classList.toggle("hidden", !isPublishing); 
-            };
-            
+            // --- PUBLISH LOGIC ---
             publishButton.addEventListener('click', async () => {
-                setPublishingState(true);
-                const blocks = Array.from(document.querySelectorAll('.content-block'));
-                let headline = '', bodyParts = [];
+                publishButton.disabled = true;
+                document.getElementById("publish-spinner").classList.remove("hidden");
                 
+                const blocks = Array.from(document.querySelectorAll('.dynamic-content-block'));
+                let headline = '', bodyParts = [];
+
                 blocks.forEach(block => {
                     const type = block.dataset.blockType;
-                    const inputs = block.querySelectorAll('textarea, input');
-                    const mainValue = inputs[0]?.value.trim();
-                    const descValue = inputs[1]?.value.trim();
-                    if (!mainValue) return;
+                    
+                    if (type === 'table') {
+                        const caption = block.querySelector('.table-caption-input').value;
+                        const theme = block.querySelector('.table-theme').value;
+                        const sortable = block.querySelector('.table-sortable').checked ? 'sortable' : '';
+                        
+                        const tableHTML = `<div class="table-container ${theme} ${sortable}">` + 
+                            (caption ? `<caption>${caption}</caption>` : '') +
+                            `<table class="live-table"><thead>${block.querySelector('.sheet-head').innerHTML}</thead>` +
+                            `<tbody>${block.querySelector('.sheet-body').innerHTML}</tbody></table></div>`;
+                        bodyParts.push(tableHTML);
+                    } else {
+                        const inputs = block.querySelectorAll('textarea, input');
+                        const val = inputs[0]?.value.trim();
+                        const desc = inputs[1]?.value.trim();
+                        if (!val) return;
 
-                    switch (type) {
-                        case 'headline': headline = mainValue; break;
-                        case 'content': bodyParts.push(mainValue); break;
-                        case 'quote': bodyParts.push(`> ${mainValue.replace(/\n/g, '\n> ')}`); break;
-                        case 'image':
-                            bodyParts.push(`![${descValue || 'Image'}](${mainValue})`); break;
-                        case 'live-score-embed':
-                        case 'weather-embed':
-                        case 'html-code':
-                            bodyParts.push(`[WIDGET|${type}|${descValue || ''}]${mainValue}`); 
-                            break;
-                        default: 
-                            bodyParts.push(`[${type}|${descValue || ''}](${mainValue})`); break;
+                        switch (type) {
+                            case 'headline': headline = val; break;
+                            case 'content': bodyParts.push(val); break;
+                            case 'quote': bodyParts.push(`> ${val.replace(/\n/g, '\n> ')}`); break;
+                            case 'image': bodyParts.push(`![${desc}](${val})`); break;
+                            case 'link-button': bodyParts.push(`[BUTTON: ${desc}](${val})`); break;
+                            default: bodyParts.push(`[EMBED: ${type}](${val})`); break;
+                        }
                     }
                 });
-                
-                const tags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
-                const content = bodyParts.join('\n\n');
-                
-                if (!content && !headline) { 
-                    statusMessage.textContent = "Cannot publish an empty update.";
-                    statusMessage.style.color = 'orange';
-                    setPublishingState(false); 
-                    return; 
-                }
-                
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                
-                const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
-                
-                if (error) { 
-                    statusMessage.textContent = `Error: ${error.message}.`; 
-                    statusMessage.style.color = 'red'; 
-                }
-                else {
-                    statusMessage.textContent = 'Successfully published!';
-                    statusMessage.style.color = 'green';
-                    
-                    // --- SUCCESS: CLEAR DRAFT AND RESET ---
-                    clearDraft();
-                    resetEditor();
-                }
-                setPublishingState(false);
 
-                setTimeout(() => { statusMessage.textContent = '', statusMessage.style.color = ''; }, 3000);
+                const content = bodyParts.join('\n\n');
+                const tags = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if(user) {
+                    const { error } = await supabaseClient.from('live_posts').insert({ headline, content, user_id: user.id, tags });
+                    if (!error) {
+                        statusMessage.textContent = 'Published!'; statusMessage.className = 'text-center mt-4 text-sm font-bold text-green-600';
+                        clearDraft(); resetEditor();
+                    } else {
+                        statusMessage.textContent = error.message; statusMessage.className = 'text-center mt-4 text-sm font-bold text-red-600';
+                    }
+                }
+                
+                publishButton.disabled = false;
+                document.getElementById("publish-spinner").classList.add("hidden");
+                setTimeout(() => statusMessage.textContent = '', 3000);
             });
 
-            // Realtime listener
-            supabaseClient.channel('public:live_posts:cms').on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => { 
-                fetchRecentPosts(); 
-            }).subscribe();
+            // --- AUTH LOGIC (SUPABASE) ---
+            signInForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const { error } = await supabaseClient.auth.signInWithPassword({ 
+                    email: document.getElementById('sign-in-email').value, 
+                    password: document.getElementById('sign-in-password').value 
+                });
+                if(error) { authMessage.textContent = error.message; authMessage.style.color='red'; }
+            };
+
+            signUpForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const { error, data } = await supabaseClient.auth.signUp({ 
+                    email: document.getElementById('sign-up-email').value, 
+                    password: document.getElementById('sign-up-password').value 
+                });
+                if(error) { authMessage.textContent = error.message; authMessage.style.color='red'; }
+                else if(data.user) { authMessage.textContent = 'Check email for link!'; authMessage.style.color='green'; }
+            };
+
+            logoutButton.onclick = async () => await supabaseClient.auth.signOut();
+
+            supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                if (session) {
+                    authView.classList.add('hidden'); editorView.classList.remove('hidden');
+                    document.getElementById('writer-email').textContent = session.user.email;
+                    if(blocksContainer.children.length === 0) loadDraft();
+                    fetchRecentPosts();
+                } else {
+                    authView.classList.remove('hidden'); editorView.classList.add('hidden');
+                }
+            });
+
+            // Fetch Recent Posts Logic
+            async function fetchRecentPosts() {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if(!user) return;
+                const { data } = await supabaseClient.from('live_posts').select('*').eq('user_id', user.id).order('timestamp', { ascending: false }).limit(10);
+                recentPostsFeed.innerHTML = '';
+                if(data) data.forEach(post => {
+                    const div = document.createElement('div');
+                    div.className = "p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors rounded-lg group";
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-bold text-sm text-slate-800 line-clamp-1">${post.headline || 'No Headline'}</p>
+                                <p class="text-xs text-slate-400 mt-1">${new Date(post.timestamp).toLocaleTimeString()}</p>
+                            </div>
+                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="text-xs text-blue-600 font-bold edit-btn" data-id="${post.id}">Edit</button>
+                                <button class="text-xs text-red-600 font-bold delete-btn" data-id="${post.id}">Del</button>
+                            </div>
+                        </div>`;
+                    recentPostsFeed.appendChild(div);
+                });
+            }
+
+            // Global Event Delegation for Edit/Delete
+            recentPostsFeed.addEventListener('click', async (e) => {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (e.target.classList.contains('delete-btn')) {
+                    if(confirm('Delete post?')) {
+                        await supabaseClient.from('live_posts').delete().match({ id: e.target.dataset.id, user_id: user.id });
+                        fetchRecentPosts();
+                    }
+                }
+                if (e.target.classList.contains('edit-btn')) {
+                    const { data } = await supabaseClient.from('live_posts').select('*').eq('id', e.target.dataset.id).single();
+                    if(data) {
+                        currentEditingPostId = data.id;
+                        editHeadline.value = data.headline;
+                        editContent.value = data.content;
+                        editTags.value = data.tags ? data.tags.join(', ') : '';
+                        editModal.classList.remove('hidden');
+                        editModal.classList.add('flex');
+                    }
+                }
+            });
+
+            // Edit Modal Close/Save
+            const closeEdit = () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); };
+            document.getElementById('cancel-edit-btn').onclick = closeEdit;
+            document.getElementById('cancel-edit-btn-x').onclick = closeEdit;
+            saveEditBtn.onclick = async () => {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const tags = editTags.value.split(',').map(t => t.trim()).filter(Boolean);
+                await supabaseClient.from('live_posts').update({ 
+                    headline: editHeadline.value, content: editContent.value, tags 
+                }).match({ id: currentEditingPostId, user_id: user.id });
+                closeEdit();
+                fetchRecentPosts();
+            };
         });
     </script>
 </body>
