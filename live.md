@@ -59,7 +59,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     .tags-container { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .tag-badge { background-color: #eef2ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
     
-    /* FIXED: Consistent footer styling */
+    /* FIXED: Consistent footer styling - FIXED FOR SPACE ISSUE */
+    /* PROBLEM: Footer elements were not displaying completely */
+    /* SOLUTION: Increased min-height and adjusted alignments */
     .post-footer {
         display: flex;
         justify-content: space-between;
@@ -67,9 +69,11 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         margin-top: 1.5rem;
         padding-top: 1rem;
         border-top: 1px solid #e5e7eb;
-        min-height: 40px; /* Fixed minimum height */
+        min-height: 50px; /* INCREASED from 40px to 50px to accommodate canvas and buttons */
+        /* max-height: 50px; REMOVED - causing elements to be cut off */
         box-sizing: border-box;
-        flex-wrap: nowrap; /* Prevent wrapping */
+        flex-wrap: nowrap;
+        /* overflow: hidden; REMOVED - causing buttons to be cut off */
     }
     
     .share-btn {
@@ -80,8 +84,12 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         font-size: 0.875rem;
         font-weight: 600;
         cursor: pointer;
-        flex-shrink: 0; /* Prevent shrinking */
-        white-space: nowrap; /* Prevent text wrapping */
+        flex-shrink: 0;
+        white-space: nowrap;
+        height: 40px; /* INCREASED from 36px to 40px */
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Added for better centering */
     }
     
     .post-stats {
@@ -90,14 +98,19 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         gap: 1rem;
         font-size: 0.875rem;
         color: #6b7280;
-        flex-shrink: 0; /* Prevent shrinking */
+        flex-shrink: 0;
+        /* height: 50px; REMOVED - let it be auto height */
+        padding: 5px 0; /* Added padding for breathing room */
     }
     
     .like-btn-canvas {
         width: 40px;
         height: 40px;
         cursor: pointer;
-        flex-shrink: 0; /* Prevent shrinking */
+        flex-shrink: 0;
+        display: block; /* FIXED: Ensure proper display */
+        margin: 0; /* Ensure no margin issues */
+        background-color: transparent; /* Ensure canvas background is transparent */
     }
     
     .professional-btn {
@@ -269,85 +282,203 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         requestAnimationFrame(step);
     }
 
-    // --- Star Button Class ---
+    // --- FIXED STAR BUTTON CLASS - STAR VISIBLE ALWAYS ---
     class CanvasLikeButton {
         constructor(canvas, postId, postElement) {
             this.canvas = canvas; 
             this.postId = postId;
             this.postElement = postElement;
-            this.ctx = canvas.getContext('2d'); 
-            this.dpr = window.devicePixelRatio || 1;
-            this.logicalWidth = parseInt(canvas.getAttribute('width')) || 40; 
-            this.logicalHeight = parseInt(canvas.getAttribute('height')) || 40;
-            this.canvas.width = this.logicalWidth * this.dpr; 
-            this.canvas.height = this.logicalHeight * this.dpr;
-            this.canvas.style.width = `${this.logicalWidth}px`; 
-            this.canvas.style.height = `${this.logicalHeight}px`;
-            this.ctx.scale(this.dpr, this.dpr);
             
-            // Get liked state from localStorage
+            // Get liked state from localStorage FIRST
             const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
             this.isLiked = likedPosts.has(this.postId);
             
+            // Store liked state on canvas immediately
+            canvas.dataset.liked = this.isLiked;
+            
+            // Initialize canvas context and dimensions
+            this.initializeCanvas();
+            
+            // Draw the star immediately - CRITICAL FIX
+            this.drawStarNow();
+            
+            // Setup animation states
             this.isHovered = false;
-            this.isLooping = false; 
-            this.buttonCenter = { x: this.logicalWidth / 2, y: this.logicalHeight / 2 };
+            this.isLooping = false;
             this.starAnimation = { scale: 1, isAnimating: false, direction: 'up', rotation: 0, targetRotation: 0 };
             this.circleAnimation = { radius: 0, opacity: 1, isAnimating: false };
             this.particles = [];
             
-            // Force immediate draw
-            this.drawStar(this.buttonCenter.x, this.buttonCenter.y, 1, 0);
-            
             // Setup listeners
             this.setupEventListeners();
+            
+            // Mark as initialized
+            canvas.dataset.initialized = 'true';
+            canvas._canvasButtonInstance = this;
+        }
+        
+        initializeCanvas() {
+            // Get context with proper settings
+            this.ctx = this.canvas.getContext('2d', {
+                alpha: true,
+                desynchronized: false
+            });
+            
+            // Set dimensions
+            this.dpr = window.devicePixelRatio || 1;
+            this.logicalWidth = 40;
+            this.logicalHeight = 40;
+            
+            // Set canvas drawing buffer size
+            this.canvas.width = this.logicalWidth * this.dpr;
+            this.canvas.height = this.logicalHeight * this.dpr;
+            
+            // Set canvas display size
+            this.canvas.style.width = `${this.logicalWidth}px`;
+            this.canvas.style.height = `${this.logicalHeight}px`;
+            
+            // Scale context
+            this.ctx.scale(this.dpr, this.dpr);
+            
+            // Calculate center
+            this.buttonCenter = { 
+                x: this.logicalWidth / 2, 
+                y: this.logicalHeight / 2 
+            };
+        }
+        
+        drawStarNow() {
+            // CRITICAL: Clear the canvas FIRST
+            this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
+            
+            // Save context state
+            this.ctx.save();
+            
+            // Move to center
+            this.ctx.translate(this.buttonCenter.x, this.buttonCenter.y);
+            
+            // Set colors based on liked state
+            this.ctx.strokeStyle = this.isLiked ? '#facc15' : '#6b7280';
+            this.ctx.fillStyle = this.isLiked ? '#fde047' : '#374151';
+            this.ctx.lineWidth = 2;
+            this.ctx.lineCap = 'round';
+            this.ctx.lineJoin = 'round';
+            
+            // Draw star shape
+            const spikes = 5;
+            const outerRadius = 16;
+            const innerRadius = 8;
+            let rot = Math.PI / 2 * 3;
+            let x = 0;
+            let y = 0;
+            const step = Math.PI / spikes;
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, -outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = Math.cos(rot) * outerRadius;
+                y = Math.sin(rot) * outerRadius;
+                this.ctx.lineTo(x, y);
+                rot += step;
+                x = Math.cos(rot) * innerRadius;
+                y = Math.sin(rot) * innerRadius;
+                this.ctx.lineTo(x, y);
+                rot += step;
+            }
+            
+            this.ctx.lineTo(0, -outerRadius);
+            this.ctx.closePath();
+            
+            // Add shadow only if liked
+            if (this.isLiked) {
+                this.ctx.shadowColor = 'rgba(250, 204, 21, 0.5)';
+                this.ctx.shadowBlur = 8;
+            } else {
+                this.ctx.shadowColor = 'transparent';
+                this.ctx.shadowBlur = 0;
+            }
+            
+            // Fill and stroke
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Restore context
+            this.ctx.restore();
+            
+            console.log(`Star drawn for post ${this.postId}, liked: ${this.isLiked}`);
         }
 
         drawStar(centerX, centerY, scale = 1, rotation = 0) {
-            // Clear canvas first
+            // Clear canvas
             this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
             
-            this.ctx.save(); 
-            this.ctx.translate(centerX, centerY); 
-            this.ctx.scale(scale, scale); 
+            this.ctx.save();
+            this.ctx.translate(centerX, centerY);
+            this.ctx.scale(scale, scale);
             this.ctx.rotate(rotation);
+            
             // Use the current isLiked state for colors
-            this.ctx.strokeStyle = this.isLiked ? '#facc15' : '#6b7280'; 
+            this.ctx.strokeStyle = this.isLiked ? '#facc15' : '#6b7280';
             this.ctx.fillStyle = this.isLiked ? '#fde047' : '#374151';
-            this.ctx.lineWidth = 2; 
-            this.ctx.lineCap = 'round'; 
+            this.ctx.lineWidth = 2;
+            this.ctx.lineCap = 'round';
             this.ctx.lineJoin = 'round';
-            const spikes = 5, outerRadius = 16, innerRadius = 8;
-            let rot = Math.PI / 2 * 3, x = 0, y = 0, step = Math.PI / spikes;
-            this.ctx.beginPath(); 
+            
+            const spikes = 5;
+            const outerRadius = 16;
+            const innerRadius = 8;
+            let rot = Math.PI / 2 * 3;
+            let x = 0;
+            let y = 0;
+            const step = Math.PI / spikes;
+            
+            this.ctx.beginPath();
             this.ctx.moveTo(0, -outerRadius);
-            for (let i = 0; i < spikes; i++) { 
-                x = Math.cos(rot) * outerRadius; 
-                y = Math.sin(rot) * outerRadius; 
-                this.ctx.lineTo(x, y); 
-                rot += step; 
-                x = Math.cos(rot) * innerRadius; 
-                y = Math.sin(rot) * innerRadius; 
-                this.ctx.lineTo(x, y); 
-                rot += step; 
+            
+            for (let i = 0; i < spikes; i++) {
+                x = Math.cos(rot) * outerRadius;
+                y = Math.sin(rot) * outerRadius;
+                this.ctx.lineTo(x, y);
+                rot += step;
+                x = Math.cos(rot) * innerRadius;
+                y = Math.sin(rot) * innerRadius;
+                this.ctx.lineTo(x, y);
+                rot += step;
             }
-            this.ctx.lineTo(0, -outerRadius); 
+            
+            this.ctx.lineTo(0, -outerRadius);
             this.ctx.closePath();
-            this.ctx.shadowColor = this.isLiked ? 'rgba(250, 204, 21, 0.5)' : 'transparent'; 
-            this.ctx.shadowBlur = 8;
-            this.ctx.fill(); 
-            this.ctx.stroke(); 
+            
+            // Only add shadow if liked
+            if (this.isLiked) {
+                this.ctx.shadowColor = 'rgba(250, 204, 21, 0.5)';
+                this.ctx.shadowBlur = 8;
+            } else {
+                this.ctx.shadowColor = 'transparent';
+                this.ctx.shadowBlur = 0;
+            }
+            
+            this.ctx.fill();
+            this.ctx.stroke();
             this.ctx.restore();
         }
 
         createParticles(x, y) {
-            const particleCount = 15; 
+            const particleCount = 15;
             const colors = ['#ec4899', '#38bdf8', '#facc15', '#4ade80'];
             for (let i = 0; i < particleCount; i++) {
-                const angle = Math.random() * Math.PI * 2; 
-                const speed = Math.random() * 2.5 + 1.5; 
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 2.5 + 1.5;
                 const radius = Math.random() * 2 + 1;
-                this.particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, radius, color: colors[Math.floor(Math.random() * colors.length)], opacity: 1 });
+                this.particles.push({
+                    x, y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    radius,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    opacity: 1
+                });
             }
         }
 
@@ -363,49 +494,58 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             let isDirty = false;
 
             if (this.circleAnimation.isAnimating) {
-                this.circleAnimation.radius += 2.5; 
+                this.circleAnimation.radius += 2.5;
                 this.circleAnimation.opacity -= 0.04;
-                if (this.circleAnimation.opacity <= 0) this.circleAnimation.isAnimating = false;
-                else { 
-                    this.ctx.beginPath(); 
-                    this.ctx.arc(this.buttonCenter.x, this.buttonCenter.y, this.circleAnimation.radius, 0, Math.PI * 2); 
-                    this.ctx.strokeStyle = `rgba(59, 130, 246, ${this.circleAnimation.opacity})`; 
-                    this.ctx.lineWidth = 2; 
-                    this.ctx.stroke(); 
+                if (this.circleAnimation.opacity <= 0) {
+                    this.circleAnimation.isAnimating = false;
+                } else {
+                    this.ctx.beginPath();
+                    this.ctx.arc(this.buttonCenter.x, this.buttonCenter.y, this.circleAnimation.radius, 0, Math.PI * 2);
+                    this.ctx.strokeStyle = `rgba(59, 130, 246, ${this.circleAnimation.opacity})`;
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
                     isDirty = true;
                 }
             }
 
             if (this.particles.length > 0) {
                 this.particles.forEach((p, index) => {
-                    p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.vx *= 0.99; p.opacity -= 0.02;
-                    if (p.opacity <= 0) this.particles.splice(index, 1);
-                    else { 
-                        this.ctx.globalAlpha = p.opacity; 
-                        this.ctx.fillStyle = p.color; 
-                        this.ctx.beginPath(); 
-                        this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); 
-                        this.ctx.fill(); 
-                        this.ctx.globalAlpha = 1; 
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.1;
+                    p.vx *= 0.99;
+                    p.opacity -= 0.02;
+                    
+                    if (p.opacity <= 0) {
+                        this.particles.splice(index, 1);
+                    } else {
+                        this.ctx.globalAlpha = p.opacity;
+                        this.ctx.fillStyle = p.color;
+                        this.ctx.beginPath();
+                        this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.globalAlpha = 1;
+                        isDirty = true;
                     }
                 });
-                isDirty = true;
             }
 
             let targetScale = this.isHovered ? 1.1 : 1;
             if (this.starAnimation.isAnimating) {
                 isDirty = true;
-                if (this.starAnimation.direction === 'up') { 
-                    this.starAnimation.scale += 0.07; 
-                    if (this.starAnimation.scale >= 1.25) this.starAnimation.direction = 'down'; 
-                } else { 
-                    this.starAnimation.scale -= 0.09; 
-                    if (this.starAnimation.scale <= targetScale) { 
-                        this.starAnimation.scale = targetScale; 
-                        this.starAnimation.isAnimating = false; 
-                    } 
+                if (this.starAnimation.direction === 'up') {
+                    this.starAnimation.scale += 0.07;
+                    if (this.starAnimation.scale >= 1.25) {
+                        this.starAnimation.direction = 'down';
+                    }
+                } else {
+                    this.starAnimation.scale -= 0.09;
+                    if (this.starAnimation.scale <= targetScale) {
+                        this.starAnimation.scale = targetScale;
+                        this.starAnimation.isAnimating = false;
+                    }
                 }
-            } else { 
+            } else {
                 const diff = targetScale - this.starAnimation.scale;
                 if (Math.abs(diff) > 0.001) {
                     this.starAnimation.scale += diff * 0.2;
@@ -416,11 +556,11 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             }
 
             const rotDiff = this.starAnimation.targetRotation - this.starAnimation.rotation;
-            if (Math.abs(rotDiff) > 0.01) { 
-                this.starAnimation.rotation += rotDiff * 0.15; 
+            if (Math.abs(rotDiff) > 0.01) {
+                this.starAnimation.rotation += rotDiff * 0.15;
                 isDirty = true;
-            } else { 
-                this.starAnimation.rotation = this.starAnimation.targetRotation; 
+            } else {
+                this.starAnimation.rotation = this.starAnimation.targetRotation;
             }
 
             this.drawStar(this.buttonCenter.x, this.buttonCenter.y, this.starAnimation.scale, this.starAnimation.rotation);
@@ -433,6 +573,30 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         setupEventListeners() {
+            // Remove any existing listeners
+            const newCanvas = this.canvas.cloneNode(false);
+            
+            // Copy important attributes and data
+            newCanvas.id = this.canvas.id;
+            newCanvas.className = this.canvas.className;
+            newCanvas.width = this.canvas.width;
+            newCanvas.height = this.canvas.height;
+            newCanvas.style.cssText = this.canvas.style.cssText;
+            newCanvas.dataset.initialized = 'true';
+            newCanvas.dataset.liked = this.isLiked;
+            newCanvas._canvasButtonInstance = this;
+            
+            // Replace canvas
+            this.canvas.parentNode.replaceChild(newCanvas, this.canvas);
+            this.canvas = newCanvas;
+            
+            // Re-initialize context on new canvas
+            this.ctx = this.canvas.getContext('2d');
+            this.ctx.scale(this.dpr, this.dpr);
+            
+            // Redraw star immediately after replacing canvas
+            this.drawStarNow();
+            
             // Click handler
             this.canvas.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -441,18 +605,20 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             }, { passive: false });
             
             // Hover handlers
-            this.canvas.addEventListener('mousemove', (e) => { 
-                const rect = this.canvas.getBoundingClientRect(); 
-                const mouseX = (e.clientX - rect.left); 
-                const mouseY = (e.clientY - rect.top); 
-                const dist = Math.sqrt(Math.pow(mouseX - this.buttonCenter.x, 2) + Math.pow(mouseY - this.buttonCenter.y, 2)); 
+            this.canvas.addEventListener('mousemove', (e) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left) * (this.logicalWidth / rect.width);
+                const mouseY = (e.clientY - rect.top) * (this.logicalHeight / rect.height);
+                const dist = Math.sqrt(Math.pow(mouseX - this.buttonCenter.x, 2) + Math.pow(mouseY - this.buttonCenter.y, 2));
                 const wasHovered = this.isHovered;
-                this.isHovered = dist < 25; 
-                if (this.isHovered !== wasHovered) this.startAnimationLoop();
+                this.isHovered = dist < 25;
+                if (this.isHovered !== wasHovered) {
+                    this.startAnimationLoop();
+                }
             });
             
-            this.canvas.addEventListener('mouseleave', () => { 
-                this.isHovered = false; 
+            this.canvas.addEventListener('mouseleave', () => {
+                this.isHovered = false;
                 this.startAnimationLoop();
             });
             
@@ -461,8 +627,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 e.preventDefault();
                 const rect = this.canvas.getBoundingClientRect();
                 const touch = e.touches[0];
-                const mouseX = (touch.clientX - rect.left);
-                const mouseY = (touch.clientY - rect.top);
+                const mouseX = (touch.clientX - rect.left) * (this.logicalWidth / rect.width);
+                const mouseY = (touch.clientY - rect.top) * (this.logicalHeight / rect.height);
                 const dist = Math.sqrt(Math.pow(mouseX - this.buttonCenter.x, 2) + Math.pow(mouseY - this.buttonCenter.y, 2));
                 if (dist < 25) {
                     this.handleClick();
@@ -471,17 +637,19 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         handleClick() {
-            this.isLiked = !this.isLiked; 
-            this.starAnimation.isAnimating = true; 
+            this.isLiked = !this.isLiked;
+            this.canvas.dataset.liked = this.isLiked;
+            this.starAnimation.isAnimating = true;
             this.starAnimation.direction = 'up';
             this.starAnimation.targetRotation += Math.PI * 2;
 
-            if (this.isLiked) { 
-                this.circleAnimation.isAnimating = true; 
-                this.circleAnimation.radius = 0; 
-                this.circleAnimation.opacity = 1; 
-                this.createParticles(this.buttonCenter.x, this.buttonCenter.y); 
+            if (this.isLiked) {
+                this.circleAnimation.isAnimating = true;
+                this.circleAnimation.radius = 0;
+                this.circleAnimation.opacity = 1;
+                this.createParticles(this.buttonCenter.x, this.buttonCenter.y);
             }
+            
             this.startAnimationLoop();
             
             // Update the like count
@@ -495,6 +663,104 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 if (window.toggleLike) {
                     window.toggleLike(this.postId, this, this.postElement);
                 }
+            }
+            
+            // Update localStorage
+            const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
+            if (this.isLiked) {
+                likedPosts.add(this.postId);
+            } else {
+                likedPosts.delete(this.postId);
+            }
+            localStorage.setItem('likedLivePosts', JSON.stringify(Array.from(likedPosts)));
+        }
+        
+        reinitializeCanvas() {
+            // Recreate context
+            this.ctx = this.canvas.getContext('2d');
+            
+            // Re-apply scale
+            this.ctx.scale(this.dpr, this.dpr);
+            
+            // Redraw immediately
+            this.drawStarNow();
+            
+            console.log(`Reinitialized canvas for post ${this.postId}`);
+        }
+    }
+
+    // --- CANVAS REINITIALIZATION FUNCTION ---
+    function reinitializeCanvasButtons() {
+        console.log("Reinitializing canvas buttons and drawing stars...");
+        
+        // Find all canvas elements
+        const canvasElements = document.querySelectorAll('.like-btn-canvas');
+        
+        canvasElements.forEach(canvasEl => {
+            const postIdMatch = canvasEl.id.match(/like-canvas-(\d+)/);
+            if (!postIdMatch) return;
+            
+            const postId = postIdMatch[1];
+            const postElement = canvasEl.closest('.live-post');
+            
+            if (!postElement) return;
+            
+            // Check if we already have an instance
+            if (canvasEl._canvasButtonInstance) {
+                // Just redraw the star
+                canvasEl._canvasButtonInstance.reinitializeCanvas();
+                return;
+            }
+            
+            // Create new instance - this will draw the star immediately
+            const canvasButton = new CanvasLikeButton(canvasEl, postId, postElement);
+            postElement.canvasButtonInstance = canvasButton;
+        });
+        
+        console.log(`Reinitialized ${canvasElements.length} canvas buttons`);
+    }
+
+    // --- FIX FOR LIVE BUTTON NOT WORKING AFTER TAB SWITCH ---
+    function fixLiveButtonClickHandlers() {
+        console.log("Fixing live button click handlers...");
+        
+        // Find all like buttons and ensure they have proper click handlers
+        const likeButtons = document.querySelectorAll('.like-btn-canvas');
+        likeButtons.forEach(canvas => {
+            if (canvas._canvasButtonInstance) {
+                // Re-setup event listeners for this button
+                canvas._canvasButtonInstance.setupEventListeners();
+            }
+        });
+        
+        // Also fix share button event delegation
+        setupShareButtonDelegation();
+    }
+    
+    function setupShareButtonDelegation() {
+        // Remove any existing listeners to prevent duplicates
+        document.removeEventListener('click', handleShareButtonClick);
+        
+        // Add fresh listener
+        document.addEventListener('click', handleShareButtonClick);
+    }
+    
+    function handleShareButtonClick(e) {
+        // Handle share button clicks only
+        if (e.target.closest('.share-btn')) {
+            e.preventDefault();
+            const shareBtn = e.target.closest('.share-btn');
+            const postId = shareBtn.dataset.postId;
+            const postHeadline = shareBtn.dataset.postHeadline;
+            const postUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
+            const shareText = `Live Update: ${postHeadline}`;
+            
+            if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') { 
+                window.AndroidInterface.share(postHeadline, shareText, postUrl); 
+            } else if (navigator.share) { 
+                navigator.share({ title: postHeadline, text: shareText, url: postUrl }); 
+            } else { 
+                alert(`Share this link:\n${postUrl}`); 
             }
         }
     }
@@ -560,7 +826,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                         case 'link-button': htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="background-color: #2563eb; color: white; display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`; break;
                         case 'twitter': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'twitter-video': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-conversation="none"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
-                        case 'instagram': htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;
+                        case 'instagram': htmlBlock = `<div class("my-4")><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;
                         case 'instagram-video': const igMatch = url.match(/\/(p|reel)\/([a-zA-Z0-9_-]+)/); if (igMatch && igMatch[2]) { htmlBlock = `<div class="instagram-video-container my-4"><iframe src="https://www.instagram.com/p/${igMatch[2]}/embed" frameborder="0" scrolling="no" allowtransparency="true"></iframe></div>${caption}</div>`; } else { htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; } break;
                         case 'facebook': htmlBlock = `<div class="my-4"><div class="fb-post" data-href="${url}" data-width="auto" data-show-text="true"></div>${caption}</div>`; break;
                         case 'youtube': const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if (ytMatch && ytMatch[1]) { htmlBlock = `<div class="responsive-iframe-container responsive-iframe-container-16x9 my-4"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}?rel=0&modestbranding=1" allowfullscreen></iframe></div>${caption}`; } break;
@@ -626,12 +892,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     console.error("Like log failed.", error); 
                     // Revert the visual state
                     canvasButtonInstance.isLiked = !canvasButtonInstance.isLiked;
-                    canvasButtonInstance.drawStar(
-                        canvasButtonInstance.buttonCenter.x, 
-                        canvasButtonInstance.buttonCenter.y, 
-                        1, 
-                        0
-                    );
+                    canvasButtonInstance.canvas.dataset.liked = canvasButtonInstance.isLiked;
+                    canvasButtonInstance.drawStarNow(); // Use drawStarNow instead of drawStar
                 });
         }
         
@@ -662,8 +924,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             
             const canvasEl = postElement.querySelector(`#like-canvas-${postData.id}`);
             if (canvasEl) {
+                // Create canvas button instance - this will draw the star immediately
                 const canvasButton = new CanvasLikeButton(canvasEl, postData.id, postElement);
-                postElement.canvasButtonInstance = canvasButton; 
+                postElement.canvasButtonInstance = canvasButton;
             }
 
             incrementViewCount(postData.id);
@@ -783,6 +1046,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 archiveBtn.style.display = 'none'; 
                 noMorePostsMsg.style.display = 'none';
             }
+            
+            // Fix button handlers after loading
+            setTimeout(fixLiveButtonClickHandlers, 100);
         }
 
         // Expose to window for the inline onclick handler
@@ -801,6 +1067,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                         renderPost(newPostData, liveFeed, true); 
                         allPosts.unshift(newPostData);
                         loadedPostsCount++;
+                        // Fix button handlers for new post
+                        setTimeout(fixLiveButtonClickHandlers, 100);
                     } else { loadMorePosts(true); }
                 } 
                 else if (payload.eventType === 'UPDATE') {
@@ -838,25 +1106,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 }
             }).subscribe();
 
-        // --- SIMPLE EVENT DELEGATION for share buttons only ---
-        document.addEventListener('click', function(e) {
-            // Handle share button clicks only
-            if (e.target.closest('.share-btn')) {
-                e.preventDefault();
-                const shareBtn = e.target.closest('.share-btn');
-                const postId = shareBtn.dataset.postId;
-                const postHeadline = shareBtn.dataset.postHeadline;
-                const postUrl = `${window.location.origin}${window.location.pathname}#post-${postId}`;
-                const shareText = `Live Update: ${postHeadline}`;
-                if (window.AndroidInterface && typeof window.AndroidInterface.share === 'function') { 
-                    window.AndroidInterface.share(postHeadline, shareText, postUrl); 
-                } else if (navigator.share) { 
-                    navigator.share({ title: postHeadline, text: shareText, url: postUrl }); 
-                } else { 
-                    alert(`Share this link:\n${postUrl}`); 
-                }
-            }
-        });
+        // Setup share button delegation initially
+        setupShareButtonDelegation();
 
         // --- RESTORE LOGIC ---
         const totalPostsOnScreen = document.querySelectorAll('#live-feed .live-post').length;
@@ -869,9 +1120,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 const postId = postEl.id.replace('post-', '');
                 const canvasEl = postEl.querySelector(`#like-canvas-${postId}`);
                 if (canvasEl) {
-                    // Always create a fresh instance
+                    // Create or restore canvas button instance - this will draw the star immediately
                     const canvasButton = new CanvasLikeButton(canvasEl, postId, postEl);
-                    postEl.canvasButtonInstance = canvasButton; 
+                    postEl.canvasButtonInstance = canvasButton;
                 }
             });
 
@@ -908,6 +1159,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             }
 
             setTimeout(loadSocialScripts, 100);
+            
+            // Fix button handlers after restoration
+            setTimeout(fixLiveButtonClickHandlers, 200);
         } else {
             setTimeout(() => loadMorePosts(false), 100);
         }
@@ -916,36 +1170,53 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     // Run Immediately
     initLiveFeed();
 
-    // Add Turbo event listeners - SIMPLIFIED VERSION
+    // --- ENHANCED EVENT LISTENERS FOR CANVAS RESTORATION ---
+    // Run on initial load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            reinitializeCanvasButtons();
+            fixLiveButtonClickHandlers();
+        }, 100);
+    });
+
+    // Run on Turbo navigation
     document.addEventListener('turbo:load', function() {
+        console.log('Turbo:load - reinitializing canvas buttons and fixing click handlers');
         // Small delay to ensure DOM is ready
         setTimeout(() => {
-            const posts = document.querySelectorAll('.live-post');
-            
-            posts.forEach(postEl => {
-                const postId = postEl.id.replace('post-', '');
-                const canvasEl = postEl.querySelector(`#like-canvas-${postId}`);
-                
-                if (canvasEl) {
-                    // If canvas already has an instance, just update it
-                    if (postEl.canvasButtonInstance) {
-                        const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
-                        postEl.canvasButtonInstance.isLiked = likedPosts.has(postId);
-                        postEl.canvasButtonInstance.drawStar(
-                            postEl.canvasButtonInstance.buttonCenter.x, 
-                            postEl.canvasButtonInstance.buttonCenter.y, 
-                            1, 
-                            0
-                        );
-                    } else {
-                        // Create new instance
-                        const canvasButton = new CanvasLikeButton(canvasEl, postId, postEl);
-                        postEl.canvasButtonInstance = canvasButton;
-                    }
-                }
-            });
+            reinitializeCanvasButtons();
+            fixLiveButtonClickHandlers();
         }, 50);
     });
+
+    // Run when page becomes visible again (tab switching) - FIXED
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            console.log('Page visible - restoring canvas buttons and fixing click handlers');
+            // Give some time for the page to stabilize
+            setTimeout(() => {
+                reinitializeCanvasButtons();
+                fixLiveButtonClickHandlers();
+            }, 300);
+        }
+    });
+
+    // Handle browser back/forward navigation
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            console.log('Page restored from bfcache - restoring canvas buttons and fixing click handlers');
+            setTimeout(() => {
+                reinitializeCanvasButtons();
+                fixLiveButtonClickHandlers();
+            }, 200);
+        }
+    });
+
+    // One-time initialization after page load
+    setTimeout(function() {
+        reinitializeCanvasButtons();
+        fixLiveButtonClickHandlers();
+    }, 1000);
 
 })();
 </script>
