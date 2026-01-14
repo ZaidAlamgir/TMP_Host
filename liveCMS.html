@@ -418,10 +418,17 @@
             }
 
             function clearDraft() { localStorage.removeItem('cms_autosave_draft'); }
+            
+            // --- UPDATED RESET EDITOR FUNCTION (DEFAULT BLOCKS) ---
             function resetEditor() {
                 blocksContainer.innerHTML = '';
+                // The order you requested: headline, image, twitter, youtube, table
                 createBlock('headline');
-                createBlock('content');
+                createBlock('image');
+                createBlock('twitter');
+                createBlock('youtube');
+                createBlock('table');
+                
                 tagsInput.value = 'BREAKING, TMP NEWS';
                 saveDraft();
             }
