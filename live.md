@@ -12,12 +12,11 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
     body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
     
-    /* FIX: Force container to take full height so footer stays down during load */
     .live-container { 
         max-width: 1440px; 
         margin: 0 auto; 
         padding: 0 1rem 4rem 1rem; 
-        min-height: 100vh; /* Keeps footer at bottom even when feed is loading */
+        min-height: 100vh; 
     }
     
     .live-header { text-align: center; margin-bottom: 2.5rem; }
@@ -47,7 +46,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     .post-body blockquote { font-style: italic; color: #4b5563; border-left: 3px solid #d1d5db; padding-left: 1.5rem; margin: 1.5rem 0; font-size: 1.1rem; }
     .post-body .media-caption { text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; padding-bottom: 1rem; font-style: italic; }
     
-    /* Table Styles */
     .table-container { overflow-x: auto; margin: 1.5rem 0; border-radius: 8px; border: 1px solid #e5e7eb; background: white; }
     .table-container caption { caption-side: top; text-align: left; padding: 0.75rem; font-size: 0.9rem; font-weight: 600; color: #4b5563; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
     .live-table { width: 100%; border-collapse: collapse; min-width: 600px; }
@@ -59,9 +57,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     .tags-container { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .tag-badge { background-color: #eef2ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
     
-    /* FIXED: Consistent footer styling - FIXED FOR SPACE ISSUE */
-    /* PROBLEM: Footer elements were not displaying completely */
-    /* SOLUTION: Increased min-height and adjusted alignments */
     .post-footer {
         display: flex;
         justify-content: space-between;
@@ -69,11 +64,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         margin-top: 1.5rem;
         padding-top: 1rem;
         border-top: 1px solid #e5e7eb;
-        min-height: 50px; /* INCREASED from 40px to 50px to accommodate canvas and buttons */
-        /* max-height: 50px; REMOVED - causing elements to be cut off */
+        min-height: 50px;
         box-sizing: border-box;
         flex-wrap: nowrap;
-        /* overflow: hidden; REMOVED - causing buttons to be cut off */
     }
     
     .share-btn {
@@ -86,10 +79,10 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         cursor: pointer;
         flex-shrink: 0;
         white-space: nowrap;
-        height: 40px; /* INCREASED from 36px to 40px */
+        height: 40px;
         display: flex;
         align-items: center;
-        justify-content: center; /* Added for better centering */
+        justify-content: center;
     }
     
     .post-stats {
@@ -99,8 +92,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         font-size: 0.875rem;
         color: #6b7280;
         flex-shrink: 0;
-        /* height: 50px; REMOVED - let it be auto height */
-        padding: 5px 0; /* Added padding for breathing room */
+        padding: 5px 0;
     }
     
     .like-btn-canvas {
@@ -108,9 +100,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         height: 40px;
         cursor: pointer;
         flex-shrink: 0;
-        display: block; /* FIXED: Ensure proper display */
-        margin: 0; /* Ensure no margin issues */
-        background-color: transparent; /* Ensure canvas background is transparent */
+        display: block;
+        margin: 0;
+        background-color: transparent;
     }
     
     .professional-btn {
@@ -282,14 +274,15 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         requestAnimationFrame(step);
     }
 
-    // --- FIXED STAR BUTTON CLASS - STAR VISIBLE ALWAYS ---
+    // --- IMPROVED STAR BUTTON CLASS WITH PROFESSIONAL LIKE COUNTING ---
     class CanvasLikeButton {
         constructor(canvas, postId, postElement) {
             this.canvas = canvas; 
-            this.postId = postId;
+            // FIXED: Ensure ID is always a String for localStorage matching
+            this.postId = String(postId);
             this.postElement = postElement;
             
-            // Get liked state from localStorage FIRST
+            // PROFESSIONAL FIX: Get liked state from localStorage FIRST
             const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
             this.isLiked = likedPosts.has(this.postId);
             
@@ -299,7 +292,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             // Initialize canvas context and dimensions
             this.initializeCanvas();
             
-            // Draw the star immediately - CRITICAL FIX
+            // Draw the star immediately
             this.drawStarNow();
             
             // Setup animation states
@@ -347,8 +340,9 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             };
         }
         
+        // This is for the STATIC state (initial load/reset)
         drawStarNow() {
-            // CRITICAL: Clear the canvas FIRST
+            // Clear the canvas FIRST - This is correct for static drawing
             this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
             
             // Save context state
@@ -405,13 +399,11 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             
             // Restore context
             this.ctx.restore();
-            
-            console.log(`Star drawn for post ${this.postId}, liked: ${this.isLiked}`);
         }
 
+        // This is for the ANIMATION loop (does NOT clearRect)
         drawStar(centerX, centerY, scale = 1, rotation = 0) {
-            // Clear canvas
-            this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
+            // DO NOT CLEAR RECT HERE - The animation loop handles clearing!
             
             this.ctx.save();
             this.ctx.translate(centerX, centerY);
@@ -467,15 +459,18 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         createParticles(x, y) {
             const particleCount = 15;
             const colors = ['#ec4899', '#38bdf8', '#facc15', '#4ade80'];
+            
             for (let i = 0; i < particleCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const speed = Math.random() * 2.5 + 1.5;
                 const radius = Math.random() * 2 + 1;
+                
                 this.particles.push({
-                    x, y,
+                    x: x,
+                    y: y,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
-                    radius,
+                    radius: radius,
                     color: colors[Math.floor(Math.random() * colors.length)],
                     opacity: 1
                 });
@@ -490,46 +485,66 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         animate() {
+            // Start animation loop if not already running
+            if (!this.isLooping) {
+                this.isLooping = true;
+            }
+            
+            // Clear the canvas ONCE per frame
             this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
             let isDirty = false;
 
+            // Handle circle animation (blue expanding circle)
             if (this.circleAnimation.isAnimating) {
                 this.circleAnimation.radius += 2.5;
                 this.circleAnimation.opacity -= 0.04;
                 if (this.circleAnimation.opacity <= 0) {
                     this.circleAnimation.isAnimating = false;
                 } else {
+                    this.ctx.save();
                     this.ctx.beginPath();
                     this.ctx.arc(this.buttonCenter.x, this.buttonCenter.y, this.circleAnimation.radius, 0, Math.PI * 2);
                     this.ctx.strokeStyle = `rgba(59, 130, 246, ${this.circleAnimation.opacity})`;
                     this.ctx.lineWidth = 2;
                     this.ctx.stroke();
+                    this.ctx.restore();
                     isDirty = true;
                 }
             }
 
+            // Handle particles animation
             if (this.particles.length > 0) {
-                this.particles.forEach((p, index) => {
+                // Process particles in reverse order for safe removal
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    
+                    // Update position
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.vy += 0.1;
-                    p.vx *= 0.99;
-                    p.opacity -= 0.02;
+                    p.vy += 0.1; // Gravity
+                    p.vx *= 0.99; // Friction
+                    p.opacity -= 0.02; // Fade
                     
+                    // Remove dead particles
                     if (p.opacity <= 0) {
-                        this.particles.splice(index, 1);
-                    } else {
-                        this.ctx.globalAlpha = p.opacity;
-                        this.ctx.fillStyle = p.color;
-                        this.ctx.beginPath();
-                        this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                        this.ctx.fill();
-                        this.ctx.globalAlpha = 1;
-                        isDirty = true;
+                        this.particles.splice(i, 1);
+                        continue;
                     }
-                });
+                    
+                    // Draw particle
+                    this.ctx.save();
+                    this.ctx.globalAlpha = p.opacity;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                    
+                    isDirty = true;
+                }
             }
 
+            // Handle star scale animation
             let targetScale = this.isHovered ? 1.1 : 1;
             if (this.starAnimation.isAnimating) {
                 isDirty = true;
@@ -555,6 +570,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 }
             }
 
+            // Handle star rotation animation
             const rotDiff = this.starAnimation.targetRotation - this.starAnimation.rotation;
             if (Math.abs(rotDiff) > 0.01) {
                 this.starAnimation.rotation += rotDiff * 0.15;
@@ -563,8 +579,11 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 this.starAnimation.rotation = this.starAnimation.targetRotation;
             }
 
+            // Draw the star with current animation values
+            // IMPORTANT: This now calls the function that DOES NOT clear the canvas
             this.drawStar(this.buttonCenter.x, this.buttonCenter.y, this.starAnimation.scale, this.starAnimation.rotation);
 
+            // Continue animation if there's still something to animate
             if (isDirty) {
                 requestAnimationFrame(() => this.animate());
             } else {
@@ -573,7 +592,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         setupEventListeners() {
-            // Remove any existing listeners
+            // Remove any existing listeners by replacing the canvas
             const newCanvas = this.canvas.cloneNode(false);
             
             // Copy important attributes and data
@@ -597,7 +616,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             // Redraw star immediately after replacing canvas
             this.drawStarNow();
             
-            // Click handler
+            // Click handler - prevents double counting
             this.canvas.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -637,35 +656,44 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         handleClick() {
+            // PROFESSIONAL FIX: Toggle liked state
             this.isLiked = !this.isLiked;
             this.canvas.dataset.liked = this.isLiked;
+            
+            // Trigger star animation
             this.starAnimation.isAnimating = true;
             this.starAnimation.direction = 'up';
             this.starAnimation.targetRotation += Math.PI * 2;
 
+            // Create particles and circle animation only when LIKING (not when unliking)
             if (this.isLiked) {
                 this.circleAnimation.isAnimating = true;
                 this.circleAnimation.radius = 0;
                 this.circleAnimation.opacity = 1;
                 this.createParticles(this.buttonCenter.x, this.buttonCenter.y);
+            } else {
+                // Clear particles when unliking
+                this.particles = [];
             }
             
+            // Start the animation loop
             this.startAnimationLoop();
             
-            // Update the like count
+            // Update the like count display
             const likeCountSpan = this.postElement.querySelector(`#like-count-${this.postId}`);
             if (likeCountSpan) {
                 let currentCount = parseInt(likeCountSpan.textContent.replace(/,/g, '')) || 0;
                 const newCount = this.isLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
                 animateCountUp(likeCountSpan, currentCount, newCount, 300);
                 
-                // Call toggleLike function
+                // Call toggleLike function to update server
                 if (window.toggleLike) {
                     window.toggleLike(this.postId, this, this.postElement);
                 }
             }
             
-            // Update localStorage
+            // PROFESSIONAL FIX: Update localStorage to track user likes
+            // Ensure we use STRING ID to prevent duplications/mismatches
             const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
             if (this.isLiked) {
                 likedPosts.add(this.postId);
@@ -684,15 +712,11 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             
             // Redraw immediately
             this.drawStarNow();
-            
-            console.log(`Reinitialized canvas for post ${this.postId}`);
         }
     }
 
     // --- CANVAS REINITIALIZATION FUNCTION ---
     function reinitializeCanvasButtons() {
-        console.log("Reinitializing canvas buttons and drawing stars...");
-        
         // Find all canvas elements
         const canvasElements = document.querySelectorAll('.like-btn-canvas');
         
@@ -716,14 +740,10 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             const canvasButton = new CanvasLikeButton(canvasEl, postId, postElement);
             postElement.canvasButtonInstance = canvasButton;
         });
-        
-        console.log(`Reinitialized ${canvasElements.length} canvas buttons`);
     }
 
     // --- FIX FOR LIVE BUTTON NOT WORKING AFTER TAB SWITCH ---
     function fixLiveButtonClickHandlers() {
-        console.log("Fixing live button click handlers...");
-        
         // Find all like buttons and ensure they have proper click handlers
         const likeButtons = document.querySelectorAll('.like-btn-canvas');
         likeButtons.forEach(canvas => {
@@ -786,8 +806,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         
         const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json'; 
         
-        // --- BUTTON RESET LOGIC (Crucial for Turbo) ---
-
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
         const INITIAL_LOAD_COUNT = 30; 
@@ -826,8 +844,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                         case 'link-button': htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="background-color: #2563eb; color: white; display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`; break;
                         case 'twitter': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'twitter-video': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-conversation="none"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
-                        case 'instagram': htmlBlock = `<div class("my-4")><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;
-                        case 'instagram-video': const igMatch = url.match(/\/(p|reel)\/([a-zA-Z0-9_-]+)/); if (igMatch && igMatch[2]) { htmlBlock = `<div class="instagram-video-container my-4"><iframe src="https://www.instagram.com/p/${igMatch[2]}/embed" frameborder="0" scrolling="no" allowtransparency="true"></iframe></div>${caption}</div>`; } else { htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; } break;
+                        case 'instagram': htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;
+                        case 'instagram-video': const igMatch = url.match(/\/(p|reel)\/([a-zA-Z0-9_-]+)/); if (igMatch && igMatch[2]) { htmlBlock = `<div class="instagram-video-container my-4"><iframe src="https://www.instagram.com/p/${igMatch[2]}/embed" frameborder="0" scrolling="no" allowtransparency="true"></iframe></div>${caption}</div>`; } else { htmlBlock = `<div class="my-4"><blockquote class("instagram-media") data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; } break;
                         case 'facebook': htmlBlock = `<div class="my-4"><div class="fb-post" data-href="${url}" data-width="auto" data-show-text="true"></div>${caption}</div>`; break;
                         case 'youtube': const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/); if (ytMatch && ytMatch[1]) { htmlBlock = `<div class="responsive-iframe-container responsive-iframe-container-16x9 my-4"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}?rel=0&modestbranding=1" allowfullscreen></iframe></div>${caption}`; } break;
                         case 'tiktok': htmlBlock = `<div class="my-4"><blockquote class="tiktok-embed" cite="${url}" data-embed-from="embed_page"> <section></section> </blockquote>${caption}</div>`; break;
@@ -874,12 +892,14 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
         
         async function toggleLike(postId, canvasButtonInstance, postElement) {
-            const postIdStr = postId.toString();
+            // FIXED: Force String conversion for ID
+            const postIdStr = String(postId);
             const action = canvasButtonInstance.isLiked ? 'increment' : 'decrement';
             const likeCountSpan = postElement.querySelector(`#like-count-${postId}`);
             
             fetch(`${ANALYTICS_WRITE_URL}?log=like&post_id=${postId}&action=${action}&client_id=${localStorage.getItem('anonClientId')}`, { method: 'GET', cache: 'no-store' })
                 .then(() => {
+                    // Update global cache (using String ID)
                     if (action === 'increment') {
                         likedPosts.add(postIdStr);
                     } else {
@@ -893,7 +913,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     // Revert the visual state
                     canvasButtonInstance.isLiked = !canvasButtonInstance.isLiked;
                     canvasButtonInstance.canvas.dataset.liked = canvasButtonInstance.isLiked;
-                    canvasButtonInstance.drawStarNow(); // Use drawStarNow instead of drawStar
+                    canvasButtonInstance.drawStarNow();
                 });
         }
         
@@ -910,7 +930,6 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             let pinnedBadgeHTML = postData.is_pinned ? `<span class="pinned-badge"><i class="fas fa-thumbtack fa-xs"></i><span class="ml-1.5">PINNED</span></span>` : '';
             const logoSVG = `<svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text><circle cx="100" cy="100" r="80" fill="none" stroke-width="2" class="rotating-circle"/></svg>`;
             const formattedDate = new Date(postData.timestamp).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-            const isLiked = likedPosts.has(postData.id.toString());
             
             const initialViewCount = postData.view_count || 0;
             const initialLikeCount = postData.like_count || 0;
@@ -924,7 +943,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             
             const canvasEl = postElement.querySelector(`#like-canvas-${postData.id}`);
             if (canvasEl) {
-                // Create canvas button instance - this will draw the star immediately
+                // Create canvas button instance - this will draw the star immediately with correct like state
                 const canvasButton = new CanvasLikeButton(canvasEl, postData.id, postElement);
                 postElement.canvasButtonInstance = canvasButton;
             }
@@ -972,7 +991,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
              const loadMoreBtn = document.getElementById('load-more-btn');
              if (!loadMoreBtn) return;
 
-             // 1. Recalculate how many posts are ALREADY visible
+             // Recalculate how many posts are ALREADY visible
              loadedPostsCount = document.querySelectorAll('#live-feed .live-post').length;
 
              if (isFullRefresh) {
@@ -987,8 +1006,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
              loadMoreBtn.disabled = true;
              loadMoreBtn.textContent = 'Loading...';
 
-             // 2. CRITICAL FIX: If allPosts is empty (lost from memory), FETCH IT AGAIN
-             // Do this BEFORE checking if loadedPostsCount >= allPosts.length
+             // CRITICAL FIX: If allPosts is empty (lost from memory), FETCH IT AGAIN
              if (allPosts.length === 0 || isFullRefresh) {
                  const fullFeed = await fetchFullFeed(isFullRefresh);
                  if (fullFeed.length === 0) {
@@ -1011,7 +1029,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 liveFeed.innerHTML = ''; 
             }
 
-            // 3. NOW it is safe to check if we have more to show
+            // NOW it is safe to check if we have more to show
             if (loadedPostsCount >= allPosts.length) {
                 loadMoreBtn.style.display = 'none'; 
                 archiveBtn.style.display = 'inline-block'; 
@@ -1036,7 +1054,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 }
             }
 
-            // 4. Update Button State again after render
+            // Update Button State again after render
             if (loadedPostsCount >= allPosts.length) {
                 loadMoreBtn.style.display = 'none'; archiveBtn.style.display = 'inline-block'; noMorePostsMsg.style.display = 'block';
             } else {
@@ -1074,8 +1092,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 else if (payload.eventType === 'UPDATE') {
                     const existingElement = document.getElementById(`post-${newPostData.id}`);
                     
-                    // --- FIX: Use 'is-pinned' (hyphen) to match your CSS class ---
-                    // This prevents page reload unless the actual pin status changes
+                    // Use 'is-pinned' (hyphen) to match your CSS class
                     const currentIsPinned = existingElement ? existingElement.classList.contains('is-pinned') : false;
                     const newIsPinned = newPostData.is_pinned;
 
@@ -1120,7 +1137,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 const postId = postEl.id.replace('post-', '');
                 const canvasEl = postEl.querySelector(`#like-canvas-${postId}`);
                 if (canvasEl) {
-                    // Create or restore canvas button instance - this will draw the star immediately
+                    // Create or restore canvas button instance - this will draw the star immediately with correct like state
                     const canvasButton = new CanvasLikeButton(canvasEl, postId, postEl);
                     postEl.canvasButtonInstance = canvasButton;
                 }
@@ -1182,18 +1199,16 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     // Run on Turbo navigation
     document.addEventListener('turbo:load', function() {
         console.log('Turbo:load - reinitializing canvas buttons and fixing click handlers');
-        // Small delay to ensure DOM is ready
         setTimeout(() => {
             reinitializeCanvasButtons();
             fixLiveButtonClickHandlers();
         }, 50);
     });
 
-    // Run when page becomes visible again (tab switching) - FIXED
+    // Run when page becomes visible again (tab switching)
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden) {
             console.log('Page visible - restoring canvas buttons and fixing click handlers');
-            // Give some time for the page to stabilize
             setTimeout(() => {
                 reinitializeCanvasButtons();
                 fixLiveButtonClickHandlers();
