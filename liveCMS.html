@@ -16,11 +16,22 @@
         /* --- GLASS UI & PANELS --- */
         .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        /* --- BLOCK STYLES (With Drag Handle Bar) --- */
+        /* --- STATIC INPUTS (Fixed - Non Draggable/Removable) --- */
+        .static-field-group { margin-bottom: 1.5rem; position: relative; }
+        .static-label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 0.5rem; }
+        .static-textarea, .static-input { 
+            transition: all 0.2s; 
+            background-color: #f8fafc; 
+            overflow: hidden; 
+            resize: none; 
+        }
+        .static-textarea:focus, .static-input:focus { background-color: #fff; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); border-color: #6366f1; }
+        
+        /* --- DYNAMIC BLOCK STYLES --- */
         .dynamic-content-block {
             border: 1px solid #e2e8f0; 
             border-radius: 0.75rem; 
-            padding: 3.5rem 1.25rem 1.5rem 1.25rem; /* Top padding for handle */
+            padding: 3.5rem 1.25rem 1.5rem 1.25rem; 
             margin-top: 1.5rem; 
             background-color: #ffffff; 
             position: relative;
@@ -29,7 +40,7 @@
         }
         .dynamic-content-block:hover { border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
 
-        /* Drag Handle - Top Bar */
+        /* Drag Handle */
         .drag-handle {
             position: absolute; top: 0; left: 0; width: 100%; height: 2.5rem; 
             display: flex; align-items: center; justify-content: center; 
@@ -40,7 +51,7 @@
         .drag-handle:hover { background-color: #f1f5f9; color: #64748b; cursor: grabbing; }
         .sortable-ghost { opacity: 0.4; background: #f8fafc; border: 2px dashed #cbd5e1; }
 
-        /* Delete Button - Centered in Top Bar */
+        /* Delete Button */
         .remove-block-btn { 
             position: absolute; top: 1.25rem; transform: translateY(-50%); right: 0.75rem; 
             width: 1.75rem; height: 1.75rem; border-radius: 50%; 
@@ -62,7 +73,7 @@
         .country-chip:hover { background-color: #d1fae5; transform: translateY(-1px); }
         .country-list-scroll { max-height: 220px; overflow-y: auto; padding: 4px; border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 0.5rem; }
 
-        /* --- TABLE STYLES (FULL PRO FEATURE SET) --- */
+        /* --- TABLE STYLES --- */
         .table-wrapper { overflow-x: auto; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-top: 10px; max-width: 100%; }
         .sheet-table { width: 100%; border-collapse: collapse; min-width: 600px; }
         .sheet-table th, .sheet-table td { border: 1px solid #e2e8f0; padding: 0; vertical-align: top; position: relative; }
@@ -74,30 +85,20 @@
         /* Table Toolbar */
         .table-toolbar-container { background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 4px; }
         .table-toolbar-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 4px; }
-        .table-toolbar-row:not(:last-child) { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; }
         .table-tool-group { display: flex; gap: 2px; border-right: 1px solid #cbd5e1; padding-right: 6px; margin-right: 2px; }
-        .table-tool-group:last-child { border-right: none; }
-        
         .tool-btn { padding: 6px 8px; border-radius: 4px; cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 4px; }
         .tool-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
-        .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
-
-        .color-picker-wrapper { position: relative; display: flex; align-items: center; }
-        input[type="color"] { width: 28px; height: 28px; padding: 0; border: none; background: none; cursor: pointer; }
         
-        /* Table Settings */
         .table-settings-container { margin-top: 10px; padding: 12px; background: #f1f5f9; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
         .table-caption-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; background: white; display: block; }
         .table-footer-options { display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b; }
-        .section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-right: 4px; }
-
+        
         /* --- GENERAL --- */
         textarea, input, select { transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
         textarea:focus, input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         .password-wrapper { position: relative; }
         .toggle-password { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
         
-        /* Modal Animation */
         #edit-modal.open { display: flex !important; }
         #edit-modal-content { animation: slideUp 0.3s ease-out forwards; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -166,30 +167,63 @@
                      <div class="glass-panel p-6 sm:p-8 rounded-2xl">
                          <h2 class="text-2xl font-extrabold mb-6 text-slate-900">New Update</h2>
                          
+                         <div class="static-field-group">
+                             <label class="static-label">Headline</label>
+                             <textarea id="static-headline" rows="1" class="static-textarea w-full p-3 border border-slate-300 rounded-lg font-bold text-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter main headline..."></textarea>
+                         </div>
+                         
+                         <div class="static-field-group">
+                             <label class="static-label">Main Content</label>
+                             <textarea id="static-content" rows="6" class="static-textarea w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[150px]" placeholder="Start writing your main update here..."></textarea>
+                         </div>
+
+                         <div class="static-field-group">
+                            <label class="static-label"><i class="fas fa-image mr-1"></i> Featured Image Link</label>
+                            <input type="text" id="static-image" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://example.com/image.jpg">
+                            <input type="text" id="static-image-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Image Caption / Description">
+                         </div>
+
+                         <div class="static-field-group">
+                            <label class="static-label"><i class="fab fa-twitter mr-1"></i> Twitter Video Link</label>
+                            <input type="text" id="static-twitter" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://x.com/user/status/123456...">
+                            <input type="text" id="static-twitter-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Video Caption">
+                         </div>
+
+                         <div class="static-field-group">
+                            <label class="static-label"><i class="fab fa-youtube mr-1"></i> YouTube Video Link</label>
+                            <input type="text" id="static-youtube" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://youtube.com/watch?v=...">
+                            <input type="text" id="static-youtube-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Video Caption">
+                         </div>
+
                          <div id="content-blocks-container"></div>
                          
                          <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-center gap-3">
                              <select id="block-type-select" class="p-2.5 border border-slate-300 rounded-lg bg-white shadow-sm min-w-[200px] text-sm">
-                                 <option value="headline">Headline</option>
-                                 <option value="content">Paragraph</option>
-                                 <option value="table">Table (Pro Spreadsheet)</option>
-                                 <option value="image">Image</option>
+                                 <option value="content">Paragraph (Extra)</option>
+                                 <option value="table">Table (Pro)</option>
+                                 <option value="image">Image (Extra)</option>
                                  <option value="quote">Quote</option>
                                  <option value="link-button">Link / Button</option>
+                                 <optgroup label="Social Media Embeds">
+                                     <option value="twitter">Twitter (X)</option>
+                                     <option value="twitter-video">Twitter (Video)</option>
+                                     <option value="instagram">Instagram</option>
+                                     <option value="instagram-video">Instagram (Video)</option>
+                                     <option value="facebook">Facebook</option>
+                                     <option value="tiktok">TikTok</option>
+                                     <option value="youtube">YouTube</option>
+                                     <option value="telegram">Telegram</option>
+                                     <option value="reddit">Reddit</option>
+                                     <option value="linkedin">LinkedIn</option>
+                                 </optgroup>
                                  <optgroup label="Live Widgets">
                                      <option value="live-score-embed">Live Score Embed</option>
                                      <option value="weather-embed">Weather Map</option>
                                      <option value="html-code">Custom HTML</option>
                                  </optgroup>
-                                 <optgroup label="Social Media">
-                                     <option value="twitter">Twitter</option>
-                                     <option value="instagram">Instagram</option>
-                                     <option value="youtube">YouTube</option>
-                                     <option value="telegram">Telegram</option>
-                                 </optgroup>
                              </select>
                              <button id="add-block-button" class="bg-slate-800 text-white font-bold py-2.5 px-6 rounded-lg hover:bg-slate-700 shadow-sm flex items-center gap-2">
-                                <i class="fas fa-plus"></i> Add
+                                <i class="fas fa-plus"></i> Add Block
                              </button>
                          </div>
 
@@ -274,7 +308,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- CONFIGURATION ---
             const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
             const { createClient } = supabase;
@@ -284,7 +317,6 @@
                 "Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Benin", "Brunei", "Burkina Faso", "Cameroon", "Chad", "Comoros", "Côte d'Ivoire", "Djibouti", "Egypt", "Gabon", "Gambia", "Guinea", "Guinea-Bissau", "Guyana", "Indonesia", "Iran", "Iraq", "Jordan", "Kazakhstan", "Kuwait", "Kyrgyzstan", "Lebanon", "Libya", "Malaysia", "Maldives", "Mali", "Mauritania", "Morocco", "Mozambique", "Niger", "Nigeria", "Oman", "Pakistan", "Palestine", "Qatar", "Saudi Arabia", "Senegal", "Sierra Leone", "Somalia", "Sudan", "Suriname", "Syria", "Tajikistan", "Togo", "Tunisia", "Turkey", "Turkmenistan", "Uganda", "United Arab Emirates", "Uzbekistan", "Yemen", "Kosovo"
             ];
 
-            // --- DOM ELEMENTS ---
             const authView = document.getElementById('auth-view'), editorView = document.getElementById('editor-view');
             const signInForm = document.getElementById('sign-in-form'), signUpForm = document.getElementById('sign-up-form');
             const logoutButton = document.getElementById('logout-button'), authMessage = document.getElementById('auth-message');
@@ -292,9 +324,23 @@
             const publishButton = document.getElementById('publish-button'), statusMessage = document.getElementById('status-message');
             const addBlockBtn = document.getElementById('add-block-button'), blockTypeSelect = document.getElementById('block-type-select');
             const tagsInput = document.getElementById('tags-input');
+            
+            // STATIC FIELD REFERENCES
+            const staticHeadline = document.getElementById('static-headline');
+            const staticContent = document.getElementById('static-content');
+            
+            // NEW STATIC FIELDS & CAPTIONS
+            const staticImage = document.getElementById('static-image');
+            const staticImageCaption = document.getElementById('static-image-caption');
+            
+            const staticTwitter = document.getElementById('static-twitter');
+            const staticTwitterCaption = document.getElementById('static-twitter-caption');
+            
+            const staticYoutube = document.getElementById('static-youtube');
+            const staticYoutubeCaption = document.getElementById('static-youtube-caption');
+            
             const recentPostsFeed = document.getElementById('recent-posts-feed');
             
-            // Modal Elements
             const editModal = document.getElementById('edit-modal');
             const editHeadline = document.getElementById('edit-headline'), editContent = document.getElementById('edit-content'), editTags = document.getElementById('edit-tags');
             const saveEditBtn = document.getElementById('save-edit-btn'), cancelEditBtn = document.getElementById('cancel-edit-btn');
@@ -304,7 +350,20 @@
             let activeContentEditable = null;
             let activeTableBlockId = null;
 
-            // --- TABLE HISTORY MANAGER ---
+            // --- AUTO-GROW FOR STATIC TEXTAREAS ---
+            function autoResize(el) {
+                el.style.height = 'auto';
+                el.style.height = el.scrollHeight + 'px';
+            }
+            staticHeadline.addEventListener('input', function() { autoResize(this); saveDraft(); });
+            staticContent.addEventListener('input', function() { autoResize(this); saveDraft(); });
+            
+            // Added listeners for new inputs to trigger autosave
+            [staticImage, staticImageCaption, staticTwitter, staticTwitterCaption, staticYoutube, staticYoutubeCaption].forEach(el => {
+                el.addEventListener('input', saveDraft);
+            });
+
+            // --- TABLE HISTORY ---
             const tableHistory = {}; 
             function initTableHistory(blockId) {
                 tableHistory[blockId] = { undo: [], redo: [], timeout: null };
@@ -318,16 +377,13 @@
                 const theadHtml = block.querySelector('.sheet-head').innerHTML;
                 const tbodyHtml = block.querySelector('.sheet-body').innerHTML;
                 const stateSnapshot = { thead: theadHtml, tbody: tbodyHtml };
-                if (isInitialState) {
-                    history.undo.push(stateSnapshot);
-                } else {
+                if (isInitialState) { history.undo.push(stateSnapshot); } 
+                else {
                     const lastState = history.undo[history.undo.length - 1];
                     if (lastState && lastState.thead === theadHtml && lastState.tbody === tbodyHtml) return;
-                    history.undo.push(stateSnapshot);
-                    history.redo = []; 
+                    history.undo.push(stateSnapshot); history.redo = []; 
                 }
-                updateHistoryButtons(blockId);
-                saveDraft(); // Sync with global auto-save
+                updateHistoryButtons(blockId); saveDraft();
             }
             function undoTable(blockId) {
                 const history = tableHistory[blockId];
@@ -338,8 +394,7 @@
                 const previous = history.undo[history.undo.length - 1];
                 applyTableState(blockId, previous);
                 block.classList.remove('restoring-state');
-                updateHistoryButtons(blockId);
-                saveDraft();
+                updateHistoryButtons(blockId); saveDraft();
             }
             function redoTable(blockId) {
                 const history = tableHistory[blockId];
@@ -350,8 +405,7 @@
                 history.undo.push(next);
                 applyTableState(blockId, next);
                 block.classList.remove('restoring-state');
-                updateHistoryButtons(blockId);
-                saveDraft();
+                updateHistoryButtons(blockId); saveDraft();
             }
             function applyTableState(blockId, state) {
                 const block = document.getElementById(blockId);
@@ -367,19 +421,17 @@
                 if (redoBtn) redoBtn.disabled = (history.redo.length === 0);
             }
 
-            // --- INITIALIZATION ---
+            // ONLY DYNAMIC BLOCKS ARE SORTABLE
             Sortable.create(blocksContainer, {
-                animation: 150,
-                handle: '.drag-handle',
-                ghostClass: 'sortable-ghost',
-                onEnd: saveDraft
+                animation: 150, handle: '.drag-handle', ghostClass: 'sortable-ghost', onEnd: saveDraft
             });
 
             renderCountries();
 
-            // --- AUTO-SAVE SYSTEM ---
+            // --- AUTO-SAVE ---
             function saveDraft() {
                 const blocks = [];
+                // Only saving dynamic blocks here
                 document.querySelectorAll('.dynamic-content-block').forEach(block => {
                     const type = block.dataset.blockType;
                     if (type === 'table') {
@@ -398,7 +450,21 @@
                         });
                     }
                 });
-                const draftData = { tags: tagsInput.value, blocks: blocks, timestamp: Date.now() };
+                
+                const draftData = { 
+                    staticHeadline: staticHeadline.value, 
+                    staticContent: staticContent.value,
+                    // SAVE NEW FIELDS
+                    staticImage: staticImage.value,
+                    staticImageCaption: staticImageCaption.value,
+                    staticTwitter: staticTwitter.value,
+                    staticTwitterCaption: staticTwitterCaption.value,
+                    staticYoutube: staticYoutube.value,
+                    staticYoutubeCaption: staticYoutubeCaption.value,
+                    tags: tagsInput.value, 
+                    blocks: blocks, 
+                    timestamp: Date.now() 
+                };
                 localStorage.setItem('cms_autosave_draft', JSON.stringify(draftData));
             }
 
@@ -408,32 +474,62 @@
                 try {
                     const draft = JSON.parse(saved);
                     blocksContainer.innerHTML = '';
-                    if(draft.tags) tagsInput.value = draft.tags;
+                    
+                    if (draft.staticHeadline) staticHeadline.value = draft.staticHeadline;
+                    if (draft.staticContent) staticContent.value = draft.staticContent;
+                    
+                    // LOAD NEW FIELDS
+                    if (draft.staticImage) staticImage.value = draft.staticImage;
+                    if (draft.staticImageCaption) staticImageCaption.value = draft.staticImageCaption;
+                    if (draft.staticTwitter) staticTwitter.value = draft.staticTwitter;
+                    if (draft.staticTwitterCaption) staticTwitterCaption.value = draft.staticTwitterCaption;
+                    if (draft.staticYoutube) staticYoutube.value = draft.staticYoutube;
+                    if (draft.staticYoutubeCaption) staticYoutubeCaption.value = draft.staticYoutubeCaption;
+
+                    if (draft.tags) tagsInput.value = draft.tags;
+
+                    autoResize(staticHeadline);
+                    autoResize(staticContent);
+
                     if (draft.blocks && draft.blocks.length > 0) {
                         draft.blocks.forEach(blockData => {
+                            // MIGRATION: Old drafts handling
+                            if (blockData.type === 'headline') {
+                                if (!staticHeadline.value) { staticHeadline.value = blockData.mainValue; autoResize(staticHeadline); }
+                                return;
+                            }
+                            if (blockData.type === 'content' && !staticContent.value) {
+                                staticContent.value = blockData.mainValue; autoResize(staticContent);
+                                return;
+                            }
+                            
                             createBlock(blockData.type, false, blockData);
                         });
-                    } else { resetEditor(); }
+                    }
                 } catch (e) { resetEditor(); }
             }
 
             function clearDraft() { localStorage.removeItem('cms_autosave_draft'); }
-            
-            // --- UPDATED RESET EDITOR FUNCTION (DEFAULT BLOCKS) ---
             function resetEditor() {
                 blocksContainer.innerHTML = '';
-                // The order you requested: headline, image, twitter, youtube, table
-                createBlock('headline');
-                createBlock('image');
-                createBlock('twitter');
-                createBlock('youtube');
-                createBlock('table');
+                staticHeadline.value = '';
+                staticContent.value = '';
                 
+                // RESET NEW FIELDS
+                staticImage.value = '';
+                staticImageCaption.value = '';
+                staticTwitter.value = '';
+                staticTwitterCaption.value = '';
+                staticYoutube.value = '';
+                staticYoutubeCaption.value = '';
+
+                staticHeadline.style.height = 'auto';
+                staticContent.style.height = 'auto';
                 tagsInput.value = 'BREAKING, TMP NEWS';
                 saveDraft();
             }
 
-            // --- BLOCK CREATION ---
+            // --- BLOCK CREATION (DYNAMIC ONLY) ---
             function createBlock(type, triggerSave = true, data = null) {
                 const blockId = `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 const blockWrapper = document.createElement('div');
@@ -441,6 +537,7 @@
                 blockWrapper.id = blockId;
                 blockWrapper.dataset.blockType = type;
                 
+                // Add Drag Handle and Remove Button
                 let innerHTML = `
                     <div class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-lines"></i></div>
                     <button class="remove-block-btn" onclick="this.closest('.dynamic-content-block').remove(); saveDraft();"><i class="fas fa-times"></i></button>
@@ -453,7 +550,6 @@
                 let mainVal = data ? data.mainValue : '';
 
                 if (type === 'table') {
-                    // FULL TABLE FEATURE SET
                     innerHTML += `
                         <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Data Table</h3>
                         <div class="setup-stage ${data ? 'hidden' : ''} flex gap-2 mb-4">
@@ -476,18 +572,16 @@
                                     </label>
                                 </div>
                             </div>
-
                             <div class="table-toolbar-container">
                                 <div class="table-toolbar-row">
                                     <div class="table-tool-group border-r-2 border-indigo-100 pr-4">
                                         <button id="btn-undo-${blockId}" class="tool-btn" onclick="tableCmd('undo', '${blockId}')" title="Undo"><i class="fas fa-undo"></i></button>
                                         <button id="btn-redo-${blockId}" class="tool-btn" onclick="tableCmd('redo', '${blockId}')" title="Redo"><i class="fas fa-redo"></i></button>
                                     </div>
-                                    <span class="section-label">Style</span>
                                     <div class="table-tool-group">
-                                        <button class="tool-btn" onclick="tableCmd('bold', '${blockId}')" title="Bold"><i class="fas fa-bold"></i></button>
-                                        <button class="tool-btn" onclick="tableCmd('italic', '${blockId}')" title="Italic"><i class="fas fa-italic"></i></button>
-                                        <button class="tool-btn" onclick="tableCmd('underline', '${blockId}')" title="Underline"><i class="fas fa-underline"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('bold', '${blockId}')"><i class="fas fa-bold"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('italic', '${blockId}')"><i class="fas fa-italic"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('underline', '${blockId}')"><i class="fas fa-underline"></i></button>
                                     </div>
                                     <div class="table-tool-group">
                                         <button class="tool-btn" onclick="tableCmd('justifyLeft', '${blockId}')"><i class="fas fa-align-left"></i></button>
@@ -497,7 +591,7 @@
                                     <div class="table-tool-group">
                                         <div class="color-picker-wrapper tool-btn">
                                             <i class="fas fa-fill-drip mr-1"></i>
-                                            <input type="color" onchange="tableCmd('hiliteColor','${blockId}',this.value)" title="Cell Background">
+                                            <input type="color" onchange="tableCmd('hiliteColor','${blockId}',this.value)">
                                         </div>
                                     </div>
                                     <div class="table-tool-group">
@@ -505,30 +599,22 @@
                                         <button class="tool-btn" onclick="tableCmd('formatBlock', '${blockId}', '<h2>')">H2</button>
                                     </div>
                                 </div>
-
                                 <div class="table-toolbar-row">
-                                    <span class="section-label">Structure</span>
                                     <div class="table-tool-group">
-                                        <button class="tool-btn text-indigo-600" onclick="tableCmd('addRow', '${blockId}')" title="Insert Row Below"><i class="fas fa-plus"></i> Row</button>
-                                        <button class="tool-btn text-indigo-600" onclick="tableCmd('addCol', '${blockId}')" title="Insert Column Right"><i class="fas fa-plus"></i> Col</button>
+                                        <button class="tool-btn text-indigo-600" onclick="tableCmd('addRow', '${blockId}')"><i class="fas fa-plus"></i> Row</button>
+                                        <button class="tool-btn text-indigo-600" onclick="tableCmd('addCol', '${blockId}')"><i class="fas fa-plus"></i> Col</button>
                                     </div>
                                     <div class="table-tool-group">
-                                        <button class="tool-btn" onclick="tableCmd('mergeRight', '${blockId}')" title="Merge Right"><i class="fas fa-arrows-alt-h"></i></button>
-                                        <button class="tool-btn" onclick="tableCmd('mergeDown', '${blockId}')" title="Merge Down"><i class="fas fa-arrows-alt-v"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('mergeRight', '${blockId}')"><i class="fas fa-arrows-alt-h"></i></button>
+                                        <button class="tool-btn" onclick="tableCmd('mergeDown', '${blockId}')"><i class="fas fa-arrows-alt-v"></i></button>
                                     </div>
                                     <div class="table-tool-group">
-                                        <button class="tool-btn text-red-500" onclick="tableCmd('delRow', '${blockId}')" title="Delete Row"><i class="fas fa-trash-alt"></i> Row</button>
-                                        <button class="tool-btn text-red-500" onclick="tableCmd('delCol', '${blockId}')" title="Delete Column"><i class="fas fa-trash-alt"></i> Col</button>
+                                        <button class="tool-btn text-red-500" onclick="tableCmd('delRow', '${blockId}')"><i class="fas fa-trash"></i></button>
+                                        <button class="tool-btn text-red-500" onclick="tableCmd('delCol', '${blockId}')"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="table-wrapper">
-                                <table class="sheet-table">
-                                    <thead class="sheet-head">${data ? data.thead : ''}</thead>
-                                    <tbody class="sheet-body">${data ? data.tbody : ''}</tbody>
-                                </table>
-                            </div>
+                            <div class="table-wrapper"><table class="sheet-table"><thead class="sheet-head">${data ? data.thead : ''}</thead><tbody class="sheet-body">${data ? data.tbody : ''}</tbody></table></div>
                         </div>
                     `;
                 } else {
@@ -536,18 +622,11 @@
                     innerHTML += `<h3 class="text-xs font-bold uppercase text-slate-400 mb-2">${title}</h3>`;
                     
                     switch (type) {
-                        case 'headline': 
-                            mainEl = `<textarea rows="1" class="${inputClass} font-bold text-xl" placeholder="Main Headline">${mainVal}</textarea>`; break;
-                        case 'content': 
-                            mainEl = `<textarea rows="4" class="${inputClass}" placeholder="Write update...">${mainVal}</textarea>`; break;
-                        case 'quote': 
-                            mainEl = `<textarea rows="2" class="${inputClass} italic" placeholder="Quote text...">${mainVal}</textarea>`; break;
-                        case 'image': 
-                            mainEl = `<input type="text" class="${inputClass}" placeholder="Image URL" value="${mainVal}">${descInput}`; break;
-                        case 'link-button':
-                            mainEl = `<input type="text" class="${inputClass}" placeholder="Link URL" value="${mainVal}">${descInput.replace('Caption', 'Button Label')}`; break;
-                        default: 
-                            mainEl = `<input type="text" class="${inputClass}" placeholder="Embed Code or URL" value="${mainVal}">${descInput}`; break;
+                        case 'content': mainEl = `<textarea rows="4" class="${inputClass}" placeholder="Write additional paragraph...">${mainVal}</textarea>`; break;
+                        case 'quote': mainEl = `<textarea rows="2" class="${inputClass} italic" placeholder="Quote text...">${mainVal}</textarea>`; break;
+                        case 'image': mainEl = `<input type="text" class="${inputClass}" placeholder="Image URL" value="${mainVal}">${descInput}`; break;
+                        case 'link-button': mainEl = `<input type="text" class="${inputClass}" placeholder="Link URL" value="${mainVal}">${descInput.replace('Caption', 'Button Label')}`; break;
+                        default: mainEl = `<input type="text" class="${inputClass}" placeholder="Embed Code or URL" value="${mainVal}">${descInput}`; break;
                     }
                     innerHTML += mainEl;
                 }
@@ -555,45 +634,34 @@
                 blockWrapper.innerHTML = innerHTML;
                 blocksContainer.appendChild(blockWrapper);
                 
-                // Event Listeners
                 blockWrapper.querySelectorAll('textarea, input').forEach(el => {
-                    if(el.tagName==='TEXTAREA') { el.addEventListener('input', () => { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }); }
+                    if(el.tagName==='TEXTAREA') { 
+                        el.addEventListener('input', function() { autoResize(this); });
+                        if(data) autoResize(el);
+                    }
                     el.addEventListener('input', saveDraft);
                 });
                 
-                // Track editable focus for table commands
                 if(type === 'table') {
-                    blockWrapper.addEventListener('focusin', (e) => {
-                        if(e.target.classList.contains('sheet-cell')) activeContentEditable = e.target;
-                    });
+                    blockWrapper.addEventListener('focusin', (e) => { if(e.target.classList.contains('sheet-cell')) activeContentEditable = e.target; });
                     initTableHistory(blockId);
                 }
 
                 if(triggerSave) saveDraft();
             }
 
-            // --- TABLE LOGIC (FULL SET) ---
+            // --- TABLE LOGIC ---
             window.createTable = function(id) {
                 const block = document.getElementById(id);
                 const rows = parseInt(block.querySelector('.row-input').value)||2;
                 const cols = parseInt(block.querySelector('.col-input').value)||2;
                 block.querySelector('.setup-stage').classList.add('hidden');
                 block.querySelector('.editor-stage').classList.remove('hidden');
-                
-                let headHtml = '<tr>';
-                for(let c=0; c<cols; c++) headHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Head"></div></td>`;
-                headHtml += '</tr>';
+                let headHtml = '<tr>'; for(let c=0; c<cols; c++) headHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Head"></div></td>`; headHtml += '</tr>';
                 block.querySelector('.sheet-head').innerHTML = headHtml;
-
-                let bodyHtml = '';
-                for(let r=1; r<rows; r++) {
-                    bodyHtml += '<tr>';
-                    for(let c=0; c<cols; c++) bodyHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div></td>`;
-                    bodyHtml += '</tr>';
-                }
+                let bodyHtml = ''; for(let r=1; r<rows; r++) { bodyHtml += '<tr>'; for(let c=0; c<cols; c++) bodyHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div></td>`; bodyHtml += '</tr>'; }
                 block.querySelector('.sheet-body').innerHTML = bodyHtml;
-                initTableHistory(id);
-                saveDraft();
+                initTableHistory(id); saveDraft();
             };
 
             window.tableCmd = function(cmd, id, arg=null) {
@@ -604,9 +672,7 @@
                 if(cmd === 'redo') { redoTable(id); return; }
                 if(cmd === 'openPaste') { activeTableBlockId = id; document.getElementById('paste-input').value=''; document.getElementById('paste-modal').classList.remove('hidden'); return; }
 
-                if(['addRow','addCol','delRow','delCol','mergeRight','mergeDown','bold','italic','underline','justifyLeft','justifyCenter','justifyRight','hiliteColor','formatBlock'].includes(cmd)) {
-                    saveTableState(id);
-                }
+                if(['addRow','addCol','delRow','delCol','mergeRight','mergeDown','bold','italic','underline','justifyLeft','justifyCenter','justifyRight','hiliteColor','formatBlock'].includes(cmd)) { saveTableState(id); }
 
                 if(['bold','italic','underline','justifyLeft','justifyCenter','justifyRight','removeFormat','formatBlock'].includes(cmd)) {
                     if(activeContentEditable && block.contains(activeContentEditable)) {
@@ -614,17 +680,11 @@
                         else document.execCommand(cmd, false, arg);
                         activeContentEditable.focus();
                     }
-                    saveDraft();
-                    return;
+                    saveDraft(); return;
                 }
 
-                if(cmd === 'hiliteColor') {
-                    if(activeContentEditable && block.contains(activeContentEditable)) activeContentEditable.parentElement.style.backgroundColor = arg;
-                    saveDraft();
-                    return;
-                }
+                if(cmd === 'hiliteColor') { if(activeContentEditable && block.contains(activeContentEditable)) activeContentEditable.parentElement.style.backgroundColor = arg; saveDraft(); return; }
 
-                // Merging Logic
                 if(cmd === 'mergeRight' || cmd === 'mergeDown') {
                     if(!activeContentEditable) return;
                     const td = activeContentEditable.parentElement;
@@ -648,21 +708,15 @@
                             }
                         }
                     }
-                    saveDraft();
-                    return;
+                    saveDraft(); return;
                 }
 
-                // Structure Logic
                 const tbody = block.querySelector('.sheet-body');
                 const headRow = block.querySelector('.sheet-head tr');
 
                 if (cmd === 'addRow') {
-                    const colCount = headRow.children.length; // Approximate
-                    const tr = document.createElement('tr');
-                    // Better logic: count cols based on first row
-                    let cols = 0;
-                    Array.from(headRow.children).forEach(td => cols += parseInt(td.getAttribute('colspan')||1));
-                    for(let i=0; i<cols; i++) tr.innerHTML += `<td><div contenteditable="true" class="sheet-cell"></div></td>`;
+                    let cols = 0; Array.from(headRow.children).forEach(td => cols += parseInt(td.getAttribute('colspan')||1));
+                    const tr = document.createElement('tr'); for(let i=0; i<cols; i++) tr.innerHTML += `<td><div contenteditable="true" class="sheet-cell"></div></td>`;
                     tbody.appendChild(tr);
                 }
                 if (cmd === 'addCol') {
@@ -670,14 +724,11 @@
                     tbody.querySelectorAll('tr').forEach(tr => tr.innerHTML += `<td><div contenteditable="true" class="sheet-cell"></div></td>`);
                 }
                 if (cmd === 'delRow') {
-                    if(activeContentEditable && block.contains(activeContentEditable)) {
-                        const tr = activeContentEditable.closest('tr');
-                        if(tr && tr.parentElement === tbody) tr.remove();
-                    } else if(tbody.children.length > 0) tbody.removeChild(tbody.lastElementChild);
+                    if(activeContentEditable && block.contains(activeContentEditable)) { const tr = activeContentEditable.closest('tr'); if(tr && tr.parentElement === tbody) tr.remove(); }
+                    else if(tbody.children.length > 0) tbody.removeChild(tbody.lastElementChild);
                 }
                 if (cmd === 'delCol') {
-                     // Simple removal from end. Complex removal requires index tracking which is verbose.
-                     if(headRow.children.length > 1) {
+                      if(headRow.children.length > 1) {
                         headRow.removeChild(headRow.lastElementChild);
                         tbody.querySelectorAll('tr').forEach(tr => { if(tr.children.length > 0) tr.removeChild(tr.lastElementChild); });
                     }
@@ -690,16 +741,13 @@
                 const rows = data.trim().split('\n');
                 let html = '';
                 rows.forEach(row => {
-                    html += '<tr>';
-                    row.split('\t').forEach(cell => html += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`);
-                    html += '</tr>';
+                    html += '<tr>'; row.split('\t').forEach(cell => html += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`); html += '</tr>';
                 });
                 document.querySelector(`#${activeTableBlockId} .sheet-body`).innerHTML = html;
                 document.getElementById('paste-modal').classList.add('hidden');
                 saveTableState(activeTableBlockId);
             };
 
-            // --- TAGS & COUNTRIES ---
             function renderCountries(filter = '') {
                 countryContainer.innerHTML = '';
                 oicCountriesList.filter(c => c.toLowerCase().includes(filter.toLowerCase())).forEach(c => {
@@ -715,11 +763,10 @@
                 chip.onclick = () => { tagsInput.value += `, ${chip.dataset.tag}`; saveDraft(); };
             });
 
-            // --- UI HANDLERS ---
             addBlockBtn.addEventListener('click', () => createBlock(blockTypeSelect.value));
+            
             tagsInput.addEventListener('input', saveDraft);
 
-            // Auth Toggles
             document.getElementById('show-sign-up').onclick = (e) => { e.preventDefault(); signInForm.classList.add('hidden'); signUpForm.classList.remove('hidden'); };
             document.getElementById('show-sign-in').onclick = (e) => { e.preventDefault(); signUpForm.classList.add('hidden'); signInForm.classList.remove('hidden'); };
             document.querySelectorAll('.toggle-password').forEach(icon => {
@@ -730,40 +777,63 @@
                 };
             });
 
-            // --- PUBLISH LOGIC ---
             publishButton.addEventListener('click', async () => {
                 publishButton.disabled = true;
                 document.getElementById("publish-spinner").classList.remove("hidden");
                 
+                const headline = staticHeadline.value.trim();
+                const mainContent = staticContent.value.trim();
                 const blocks = Array.from(document.querySelectorAll('.dynamic-content-block'));
-                let headline = '', bodyParts = [];
+                
+                // VALIDATION
+                if (!headline && !mainContent && blocks.length === 0 && !staticImage.value && !staticTwitter.value && !staticYoutube.value) {
+                    statusMessage.textContent = 'Post cannot be completely empty!'; 
+                    statusMessage.className = 'text-center mt-4 text-sm font-bold text-red-600';
+                    publishButton.disabled = false;
+                    document.getElementById("publish-spinner").classList.add("hidden");
+                    return;
+                }
 
+                let bodyParts = [];
+                // 1. ADD STATIC CONTENT
+                if (mainContent) bodyParts.push(mainContent);
+
+                // 2. ADD NEW STATIC LINKS (formatted with Captions)
+                if (staticImage.value.trim()) {
+                    const imgCap = staticImageCaption.value.trim() || 'Featured Image';
+                    bodyParts.push(`![${imgCap}](${staticImage.value.trim()})`);
+                }
+                if (staticTwitter.value.trim()) {
+                    const twitCap = staticTwitterCaption.value.trim() || 'Featured Video';
+                    bodyParts.push(`[twitter-video|${twitCap}](${staticTwitter.value.trim()})`);
+                }
+                if (staticYoutube.value.trim()) {
+                    const ytCap = staticYoutubeCaption.value.trim() || 'Featured Video';
+                    bodyParts.push(`[youtube|${ytCap}](${staticYoutube.value.trim()})`);
+                }
+
+                // 3. ADD DYNAMIC BLOCKS
                 blocks.forEach(block => {
                     const type = block.dataset.blockType;
-                    
                     if (type === 'table') {
                         const caption = block.querySelector('.table-caption-input').value;
                         const theme = block.querySelector('.table-theme').value;
                         const sortable = block.querySelector('.table-sortable').checked ? 'sortable' : '';
-                        
-                        const tableHTML = `<div class="table-container ${theme} ${sortable}">` + 
-                            (caption ? `<caption>${caption}</caption>` : '') +
-                            `<table class="live-table"><thead>${block.querySelector('.sheet-head').innerHTML}</thead>` +
-                            `<tbody>${block.querySelector('.sheet-body').innerHTML}</tbody></table></div>`;
+                        const tableHTML = `<div class="table-container ${theme} ${sortable}">` + (caption ? `<caption>${caption}</caption>` : '') + `<table class="live-table"><thead>${block.querySelector('.sheet-head').innerHTML}</thead>` + `<tbody>${block.querySelector('.sheet-body').innerHTML}</tbody></table></div>`;
                         bodyParts.push(tableHTML);
                     } else {
                         const inputs = block.querySelectorAll('textarea, input');
                         const val = inputs[0]?.value.trim();
                         const desc = inputs[1]?.value.trim();
                         if (!val) return;
-
                         switch (type) {
-                            case 'headline': headline = val; break;
                             case 'content': bodyParts.push(val); break;
                             case 'quote': bodyParts.push(`> ${val.replace(/\n/g, '\n> ')}`); break;
                             case 'image': bodyParts.push(`![${desc}](${val})`); break;
-                            case 'link-button': bodyParts.push(`[BUTTON: ${desc}](${val})`); break;
-                            default: bodyParts.push(`[EMBED: ${type}](${val})`); break;
+                            case 'link-button': bodyParts.push(`[link-button|${desc}](${val})`); break;
+                            case 'twitter': bodyParts.push(`[twitter|${desc}](${val})`); break;
+                            case 'twitter-video': bodyParts.push(`[twitter-video|${desc}](${val})`); break;
+                            default: bodyParts.push(`[${type}|${desc}](${val})`); break;
                         }
                     }
                 });
@@ -787,7 +857,6 @@
                 setTimeout(() => statusMessage.textContent = '', 3000);
             });
 
-            // --- AUTH LOGIC (SUPABASE) ---
             signInForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const { error } = await supabaseClient.auth.signInWithPassword({ 
@@ -820,7 +889,6 @@
                 }
             });
 
-            // Fetch Recent Posts Logic
             async function fetchRecentPosts() {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if(!user) return;
@@ -844,7 +912,6 @@
                 });
             }
 
-            // Global Event Delegation for Edit/Delete
             recentPostsFeed.addEventListener('click', async (e) => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (e.target.classList.contains('delete-btn')) {
@@ -866,7 +933,6 @@
                 }
             });
 
-            // Edit Modal Close/Save
             const closeEdit = () => { editModal.classList.add('hidden'); editModal.classList.remove('flex'); };
             document.getElementById('cancel-edit-btn').onclick = closeEdit;
             document.getElementById('cancel-edit-btn-x').onclick = closeEdit;
