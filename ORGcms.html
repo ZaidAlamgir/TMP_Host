@@ -15,65 +15,30 @@
         /* Glass Panel & General UI */
         .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        /* --- UPDATED BLOCK STYLES (Full Width Mobile Fix) --- */
-        
+        /* --- UPDATED BLOCK STYLES --- */
         .dynamic-content-block {
             border: 1px solid #e2e8f0; border-radius: 0.75rem; 
-            /* changed padding: large top padding for the bar, small side padding for full width */
             padding: 3.5rem 1.25rem 1.5rem 1.25rem; margin-top: 1.5rem; background-color: #ffffff; position: relative; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: all 0.2s ease;
         }
-        
         .dynamic-content-block:hover { border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
 
-        /* UPDATED: Drag Handle is now a Top Bar */
-        .drag-handle { position: absolute; top: 0; left: 0; width: 100%; /* Spans full width */ height: 2.5rem; /* Height of the header bar */ display: flex; 
-            align-items: center; justify-content: center; /* Centers the dots */
+        /* Drag Handle */
+        .drag-handle { position: absolute; top: 0; left: 0; width: 100%; height: 2.5rem; display: flex; 
+            align-items: center; justify-content: center;
             cursor: grab; color: #94a3b8; 
-            background-color: #f8fafc; /* Light grey background for the bar */
-            border-bottom: 1px solid #e2e8f0; /* Separator line */
-            border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners only */
-            z-index: 10;
+            background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;
+            border-radius: 0.75rem 0.75rem 0 0; z-index: 10;
         }
-        
-        .drag-handle:hover { 
-            background-color: #f1f5f9; 
-            color: #64748b; 
-            cursor: grabbing; 
-        }
+        .drag-handle:hover { background-color: #f1f5f9; color: #64748b; cursor: grabbing; }
 
-        /* UPDATED: Delete Button - Centered using Transform */
+        /* Delete Button */
         .remove-block-btn { 
-            position: absolute; 
-            
-            /* Vertical Centering Magic */
-            /* 1.25rem is exactly half of the header height (2.5rem) */
-            top: 1.25rem; 
-            transform: translateY(-50%); /* Pulls the button up exactly 50% to center it */
-            
-            right: 0.75rem; /* Slightly away from the right edge */
-            
-            width: 1.75rem; 
-            height: 1.75rem; 
-            border-radius: 50%; /* Perfect circle */
-            
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            
-            /* Reset defaults */
-            padding: 0;
-            margin: 0;
-            line-height: 1;
-            
-            color: #ef4444; 
-            cursor: pointer; 
-            transition: all 0.2s;
-            z-index: 20; 
+            position: absolute; top: 1.25rem; transform: translateY(-50%); right: 0.75rem; 
+            width: 1.75rem; height: 1.75rem; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            padding: 0; margin: 0; line-height: 1; color: #ef4444; cursor: pointer; transition: all 0.2s; z-index: 20; 
         }
-        
-        .remove-block-btn:hover { 
-            background-color: #fee2e2; 
-        }
+        .remove-block-btn:hover { background-color: #fee2e2; }
         .sortable-ghost { opacity: 0.4; background: #f8fafc; border: 2px dashed #cbd5e1; }
 
         /* Chips */
@@ -90,17 +55,10 @@
         .country-chip:hover { background-color: #d1fae5; transform: translateY(-1px); }
         .country-list-scroll { max-height: 220px; overflow-y: auto; padding: 4px; border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 0.5rem; }
 
-        /* Inputs - FIXED: Removed height from transition to stop jumping */
+        /* Inputs */
         textarea, input, select { transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
         textarea:focus, input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         
-        .remove-block-btn { 
-            position: absolute; top: 1rem; right: 1rem; width: 2rem; height: 2rem;
-            display: flex; align-items: center; justify-content: center; border-radius: 50%;
-            color: #94a3b8; cursor: pointer; transition: all 0.2s;
-        }
-        .remove-block-btn:hover { background-color: #fee2e2; color: #ef4444; }
-
         /* Modals */
         .link-modal-overlay, .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -128,46 +86,25 @@
 
         /* --- TABLE FEATURE STYLES --- */
         .table-wrapper { 
-            overflow-x: auto; 
-            background: white; 
-            border: 1px solid #e2e8f0; 
-            border-radius: 0.5rem; 
-            margin-top: 10px; 
-            max-width: 100%; 
+            overflow-x: auto; background: white; border: 1px solid #e2e8f0; 
+            border-radius: 0.5rem; margin-top: 10px; max-width: 100%; 
         }
-        .sheet-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 600px; /* Force scroll on mobile */
-        }
+        .sheet-table { width: 100%; border-collapse: collapse; min-width: 600px; }
         .sheet-table th, .sheet-table td { border: 1px solid #e2e8f0; padding: 0; vertical-align: top; position: relative; }
         .sheet-table thead td { background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; }
         
         .sheet-cell { 
-            width: 100%; 
-            outline: none; 
-            padding: 12px; 
-            min-height: 44px; 
-            font-size: 0.9rem; 
-            color: #334155; 
-            cursor: text;
+            width: 100%; outline: none; padding: 12px; min-height: 44px; 
+            font-size: 0.9rem; color: #334155; cursor: text;
         }
         .sheet-cell:focus { background-color: rgba(99, 102, 241, 0.05); box-shadow: inset 0 0 0 2px #6366f1; }
         .sheet-cell:empty:before { content: attr(data-placeholder); color: #94a3b8; }
         .sheet-table thead .sheet-cell { font-weight: 700; color: #1e293b; text-align: center; }
         
         /* Table Toolbar */
-        .table-toolbar-container {
-            background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 4px;
-        }
-        .table-toolbar-row {
-            display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 4px;
-        }
-        .table-toolbar-row:not(:last-child) {
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 8px;
-            margin-bottom: 4px;
-        }
+        .table-toolbar-container { background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 4px; }
+        .table-toolbar-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 4px; }
+        .table-toolbar-row:not(:last-child) { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; }
         .table-tool-group { display: flex; gap: 2px; border-right: 1px solid #cbd5e1; padding-right: 6px; margin-right: 2px; }
         .table-tool-group:last-child { border-right: none; }
         
@@ -183,30 +120,24 @@
         input[type="color"] { width: 28px; height: 28px; padding: 0; border: none; background: none; cursor: pointer; }
         
         /* Table Settings */
-        .table-settings-container {
-            margin-top: 10px;
-            padding: 12px;
-            background: #f1f5f9;
-            border-radius: 0.5rem;
-            border: 1px solid #e2e8f0;
-        }
-        .table-caption-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            margin-bottom: 10px; 
-            font-size: 0.9rem;
-            background: white;
-            display: block;
-        }
-        .table-footer-options {
-            display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b;
-        }
+        .table-settings-container { margin-top: 10px; padding: 12px; background: #f1f5f9; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
+        .table-caption-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; background: white; display: block; }
+        .table-footer-options { display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b; }
         .section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-right: 4px; }
+        
+        /* Auto-save Indicator */
+        .save-indicator {
+            position: fixed; bottom: 20px; right: 20px; background: #ffffff;
+            padding: 8px 16px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600;
+            color: #64748b; opacity: 0; transition: opacity 0.3s; z-index: 100;
+        }
+        .save-indicator.visible { opacity: 1; }
     </style>
 </head>
 <body class="text-slate-800 min-h-screen">
+
+    <div id="save-indicator" class="save-indicator"><i class="fas fa-check-circle text-emerald-500 mr-2"></i>Draft Saved Locally</div>
 
     <div id="app" class="w-full max-w-5xl mx-auto p-4 sm:p-6 md:p-8">
 
@@ -410,8 +341,8 @@
 
     <div id="paste-modal" class="modal-overlay">
         <div class="modal-content">
-             <h3 class="text-xl font-bold mb-2">Paste from Excel/Sheets</h3>
-             <p class="text-xs text-slate-500 mb-4">Copy your table cells and paste them here.</p>
+             <h3 class="text-xl font-bold mb-2">Import Table Data</h3>
+             <p class="text-xs text-slate-500 mb-4">Paste from Excel (Tabs) OR Pipe Separated Values (e.g. Item | Cost | Desc)</p>
              <textarea id="paste-input" class="w-full h-32 border p-2 rounded mb-4 text-xs font-mono" placeholder="Paste data here..."></textarea>
              <div class="link-modal-buttons">
                  <button onclick="document.getElementById('paste-modal').classList.remove('visible')" class="link-modal-btn secondary">Cancel</button>
@@ -459,27 +390,23 @@
         const countrySearchInput = document.getElementById('country-search-input');
         const publishText = document.getElementById('publish-text');
         const publishSpinner = document.getElementById('publish-spinner');
+        const saveIndicator = document.getElementById('save-indicator');
 
         // Global State
         let accessToken = null, activeTextarea = null, activeContentEditable = null, activeTableBlockId = null;
         let selectionStart = 0, selectionEnd = 0;
+        let saveTimeout = null;
 
         // ==========================================
         // 2. HELPER FUNCTIONS
         // ==========================================
         
-        // FIXED: Added scroll preservation logic
         const autoExpandTextarea = (textarea) => {
             if (!textarea) return;
-            
-            // Save scroll position
             const currentScrollY = window.scrollY;
             const currentScrollX = window.scrollX;
-
             textarea.style.height = 'auto';
             textarea.style.height = `${textarea.scrollHeight}px`;
-
-            // Restore scroll position
             window.scrollTo(currentScrollX, currentScrollY);
         };
 
@@ -501,7 +428,7 @@
             });
         }
 
-        // --- HISTORY MANAGER ---
+        // --- HISTORY MANAGER (Table) ---
         const tableHistory = {}; 
         
         function initTableHistory(blockId) {
@@ -528,6 +455,7 @@
                 history.redo = []; 
             }
             updateHistoryButtons(blockId);
+            triggerSave(); // LocalStorage
         }
 
         function undoTable(blockId) {
@@ -540,6 +468,7 @@
             applyTableState(blockId, previous);
             block.classList.remove('restoring-state');
             updateHistoryButtons(blockId);
+            triggerSave();
         }
 
         function redoTable(blockId) {
@@ -552,6 +481,7 @@
             applyTableState(blockId, next);
             block.classList.remove('restoring-state');
             updateHistoryButtons(blockId);
+            triggerSave();
         }
 
         function applyTableState(blockId, state) {
@@ -569,7 +499,7 @@
             if (redoBtn) redoBtn.disabled = (history.redo.length === 0);
         }
 
-        function debouncedSave(blockId) {
+        function debouncedTableSave(blockId) {
             if (tableHistory[blockId]) {
                 clearTimeout(tableHistory[blockId].timeout);
                 tableHistory[blockId].timeout = setTimeout(() => {
@@ -600,21 +530,123 @@
             activeTextarea = null;
         }
         const showLogin = () => { loginView.classList.remove('hidden'); editorView.classList.add('hidden'); };
-        const showEditor = () => { loginView.classList.add('hidden'); editorView.classList.remove('hidden'); };
-
+        const showEditor = () => { 
+            loginView.classList.add('hidden'); 
+            editorView.classList.remove('hidden'); 
+            restoreDraft(); // RESTORE DATA ON LOAD
+        };
 
         // ==========================================
-        // 3. MAIN LOGIC (Auth & Init)
+        // 3. PERSISTENCE LAYER (AUTO SAVE/LOAD)
+        // ==========================================
+        function triggerSave() {
+            saveIndicator.classList.remove('visible');
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveDraft, 1000);
+        }
+
+        function saveDraft() {
+            const draft = {
+                timestamp: Date.now(),
+                repo: document.getElementById('target-repo-select').value,
+                headline: document.getElementById('article-headline').value,
+                subheadline: document.getElementById('article-subheadline').value,
+                mainImageUrl: document.getElementById('article-main-image-url').value,
+                author: document.getElementById('article-author').value,
+                mainImageDesc: document.getElementById('article-main-image-desc').value,
+                p1: document.getElementById('article-p1').value,
+                tags: document.getElementById('article-tags').value,
+                categories: document.getElementById('article-categories').value,
+                blocks: []
+            };
+
+            document.querySelectorAll('.dynamic-content-block').forEach(block => {
+                const type = block.dataset.blockType;
+                const blockData = { type: type, id: block.id };
+                
+                if (type === 'table') {
+                    // Check if table is created or in setup stage
+                    const editorStage = block.querySelector('.editor-stage');
+                    if (!editorStage.classList.contains('hidden')) {
+                         blockData.caption = block.querySelector('.table-caption-input').value;
+                         blockData.thead = block.querySelector('.sheet-head').innerHTML;
+                         blockData.tbody = block.querySelector('.sheet-body').innerHTML;
+                         blockData.theme = block.querySelector('.table-theme').value;
+                         blockData.isTableReady = true;
+                    } else {
+                        blockData.isTableReady = false;
+                    }
+                } else if (['headline-h2','headline-h3','headline-h4'].includes(type)) {
+                    blockData.value = block.querySelector('.dynamic-headline').value;
+                } else if (type === 'paragraph') {
+                    blockData.value = block.querySelector('.dynamic-paragraph').value;
+                } else if (type === 'quote') {
+                    blockData.value = block.querySelector('.dynamic-quote').value;
+                } else if (type === 'image') {
+                    blockData.url = block.querySelector('.dynamic-image-url').value;
+                    blockData.desc = block.querySelector('.dynamic-image-desc').value;
+                } else {
+                    // Social
+                    blockData.url = block.querySelector('.dynamic-social-url').value;
+                    blockData.caption = block.querySelector('.dynamic-social-caption').value;
+                }
+                draft.blocks.push(blockData);
+            });
+
+            localStorage.setItem('tmp_cms_draft', JSON.stringify(draft));
+            
+            // Show saved indicator
+            saveIndicator.classList.add('visible');
+            setTimeout(() => saveIndicator.classList.remove('visible'), 2000);
+        }
+
+        function restoreDraft() {
+            const saved = localStorage.getItem('tmp_cms_draft');
+            if (!saved) return;
+
+            try {
+                const draft = JSON.parse(saved);
+                document.getElementById('target-repo-select').value = draft.repo || 'tmp-articles-world-politics';
+                document.getElementById('article-headline').value = draft.headline || '';
+                document.getElementById('article-subheadline').value = draft.subheadline || '';
+                document.getElementById('article-main-image-url').value = draft.mainImageUrl || '';
+                document.getElementById('article-author').value = draft.author || 'TMP Staff';
+                document.getElementById('article-main-image-desc').value = draft.mainImageDesc || '';
+                document.getElementById('article-p1').value = draft.p1 || '';
+                document.getElementById('article-tags').value = draft.tags || '';
+                document.getElementById('article-categories').value = draft.categories || '';
+
+                // Restore Blocks
+                dynamicBlocksContainer.innerHTML = '';
+                if (draft.blocks && draft.blocks.length > 0) {
+                    draft.blocks.forEach(blockData => {
+                        addBlockToDOM(blockData.type, blockData.id, blockData);
+                    });
+                }
+                
+                // Expand textareas
+                document.querySelectorAll('textarea').forEach(autoExpandTextarea);
+
+            } catch (e) {
+                console.error("Failed to restore draft", e);
+            }
+        }
+
+        function clearDraft() {
+            localStorage.removeItem('tmp_cms_draft');
+        }
+
+        // ==========================================
+        // 4. MAIN LOGIC (Auth & Init)
         // ==========================================
         window.onload = async () => {
             
-            // --- ADDED: SORTABLE INITIALIZATION ---
             Sortable.create(dynamicBlocksContainer, {
                 animation: 150,
                 handle: '.drag-handle',
-                ghostClass: 'sortable-ghost'
+                ghostClass: 'sortable-ghost',
+                onEnd: function() { triggerSave(); } // Save on reorder
             });
-            // --------------------------------------
 
             renderCountries();
             const urlParams = new URLSearchParams(window.location.search);
@@ -674,15 +706,21 @@
             showLogin();
         });
 
-        // --- GLOBAL EVENTS ---
+        // --- GLOBAL EVENTS (Auto-Save Hooks) ---
         editorView.addEventListener('input', e => {
+            // Auto expand textareas
             if (e.target.tagName.toLowerCase() === 'textarea') {
                 autoExpandTextarea(e.target);
             }
+            // Trigger Save on any input change
+            triggerSave(); 
         });
+        
+        // Save on select changes too
+        editorView.addEventListener('change', triggerSave);
 
         editorView.addEventListener('mouseup', (e) => {
-            if (e.target.classList.contains('sheet-cell')) return; // Ignore table cells
+            if (e.target.classList.contains('sheet-cell')) return;
             if (e.target.tagName.toLowerCase() === 'textarea') {
                 const textarea = e.target;
                 if (textarea.selectionStart !== textarea.selectionEnd) {
@@ -699,7 +737,7 @@
                 activeContentEditable = e.target;
                 const block = e.target.closest('.dynamic-content-block');
                 if (block && block.dataset.blockType === 'table') {
-                    debouncedSave(block.id);
+                    debouncedTableSave(block.id);
                 }
             }
         });
@@ -719,6 +757,7 @@
                     e.target.textContent = "Added!";
                     e.target.style.backgroundColor = "#10b981"; e.target.style.color = "white";
                     setTimeout(() => { e.target.textContent = originalText; e.target.style.backgroundColor = ""; e.target.style.color = ""; }, 800);
+                    triggerSave();
                 }
             }
         });
@@ -731,6 +770,7 @@
                     const selectedText = activeTextarea.value.substring(selectionStart, selectionEnd);
                     const linkMarkdown = `[${selectedText}](${url})`;
                     activeTextarea.setRangeText(linkMarkdown, selectionStart, selectionEnd, 'select');
+                    triggerSave();
                 }
                 hideLinkModal();
             } else if (activeContentEditable) {
@@ -738,6 +778,7 @@
                 if(url) {
                     activeContentEditable.focus();
                     document.execCommand('createLink', false, url);
+                    triggerSave();
                 }
                 hideLinkModal();
             }
@@ -751,6 +792,7 @@
                 const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
                 if (!currentTags.includes(newTag)) {
                     tagsInput.value = tagsInput.value.trim() === '' ? newTag : `${tagsInput.value.trim()}, ${newTag}`;
+                    triggerSave();
                 }
             }
         });
@@ -762,13 +804,14 @@
                 const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
                 if (!currentCats.includes(newCat)) {
                     categoriesInput.value = categoriesInput.value.trim() === '' ? newCat : `${categoriesInput.value.trim()}, ${newCat}`;
+                    triggerSave();
                 }
             }
         });
 
 
         // ==========================================
-        // 4. TABLE LOGIC (FIXED)
+        // 5. TABLE LOGIC (FIXED)
         // ==========================================
         window.createTable = function(id) {
             const block = document.getElementById(id);
@@ -777,8 +820,6 @@
             block.querySelector('.setup-stage').classList.add('hidden');
             block.querySelector('.editor-stage').classList.remove('hidden');
             
-            // --- FIX: Separate Head and Body ---
-            // 1. Create Header
             const thead = block.querySelector('.sheet-head');
             let headHtml = '<tr>';
             for(let c=0; c<cols; c++) {
@@ -787,7 +828,6 @@
             headHtml += '</tr>';
             thead.innerHTML = headHtml;
 
-            // 2. Create Body (Loop starts at 1 because row 0 is header)
             const tbody = block.querySelector('.sheet-body');
             let bodyHtml = '';
             for(let r=1; r<rows; r++) {
@@ -799,24 +839,21 @@
             }
             tbody.innerHTML = bodyHtml;
 
-            // Init history
             initTableHistory(id);
+            triggerSave();
         };
 
         window.tableCmd = function(cmd, id, arg=null) {
             const block = document.getElementById(id);
             if(!block) return;
 
-            // Undo/Redo
             if(cmd === 'undo') { undoTable(id); return; }
             if(cmd === 'redo') { redoTable(id); return; }
 
-            // Save State Before Action
             if(['addRow','addCol','delRow','delCol','mergeRight','mergeDown','bold','italic','underline','justifyLeft','justifyCenter','justifyRight','hiliteColor','formatBlock'].includes(cmd)) {
                 saveTableState(id);
             }
 
-            // Formatting
             if(['bold','italic','underline','justifyLeft','justifyCenter','justifyRight','removeFormat','formatBlock'].includes(cmd)) {
                 if(activeContentEditable && block.contains(activeContentEditable)) {
                     if(cmd.startsWith('justify')) {
@@ -826,18 +863,16 @@
                     }
                     activeContentEditable.focus();
                 } else alert("Click a cell first.");
-                return;
+                triggerSave(); return;
             }
 
-            // Color
             if(cmd === 'hiliteColor') {
                 if(activeContentEditable && block.contains(activeContentEditable)) {
                     activeContentEditable.parentElement.style.backgroundColor = arg;
                 }
-                return;
+                triggerSave(); return;
             }
 
-            // Merge
             if(cmd === 'mergeRight') {
                 if(!activeContentEditable) return alert("Click cell to merge.");
                 const td = activeContentEditable.parentElement;
@@ -850,7 +885,7 @@
                     if(nextContent) activeContentEditable.innerHTML += ' ' + nextContent;
                     nextTd.remove();
                 }
-                return;
+                triggerSave(); return;
             }
             if(cmd === 'mergeDown') {
                 if(!activeContentEditable) return alert("Click cell to merge.");
@@ -869,17 +904,15 @@
                         targetTd.remove();
                     }
                 }
-                return;
+                triggerSave(); return;
             }
 
-            // Import
             if(cmd === 'openPaste') {
                 activeTableBlockId = id;
                 document.getElementById('paste-input').value = '';
                 pasteModal.classList.add('visible');
             }
 
-            // Structure
             if (cmd === 'addRow') {
                 const tbody = block.querySelector('.sheet-body');
                 const colInput = block.querySelector('.col-input');
@@ -900,34 +933,34 @@
 
                 if(targetRow) targetRow.after(newRow); 
                 else tbody.appendChild(newRow);
+                triggerSave();
             }
             else if (cmd === 'addCol') {
-                const headRow = block.querySelector('.sheet-head tr'); // Now this will find the row
+                const headRow = block.querySelector('.sheet-head tr'); 
                 const tbody = block.querySelector('.sheet-body');
                 
-                // Add to Header
                 const newTh = document.createElement('td');
                 newTh.innerHTML = `<div contenteditable="true" class="sheet-cell" data-placeholder="Header"></div>`;
                 headRow.appendChild(newTh);
                 
-                // Add to Body
                 tbody.querySelectorAll('tr').forEach(tr => {
                     const td = document.createElement('td');
                     td.innerHTML = `<div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div>`;
                     tr.appendChild(td);
                 });
 
-                // Update input
                 const colInput = block.querySelector('.col-input');
                 if(colInput) colInput.value = parseInt(colInput.value) + 1;
+                triggerSave();
             }
             else if (cmd === 'delRow') {
                 const tbody = block.querySelector('.sheet-body');
                 if(activeContentEditable && block.contains(activeContentEditable)) {
                     const tr = activeContentEditable.closest('tr');
-                    if(tr && tr.parentElement === tbody) { tr.remove(); return; }
+                    if(tr && tr.parentElement === tbody) { tr.remove(); triggerSave(); return; }
                 }
                 if(tbody.children.length > 0) tbody.removeChild(tbody.lastElementChild);
+                triggerSave();
             }
             else if (cmd === 'delCol') {
                 const allRows = block.querySelectorAll('tr'); 
@@ -936,64 +969,93 @@
                     const colInput = block.querySelector('.col-input');
                     if(colInput) colInput.value = Math.max(1, parseInt(colInput.value) - 1);
                 }
+                triggerSave();
             }
         };
 
-        // Handle Paste Import
+        // Handle Paste Import with Pipe Support
         confirmPasteBtn.onclick = () => {
             if(!activeTableBlockId) return;
             saveTableState(activeTableBlockId);
-            const data = document.getElementById('paste-input').value;
-            const rows = data.trim().split('\n');
-            let html = '';
-            rows.forEach(row => {
-                html += '<tr>';
-                const cells = row.split('\t'); 
-                cells.forEach(cell => {
-                    html += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`;
-                });
-                html += '</tr>';
+            const data = document.getElementById('paste-input').value.trim();
+            if(!data) return;
+
+            // Check if data is pipe separated
+            const isPipe = data.includes('|');
+            const rows = data.split('\n');
+            
+            // Build Head
+            let headHtml = '<tr>';
+            const headCells = rows[0].split(isPipe ? '|' : '\t');
+            headCells.forEach(cell => {
+                headHtml += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`;
             });
-            document.querySelector(`#${activeTableBlockId} .sheet-body`).innerHTML = html;
+            headHtml += '</tr>';
+
+            // Build Body
+            let bodyHtml = '';
+            for(let i = 1; i < rows.length; i++) {
+                bodyHtml += '<tr>';
+                const cells = rows[i].split(isPipe ? '|' : '\t'); 
+                cells.forEach(cell => {
+                    bodyHtml += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`;
+                });
+                bodyHtml += '</tr>';
+            }
+
+            const block = document.getElementById(activeTableBlockId);
+            block.querySelector('.sheet-head').innerHTML = headHtml;
+            block.querySelector('.sheet-body').innerHTML = bodyHtml;
+            
+            // Switch to editor view if not already
+            block.querySelector('.setup-stage').classList.add('hidden');
+            block.querySelector('.editor-stage').classList.remove('hidden');
+
+            // Update col count input just in case
+            block.querySelector('.col-input').value = headCells.length;
+            initTableHistory(activeTableBlockId);
+            
             pasteModal.classList.remove('visible');
+            triggerSave();
         };
 
         // --- BLOCK MANAGEMENT ---
-        addBlockButton.addEventListener('click', () => {
-            const blockType = blockTypeSelect.value;
-            const blockId = `dynamic-block-${Date.now()}`;
-            const newBlock = document.createElement('div');
-            newBlock.className = 'dynamic-content-block';
-            newBlock.dataset.blockType = blockType;
-            newBlock.id = blockId;
-            let blockTitle = blockType.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        
+        // Refactored to allow generating HTML with data
+        function createBlockHTML(blockType, blockId, data = {}) {
+             let blockTitle = blockType.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             if (blockType.startsWith('headline')) {
                 blockTitle = `Headline (${blockType.slice(-2).toUpperCase()})`;
             }
             
-            // --- MODIFIED: ADDED DRAG HANDLE TO HTML ---
             let blockHTML = `
                 <div class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></div>
-                <button onclick="document.getElementById('${blockId}').remove()" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button>
+                <button onclick="document.getElementById('${blockId}').remove(); triggerSave();" class="remove-block-btn" title="Remove block"><i class="fas fa-times"></i></button>
             `;
-            // -------------------------------------------
             
             if (blockType === 'table') {
-                 // Added flex-wrap for mobile responsiveness
+                 const isReady = data.isTableReady;
+                 const setupClass = isReady ? 'hidden' : '';
+                 const editorClass = isReady ? '' : 'hidden';
+                 
                  blockHTML += `
                     <h3 class="text-sm font-bold uppercase text-slate-400 mb-3">Data Table</h3>
-                    <div class="setup-stage flex flex-wrap items-end gap-4 mb-4">
+                    <div class="setup-stage flex flex-wrap items-end gap-4 mb-4 ${setupClass}">
                         <div><label class="block text-xs text-slate-500 mb-1">Rows</label><input type="number" class="row-input border border-slate-300 p-2 rounded w-20 text-sm" value="3"></div>
                         <div><label class="block text-xs text-slate-500 mb-1">Cols</label><input type="number" class="col-input border border-slate-300 p-2 rounded w-20 text-sm" value="3"></div>
                         <button onclick="createTable('${blockId}')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm h-10 font-medium">Create</button>
-                        <button onclick="tableCmd('openPaste','${blockId}')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 text-sm h-10 font-medium ml-2"><i class="fas fa-file-import"></i> Paste Excel</button>
+                        <button onclick="tableCmd('openPaste','${blockId}')" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 text-sm h-10 font-medium ml-2"><i class="fas fa-file-import"></i> Paste Excel/Pipe</button>
                     </div>
                     
-                    <div class="editor-stage hidden">
+                    <div class="editor-stage ${editorClass}">
                         <div class="table-settings-container">
-                            <input type="text" class="table-caption-input" placeholder="Table Caption (e.g. Source: World Bank, 2024)">
+                            <input type="text" class="table-caption-input" placeholder="Table Caption (e.g. Source: World Bank, 2024)" value="${data.caption || ''}">
                             <div class="table-footer-options">
-                                <select class="table-theme border border-slate-300 p-1 rounded text-xs"><option value="">Default Theme</option><option value="striped">Striped</option><option value="grid">Grid Border</option></select>
+                                <select class="table-theme border border-slate-300 p-1 rounded text-xs">
+                                    <option value="" ${!data.theme ? 'selected':''}>Default Theme</option>
+                                    <option value="striped" ${data.theme==='striped'?'selected':''}>Striped</option>
+                                    <option value="grid" ${data.theme==='grid'?'selected':''}>Grid Border</option>
+                                </select>
                                 <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-500"><input type="checkbox" class="table-sortable"> Sortable</label>
                             </div>
                         </div>
@@ -1046,8 +1108,8 @@
                         
                         <div class="table-wrapper">
                             <table class="sheet-table">
-                                <thead class="sheet-head"></thead>
-                                <tbody class="sheet-body"></tbody>
+                                <thead class="sheet-head">${data.thead || ''}</thead>
+                                <tbody class="sheet-body">${data.tbody || ''}</tbody>
                             </table>
                         </div>
                     </div>
@@ -1055,16 +1117,33 @@
             } else {
                 blockHTML += `<h3 class="text-sm font-bold uppercase text-slate-400 mb-3">${blockTitle}</h3>`;
                 switch (blockType) {
-                    case 'paragraph': blockHTML += `<textarea class="dynamic-paragraph w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="6" placeholder="Continue your article..."></textarea>`; break;
-                    case 'headline-h2': case 'headline-h3': case 'headline-h4': blockHTML += `<input type="text" class="dynamic-headline w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold" placeholder="Enter headline text...">`; break;
-                    case 'image': blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short description of this image"></textarea></div>`; break;
-                    case 'quote': blockHTML += `<textarea class="dynamic-quote w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="3" placeholder="Enter the quote here..."></textarea>`; break;
-                    default: blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste the full post URL"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label><textarea rows="1" class="dynamic-social-caption w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short caption for the embed"></textarea></div>`; break;
+                    case 'paragraph': blockHTML += `<textarea class="dynamic-paragraph w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="6" placeholder="Continue your article...">${data.value || ''}</textarea>`; break;
+                    case 'headline-h2': case 'headline-h3': case 'headline-h4': blockHTML += `<input type="text" class="dynamic-headline w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold" placeholder="Enter headline text..." value="${data.value || ''}">`; break;
+                    case 'image': blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg" value="${data.url || ''}"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short description of this image">${data.desc || ''}</textarea></div>`; break;
+                    case 'quote': blockHTML += `<textarea class="dynamic-quote w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="3" placeholder="Enter the quote here...">${data.value || ''}</textarea>`; break;
+                    default: blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste the full post URL" value="${data.url || ''}"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label><textarea rows="1" class="dynamic-social-caption w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short caption for the embed">${data.caption || ''}</textarea></div>`; break;
                 }
             }
-            newBlock.innerHTML = blockHTML;
+            return blockHTML;
+        }
+
+        function addBlockToDOM(blockType, blockId, data={}) {
+            const newBlock = document.createElement('div');
+            newBlock.className = 'dynamic-content-block';
+            newBlock.dataset.blockType = blockType;
+            newBlock.id = blockId;
+            newBlock.innerHTML = createBlockHTML(blockType, blockId, data);
             dynamicBlocksContainer.appendChild(newBlock);
+            if(data.isTableReady) initTableHistory(blockId); // Init history for restored tables
+        }
+
+        addBlockButton.addEventListener('click', () => {
+            const blockType = blockTypeSelect.value;
+            const blockId = `dynamic-block-${Date.now()}`;
+            addBlockToDOM(blockType, blockId);
+            const newBlock = document.getElementById(blockId);
             newBlock.querySelectorAll('textarea').forEach(autoExpandTextarea);
+            triggerSave();
         });
 
         publishButton.addEventListener('click', async () => {
@@ -1159,24 +1238,18 @@
                             
                             if (url) {
                                 let embedHtml = '';
-
-                                // Logic to generate specific embed tags based on platform
                                 if (blockType.startsWith('twitter')) {
-                                    // 1. Twitter/X: Replace x.com with twitter.com
                                     const cleanUrl = url.replace('x.com', 'twitter.com');
                                     embedHtml = `<blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${cleanUrl}"></a></blockquote>`;
                                 } 
                                 else if (blockType.startsWith('instagram')) {
-                                    // 2. Instagram
                                     embedHtml = `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>`;
                                 }
                                 else if (blockType === 'tiktok') {
-                                    // 3. TikTok
                                     const videoId = url.split('/').pop();
                                     embedHtml = `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${videoId}" style="max-width: 605px;min-width: 325px;"> <section> <a target="_blank" href="${url}"></a> </section> </blockquote>`;
                                 }
                                 else if (blockType === 'youtube') {
-                                    // 4. YouTube
                                     let videoId = '';
                                     if(url.includes('v=')) videoId = url.split('v=')[1].split('&')[0];
                                     else if(url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1];
@@ -1188,7 +1261,6 @@
                                     }
                                 }
                                 else {
-                                    // 5. Fallback for others
                                     embedHtml = `<a href="${url}" target="_blank" rel="noopener">View Post on ${blockType}</a>`;
                                 }
 
@@ -1228,8 +1300,7 @@
                 if (response.status === 201) {
                     updateStatus(`Article saved to ${selectedRepo}! Triggering build...`, '#16a34a');
 
-                    // --- DIRECT DISPATCH LOGIC START ---
-                    // Trigger the build in the Public Repo (TMP_Host) immediately
+                    // Trigger Build
                     try {
                         await fetch(`https://api.github.com/repos/zaidalamgir/TMP_Host/dispatches`, {
                             method: 'POST',
@@ -1242,11 +1313,13 @@
                         console.log("Build signal sent to TMP_Host");
                     } catch (err) {
                         console.error("Failed to trigger build:", err);
-                        // We do not stop the UI reset because the article IS saved successfully.
                     }
-                    // --- DIRECT DISPATCH LOGIC END ---
 
                     updateStatus(`Published & Build Triggered!`, '#16a34a');
+                    
+                    // CLEAR SAVED DRAFT
+                    clearDraft();
+                    
                     editorView.querySelectorAll('input:not(.sheet-cell), textarea').forEach(el => { if(el.id !== 'article-author') el.value = ''; });
                     dynamicBlocksContainer.innerHTML = '';
                     document.querySelectorAll('textarea').forEach(autoExpandTextarea);
