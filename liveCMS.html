@@ -16,7 +16,7 @@
         /* --- GLASS UI & PANELS --- */
         .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        /* --- STATIC INPUTS (Fixed - Non Draggable/Removable) --- */
+        /* --- STATIC INPUTS --- */
         .static-field-group { margin-bottom: 1.5rem; position: relative; }
         .static-label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 0.5rem; }
         .static-textarea, .static-input { 
@@ -88,7 +88,11 @@
         .table-tool-group { display: flex; gap: 2px; border-right: 1px solid #cbd5e1; padding-right: 6px; margin-right: 2px; }
         .tool-btn { padding: 6px 8px; border-radius: 4px; cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 4px; }
         .tool-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
+        .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
         
+        .color-picker-wrapper { position: relative; display: flex; align-items: center; }
+        input[type="color"] { width: 28px; height: 28px; padding: 0; border: none; background: none; cursor: pointer; }
+
         .table-settings-container { margin-top: 10px; padding: 12px; background: #f1f5f9; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
         .table-caption-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; background: white; display: block; }
         .table-footer-options { display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b; }
@@ -102,9 +106,20 @@
         #edit-modal.open { display: flex !important; }
         #edit-modal-content { animation: slideUp 0.3s ease-out forwards; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Auto-save Indicator */
+        .save-indicator {
+            position: fixed; bottom: 20px; right: 20px; background: #ffffff;
+            padding: 8px 16px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600;
+            color: #64748b; opacity: 0; transition: opacity 0.3s; z-index: 100;
+        }
+        .save-indicator.visible { opacity: 1; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
+
+    <div id="save-indicator" class="save-indicator"><i class="fas fa-check-circle text-emerald-500 mr-2"></i>Draft Saved Locally</div>
 
     <div id="app" class="w-full">
         
@@ -173,11 +188,6 @@
                          </div>
                          
                          <div class="static-field-group">
-                             <label class="static-label">Main Content</label>
-                             <textarea id="static-content" rows="6" class="static-textarea w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[150px]" placeholder="Start writing your main update here..."></textarea>
-                         </div>
-
-                         <div class="static-field-group">
                             <label class="static-label"><i class="fas fa-image mr-1"></i> Featured Image Link</label>
                             <input type="text" id="static-image" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://example.com/image.jpg">
                             <input type="text" id="static-image-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Image Caption / Description">
@@ -193,6 +203,11 @@
                             <label class="static-label"><i class="fab fa-youtube mr-1"></i> YouTube Video Link</label>
                             <input type="text" id="static-youtube" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://youtube.com/watch?v=...">
                             <input type="text" id="static-youtube-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Video Caption">
+                         </div>
+
+                         <div class="static-field-group">
+                             <label class="static-label">Main Content</label>
+                             <textarea id="static-content" rows="6" class="static-textarea w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[150px]" placeholder="Start writing your main update here..."></textarea>
                          </div>
 
                          <div id="content-blocks-container"></div>
@@ -293,9 +308,9 @@
         
         <div id="paste-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-                 <h3 class="text-lg font-bold mb-2">Paste from Excel</h3>
-                 <p class="text-xs text-slate-500 mb-4">Copy cells from your spreadsheet and paste below.</p>
-                 <textarea id="paste-input" class="w-full h-32 border p-2 rounded mb-4 text-xs font-mono"></textarea>
+                 <h3 class="text-lg font-bold mb-2">Paste Table Data</h3>
+                 <p class="text-xs text-slate-500 mb-4">Paste from Excel (Tabs) or Pipe Separated (|) values.</p>
+                 <textarea id="paste-input" class="w-full h-32 border p-2 rounded mb-4 text-xs font-mono" placeholder="Paste data here..."></textarea>
                  <div class="flex justify-end gap-2">
                      <button onclick="document.getElementById('paste-modal').classList.add('hidden')" class="px-4 py-2 bg-slate-100 rounded text-sm font-bold">Cancel</button>
                      <button id="confirm-paste-btn" class="px-4 py-2 bg-indigo-600 text-white rounded text-sm font-bold">Import</button>
@@ -324,18 +339,15 @@
             const publishButton = document.getElementById('publish-button'), statusMessage = document.getElementById('status-message');
             const addBlockBtn = document.getElementById('add-block-button'), blockTypeSelect = document.getElementById('block-type-select');
             const tagsInput = document.getElementById('tags-input');
+            const saveIndicator = document.getElementById('save-indicator');
             
             // STATIC FIELD REFERENCES
             const staticHeadline = document.getElementById('static-headline');
             const staticContent = document.getElementById('static-content');
-            
-            // NEW STATIC FIELDS & CAPTIONS
             const staticImage = document.getElementById('static-image');
             const staticImageCaption = document.getElementById('static-image-caption');
-            
             const staticTwitter = document.getElementById('static-twitter');
             const staticTwitterCaption = document.getElementById('static-twitter-caption');
-            
             const staticYoutube = document.getElementById('static-youtube');
             const staticYoutubeCaption = document.getElementById('static-youtube-caption');
             
@@ -349,19 +361,112 @@
             let currentEditingPostId = null;
             let activeContentEditable = null;
             let activeTableBlockId = null;
+            let saveTimeout = null;
 
             // --- AUTO-GROW FOR STATIC TEXTAREAS ---
             function autoResize(el) {
                 el.style.height = 'auto';
                 el.style.height = el.scrollHeight + 'px';
             }
-            staticHeadline.addEventListener('input', function() { autoResize(this); saveDraft(); });
-            staticContent.addEventListener('input', function() { autoResize(this); saveDraft(); });
+            staticHeadline.addEventListener('input', function() { autoResize(this); triggerSave(); });
+            staticContent.addEventListener('input', function() { autoResize(this); triggerSave(); });
             
-            // Added listeners for new inputs to trigger autosave
-            [staticImage, staticImageCaption, staticTwitter, staticTwitterCaption, staticYoutube, staticYoutubeCaption].forEach(el => {
-                el.addEventListener('input', saveDraft);
+            [staticImage, staticImageCaption, staticTwitter, staticTwitterCaption, staticYoutube, staticYoutubeCaption, tagsInput].forEach(el => {
+                el.addEventListener('input', triggerSave);
             });
+
+            // --- AUTO-SAVE LOGIC ---
+            function triggerSave() {
+                saveIndicator.classList.remove('visible');
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveDraft, 1000);
+            }
+
+            function saveDraft() {
+                const blocks = [];
+                document.querySelectorAll('.dynamic-content-block').forEach(block => {
+                    const type = block.dataset.blockType;
+                    const blockData = { type: type, id: block.id };
+
+                    if (type === 'table') {
+                        // Check if setup stage is hidden (table is active)
+                        if (block.querySelector('.editor-stage').classList.contains('hidden') === false) {
+                            blockData.thead = block.querySelector('.sheet-head').innerHTML;
+                            blockData.tbody = block.querySelector('.sheet-body').innerHTML;
+                            blockData.caption = block.querySelector('.table-caption-input').value;
+                            blockData.theme = block.querySelector('.table-theme').value;
+                            blockData.sortable = block.querySelector('.table-sortable').checked;
+                            blockData.isTableReady = true;
+                        } else {
+                            blockData.isTableReady = false;
+                        }
+                    } else {
+                        const inputs = block.querySelectorAll('textarea, input');
+                        blockData.mainValue = inputs[0]?.value || '';
+                        blockData.descValue = inputs[1]?.value || '';
+                    }
+                    blocks.push(blockData);
+                });
+                
+                const draftData = { 
+                    staticHeadline: staticHeadline.value, 
+                    staticContent: staticContent.value,
+                    staticImage: staticImage.value,
+                    staticImageCaption: staticImageCaption.value,
+                    staticTwitter: staticTwitter.value,
+                    staticTwitterCaption: staticTwitterCaption.value,
+                    staticYoutube: staticYoutube.value,
+                    staticYoutubeCaption: staticYoutubeCaption.value,
+                    tags: tagsInput.value, 
+                    blocks: blocks, 
+                    timestamp: Date.now() 
+                };
+                localStorage.setItem('cms_autosave_draft_v2', JSON.stringify(draftData));
+                
+                // Visual Indicator
+                saveIndicator.classList.add('visible');
+                setTimeout(() => saveIndicator.classList.remove('visible'), 2000);
+            }
+
+            function loadDraft() {
+                const saved = localStorage.getItem('cms_autosave_draft_v2');
+                if (!saved) return; // Keep defaults
+                try {
+                    const draft = JSON.parse(saved);
+                    blocksContainer.innerHTML = '';
+                    
+                    if (draft.staticHeadline) staticHeadline.value = draft.staticHeadline;
+                    if (draft.staticContent) staticContent.value = draft.staticContent;
+                    if (draft.staticImage) staticImage.value = draft.staticImage;
+                    if (draft.staticImageCaption) staticImageCaption.value = draft.staticImageCaption;
+                    if (draft.staticTwitter) staticTwitter.value = draft.staticTwitter;
+                    if (draft.staticTwitterCaption) staticTwitterCaption.value = draft.staticTwitterCaption;
+                    if (draft.staticYoutube) staticYoutube.value = draft.staticYoutube;
+                    if (draft.staticYoutubeCaption) staticYoutubeCaption.value = draft.staticYoutubeCaption;
+                    if (draft.tags) tagsInput.value = draft.tags;
+
+                    autoResize(staticHeadline);
+                    autoResize(staticContent);
+
+                    if (draft.blocks && draft.blocks.length > 0) {
+                        draft.blocks.forEach(blockData => {
+                             createBlock(blockData.type, false, blockData);
+                        });
+                    }
+                } catch (e) { console.log('Draft load error', e); }
+            }
+
+            function clearDraft() { localStorage.removeItem('cms_autosave_draft_v2'); }
+            function resetEditor() {
+                blocksContainer.innerHTML = '';
+                staticHeadline.value = ''; staticContent.value = '';
+                staticImage.value = ''; staticImageCaption.value = '';
+                staticTwitter.value = ''; staticTwitterCaption.value = '';
+                staticYoutube.value = ''; staticYoutubeCaption.value = '';
+                staticHeadline.style.height = 'auto'; staticContent.style.height = 'auto';
+                tagsInput.value = 'BREAKING, TMP NEWS';
+                saveDraft();
+            }
 
             // --- TABLE HISTORY ---
             const tableHistory = {}; 
@@ -383,7 +488,7 @@
                     if (lastState && lastState.thead === theadHtml && lastState.tbody === tbodyHtml) return;
                     history.undo.push(stateSnapshot); history.redo = []; 
                 }
-                updateHistoryButtons(blockId); saveDraft();
+                updateHistoryButtons(blockId); triggerSave();
             }
             function undoTable(blockId) {
                 const history = tableHistory[blockId];
@@ -394,7 +499,7 @@
                 const previous = history.undo[history.undo.length - 1];
                 applyTableState(blockId, previous);
                 block.classList.remove('restoring-state');
-                updateHistoryButtons(blockId); saveDraft();
+                updateHistoryButtons(blockId); triggerSave();
             }
             function redoTable(blockId) {
                 const history = tableHistory[blockId];
@@ -405,7 +510,7 @@
                 history.undo.push(next);
                 applyTableState(blockId, next);
                 block.classList.remove('restoring-state');
-                updateHistoryButtons(blockId); saveDraft();
+                updateHistoryButtons(blockId); triggerSave();
             }
             function applyTableState(blockId, state) {
                 const block = document.getElementById(blockId);
@@ -423,124 +528,22 @@
 
             // ONLY DYNAMIC BLOCKS ARE SORTABLE
             Sortable.create(blocksContainer, {
-                animation: 150, handle: '.drag-handle', ghostClass: 'sortable-ghost', onEnd: saveDraft
+                animation: 150, handle: '.drag-handle', ghostClass: 'sortable-ghost', onEnd: triggerSave
             });
 
             renderCountries();
 
-            // --- AUTO-SAVE ---
-            function saveDraft() {
-                const blocks = [];
-                // Only saving dynamic blocks here
-                document.querySelectorAll('.dynamic-content-block').forEach(block => {
-                    const type = block.dataset.blockType;
-                    if (type === 'table') {
-                        const thead = block.querySelector('.sheet-head').innerHTML;
-                        const tbody = block.querySelector('.sheet-body').innerHTML;
-                        const caption = block.querySelector('.table-caption-input').value;
-                        const theme = block.querySelector('.table-theme').value;
-                        const sortable = block.querySelector('.table-sortable').checked;
-                        blocks.push({ type: 'table', thead, tbody, caption, theme, sortable });
-                    } else {
-                        const inputs = block.querySelectorAll('textarea, input');
-                        blocks.push({
-                            type: type,
-                            mainValue: inputs[0]?.value || '',
-                            descValue: inputs[1]?.value || ''
-                        });
-                    }
-                });
-                
-                const draftData = { 
-                    staticHeadline: staticHeadline.value, 
-                    staticContent: staticContent.value,
-                    // SAVE NEW FIELDS
-                    staticImage: staticImage.value,
-                    staticImageCaption: staticImageCaption.value,
-                    staticTwitter: staticTwitter.value,
-                    staticTwitterCaption: staticTwitterCaption.value,
-                    staticYoutube: staticYoutube.value,
-                    staticYoutubeCaption: staticYoutubeCaption.value,
-                    tags: tagsInput.value, 
-                    blocks: blocks, 
-                    timestamp: Date.now() 
-                };
-                localStorage.setItem('cms_autosave_draft', JSON.stringify(draftData));
-            }
-
-            function loadDraft() {
-                const saved = localStorage.getItem('cms_autosave_draft');
-                if (!saved) { resetEditor(); return; }
-                try {
-                    const draft = JSON.parse(saved);
-                    blocksContainer.innerHTML = '';
-                    
-                    if (draft.staticHeadline) staticHeadline.value = draft.staticHeadline;
-                    if (draft.staticContent) staticContent.value = draft.staticContent;
-                    
-                    // LOAD NEW FIELDS
-                    if (draft.staticImage) staticImage.value = draft.staticImage;
-                    if (draft.staticImageCaption) staticImageCaption.value = draft.staticImageCaption;
-                    if (draft.staticTwitter) staticTwitter.value = draft.staticTwitter;
-                    if (draft.staticTwitterCaption) staticTwitterCaption.value = draft.staticTwitterCaption;
-                    if (draft.staticYoutube) staticYoutube.value = draft.staticYoutube;
-                    if (draft.staticYoutubeCaption) staticYoutubeCaption.value = draft.staticYoutubeCaption;
-
-                    if (draft.tags) tagsInput.value = draft.tags;
-
-                    autoResize(staticHeadline);
-                    autoResize(staticContent);
-
-                    if (draft.blocks && draft.blocks.length > 0) {
-                        draft.blocks.forEach(blockData => {
-                            // MIGRATION: Old drafts handling
-                            if (blockData.type === 'headline') {
-                                if (!staticHeadline.value) { staticHeadline.value = blockData.mainValue; autoResize(staticHeadline); }
-                                return;
-                            }
-                            if (blockData.type === 'content' && !staticContent.value) {
-                                staticContent.value = blockData.mainValue; autoResize(staticContent);
-                                return;
-                            }
-                            
-                            createBlock(blockData.type, false, blockData);
-                        });
-                    }
-                } catch (e) { resetEditor(); }
-            }
-
-            function clearDraft() { localStorage.removeItem('cms_autosave_draft'); }
-            function resetEditor() {
-                blocksContainer.innerHTML = '';
-                staticHeadline.value = '';
-                staticContent.value = '';
-                
-                // RESET NEW FIELDS
-                staticImage.value = '';
-                staticImageCaption.value = '';
-                staticTwitter.value = '';
-                staticTwitterCaption.value = '';
-                staticYoutube.value = '';
-                staticYoutubeCaption.value = '';
-
-                staticHeadline.style.height = 'auto';
-                staticContent.style.height = 'auto';
-                tagsInput.value = 'BREAKING, TMP NEWS';
-                saveDraft();
-            }
-
-            // --- BLOCK CREATION (DYNAMIC ONLY) ---
-            function createBlock(type, triggerSave = true, data = null) {
-                const blockId = `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            // --- BLOCK CREATION ---
+            function createBlock(type, isNew = true, data = null) {
+                const blockId = data && data.id ? data.id : `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
                 const blockWrapper = document.createElement('div');
                 blockWrapper.className = 'dynamic-content-block';
                 blockWrapper.id = blockId;
                 blockWrapper.dataset.blockType = type;
                 
-                // Add Drag Handle and Remove Button
                 let innerHTML = `
                     <div class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-lines"></i></div>
-                    <button class="remove-block-btn" onclick="this.closest('.dynamic-content-block').remove(); saveDraft();"><i class="fas fa-times"></i></button>
+                    <button class="remove-block-btn" onclick="this.closest('.dynamic-content-block').remove(); triggerSave();"><i class="fas fa-times"></i></button>
                 `;
 
                 const inputClass = "w-full p-3 border border-slate-300 rounded-lg bg-white text-sm mt-2";
@@ -550,15 +553,16 @@
                 let mainVal = data ? data.mainValue : '';
 
                 if (type === 'table') {
+                    const isReady = data && data.isTableReady;
                     innerHTML += `
                         <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Data Table</h3>
-                        <div class="setup-stage ${data ? 'hidden' : ''} flex gap-2 mb-4">
+                        <div class="setup-stage ${isReady ? 'hidden' : ''} flex gap-2 mb-4">
                             <input type="number" class="row-input border p-2 rounded w-16 text-sm" value="3" placeholder="Rows">
                             <input type="number" class="col-input border p-2 rounded w-16 text-sm" value="3" placeholder="Cols">
                             <button onclick="createTable('${blockId}')" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">Create</button>
-                            <button onclick="tableCmd('openPaste','${blockId}')" class="bg-emerald-600 text-white px-3 py-1 rounded text-sm">Paste Excel</button>
+                            <button onclick="tableCmd('openPaste','${blockId}')" class="bg-emerald-600 text-white px-3 py-1 rounded text-sm">Paste Excel/Pipe</button>
                         </div>
-                        <div class="editor-stage ${data ? '' : 'hidden'}">
+                        <div class="editor-stage ${isReady ? '' : 'hidden'}">
                             <div class="table-settings-container">
                                 <input type="text" class="table-caption-input" placeholder="Table Caption (Source...)" value="${data ? (data.caption||'') : ''}">
                                 <div class="table-footer-options">
@@ -639,15 +643,15 @@
                         el.addEventListener('input', function() { autoResize(this); });
                         if(data) autoResize(el);
                     }
-                    el.addEventListener('input', saveDraft);
+                    el.addEventListener('input', triggerSave);
                 });
                 
                 if(type === 'table') {
                     blockWrapper.addEventListener('focusin', (e) => { if(e.target.classList.contains('sheet-cell')) activeContentEditable = e.target; });
-                    initTableHistory(blockId);
+                    if(data && data.isTableReady) initTableHistory(blockId);
                 }
 
-                if(triggerSave) saveDraft();
+                if(isNew) triggerSave();
             }
 
             // --- TABLE LOGIC ---
@@ -661,7 +665,7 @@
                 block.querySelector('.sheet-head').innerHTML = headHtml;
                 let bodyHtml = ''; for(let r=1; r<rows; r++) { bodyHtml += '<tr>'; for(let c=0; c<cols; c++) bodyHtml += `<td><div contenteditable="true" class="sheet-cell" data-placeholder="Data"></div></td>`; bodyHtml += '</tr>'; }
                 block.querySelector('.sheet-body').innerHTML = bodyHtml;
-                initTableHistory(id); saveDraft();
+                initTableHistory(id); triggerSave();
             };
 
             window.tableCmd = function(cmd, id, arg=null) {
@@ -680,10 +684,10 @@
                         else document.execCommand(cmd, false, arg);
                         activeContentEditable.focus();
                     }
-                    saveDraft(); return;
+                    triggerSave(); return;
                 }
 
-                if(cmd === 'hiliteColor') { if(activeContentEditable && block.contains(activeContentEditable)) activeContentEditable.parentElement.style.backgroundColor = arg; saveDraft(); return; }
+                if(cmd === 'hiliteColor') { if(activeContentEditable && block.contains(activeContentEditable)) activeContentEditable.parentElement.style.backgroundColor = arg; triggerSave(); return; }
 
                 if(cmd === 'mergeRight' || cmd === 'mergeDown') {
                     if(!activeContentEditable) return;
@@ -708,7 +712,7 @@
                             }
                         }
                     }
-                    saveDraft(); return;
+                    triggerSave(); return;
                 }
 
                 const tbody = block.querySelector('.sheet-body');
@@ -733,19 +737,41 @@
                         tbody.querySelectorAll('tr').forEach(tr => { if(tr.children.length > 0) tr.removeChild(tr.lastElementChild); });
                     }
                 }
-                saveDraft();
+                triggerSave();
             };
 
+            // PIPE + TAB PASTE IMPORT
             document.getElementById('confirm-paste-btn').onclick = () => {
-                const data = document.getElementById('paste-input').value;
-                const rows = data.trim().split('\n');
-                let html = '';
-                rows.forEach(row => {
-                    html += '<tr>'; row.split('\t').forEach(cell => html += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`); html += '</tr>';
-                });
-                document.querySelector(`#${activeTableBlockId} .sheet-body`).innerHTML = html;
-                document.getElementById('paste-modal').classList.add('hidden');
+                if(!activeTableBlockId) return;
                 saveTableState(activeTableBlockId);
+                const data = document.getElementById('paste-input').value.trim();
+                const isPipe = data.includes('|');
+                const rows = data.split('\n');
+                
+                // Header
+                let headHtml = '<tr>'; 
+                rows[0].split(isPipe ? '|' : '\t').forEach(cell => headHtml += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`); 
+                headHtml += '</tr>';
+
+                // Body
+                let bodyHtml = '';
+                for(let i=1; i<rows.length; i++) {
+                     bodyHtml += '<tr>'; 
+                     rows[i].split(isPipe ? '|' : '\t').forEach(cell => bodyHtml += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`); 
+                     bodyHtml += '</tr>';
+                }
+
+                const block = document.getElementById(activeTableBlockId);
+                block.querySelector('.sheet-head').innerHTML = headHtml;
+                block.querySelector('.sheet-body').innerHTML = bodyHtml;
+                
+                // Ensure editor is visible if not
+                block.querySelector('.setup-stage').classList.add('hidden');
+                block.querySelector('.editor-stage').classList.remove('hidden');
+
+                document.getElementById('paste-modal').classList.add('hidden');
+                initTableHistory(activeTableBlockId);
+                triggerSave();
             };
 
             function renderCountries(filter = '') {
@@ -753,20 +779,18 @@
                 oicCountriesList.filter(c => c.toLowerCase().includes(filter.toLowerCase())).forEach(c => {
                     const chip = document.createElement('div');
                     chip.className = 'country-chip'; chip.textContent = c;
-                    chip.onclick = () => { tagsInput.value += `, ${c.toLowerCase().replace(/\s/g, '-')}`; saveDraft(); };
+                    chip.onclick = () => { tagsInput.value += `, ${c.toLowerCase().replace(/\s/g, '-')}`; triggerSave(); };
                     countryContainer.appendChild(chip);
                 });
             }
             countrySearchInput.addEventListener('input', (e) => renderCountries(e.target.value));
             
             document.querySelectorAll('.tag-chip').forEach(chip => {
-                chip.onclick = () => { tagsInput.value += `, ${chip.dataset.tag}`; saveDraft(); };
+                chip.onclick = () => { tagsInput.value += `, ${chip.dataset.tag}`; triggerSave(); };
             });
 
             addBlockBtn.addEventListener('click', () => createBlock(blockTypeSelect.value));
             
-            tagsInput.addEventListener('input', saveDraft);
-
             document.getElementById('show-sign-up').onclick = (e) => { e.preventDefault(); signInForm.classList.add('hidden'); signUpForm.classList.remove('hidden'); };
             document.getElementById('show-sign-in').onclick = (e) => { e.preventDefault(); signUpForm.classList.add('hidden'); signInForm.classList.remove('hidden'); };
             document.querySelectorAll('.toggle-password').forEach(icon => {
@@ -785,7 +809,6 @@
                 const mainContent = staticContent.value.trim();
                 const blocks = Array.from(document.querySelectorAll('.dynamic-content-block'));
                 
-                // VALIDATION
                 if (!headline && !mainContent && blocks.length === 0 && !staticImage.value && !staticTwitter.value && !staticYoutube.value) {
                     statusMessage.textContent = 'Post cannot be completely empty!'; 
                     statusMessage.className = 'text-center mt-4 text-sm font-bold text-red-600';
@@ -795,10 +818,8 @@
                 }
 
                 let bodyParts = [];
-                // 1. ADD STATIC CONTENT
-                if (mainContent) bodyParts.push(mainContent);
-
-                // 2. ADD NEW STATIC LINKS (formatted with Captions)
+                
+                // 1. STATIC LINKS FIRST
                 if (staticImage.value.trim()) {
                     const imgCap = staticImageCaption.value.trim() || 'Featured Image';
                     bodyParts.push(`![${imgCap}](${staticImage.value.trim()})`);
@@ -812,7 +833,10 @@
                     bodyParts.push(`[youtube|${ytCap}](${staticYoutube.value.trim()})`);
                 }
 
-                // 3. ADD DYNAMIC BLOCKS
+                // 2. MAIN CONTENT (Moved to Middle)
+                if (mainContent) bodyParts.push(mainContent);
+
+                // 3. DYNAMIC BLOCKS
                 blocks.forEach(block => {
                     const type = block.dataset.blockType;
                     if (type === 'table') {
