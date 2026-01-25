@@ -39,16 +39,13 @@ layout: default
     .article-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px; line-height: 1.2; margin-bottom: 0.75rem; }
     .article-subheadline { font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563; line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400; }
     .article-body p { font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8; margin-bottom: 1.5rem; }
-    
-    /* FIX: Force long links to break */
     .article-body a { 
         color: #1d4ed8; 
         text-decoration: underline; 
         word-break: break-all;
         overflow-wrap: anywhere; 
     }
-    
-    /* Table Styles */
+
     .table-scroll-wrapper { position: relative; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
     .article-body .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; background: white; }
     .article-body table { width: 100%; border-collapse: collapse; min-width: 600px; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0; }
@@ -66,8 +63,6 @@ layout: default
     .table-scroll-wrapper::after { content: '\f061'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 0; right: 0; bottom: 0; width: 40px; background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1) 80%); display: flex; align-items: center; justify-content: center; color: #94a3b8; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; font-size: 12px; padding-left: 10px; }
     .table-scroll-wrapper.is-scrollable::after { opacity: 1; }
     .table-scroll-wrapper.scrolled-end::after { opacity: 0; }
-
-    /* Embed Styles */
     .embed-container { margin: 2rem 0; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 100%; }
     .embed-caption { margin-top: 10px; padding: 12px; background: #f9fafb; border-left: 4px solid #1d4ed8; color: #374151; font-family: 'Inter', sans-serif; font-size: 0.95rem; width: 100%; max-width: 550px; text-align: left; border-radius: 4px; line-height: 1.5; word-wrap: break-word; }
     iframe.embed-responsive { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
@@ -153,22 +148,20 @@ layout: default
 </div> 
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // --- SHARE BUTTON LOGIC ---
+function setupArticleInteractions() {
     const shareBtn = document.getElementById('native-share-button');
-    if (shareBtn) {
+    
+    if (shareBtn && !shareBtn.dataset.hasListener) {
+        shareBtn.dataset.hasListener = "true"; 
+        
         shareBtn.addEventListener('click', async () => {
-            // 1. Prepare Data
             const shareTitle = document.title;
             const shareText = "Read this article on The Muslim Post";
             const shareUrl = window.location.href;
-
-            // 2. CHECK: Are we inside the Android App?
             if (window.AndroidInterface && window.AndroidInterface.share) {
-                // Yes! Call the Native Android Share Sheet
                 window.AndroidInterface.share(shareTitle, shareText, shareUrl);
             } 
-            // 3. Fallback: Standard Browser Share (Mobile Chrome/Safari)
+            
             else if (navigator.share) {
                 try {
                     await navigator.share({
@@ -177,29 +170,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         url: shareUrl
                     });
                 } catch (err) {
+                    
                     if (err.name !== 'AbortError') copyToClipboard(shareUrl);
                 }
             } 
-            // 4. Fallback: Desktop / Unsupported
+            
             else {
                 copyToClipboard(shareUrl);
             }
         });
     }
 
-    // Helper: Copy to Clipboard
-    async function copyToClipboard(text) {
-        try {
-            await navigator.clipboard.writeText(text);
-            alert('Link copied to clipboard!');
-        } catch (err) {
-            prompt("Copy this link:", text);
-        }
-    }
-    
-    // --- TABLE SORTING LOGIC ---
     const tables = document.querySelectorAll('.table-container.sortable table');
     tables.forEach(table => {
+        if (table.dataset.hasSortListener) return; 
+        table.dataset.hasSortListener = "true";
+
         const headers = table.querySelectorAll('th');
         headers.forEach((header, index) => {
             header.addEventListener('click', () => {
@@ -229,9 +215,21 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-});
+}
 
-// Load widgets if needed
-if (window.twttr && window.twttr.widgets) { window.twttr.widgets.load(); }
-if (window.instgrm) { window.instgrm.Embeds.process(); }
+async function copyToClipboard(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        alert('Link copied to clipboard!');
+    } catch (err) {
+        prompt("Copy this link:", text);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', setupArticleInteractions);
+document.addEventListener('turbo:load', setupArticleInteractions);
+document.addEventListener('turbo:load', function() {
+    if (window.twttr && window.twttr.widgets) { window.twttr.widgets.load(); }
+    if (window.instgrm) { window.instgrm.Embeds.process(); }
+});
 </script>
