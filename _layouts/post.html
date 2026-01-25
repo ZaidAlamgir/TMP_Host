@@ -90,7 +90,6 @@ layout: default
     @media (max-width: 768px) { .article-headline { font-size: 32px; } .article-subheadline { font-size: 18px; } }
 </style>
 
-<!-- Social Widget Scripts - Load only when needed -->
 {% if content contains 'twitter-tweet' %}
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endif %}
@@ -120,7 +119,19 @@ layout: default
             {% if page.subheadline %}<p class="article-subheadline">{{ page.subheadline }}</p>{% endif %}
             <div class="article-meta">
                 <div>
-                    <div class="author-name">By {{ page.author | default: 'Staff Writer' }}</div>
+                    <div class="author-name">
+                        By 
+                        {% assign author_slug = page.author | slugify %}
+                        {% assign author_page = site.authors | where: "slug", author_slug | first %}
+                        
+                        {% if author_page %}
+                            <a href="{{ author_page.url }}" class="hover:text-indigo-600 hover:underline transition-colors">
+                                {{ page.author | default: 'Staff Writer' }}
+                            </a>
+                        {% else %}
+                            {{ page.author | default: 'Staff Writer' }}
+                        {% endif %}
+                    </div>
                     <div class="publish-date">{{ page.date | date: "%B %d, %Y" }}</div>
                 </div>
                 <div>
@@ -142,43 +153,51 @@ layout: default
 </div> 
 
 <script>
-// Only minimal JavaScript for share button and tables
 document.addEventListener('DOMContentLoaded', function() {
-    // Share button
+    // --- SHARE BUTTON LOGIC ---
     const shareBtn = document.getElementById('native-share-button');
     if (shareBtn) {
         shareBtn.addEventListener('click', async () => {
-            const shareData = { 
-                title: document.title, 
-                text: 'Read this article on The Muslim Post', 
-                url: window.location.href 
-            };
-            
-            if (navigator.share) {
-                try { 
-                    await navigator.share(shareData); 
-                } catch (err) { 
-                    if (err.name !== 'AbortError') {
-                        try { 
-                            await navigator.clipboard.writeText(shareData.url); 
-                            alert('Link copied to clipboard!'); 
-                        } catch { 
-                            prompt("Copy this link:", shareData.url); 
-                        }
-                    }
+            // 1. Prepare Data
+            const shareTitle = document.title;
+            const shareText = "Read this article on The Muslim Post";
+            const shareUrl = window.location.href;
+
+            // 2. CHECK: Are we inside the Android App?
+            if (window.AndroidInterface && window.AndroidInterface.share) {
+                // Yes! Call the Native Android Share Sheet
+                window.AndroidInterface.share(shareTitle, shareText, shareUrl);
+            } 
+            // 3. Fallback: Standard Browser Share (Mobile Chrome/Safari)
+            else if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: shareTitle,
+                        text: shareText,
+                        url: shareUrl
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') copyToClipboard(shareUrl);
                 }
-            } else {
-                try { 
-                    await navigator.clipboard.writeText(shareData.url); 
-                    alert('Link copied to clipboard!'); 
-                } catch { 
-                    prompt("Copy this link:", shareData.url); 
-                }
+            } 
+            // 4. Fallback: Desktop / Unsupported
+            else {
+                copyToClipboard(shareUrl);
             }
         });
     }
+
+    // Helper: Copy to Clipboard
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert('Link copied to clipboard!');
+        } catch (err) {
+            prompt("Copy this link:", text);
+        }
+    }
     
-    // Table sorting and overflow detection (keep this minimal)
+    // --- TABLE SORTING LOGIC ---
     const tables = document.querySelectorAll('.table-container.sortable table');
     tables.forEach(table => {
         const headers = table.querySelectorAll('th');
@@ -213,10 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Load widgets if needed
-if (window.twttr && window.twttr.widgets) {
-    window.twttr.widgets.load();
-}
-if (window.instgrm) {
-    window.instgrm.Embeds.process();
-}
+if (window.twttr && window.twttr.widgets) { window.twttr.widgets.load(); }
+if (window.instgrm) { window.instgrm.Embeds.process(); }
 </script>
