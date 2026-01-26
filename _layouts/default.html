@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <meta name="turbo-cache-control" content="no-preview">
+    <meta name="turbo-cache-control" content="preview">
+
     <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
@@ -33,14 +34,11 @@
     <script>
         (function() {
             try {
-                // Flicker-Free Dark Mode Init
                 const isDarkMode = window.AndroidInterface && window.AndroidInterface.getDarkModeStatus() === 'true';
                 if (isDarkMode) {
                     document.documentElement.classList.add('dark-mode');
                 }
-            } catch (e) {
-                // Fallback or ignore
-            }
+            } catch (e) {}
         })();
     </script>
 
@@ -53,17 +51,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* 2. LAYOUT FIX: No top padding on body (Fixes blank space) */
         html, body {
-            overflow-x: hidden; /* Stops horizontal scrolling */
+            overflow-x: hidden;
             width: 100%;
             max-width: 100%;
             margin: 0;
-            -webkit-tap-highlight-color: transparent; /* Mobile feel */
+            -webkit-tap-highlight-color: transparent;
         }
         body { 
-            padding-bottom: 80px; /* Only bottom padding for nav */
-            padding-top: 0;       /* Removed top padding */
+            padding-bottom: 80px; 
+            padding-top: 0;
         }
         
         .turbo-progress-bar {
@@ -80,7 +77,7 @@
             z-index: 9999; border-radius: 20px 20px 0 0;
             padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            transform: translateZ(0); /* Hardware acceleration */
+            transform: translateZ(0); 
         }
         .bottom-nav-link {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -107,7 +104,11 @@
         <link rel="stylesheet" href="{{ css_file | relative_url }}">
     {% endfor %}
 </head>
-<body class="{{ page.body_class }} flex flex-col min-h-screen" data-base-path="{{ site.baseurl }}" data-latest-post-url="{{ '/latest.html' | relative_url }}"> 
+<body 
+    class="{{ page.body_class }} flex flex-col min-h-screen" 
+    data-base-path="{{ site.baseurl }}" 
+    data-latest-post-url="{{ '/latest.html' | relative_url }}"
+    data-url="{{ page.url | relative_url }}"> 
     
     <div id="header-placeholder" data-turbo-permanent></div>
     
@@ -147,20 +148,28 @@
     {% endfor %} 
 
     <script>
+    // --- STUCK PAGE DETECTOR ---
     document.addEventListener('turbo:load', () => {
-      const articleBodies = document.querySelectorAll('.article-body, .post-content');
-      const internalHostname = 'www.tmpnews.com'; 
-      articleBodies.forEach(body => {
-        const links = body.querySelectorAll('a');
-        links.forEach(link => {
-          try {
-            if (link.hostname && link.hostname !== internalHostname) {
-              link.setAttribute('rel', 'nofollow noopener noreferrer');
-              link.setAttribute('target', '_blank');
-            }
-          } catch (e) { console.log('Skipping link'); }
+        const currentPath = window.location.pathname;
+        const contentPath = document.body.dataset.url;
+        const normalize = (path) => path.replace(/\/+$/, '') || '/';
+        if (contentPath && normalize(currentPath) !== normalize(contentPath)) {
+            console.log("⚠️ Glitch Detected! URL is " + currentPath + " but Content is " + contentPath);
+            window.location.reload();
+        }
+        const articleBodies = document.querySelectorAll('.article-body, .post-content');
+        const internalHostname = 'www.tmpnews.com'; 
+        articleBodies.forEach(body => {
+            const links = body.querySelectorAll('a');
+            links.forEach(link => {
+                try {
+                    if (link.hostname && link.hostname !== internalHostname) {
+                        link.setAttribute('rel', 'nofollow noopener noreferrer');
+                        link.setAttribute('target', '_blank');
+                    }
+                } catch (e) {}
+            });
         });
-      });
     });
     </script>
 </body>
