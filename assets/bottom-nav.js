@@ -2,56 +2,133 @@
     // CONFIGURATION
     const CONFIG = {
         linkSelector: '.bottom-nav-link',
-        activeClass: 'active'
+        activeClass: 'active',
+        loaderId: 'android_progress_bar',
+        headerHeight: '51px' 
     };
 
-    // 1. HIGHLIGHT TABS (Visuals)
-    function highlightActiveLink() {
-        // HELPER: Normalize paths by removing '.html' and trailing '/'
-        // This ensures "/latest", "/latest.html", and "/latest/" all match.
-        const normalize = (path) => path.replace(/(\.html|\/)$/, "") || "/";
+    // --- 1. LOADER START ---
+    function startLoader() {
+        if (window.AndroidInterface && window.AndroidInterface.showLoadingAnimation) {
+            window.AndroidInterface.showLoadingAnimation();
+        }
 
-        const currentPath = normalize(window.location.pathname);
-        const links = document.querySelectorAll(CONFIG.linkSelector);
+        let bar = document.getElementById(CONFIG.loaderId);
         
-        // Reset all tabs
+        // Create if missing
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = CONFIG.loaderId;
+            document.body.appendChild(bar);
+        }
+
+        // Force Reset Styles
+        bar.style.cssText = `
+            position: fixed; 
+            top: ${CONFIG.headerHeight}; 
+            left: 0; 
+            height: 3px; 
+            background-color: #0073e6; 
+            z-index: 9999; 
+            width: 0%; 
+            opacity: 1; 
+            pointer-events: none;
+            transition: none;
+        `;
+
+        void bar.offsetWidth; // Force Paint
+
+        // Animate to 30% instantly
+        requestAnimationFrame(() => {
+            bar.style.transition = 'width 0.4s ease-out';
+            bar.style.width = '30%';
+        });
+
+        // Trickle to 80%
+        setTimeout(() => {
+            if (bar && bar.parentNode) {
+                bar.style.transition = 'width 3s ease-out';
+                bar.style.width = '80%';
+            }
+        }, 400);
+    }
+
+    // --- 2. LOADER FINISH (The Resurrection Logic) ---
+    function completeLoader() {
+        if (window.AndroidInterface && window.AndroidInterface.stopLoadingAnimation) {
+            window.AndroidInterface.stopLoadingAnimation();
+        }
+
+        let bar = document.getElementById(CONFIG.loaderId);
+
+        // [CRITICAL FIX] If Turbo deleted the bar, resurrect it!
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = CONFIG.loaderId;
+            // Start it at 30% so it looks continuous, then zip it
+            bar.style.cssText = `
+                position: fixed; top: ${CONFIG.headerHeight}; left: 0; 
+                height: 3px; background-color: #0073e6; z-index: 9999; 
+                width: 30%; opacity: 1; pointer-events: none; transition: none;
+            `;
+            document.body.appendChild(bar);
+            void bar.offsetWidth; 
+        }
+
+        // ZIP TO 100%
+        requestAnimationFrame(() => {
+            bar.style.transition = 'width 0.3s ease-out, opacity 0.2s ease 0.2s'; 
+            bar.style.width = '100%';
+            bar.style.opacity = '0'; // Start fading out as it hits 100%
+        });
+
+        // Cleanup
+        setTimeout(() => {
+            if (bar.parentNode) bar.remove();
+        }, 500); 
+    }
+
+    // --- 3. LOGIC ---
+    function highlightActiveLink() {
+        const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+        const links = document.querySelectorAll(CONFIG.linkSelector);
         links.forEach(l => l.classList.remove(CONFIG.activeClass));
 
         let matchFound = false;
-
         links.forEach(link => {
             if (matchFound) return;
-
-            const linkUrl = new URL(link.href, window.location.origin);
-            const linkPath = normalize(linkUrl.pathname);
-
-            // CHECK 1: Exact Match (e.g. /latest matches /latest.html)
-            if (linkPath === currentPath) {
-                link.classList.add(CONFIG.activeClass);
-                matchFound = true;
-            }
-            // CHECK 2: Sub-folder Match (e.g. /post/123 matches /post tab)
-            // We check 'linkPath + /' to ensure /latest-news doesn't falsely match /latest
-            else if (linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
+            const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, "") || "/";
+            if (linkPath === currentPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
                 link.classList.add(CONFIG.activeClass);
                 matchFound = true;
             }
         });
 
-        // Fallback: If no tab matched, highlight Home.
-        // We use ID 'nav-home' because it is safer than relying on href="/"
         if (!matchFound) {
-            const home = document.getElementById('nav-home');
+            const home = document.querySelector(`${CONFIG.linkSelector}[href="/"]`);
             if (home) home.classList.add(CONFIG.activeClass);
         }
     }
 
-    // 2. THE FIX: MANUALLY FORCE PAGE LOAD ON BACK
-    window.addEventListener('popstate', (event) => {
-        // A. Update the tab instantly so it looks fast
+    // --- 4. LISTENERS ---
+    document.addEventListener('turbo:visit', startLoader);
+    document.addEventListener('turbo:load', () => {
         highlightActiveLink();
+        completeLoader();
+    });
 
-        // B. Force Turbo to fetch the real page from the network
+    // Manual Click Trigger (for instant feel)
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest(CONFIG.linkSelector);
+        if (link && !e.defaultPrevented) {
+            startLoader();
+            document.querySelectorAll(CONFIG.linkSelector).forEach(l => l.classList.remove(CONFIG.activeClass));
+            link.classList.add(CONFIG.activeClass);
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        highlightActiveLink();
         if (window.Turbo) {
             window.Turbo.visit(window.location.href, { action: "replace" });
         } else {
@@ -59,13 +136,10 @@
         }
     });
 
-    // 3. EVENT LISTENERS
-    document.addEventListener('turbo:load', highlightActiveLink);
-    document.addEventListener('DOMContentLoaded', highlightActiveLink);
-
-    // 4. PREVENT CACHE CONFLICTS
     document.addEventListener('turbo:before-cache', () => {
         document.querySelectorAll(CONFIG.linkSelector).forEach(l => l.classList.remove(CONFIG.activeClass));
     });
+
+    document.addEventListener('DOMContentLoaded', highlightActiveLink);
 
 })();

@@ -70,6 +70,23 @@ permalink: /latest.html
     }
     .article-body a:hover { color: #1e3a8a; }
 
+    /* --- ADDED TABLE STYLES (Missing in previous version) --- */
+    .table-scroll-wrapper { position: relative; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+    .article-body .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; background: white; }
+    .article-body table { width: 100%; border-collapse: collapse; min-width: 600px; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0; }
+    .article-body caption { caption-side: bottom; padding: 8px; font-size: 0.85rem; color: #6b7280; text-align: left; border-top: 1px solid #f3f4f6; background: #fdfdfd; font-style: italic; }
+    .article-body th, .article-body td { padding: 12px 16px; vertical-align: top; line-height: 1.5; color: #374151; }
+    .article-body th { background-color: #f8fafc; font-weight: 700; text-align: left; color: #111827; white-space: nowrap; border-bottom: 2px solid #e2e8f0; }
+    .article-body td { border-bottom: 1px solid #f1f5f9; }
+    .article-body tr:last-child td { border-bottom: none; }
+    .table-container.striped tr:nth-child(even) { background-color: #f9fafb; }
+    .table-container.grid table { border: 1px solid #cbd5e1; }
+    .table-container.grid th, .table-container.grid td { border: 1px solid #cbd5e1; }
+    table.sortable th { cursor: pointer; user-select: none; position: relative; padding-right: 24px; }
+    table.sortable th:hover { background-color: #eff6ff; color: #1d4ed8; }
+    table.sortable th::after { content: '\f0dc'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 10px; opacity: 0.5; }
+    /* -------------------------------------------------------- */
+
     /* Article Meta & Share Section */
     .article-meta {
         display: flex; justify-content: space-between; align-items: center;
@@ -208,8 +225,9 @@ permalink: /latest.html
 
                 {{ latest_post.content | markdownify }}
             </div> 
+            
             <script>
-            // OPTIMIZATION: Wrapped in requestAnimationFrame to avoid blocking main thread during navigation
+            // IMAGE OPTIMIZATION
             document.addEventListener('turbo:load', () => {
                 requestAnimationFrame(() => {
                     const articleBody = document.querySelector('.article-body');
@@ -228,10 +246,7 @@ permalink: /latest.html
                             const figure = document.createElement('figure');
                             figure.classList.add('article-figure');
                             const clonedImg = img.cloneNode(true);
-                            
-                            // Optimization: Lazy load these images
                             clonedImg.setAttribute('loading', 'lazy');
-                            
                             figure.appendChild(clonedImg);
 
                             if (hasMeaningfulAlt) {
@@ -251,8 +266,46 @@ permalink: /latest.html
                     });
                 });
             });
+
+            // --- ADDED TABLE SORTING LOGIC (Missing in previous version) ---
+            document.addEventListener('turbo:load', () => {
+                const tables = document.querySelectorAll('.table-container.sortable table');
+                tables.forEach(table => {
+                    if (table.dataset.hasSortListener) return; 
+                    table.dataset.hasSortListener = "true";
+
+                    const headers = table.querySelectorAll('th');
+                    headers.forEach((header, index) => {
+                        header.addEventListener('click', () => {
+                            const tbody = table.querySelector('tbody');
+                            const rows = Array.from(tbody.querySelectorAll('tr'));
+                            const isAsc = header.classList.contains('asc');
+                            
+                            headers.forEach(h => h.classList.remove('asc', 'desc'));
+                            header.classList.toggle('asc', !isAsc);
+                            header.classList.toggle('desc', isAsc);
+                            
+                            const direction = !isAsc ? 1 : -1;
+                            const sortedRows = rows.sort((a, b) => {
+                                const aCol = a.children[index].textContent.trim();
+                                const bCol = b.children[index].textContent.trim();
+                                const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,""));
+                                const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
+                                
+                                if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) {
+                                    return (aNum - bNum) * direction;
+                                }
+                                return aCol.localeCompare(bCol) * direction;
+                            });
+                            
+                            tbody.innerHTML = '';
+                            sortedRows.forEach(row => tbody.appendChild(row));
+                        });
+                    });
+                });
+            });
             </script>
-            </article>
+        </article>
     {% else %}
         <p style="text-align: center;">No posts have been published yet.</p>
     {% endif %}
@@ -292,7 +345,6 @@ document.addEventListener('turbo:load', () => {
 </script>
 
 <script> // Embed Script
-// OPTIMIZATION: Wrapped in requestAnimationFrame
 document.addEventListener('turbo:load', () => {
     requestAnimationFrame(() => {
         const articleBody = document.querySelector('.article-body');
