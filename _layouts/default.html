@@ -50,16 +50,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+        /* 2. LAYOUT FIX: No top padding on body (Fixes blank space) */
         html, body {
-            overflow-x: hidden;
+            overflow-x: hidden; /* Stops horizontal scrolling */
             width: 100%;
             max-width: 100%;
             margin: 0;
-            -webkit-tap-highlight-color: transparent;
         }
         body { 
-            padding-bottom: 80px; 
-            padding-top: 0;
+            padding-bottom: 80px; /* Only bottom padding for nav */
+            padding-top: 0;       /* Removed top padding */
         }
         
         .turbo-progress-bar {
@@ -71,33 +71,23 @@
 
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
-            background-color: #ffffff; 
-            display: grid; 
-            grid-template-columns: repeat(5, 1fr); /* Default 5 columns */
+            background-color: #ffffff; display: grid; grid-template-columns: repeat(5, 1fr);
             align-items: center; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
             z-index: 9999; border-radius: 20px 20px 0 0;
             padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            transform: translateZ(0); 
         }
-
         .bottom-nav-link {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-decoration: none; color: #8e8e8e; font-size: 11px; font-weight: 600;
             height: 100%; position: relative; z-index: 2; cursor: pointer;
             transition: color 0.1s ease; user-select: none;
-            min-width: 0; 
-            overflow: hidden;
-            white-space: nowrap; 
         }
-
         .bottom-nav-link svg {
             width: 24px; height: 24px; margin-bottom: 4px;
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.1s ease;
             stroke-width: 2px;
-            flex-shrink: 0; 
         }
-
         .bottom-nav-link.active { color: #0073e6; }
         .bottom-nav-link.active svg { stroke: #0073e6; transform: translateY(-2px); }
         
@@ -105,26 +95,6 @@
             background-color: #1f2937;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
             border-top: 1px solid #374151;
-        }
-
-        @media (max-width: 380px) {
-            .bottom-nav-link {
-                font-size: 9px; 
-            }
-            .bottom-nav-link svg {
-                width: 20px; 
-                height: 20px;
-                margin-bottom: 2px;
-            }
-        }
-        
-        @media (max-width: 300px) {
-            .bottom-nav-link span {
-                display: none;
-            }
-            .bottom-nav-link svg {
-                margin-bottom: 0;
-            }
         }
     </style>
 
