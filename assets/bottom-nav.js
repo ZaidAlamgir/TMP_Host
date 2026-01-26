@@ -7,23 +7,41 @@
 
     // 1. HIGHLIGHT TABS (Visuals)
     function highlightActiveLink() {
-        const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+        // HELPER: Normalize paths by removing '.html' and trailing '/'
+        // This ensures "/latest", "/latest.html", and "/latest/" all match.
+        const normalize = (path) => path.replace(/(\.html|\/)$/, "") || "/";
+
+        const currentPath = normalize(window.location.pathname);
         const links = document.querySelectorAll(CONFIG.linkSelector);
         
+        // Reset all tabs
         links.forEach(l => l.classList.remove(CONFIG.activeClass));
 
         let matchFound = false;
+
         links.forEach(link => {
             if (matchFound) return;
-            const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, "") || "/";
-            if (linkPath === currentPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+
+            const linkUrl = new URL(link.href, window.location.origin);
+            const linkPath = normalize(linkUrl.pathname);
+
+            // CHECK 1: Exact Match (e.g. /latest matches /latest.html)
+            if (linkPath === currentPath) {
+                link.classList.add(CONFIG.activeClass);
+                matchFound = true;
+            }
+            // CHECK 2: Sub-folder Match (e.g. /post/123 matches /post tab)
+            // We check 'linkPath + /' to ensure /latest-news doesn't falsely match /latest
+            else if (linkPath !== '/' && currentPath.startsWith(linkPath + '/')) {
                 link.classList.add(CONFIG.activeClass);
                 matchFound = true;
             }
         });
 
+        // Fallback: If no tab matched, highlight Home.
+        // We use ID 'nav-home' because it is safer than relying on href="/"
         if (!matchFound) {
-            const home = document.querySelector(`${CONFIG.linkSelector}[href="/"]`);
+            const home = document.getElementById('nav-home');
             if (home) home.classList.add(CONFIG.activeClass);
         }
     }
@@ -34,11 +52,9 @@
         highlightActiveLink();
 
         // B. Force Turbo to fetch the real page from the network
-        // We use 'replace' to swap the frozen body with the real one.
         if (window.Turbo) {
             window.Turbo.visit(window.location.href, { action: "replace" });
         } else {
-            // Fallback if Turbo is missing
             window.location.reload();
         }
     });
@@ -49,7 +65,6 @@
 
     // 4. PREVENT CACHE CONFLICTS
     document.addEventListener('turbo:before-cache', () => {
-        // Clean the DOM before saving
         document.querySelectorAll(CONFIG.linkSelector).forEach(l => l.classList.remove(CONFIG.activeClass));
     });
 
