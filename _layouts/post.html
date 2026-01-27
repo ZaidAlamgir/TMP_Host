@@ -9,7 +9,7 @@ layout: default
     "@type": "WebPage",
     "@id": "{{ page.url | absolute_url }}"
   },
-  "headline": "{{ page.title | escape }}",
+  "headline": "{{ page.title | strip_html | escape }}",
   "image": [
     "{{ page.image | absolute_url }}"
    ],
@@ -33,19 +33,53 @@ layout: default
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;900&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
 
     .article-container { max-width: 1000px; margin: 0 auto; padding: 0.5rem 1rem 2rem 1rem; color: #111827; flex-grow: 1; }
-    .article-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px; line-height: 1.2; margin-bottom: 0.75rem; }
+    
+    /* --- HEADLINE & SUBHEADLINE STYLES --- */
+    .article-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px; line-height: 1.2; margin-bottom: 0.75rem; word-wrap: break-word; }
     .article-subheadline { font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563; line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400; }
+
+    /* Ensure Rich Text (Bold/Italic/Underline/Link) works in Headlines */
+    .article-headline b, .article-headline strong { font-weight: 900; color: inherit; }
+    .article-headline i, .article-headline em { font-style: italic; color: inherit; }
+    .article-headline u { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+    .article-headline a { color: inherit; text-decoration: underline; text-decoration-color: #1d4ed8; transition: color 0.2s; }
+    .article-headline a:hover { color: #1d4ed8; }
+
+    .article-subheadline b, .article-subheadline strong { font-weight: 700; color: inherit; }
+    .article-subheadline i, .article-subheadline em { font-style: italic; }
+    .article-subheadline u { text-decoration: underline; }
+    .article-subheadline a { color: #1d4ed8; text-decoration: underline; }
+
+    /* --- BODY STYLES --- */
     .article-body p { font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8; margin-bottom: 1.5rem; }
+    
+    /* Rich Text in Body */
+    .article-body b, .article-body strong { font-weight: 700; }
+    .article-body i, .article-body em { font-style: italic; }
+    .article-body u { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    
+    /* Links in Body */
     .article-body a { 
         color: #1d4ed8; 
         text-decoration: underline; 
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
         word-break: break-all;
         overflow-wrap: anywhere; 
+        cursor: pointer;
     }
+    .article-body a:hover { color: #1e40af; text-decoration-thickness: 2px; }
 
+    /* Image Styling */
+    .article-figure { max-width: 100%; margin: 2rem auto; padding: 0; border: none; }
+    .article-figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px; }
+    .article-body > p > img:only-child, .article-body > img { max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; }
+    .article-image-caption { font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280; margin-top: 0.5rem; margin-bottom: 2rem; text-align: center; display: block; }
+
+    /* --- TABLE STYLES --- */
     .table-scroll-wrapper { position: relative; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
     .article-body .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; background: white; }
     .article-body table { width: 100%; border-collapse: collapse; min-width: 600px; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0; }
@@ -63,21 +97,27 @@ layout: default
     .table-scroll-wrapper::after { content: '\f061'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 0; right: 0; bottom: 0; width: 40px; background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1) 80%); display: flex; align-items: center; justify-content: center; color: #94a3b8; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; font-size: 12px; padding-left: 10px; }
     .table-scroll-wrapper.is-scrollable::after { opacity: 1; }
     .table-scroll-wrapper.scrolled-end::after { opacity: 0; }
+
+    /* --- EMBED STYLES --- */
     .embed-container { margin: 2rem 0; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 100%; }
     .embed-caption { margin-top: 10px; padding: 12px; background: #f9fafb; border-left: 4px solid #1d4ed8; color: #374151; font-family: 'Inter', sans-serif; font-size: 0.95rem; width: 100%; max-width: 550px; text-align: left; border-radius: 4px; line-height: 1.5; word-wrap: break-word; }
+    
+    /* Allow rich text inside captions too */
+    .embed-caption b, .embed-caption strong { font-weight: 700; }
+    .embed-caption i, .embed-caption em { font-style: italic; }
+    .embed-caption a { color: #1d4ed8; text-decoration: underline; }
+
     iframe.embed-responsive { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .twitter-tweet { margin: 0 auto !important; max-width: 550px !important; width: 100% !important; }
 
+    /* --- META & LAYOUT --- */
     .article-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; }
     .author-name { font-weight: 600; font-family: 'Inter', sans-serif; }
     .publish-date { font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif; }
     .share-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: #f3f4f6; color: #374151; border: none; cursor: pointer; font-size: 1rem; }
     .article-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
     .tag { background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; margin-bottom: 0.1rem; } 
-    .article-figure { max-width: 100%; margin: 2rem auto; padding: 0; border: none; }
-    .article-figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px; }
-    .article-body > p > img:only-child, .article-body > img { max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; }
-    .article-image-caption { font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280; margin-top: 0.5rem; margin-bottom: 2rem; text-align: center; display: block; }
+    
     .article-body h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1rem; }
     .article-body h3 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
     .article-body h4 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; }
@@ -110,8 +150,13 @@ layout: default
                 {% for tag in page.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
             </div>
             {% endif %}
+            
             <h1 class="article-headline">{{ page.title }}</h1>
-            {% if page.subheadline %}<p class="article-subheadline">{{ page.subheadline }}</p>{% endif %}
+            
+            {% if page.subheadline %}
+                <div class="article-subheadline">{{ page.subheadline }}</div>
+            {% endif %}
+            
             <div class="article-meta">
                 <div>
                     <div class="author-name">
@@ -138,10 +183,13 @@ layout: default
         <div class="article-body">
             {% if page.image %}
             <figure class="article-figure">
-                <img src="{{ page.image }}" alt="{{ page.image_description | default: 'Article main image' }}">
-                {% if page.image_description %}<figcaption class="article-image-caption">{{ page.image_description }}</figcaption>{% endif %}
+                <img src="{{ page.image }}" alt="{{ page.image_description | strip_html | default: 'Article main image' }}">
+                {% if page.image_description %}
+                    <figcaption class="article-image-caption">{{ page.image_description }}</figcaption>
+                {% endif %}
             </figure>
             {% endif %}
+            
             {{ content }}
         </div> 
     </article> 

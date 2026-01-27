@@ -15,7 +15,7 @@
         /* Glass Panel & General UI */
         .glass-panel { background: white; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         
-        /* --- UPDATED BLOCK STYLES --- */
+        /* --- DYNAMIC BLOCK STYLES --- */
         .dynamic-content-block {
             border: 1px solid #e2e8f0; border-radius: 0.75rem; 
             padding: 3.5rem 1.25rem 1.5rem 1.25rem; margin-top: 1.5rem; background-color: #ffffff; position: relative; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: all 0.2s ease;
@@ -40,6 +40,47 @@
         }
         .remove-block-btn:hover { background-color: #fee2e2; }
         .sortable-ghost { opacity: 0.4; background: #f8fafc; border: 2px dashed #cbd5e1; }
+
+        /* --- RICH TEXT EDITOR STYLES --- */
+        .rich-editor-wrapper {
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            background: #fff;
+            overflow: hidden;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .rich-editor-wrapper:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .rich-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .rich-content-area {
+            min-height: 80px;
+            padding: 0.75rem;
+            outline: none;
+            line-height: 1.6;
+            color: #334155;
+            overflow-y: auto;
+        }
+        /* Specific heights for specific fields */
+        .rich-content-area.headline-editor { min-height: 60px; font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
+        .rich-content-area.subheadline-editor { min-height: 50px; font-size: 1rem; color: #475569; }
+        .rich-content-area.caption-editor { min-height: 40px; font-size: 0.875rem; }
+        
+        .rich-content-area:empty:before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block;
+        }
 
         /* Chips */
         .tag-suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
@@ -84,6 +125,18 @@
         .link-modal-btn.primary { background-color: #4f46e5; color: white; }
         .link-modal-btn.secondary { background-color: #f3f4f6; color: #374151; }
 
+        /* --- TOOLBAR BUTTON STYLES --- */
+        .tool-btn { 
+            padding: 5px 8px; border-radius: 4px; border: 1px solid transparent; 
+            cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border-color: #cbd5e1;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .tool-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
+        .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
+        
+        .color-picker-wrapper { position: relative; display: flex; align-items: center; }
+        input[type="color"] { width: 20px; height: 20px; padding: 0; border: none; background: none; cursor: pointer; }
+
         /* --- TABLE FEATURE STYLES --- */
         .table-wrapper { 
             overflow-x: auto; background: white; border: 1px solid #e2e8f0; 
@@ -101,25 +154,12 @@
         .sheet-cell:empty:before { content: attr(data-placeholder); color: #94a3b8; }
         .sheet-table thead .sheet-cell { font-weight: 700; color: #1e293b; text-align: center; }
         
-        /* Table Toolbar */
         .table-toolbar-container { background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 4px; }
         .table-toolbar-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 4px; }
         .table-toolbar-row:not(:last-child) { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; }
         .table-tool-group { display: flex; gap: 2px; border-right: 1px solid #cbd5e1; padding-right: 6px; margin-right: 2px; }
         .table-tool-group:last-child { border-right: none; }
         
-        .tool-btn { 
-            padding: 6px 8px; border-radius: 4px; border: 1px solid transparent; 
-            cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border-color: #cbd5e1;
-            display: flex; align-items: center; gap: 4px;
-        }
-        .tool-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
-        .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
-        
-        .color-picker-wrapper { position: relative; display: flex; align-items: center; }
-        input[type="color"] { width: 28px; height: 28px; padding: 0; border: none; background: none; cursor: pointer; }
-        
-        /* Table Settings */
         .table-settings-container { margin-top: 10px; padding: 12px; background: #f1f5f9; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
         .table-caption-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; background: white; display: block; }
         .table-footer-options { display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b; }
@@ -201,13 +241,11 @@
 
             <div class="space-y-6">
                 <div>
-                    <label for="article-headline" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Headline</label>
-                    <textarea id="article-headline" rows="1" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold text-xl md:text-2xl leading-normal text-slate-900 placeholder-slate-400" placeholder="The main title of the article"></textarea>
-                </div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Headline</label>
+                    <div id="article-headline-container"></div> </div>
                 <div>
-                    <label for="article-subheadline" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Subheadline</label>
-                    <textarea id="article-subheadline" rows="1" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base md:text-lg leading-normal text-slate-600 placeholder-slate-400" placeholder="A brief, engaging summary"></textarea>
-                </div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Subheadline</label>
+                    <div id="article-subheadline-container"></div> </div>
             </div>
 
              <hr class="my-8 border-slate-100">
@@ -230,15 +268,15 @@
              </div>
              
              <div class="mb-8">
-                <label for="article-main-image-desc" class="block text-sm font-medium text-slate-700 mb-1">Main Image Alt Text</label>
-                <textarea id="article-main-image-desc" rows="2" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400 leading-normal" placeholder="A short description of the main image (for accessibility)"></textarea>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Main Image Alt Text / Caption</label>
+                <div id="article-main-image-desc-container"></div>
              </div>
 
              <hr class="my-8 border-slate-100">
 
              <div class="mb-4">
                 <label for="article-p1" class="block text-sm font-bold text-slate-800 mb-2">Article Content (Start)</label>
-                <textarea id="article-p1" rows="6" class="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 leading-relaxed text-slate-700 placeholder-slate-400" placeholder="The first paragraph of your article..."></textarea>
+                <div id="article-p1-container"></div>
              </div>
 
              <div id="dynamic-content-blocks"></div>
@@ -362,7 +400,6 @@
             legacyOwner: 'zaidalamgir',
             repoBranch: 'main',
             tokenExchangeUrl: 'https://github-auth-proxy-org.zaidkhan137782.workers.dev',
-            // NEW: Notification Configuration
             notifyOwner: 'ZaidAlamgir',
             notifyRepo: 'TMPnews_notify'
         };
@@ -396,7 +433,7 @@
         const saveIndicator = document.getElementById('save-indicator');
 
         // Global State
-        let accessToken = null, activeTextarea = null, activeContentEditable = null, activeTableBlockId = null;
+        let accessToken = null, activeContentEditable = null, activeTableBlockId = null;
         let selectionStart = 0, selectionEnd = 0;
         let saveTimeout = null;
 
@@ -404,14 +441,41 @@
         // 2. HELPER FUNCTIONS
         // ==========================================
         
-        const autoExpandTextarea = (textarea) => {
-            if (!textarea) return;
-            const currentScrollY = window.scrollY;
-            const currentScrollX = window.scrollX;
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
-            window.scrollTo(currentScrollX, currentScrollY);
+        // --- RICH TEXT FORMATTING HELPER ---
+        window.formatText = function(cmd, value = null) {
+            document.execCommand(cmd, false, value);
+            triggerSave();
+            if (activeContentEditable) {
+                activeContentEditable.focus();
+            }
         };
+
+        // --- RENDER RICH EDITOR ---
+        // Helper to create consistent editors everywhere
+        function renderRichEditor(id, placeholder, value, customClass = '') {
+            return `
+            <div class="rich-editor-wrapper">
+                <div class="rich-toolbar">
+                    <button class="tool-btn" onmousedown="event.preventDefault(); formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault(); formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault(); formatText('underline')" title="Underline"><i class="fas fa-underline"></i></button>
+                    <button class="tool-btn" onmousedown="event.preventDefault(); showLinkModal()" title="Link"><i class="fas fa-link"></i></button>
+                    <div class="color-picker-wrapper tool-btn" title="Text Color">
+                        <i class="fas fa-palette mr-1"></i>
+                        <input type="color" onchange="formatText('foreColor', this.value)">
+                    </div>
+                </div>
+                <div id="${id}" class="rich-content-area ${customClass}" contenteditable="true" data-placeholder="${placeholder}">${value || ''}</div>
+            </div>`;
+        }
+
+        // Initialize Static Rich Editors
+        function initStaticEditors() {
+            document.getElementById('article-headline-container').innerHTML = renderRichEditor('article-headline', 'The main title of the article', '', 'headline-editor');
+            document.getElementById('article-subheadline-container').innerHTML = renderRichEditor('article-subheadline', 'A brief, engaging summary', '', 'subheadline-editor');
+            document.getElementById('article-main-image-desc-container').innerHTML = renderRichEditor('article-main-image-desc', 'A short description for accessibility', '', 'caption-editor');
+            document.getElementById('article-p1-container').innerHTML = renderRichEditor('article-p1', 'The first paragraph of your article...', '');
+        }
 
         function renderCountries(filterText = '') {
             countryContainer.innerHTML = ''; 
@@ -530,12 +594,12 @@
         }
         function hideLinkModal() {
             linkModal.classList.remove('visible');
-            activeTextarea = null;
         }
         const showLogin = () => { loginView.classList.remove('hidden'); editorView.classList.add('hidden'); };
         const showEditor = () => { 
             loginView.classList.add('hidden'); 
             editorView.classList.remove('hidden'); 
+            initStaticEditors(); // Init the static fields
             restoreDraft(); // RESTORE DATA ON LOAD
         };
 
@@ -549,15 +613,19 @@
         }
 
         function saveDraft() {
+            // Check if elements exist before saving (prevents errors if called too early)
+            if(!document.getElementById('article-headline')) return;
+
             const draft = {
                 timestamp: Date.now(),
                 repo: document.getElementById('target-repo-select').value,
-                headline: document.getElementById('article-headline').value,
-                subheadline: document.getElementById('article-subheadline').value,
+                // CHANGED: Use innerHTML for all rich fields
+                headline: document.getElementById('article-headline').innerHTML,
+                subheadline: document.getElementById('article-subheadline').innerHTML,
                 mainImageUrl: document.getElementById('article-main-image-url').value,
                 author: document.getElementById('article-author').value,
-                mainImageDesc: document.getElementById('article-main-image-desc').value,
-                p1: document.getElementById('article-p1').value,
+                mainImageDesc: document.getElementById('article-main-image-desc').innerHTML,
+                p1: document.getElementById('article-p1').innerHTML,
                 tags: document.getElementById('article-tags').value,
                 categories: document.getElementById('article-categories').value,
                 blocks: []
@@ -568,7 +636,6 @@
                 const blockData = { type: type, id: block.id };
                 
                 if (type === 'table') {
-                    // Check if table is created or in setup stage
                     const editorStage = block.querySelector('.editor-stage');
                     if (!editorStage.classList.contains('hidden')) {
                          blockData.caption = block.querySelector('.table-caption-input').value;
@@ -580,25 +647,27 @@
                         blockData.isTableReady = false;
                     }
                 } else if (['headline-h2','headline-h3','headline-h4'].includes(type)) {
-                    blockData.value = block.querySelector('.dynamic-headline').value;
+                    // CHANGED: Rich Text
+                    blockData.value = block.querySelector('.rich-content-area').innerHTML;
                 } else if (type === 'paragraph') {
-                    blockData.value = block.querySelector('.dynamic-paragraph').value;
+                    blockData.value = block.querySelector('.rich-content-area').innerHTML;
                 } else if (type === 'quote') {
-                    blockData.value = block.querySelector('.dynamic-quote').value;
+                    // CHANGED: Rich Text
+                    blockData.value = block.querySelector('.rich-content-area').innerHTML;
                 } else if (type === 'image') {
                     blockData.url = block.querySelector('.dynamic-image-url').value;
-                    blockData.desc = block.querySelector('.dynamic-image-desc').value;
+                    // CHANGED: Rich Text Desc
+                    blockData.desc = block.querySelector('.rich-content-area').innerHTML;
                 } else {
-                    // Social
                     blockData.url = block.querySelector('.dynamic-social-url').value;
-                    blockData.caption = block.querySelector('.dynamic-social-caption').value;
+                    // CHANGED: Rich Text Caption
+                    blockData.caption = block.querySelector('.rich-content-area').innerHTML;
                 }
                 draft.blocks.push(blockData);
             });
 
             localStorage.setItem('tmp_cms_draft', JSON.stringify(draft));
             
-            // Show saved indicator
             saveIndicator.classList.add('visible');
             setTimeout(() => saveIndicator.classList.remove('visible'), 2000);
         }
@@ -610,12 +679,15 @@
             try {
                 const draft = JSON.parse(saved);
                 document.getElementById('target-repo-select').value = draft.repo || 'tmp-articles-world-politics';
-                document.getElementById('article-headline').value = draft.headline || '';
-                document.getElementById('article-subheadline').value = draft.subheadline || '';
+                
+                // CHANGED: Set innerHTML for Rich Fields
+                if(document.getElementById('article-headline')) document.getElementById('article-headline').innerHTML = draft.headline || '';
+                if(document.getElementById('article-subheadline')) document.getElementById('article-subheadline').innerHTML = draft.subheadline || '';
+                if(document.getElementById('article-main-image-desc')) document.getElementById('article-main-image-desc').innerHTML = draft.mainImageDesc || '';
+                if(document.getElementById('article-p1')) document.getElementById('article-p1').innerHTML = draft.p1 || '';
+                
                 document.getElementById('article-main-image-url').value = draft.mainImageUrl || '';
                 document.getElementById('article-author').value = draft.author || 'TMP Staff';
-                document.getElementById('article-main-image-desc').value = draft.mainImageDesc || '';
-                document.getElementById('article-p1').value = draft.p1 || '';
                 document.getElementById('article-tags').value = draft.tags || '';
                 document.getElementById('article-categories').value = draft.categories || '';
 
@@ -627,9 +699,6 @@
                     });
                 }
                 
-                // Expand textareas
-                document.querySelectorAll('textarea').forEach(autoExpandTextarea);
-
             } catch (e) {
                 console.error("Failed to restore draft", e);
             }
@@ -648,7 +717,7 @@
                 animation: 150,
                 handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
-                onEnd: function() { triggerSave(); } // Save on reorder
+                onEnd: function() { triggerSave(); }
             });
 
             renderCountries();
@@ -688,9 +757,15 @@
 
         // --- AUTH EVENTS ---
         loginButton.addEventListener('click', () => {
-            const finalDestination = window.location.origin + window.location.pathname;
-            localStorage.setItem('auth_redirect_info', JSON.stringify({ destination: finalDestination, cms_id: 'org_cms' })); 
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&scope=repo,user:email&org=${GITHUB_CONFIG.orgOwner}&state=org_cms`;
+            const finalDestination = window.location.href; // Get full current URL including localhost port
+            const stateObj = {
+                id: 'org_cms',
+                dest: finalDestination
+            };
+            const stateEncoded = btoa(JSON.stringify(stateObj));
+            
+            // Encode the state parameter to ensure special chars don't break the URL
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CONFIG.clientId}&scope=repo,user:email&org=${GITHUB_CONFIG.orgOwner}&state=${encodeURIComponent(stateEncoded)}`;
             window.location.href = authUrl;
         });
 
@@ -711,84 +786,35 @@
 
         // --- GLOBAL EVENTS (Auto-Save Hooks) ---
         editorView.addEventListener('input', e => {
-            // Auto expand textareas
-            if (e.target.tagName.toLowerCase() === 'textarea') {
-                autoExpandTextarea(e.target);
-            }
-            // Trigger Save on any input change
             triggerSave(); 
         });
         
-        // Save on select changes too
         editorView.addEventListener('change', triggerSave);
 
-        editorView.addEventListener('mouseup', (e) => {
-            if (e.target.classList.contains('sheet-cell')) return;
-            if (e.target.tagName.toLowerCase() === 'textarea') {
-                const textarea = e.target;
-                if (textarea.selectionStart !== textarea.selectionEnd) {
-                    activeTextarea = textarea;
-                    selectionStart = textarea.selectionStart;
-                    selectionEnd = textarea.selectionEnd;
-                    showLinkModal();
-                }
-            }
-        });
-
         document.addEventListener('focusin', (e) => {
-            if (e.target.classList.contains('sheet-cell')) {
+            if (e.target.isContentEditable) {
                 activeContentEditable = e.target;
-                const block = e.target.closest('.dynamic-content-block');
-                if (block && block.dataset.blockType === 'table') {
-                    debouncedTableSave(block.id);
-                }
-            }
-        });
-
-        countrySearchInput.addEventListener('input', (e) => {
-            renderCountries(e.target.value);
-        });
-
-        countryContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('country-chip')) {
-                const countryNameRaw = e.target.dataset.country;
-                const countrySlug = countryNameRaw.toLowerCase().replace(/\s+/g, '-');
-                const currentCats = categoriesInput.value.split(',').map(c => c.trim()).filter(c => c);
-                if (!currentCats.includes(countrySlug)) {
-                    categoriesInput.value = categoriesInput.value.trim() === '' ? countrySlug : `${categoriesInput.value.trim()}, ${countrySlug}`;
-                    const originalText = e.target.textContent;
-                    e.target.textContent = "Added!";
-                    e.target.style.backgroundColor = "#10b981"; e.target.style.color = "white";
-                    setTimeout(() => { e.target.textContent = originalText; e.target.style.backgroundColor = ""; e.target.style.color = ""; }, 800);
-                    triggerSave();
+                if (e.target.classList.contains('sheet-cell')) {
+                    const block = e.target.closest('.dynamic-content-block');
+                    if (block && block.dataset.blockType === 'table') {
+                        debouncedTableSave(block.id);
+                    }
                 }
             }
         });
 
         // Link Modal
         addLinkBtn.addEventListener('click', () => {
-            if (activeTextarea) {
-                const url = linkUrlInput.value.trim();
-                if (url) {
-                    const selectedText = activeTextarea.value.substring(selectionStart, selectionEnd);
-                    const linkMarkdown = `[${selectedText}](${url})`;
-                    activeTextarea.setRangeText(linkMarkdown, selectionStart, selectionEnd, 'select');
-                    triggerSave();
-                }
-                hideLinkModal();
-            } else if (activeContentEditable) {
-                const url = linkUrlInput.value.trim();
-                if(url) {
-                    activeContentEditable.focus();
-                    document.execCommand('createLink', false, url);
-                    triggerSave();
-                }
-                hideLinkModal();
+            const url = linkUrlInput.value.trim();
+            if (url && activeContentEditable) {
+                activeContentEditable.focus();
+                document.execCommand('createLink', false, url);
+                triggerSave();
             }
+            hideLinkModal();
         });
         cancelLinkBtn.addEventListener('click', hideLinkModal);
         
-        // Tag Suggestions
         document.getElementById('tag-suggestions-container').addEventListener('click', (e) => {
             if (e.target.classList.contains('tag-chip')) {
                 const newTag = e.target.dataset.tag;
@@ -800,7 +826,6 @@
             }
         });
 
-        // Cat Suggestions
         document.getElementById('category-suggestions-container').addEventListener('click', (e) => {
             if (e.target.classList.contains('category-chip')) {
                 const newCat = e.target.dataset.cat;
@@ -814,7 +839,7 @@
 
 
         // ==========================================
-        // 5. TABLE LOGIC (FIXED)
+        // 5. TABLE LOGIC
         // ==========================================
         window.createTable = function(id) {
             const block = document.getElementById(id);
@@ -976,18 +1001,15 @@
             }
         };
 
-        // Handle Paste Import with Pipe Support
         confirmPasteBtn.onclick = () => {
             if(!activeTableBlockId) return;
             saveTableState(activeTableBlockId);
             const data = document.getElementById('paste-input').value.trim();
             if(!data) return;
 
-            // Check if data is pipe separated
             const isPipe = data.includes('|');
             const rows = data.split('\n');
             
-            // Build Head
             let headHtml = '<tr>';
             const headCells = rows[0].split(isPipe ? '|' : '\t');
             headCells.forEach(cell => {
@@ -995,7 +1017,6 @@
             });
             headHtml += '</tr>';
 
-            // Build Body
             let bodyHtml = '';
             for(let i = 1; i < rows.length; i++) {
                 bodyHtml += '<tr>';
@@ -1010,11 +1031,9 @@
             block.querySelector('.sheet-head').innerHTML = headHtml;
             block.querySelector('.sheet-body').innerHTML = bodyHtml;
             
-            // Switch to editor view if not already
             block.querySelector('.setup-stage').classList.add('hidden');
             block.querySelector('.editor-stage').classList.remove('hidden');
 
-            // Update col count input just in case
             block.querySelector('.col-input').value = headCells.length;
             initTableHistory(activeTableBlockId);
             
@@ -1024,7 +1043,6 @@
 
         // --- BLOCK MANAGEMENT ---
         
-        // Refactored to allow generating HTML with data
         function createBlockHTML(blockType, blockId, data = {}) {
              let blockTitle = blockType.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             if (blockType.startsWith('headline')) {
@@ -1120,11 +1138,22 @@
             } else {
                 blockHTML += `<h3 class="text-sm font-bold uppercase text-slate-400 mb-3">${blockTitle}</h3>`;
                 switch (blockType) {
-                    case 'paragraph': blockHTML += `<textarea class="dynamic-paragraph w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="6" placeholder="Continue your article...">${data.value || ''}</textarea>`; break;
-                    case 'headline-h2': case 'headline-h3': case 'headline-h4': blockHTML += `<input type="text" class="dynamic-headline w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold" placeholder="Enter headline text..." value="${data.value || ''}">`; break;
-                    case 'image': blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg" value="${data.url || ''}"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label><textarea rows="1" class="dynamic-image-desc w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short description of this image">${data.desc || ''}</textarea></div>`; break;
-                    case 'quote': blockHTML += `<textarea class="dynamic-quote w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" rows="3" placeholder="Enter the quote here...">${data.value || ''}</textarea>`; break;
-                    default: blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste the full post URL" value="${data.url || ''}"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label><textarea rows="1" class="dynamic-social-caption w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="A short caption for the embed">${data.caption || ''}</textarea></div>`; break;
+                    // CHANGED: Render Rich Editors for Everything
+                    case 'paragraph': 
+                        blockHTML += renderRichEditor(`${blockId}-editor`, 'Continue your article...', data.value || '');
+                        break;
+                    case 'headline-h2': case 'headline-h3': case 'headline-h4': 
+                        blockHTML += renderRichEditor(`${blockId}-editor`, 'Enter headline text...', data.value || '', 'headline-editor');
+                        break;
+                    case 'image': 
+                        blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">Image URL</label><input type="text" class="dynamic-image-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://example.com/image.jpg" value="${data.url || ''}"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Image Description</label>${renderRichEditor(`${blockId}-desc`, 'A short description of this image', data.desc || '', 'caption-editor')}</div>`; 
+                        break;
+                    case 'quote': 
+                        blockHTML += renderRichEditor(`${blockId}-quote`, 'Enter the quote here...', data.value || '');
+                        break;
+                    default: 
+                        blockHTML += `<div class="mb-4"><label class="block text-sm font-medium text-slate-700 mb-1">${blockTitle} Post URL</label><input type="text" class="dynamic-social-url w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste the full post URL" value="${data.url || ''}"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Caption (optional)</label>${renderRichEditor(`${blockId}-caption`, 'A short caption for the embed', data.caption || '', 'caption-editor')}</div>`; 
+                        break;
                 }
             }
             return blockHTML;
@@ -1137,15 +1166,13 @@
             newBlock.id = blockId;
             newBlock.innerHTML = createBlockHTML(blockType, blockId, data);
             dynamicBlocksContainer.appendChild(newBlock);
-            if(data.isTableReady) initTableHistory(blockId); // Init history for restored tables
+            if(data.isTableReady) initTableHistory(blockId); 
         }
 
         addBlockButton.addEventListener('click', () => {
             const blockType = blockTypeSelect.value;
             const blockId = `dynamic-block-${Date.now()}`;
             addBlockToDOM(blockType, blockId);
-            const newBlock = document.getElementById(blockId);
-            newBlock.querySelectorAll('textarea').forEach(autoExpandTextarea);
             triggerSave();
         });
 
@@ -1155,7 +1182,6 @@
             
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.notifyOwner}/${GITHUB_CONFIG.notifyRepo}/dispatches`;
             
-            // Notification Payload
             const payload = {
                 event_type: "new_notification",
                 client_payload: {
@@ -1169,7 +1195,6 @@
             };
 
             try {
-                // We use the SAME accessToken that we used for publishing
                 const response = await fetch(url, {
                     method: "POST",
                     headers: {
@@ -1185,7 +1210,6 @@
                 } else {
                     const errText = await response.text();
                     console.error("❌ Notification Signal Failed:", errText);
-                    // Warn user if it fails (likely due to permissions)
                     updateStatus(`Article Saved! (Notification Signal Failed: ${errText})`, '#f59e0b');
                 }
             } catch (error) {
@@ -1194,8 +1218,8 @@
         }
 
         publishButton.addEventListener('click', async () => {
-            const headline = document.getElementById('article-headline').value.trim();
-            const paragraph1 = document.getElementById('article-p1').value.trim();
+            const headline = document.getElementById('article-headline').innerHTML.trim(); // Rich Text
+            const paragraph1 = document.getElementById('article-p1').innerHTML.trim(); // Rich Text
             const selectedRepo = document.getElementById('target-repo-select').value;
             
             if (!headline || !paragraph1) {
@@ -1205,14 +1229,15 @@
 
             setPublishingState(true);
             
-            const subheadline = document.getElementById('article-subheadline').value.trim();
+            const subheadline = document.getElementById('article-subheadline').innerHTML.trim(); // Rich Text
             const mainImageUrl = document.getElementById('article-main-image-url').value.trim();
-            const mainImageDesc = document.getElementById('article-main-image-desc').value.trim();
+            const mainImageDesc = document.getElementById('article-main-image-desc').innerHTML.trim(); // Rich Text
             const authorName = document.getElementById('article-author').value.trim();
             const tags = tagsInput.value.trim();
             const categories = categoriesInput.value.trim(); 
 
             let frontmatter = `---\n`;
+            // Escape quotes but KEEP HTML tags for rich rendering
             frontmatter += `title: "${headline.replace(/"/g, '\\"')}"\n`;
             if (subheadline) frontmatter += `subheadline: "${subheadline.replace(/"/g, '\\"')}"\n`;
             frontmatter += `date: ${new Date().toISOString()}\n`;
@@ -1266,22 +1291,23 @@
                 }
                 else {
                     switch (blockType) {
-                        case 'paragraph': body += `${block.querySelector('.dynamic-paragraph').value.trim()}\n\n`; break;
-                        case 'headline-h2': body += `## ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
-                        case 'headline-h3': body += `### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
-                        case 'headline-h4': body += `#### ${block.querySelector('.dynamic-headline').value.trim()}\n\n`; break;
+                        // CHANGED: Get innerHTML for all these block types
+                        case 'paragraph': body += `${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
+                        case 'headline-h2': body += `## ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
+                        case 'headline-h3': body += `### ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
+                        case 'headline-h4': body += `#### ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
                         case 'image':
                             const imageUrl = block.querySelector('.dynamic-image-url').value.trim();
-                            const imageDesc = block.querySelector('.dynamic-image-desc').value.trim();
+                            const imageDesc = block.querySelector('.rich-content-area').innerHTML.trim();
                             if (imageUrl) body += `![${imageDesc || 'Article image'}](${imageUrl})\n\n`;
                             break;
                         case 'quote':
-                            const quote = block.querySelector('.dynamic-quote').value.trim();
+                            const quote = block.querySelector('.rich-content-area').innerHTML.trim();
                             if (quote) body += `> ${quote.replace(/\n/g, '\n> ')}\n\n`;
                             break;
                         default:
                             const url = block.querySelector('.dynamic-social-url').value.trim();
-                            const caption = block.querySelector('.dynamic-social-caption').value.trim();
+                            const caption = block.querySelector('.rich-content-area').innerHTML.trim();
                             
                             if (url) {
                                 let embedHtml = '';
@@ -1321,7 +1347,7 @@
             const fileContent = frontmatter + body;
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
-            const slug = headline.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const slug = headline.replace(/<[^>]*>/g, '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''); // Strip HTML for filename
             
             let filePath, owner;
 
@@ -1335,7 +1361,7 @@
                 owner = GITHUB_CONFIG.orgOwner; 
             }
 
-            const commitMessage = `feat: Add new article "${headline}"`;
+            const commitMessage = `feat: Add new article "${headline.replace(/<[^>]*>/g, '')}"`;
             const url = `https://api.github.com/repos/${owner}/${selectedRepo}/contents/${filePath}`;
             
             try {
@@ -1371,8 +1397,12 @@
                     clearDraft();
                     
                     editorView.querySelectorAll('input:not(.sheet-cell), textarea').forEach(el => { if(el.id !== 'article-author') el.value = ''; });
+                    // Clear Rich Text Areas
+                    document.getElementById('article-headline').innerHTML = '';
+                    document.getElementById('article-subheadline').innerHTML = '';
+                    document.getElementById('article-main-image-desc').innerHTML = '';
+                    document.getElementById('article-p1').innerHTML = '';
                     dynamicBlocksContainer.innerHTML = '';
-                    document.querySelectorAll('textarea').forEach(autoExpandTextarea);
                 } else {
                     const error = await response.json();
                     throw new Error(error.message || `GitHub API returned status ${response.status}`);
