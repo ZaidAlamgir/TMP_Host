@@ -25,9 +25,22 @@
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-            const state = urlParams.get('state'); // Get the state to identify the CMS
+            const stateRaw = urlParams.get('state');
+
+            // 1. Attempt to decode the State Object (Destination + ID)
+            let stateObj = { id: stateRaw, dest: null };
+            try {
+                // If state is encoded JSON (starts with '{' after decode), parse it
+                const decoded = atob(stateRaw);
+                if (decoded.trim().startsWith('{')) {
+                    stateObj = JSON.parse(decoded);
+                }
+            } catch (e) {
+                // If error, it means state is just a plain string (Legacy support)
+                console.log("Simple state string detected:", stateRaw);
+            }
+
             const redirectInfoJSON = localStorage.getItem('auth_redirect_info');
-            
             // Clean up local storage *after* reading it
             localStorage.removeItem('auth_redirect_info'); 
 
@@ -38,11 +51,10 @@
 
             // --- Logic for Android App ---
             const cameFromApp = urlParams.get('from_app') === 'true';
-            if (cameFromApp && !redirectInfoJSON) {
-                console.log("Google flow from app detected. Displaying 'Return to App' button.");
+            if (cameFromApp) {
+                console.log("Google flow from app detected.");
                 const androidIntentUrl = "intent://auth#Intent;scheme=tmpnews;package=com.alamgir.tmp;end";
-                const container = document.getElementById('auth-container');
-                container.innerHTML = `
+                document.getElementById('auth-container').innerHTML = `
                     <h2>Login Successful!</h2>
                     <p>Please tap the button below to return to the app.</p>
                     <a href="${androidIntentUrl}" class="return-button">Return to App</a>
@@ -50,37 +62,42 @@
                 return;
             }
 
-            // --- Logic for Google Web Login (no redirect info) ---
-            // This checks if it's NOT a CMS login
-            if (!redirectInfoJSON && state !== 'main_cms' && state !== 'org_cms') {
+            // --- Logic for Google Web Login (Not CMS) ---
+            if (!stateObj.dest && !redirectInfoJSON && stateObj.id !== 'main_cms' && stateObj.id !== 'org_cms') {
                  console.log("Google flow from normal web browser. Logging into website.");
-                 setTimeout(() => {
-                     window.location.href = "/"; // Redirect to homepage
-                 }, 500);
+                 setTimeout(() => { window.location.href = "/"; }, 500);
                  document.querySelector("#auth-container p").textContent = "Login successful, redirecting...";
                  return;
             }
 
             // --- Logic for CMS (GitHub Auth) ---
+            console.log("CMS auth flow detected.");
+
+            // PRIORITY 1: Use Destination from URL State (Works Cross-Domain/Localhost)
+            if (stateObj.dest) {
+                window.location.href = `${stateObj.dest}?code=${code}&state=${stateObj.id}`;
+                return;
+            }
+
+            // PRIORITY 2: Use Destination from LocalStorage (Fallback / Same-Domain)
             if (redirectInfoJSON) {
-                console.log("CMS auth flow detected. Redirecting to original page.");
                 const redirectInfo = JSON.parse(redirectInfoJSON);
                 
-                // Check if state matches the CMS ID from local storage
-                if (state !== redirectInfo.cms_id) {
+                if (stateObj.id !== redirectInfo.cms_id) {
                      document.getElementById('auth-container').innerHTML = '<p style="color: red; text-align: center;">Authentication error: State mismatch. Please try logging in again.</p>';
                      return;
                 }
 
-                // Get the original destination (e.g., http://127.0.0.1:4000/ORGcms.html)
-                // This is the magic part for localhost testing
                 const finalRedirect = redirectInfo.destination;
-                
-                // Pass the code back to the correct CMS page
-                window.location.href = `${finalRedirect}?code=${code}&state=${state}`;
+                window.location.href = `${finalRedirect}?code=${code}&state=${stateObj.id}`;
             } else {
-                // This case should rarely happen if login button is correct
-                document.getElementById('auth-container').innerHTML = '<p style="color: red; text-align: center;">Authentication error: Could not find redirect info. Please try logging in again.</p>';
+                // Failure: No destination found in State OR LocalStorage
+                document.getElementById('auth-container').innerHTML = `
+                    <p style="color: red; text-align: center;">
+                        <strong>Authentication Error:</strong> Lost redirect destination.<br><br>
+                        This usually happens if you are testing on Localhost but the callback is on Production.<br>
+                        Please ensure you updated <em>ORGcms.html</em> to use the new state encoding.
+                    </p>`;
             }
         };
     </script>
