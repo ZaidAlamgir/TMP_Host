@@ -2,25 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
+    
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     <script async src="//www.instagram.com/embed.js"></script>
     <script async src="https://www.tiktok.com/embed.js"></script>
 
     <meta name="description" content="{{ page.subheadline | default: site.description | strip_html }}">
-    <meta name="keywords" content="{{ page.tags | default: site.keywords | join: ', ' }}">
+    {% assign meta_keywords = page.tags | default: site.keywords %}
+    <meta name="keywords" content="{{ meta_keywords | join: ', ' }}">
     <link rel="canonical" href="{{ page.url | absolute_url }}">
+    
+    <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta property="og:description" content="{{ page.subheadline | default: site.description | strip_html }}">
+    <meta property="og:image" content="{{ page.image | absolute_url | default: '/android-chrome-512x512.png' | absolute_url }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ page.url | absolute_url }}">
+    <meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta name="twitter:description" content="{{ page.subheadline | default: site.description | strip_html }}">
+    <meta name="twitter:image" content="{{ page.image | absolute_url | default: '/android-chrome-512x512.png' | absolute_url }}">
 
     <script>
         (function() {
             try {
-                if (window.AndroidInterface && window.AndroidInterface.getDarkModeStatus() === 'true') {
+                const isDarkMode = window.AndroidInterface.getDarkModeStatus() === 'true';
+                if (isDarkMode) {
                     document.documentElement.classList.add('dark-mode');
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.log('Flicker-Fix: Not in app. Defaulting to light mode.');
+            }
         })();
     </script>
 
@@ -33,40 +50,51 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        html, body { overflow-x: hidden; width: 100%; margin: 0; }
-        body { padding: 0 0 80px 0; } 
-        .turbo-progress-bar { display: none !important; }
+        /* 2. LAYOUT FIX: No top padding on body (Fixes blank space) */
+        html, body {
+            overflow-x: hidden; /* Stops horizontal scrolling */
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+        }
+        body { 
+            padding-bottom: 80px; /* Only bottom padding for nav */
+            padding-top: 0;       /* Removed top padding */
+        }
+        
+        .turbo-progress-bar {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+        }
 
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
-            min-height: 65px; height: auto; box-sizing: border-box;
-            background: #fff; display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05); border-radius: 20px 20px 0 0;
-            
-            /* --- [THE FIX: Use Variable or Fallback] --- */
-            /* If Android injects the variable, use it. Otherwise, use standard env(). */
-            padding-bottom: var(--native-safe-area-bottom, env(safe-area-inset-bottom)); 
-            
+            position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
+            background-color: #ffffff; display: grid; grid-template-columns: repeat(5, 1fr);
+            align-items: center; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            z-index: 9999; border-radius: 20px 20px 0 0;
+            padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-
         .bottom-nav-link {
-            display: flex; flex-flow: column; align-items: center; justify-content: center;
-            height: 100%; padding: 8px 0; position: relative; z-index: 2;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-decoration: none; color: #8e8e8e; font-size: 11px; font-weight: 600;
-            transition: color 0.1s ease; user-select: none; cursor: pointer;
+            height: 100%; position: relative; z-index: 2; cursor: pointer;
+            transition: color 0.1s ease; user-select: none;
         }
-
         .bottom-nav-link svg {
-            width: 24px; height: 24px; margin-bottom: 4px; stroke-width: 2px;
+            width: 24px; height: 24px; margin-bottom: 4px;
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.1s ease;
+            stroke-width: 2px;
         }
-
         .bottom-nav-link.active { color: #0073e6; }
         .bottom-nav-link.active svg { stroke: #0073e6; transform: translateY(-2px); }
-
-        html.dark-mode .bottom-nav { 
-            background: #1f2937; box-shadow: 0 -4px 20px rgba(0,0,0,0.2); border-top: 1px solid #374151; 
+        
+        html.dark-mode .bottom-nav {
+            background-color: #1f2937;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+            border-top: 1px solid #374151;
         }
     </style>
 
@@ -115,14 +143,18 @@
 
     <script>
     document.addEventListener('turbo:load', () => {
+      const articleBodies = document.querySelectorAll('.article-body, .post-content');
       const internalHostname = 'www.tmpnews.com'; 
-      document.querySelectorAll('.article-body a, .post-content a').forEach(link => {
+      articleBodies.forEach(body => {
+        const links = body.querySelectorAll('a');
+        links.forEach(link => {
           try {
             if (link.hostname && link.hostname !== internalHostname) {
               link.setAttribute('rel', 'nofollow noopener noreferrer');
               link.setAttribute('target', '_blank');
             }
-          } catch(e){}
+          } catch (e) { console.log('Skipping link'); }
+        });
       });
     });
     </script>

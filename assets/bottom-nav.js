@@ -4,8 +4,17 @@
         linkSelector: '.bottom-nav-link',
         activeClass: 'active',
         loaderId: 'android_progress_bar',
-        headerHeight: '51px' 
+        headerSelector: '.header', // Target the header class specifically
+        fallbackHeaderHeight: '51px' 
     };
+
+    // --- HELPER: Normalize URLs (Fixes "Latest" tab issue) ---
+    // Removes trailing slashes AND .html extensions for robust matching
+    function normalizePath(path) {
+        return path
+            .replace(/\/$/, "")       // Remove trailing slash
+            .replace(/\.html$/, "");  // Remove .html extension
+    }
 
     // --- 1. LOADER START ---
     function startLoader() {
@@ -14,27 +23,57 @@
         }
 
         let bar = document.getElementById(CONFIG.loaderId);
+        const header = document.querySelector(CONFIG.headerSelector);
         
         // Create if missing
         if (!bar) {
             bar = document.createElement('div');
             bar.id = CONFIG.loaderId;
-            document.body.appendChild(bar);
+            
+            // [FIX] Inject into Header if possible, otherwise Body
+            if (header) {
+                header.appendChild(bar); 
+            } else {
+                document.body.appendChild(bar);
+            }
         }
 
-        // Force Reset Styles
-        bar.style.cssText = `
-            position: fixed; 
-            top: ${CONFIG.headerHeight}; 
-            left: 0; 
-            height: 3px; 
-            background-color: #0073e6; 
-            z-index: 9999; 
-            width: 0%; 
-            opacity: 1; 
-            pointer-events: none;
-            transition: none;
-        `;
+        // [FIX] Dynamic Positioning Logic
+        // If inside header: Stick to bottom of header using absolute positioning
+        // If fallback: Use fixed positioning
+        if (header && bar.parentNode === header) {
+            bar.style.cssText = `
+                position: absolute; 
+                bottom: 0; 
+                left: 0; 
+                height: 3px; 
+                background-color: #0073e6; 
+                z-index: 9999; 
+                width: 0%; 
+                opacity: 1; 
+                pointer-events: none;
+                transition: none;
+            `;
+            // Ensure header can hold absolute children
+            const headerStyle = window.getComputedStyle(header);
+            if (headerStyle.position === 'static') {
+                header.style.position = 'relative';
+            }
+        } else {
+            // Fallback for when header isn't found
+            bar.style.cssText = `
+                position: fixed; 
+                top: ${CONFIG.fallbackHeaderHeight}; 
+                left: 0; 
+                height: 3px; 
+                background-color: #0073e6; 
+                z-index: 9999; 
+                width: 0%; 
+                opacity: 1; 
+                pointer-events: none;
+                transition: none;
+            `;
+        }
 
         void bar.offsetWidth; // Force Paint
 
@@ -53,7 +92,7 @@
         }, 400);
     }
 
-    // --- 2. LOADER FINISH (The Resurrection Logic) ---
+    // --- 2. LOADER FINISH ---
     function completeLoader() {
         if (window.AndroidInterface && window.AndroidInterface.stopLoadingAnimation) {
             window.AndroidInterface.stopLoadingAnimation();
@@ -61,25 +100,24 @@
 
         let bar = document.getElementById(CONFIG.loaderId);
 
-        // [CRITICAL FIX] If Turbo deleted the bar, resurrect it!
+        // Resurrect if missing (Turbo edge case)
         if (!bar) {
             bar = document.createElement('div');
             bar.id = CONFIG.loaderId;
-            // Start it at 30% so it looks continuous, then zip it
-            bar.style.cssText = `
-                position: fixed; top: ${CONFIG.headerHeight}; left: 0; 
-                height: 3px; background-color: #0073e6; z-index: 9999; 
-                width: 30%; opacity: 1; pointer-events: none; transition: none;
-            `;
+            // Quick set to 30% to look continuous
+            bar.style.width = '30%';
+            bar.style.height = '3px';
+            bar.style.backgroundColor = '#0073e6';
+            bar.style.position = 'fixed'; 
+            bar.style.zIndex = '9999';
             document.body.appendChild(bar);
-            void bar.offsetWidth; 
         }
 
         // ZIP TO 100%
         requestAnimationFrame(() => {
             bar.style.transition = 'width 0.3s ease-out, opacity 0.2s ease 0.2s'; 
             bar.style.width = '100%';
-            bar.style.opacity = '0'; // Start fading out as it hits 100%
+            bar.style.opacity = '0'; 
         });
 
         // Cleanup
@@ -88,22 +126,31 @@
         }, 500); 
     }
 
-    // --- 3. LOGIC ---
+    // --- 3. LOGIC (Updated for robust matching) ---
     function highlightActiveLink() {
-        const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+        // Normalize current window path
+        const currentPath = normalizePath(window.location.pathname) || "/";
+        
         const links = document.querySelectorAll(CONFIG.linkSelector);
         links.forEach(l => l.classList.remove(CONFIG.activeClass));
 
         let matchFound = false;
+        
         links.forEach(link => {
             if (matchFound) return;
-            const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/$/, "") || "/";
+            
+            // Normalize link path
+            const rawLinkPath = new URL(link.href, window.location.origin).pathname;
+            const linkPath = normalizePath(rawLinkPath) || "/";
+
+            // [FIX] Robust comparison
             if (linkPath === currentPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
                 link.classList.add(CONFIG.activeClass);
                 matchFound = true;
             }
         });
 
+        // Default to Home if no match
         if (!matchFound) {
             const home = document.querySelector(`${CONFIG.linkSelector}[href="/"]`);
             if (home) home.classList.add(CONFIG.activeClass);
@@ -117,7 +164,6 @@
         completeLoader();
     });
 
-    // Manual Click Trigger (for instant feel)
     document.addEventListener('click', (e) => {
         const link = e.target.closest(CONFIG.linkSelector);
         if (link && !e.defaultPrevented) {
