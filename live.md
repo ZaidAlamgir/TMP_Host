@@ -41,6 +41,12 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     .live-indicator .dot { width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 8px 2px #ef4444; animation: glow 1.5s infinite ease-in-out; }
     @keyframes glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     
+    /* --- RICH TEXT STYLES ADDED HERE --- */
+    .post-body p strong, .post-body b { font-weight: 700; color: #111827; }
+    .post-body p em, .post-body i { font-style: italic; }
+    .post-body p u, .post-body .rich-underline { text-decoration: underline; text-decoration-color: rgba(0,0,0,0.3); text-underline-offset: 3px; }
+    /* ---------------------------------- */
+
     .post-body p { font-size: 1.125rem; line-height: 1.7; color: #374151; margin-bottom: 1.25rem; }
     .post-body img { max-width: 100%; border-radius: 8px; margin-bottom: 0.25rem; }
     .post-body blockquote { font-style: italic; color: #4b5563; border-left: 3px solid #d1d5db; padding-left: 1.5rem; margin: 1.5rem 0; font-size: 1.1rem; }
@@ -861,6 +867,15 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 if (p.startsWith('__PLACEHOLDER_')) return p;
                 if (p.trim() === '') return '';
                 if (p.trim().startsWith('<div class="table-container"') || p.trim().startsWith('<table')) { return p; }
+                
+                // --- RICH TEXT COMPILATION FEATURE ADDED HERE ---
+                // Compiles <b>, <i>, <u>, and <font color> tags into styled spans/elements
+                p = p.replace(/<b>(.*?)<\/b>/g, '<strong>$1</strong>')
+                     .replace(/<i>(.*?)<\/i>/g, '<em>$1</em>')
+                     .replace(/<u>(.*?)<\/u>/g, '<span class="rich-underline">$1</span>')
+                     .replace(/<font color=["']?([^"'>]+)["']?>(.*?)<\/font>/g, '<span style="color: $1;">$2</span>');
+                // ------------------------------------------------
+                
                 return p.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>').trim() === '' ? '' : `<p>${p.replace(/\n/g, '<br>')}</p>`;
             }).join('');
             return processedText.replace(/__PLACEHOLDER_(\d+)__/g, (match, index) => placeholders[parseInt(index, 10)]);

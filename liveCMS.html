@@ -27,6 +27,46 @@
         }
         .static-textarea:focus, .static-input:focus { background-color: #fff; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); border-color: #6366f1; }
         
+        /* --- RICH TEXT EDITOR STYLES --- */
+        .rich-editor-wrapper {
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            background: #fff;
+            overflow: hidden;
+            transition: box-shadow 0.2s, border-color 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .rich-editor-wrapper:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .rich-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .rich-content-area {
+            min-height: 80px;
+            padding: 0.75rem;
+            outline: none;
+            line-height: 1.6;
+            color: #334155;
+            overflow-y: auto;
+        }
+        .rich-content-area.headline-editor { min-height: 60px; font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
+        .rich-content-area.main-editor { min-height: 150px; }
+        .rich-content-area.caption-editor { min-height: 40px; font-size: 0.875rem; }
+        
+        .rich-content-area:empty:before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block;
+        }
+
         /* --- DYNAMIC BLOCK STYLES --- */
         .dynamic-content-block {
             border: 1px solid #e2e8f0; 
@@ -86,13 +126,11 @@
         .table-toolbar-container { background: #f8fafc; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 4px; }
         .table-toolbar-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 4px; }
         .table-tool-group { display: flex; gap: 2px; border-right: 1px solid #cbd5e1; padding-right: 6px; margin-right: 2px; }
-        .tool-btn { padding: 6px 8px; border-radius: 4px; cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 4px; }
+        .tool-btn { padding: 5px 8px; border-radius: 4px; cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 4px; }
         .tool-btn:hover:not(:disabled) { background: #e2e8f0; color: #1e293b; }
         .tool-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #f1f5f9; }
-        
         .color-picker-wrapper { position: relative; display: flex; align-items: center; }
-        input[type="color"] { width: 28px; height: 28px; padding: 0; border: none; background: none; cursor: pointer; }
-
+        input[type="color"] { width: 20px; height: 20px; padding: 0; border: none; background: none; cursor: pointer; }
         .table-settings-container { margin-top: 10px; padding: 12px; background: #f1f5f9; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
         .table-caption-input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; font-size: 0.9rem; background: white; display: block; }
         .table-footer-options { display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: #64748b; }
@@ -102,7 +140,6 @@
         textarea:focus, input:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         .password-wrapper { position: relative; }
         .toggle-password { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: #9ca3af; }
-        
         #edit-modal.open { display: flex !important; }
         #edit-modal-content { animation: slideUp 0.3s ease-out forwards; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -115,6 +152,21 @@
             color: #64748b; opacity: 0; transition: opacity 0.3s; z-index: 100;
         }
         .save-indicator.visible { opacity: 1; }
+        
+        /* Link Modal */
+        .link-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.4); z-index: 1000; backdrop-filter: blur(2px);
+            display: flex; justify-content: center; align-items: flex-start; padding-top: 15vh;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+        }
+        .link-modal-overlay.visible { opacity: 1; pointer-events: all; }
+        .link-modal-content {
+            background-color: white; padding: 2rem; border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.2s ease;
+        }
+        .link-modal-overlay.visible .link-modal-content { transform: scale(1); }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -184,37 +236,37 @@
                          
                          <div class="static-field-group">
                              <label class="static-label">Headline</label>
-                             <textarea id="static-headline" rows="1" class="static-textarea w-full p-3 border border-slate-300 rounded-lg font-bold text-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Enter main headline..."></textarea>
+                             <div id="static-headline-container"></div>
                          </div>
                          
                          <div class="static-field-group">
                             <label class="static-label"><i class="fas fa-image mr-1"></i> Featured Image Link</label>
                             <input type="text" id="static-image" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://example.com/image.jpg">
-                            <input type="text" id="static-image-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Image Caption / Description">
+                            <div class="mt-2" id="static-image-caption-container"></div>
                          </div>
 
                          <div class="static-field-group">
                             <label class="static-label"><i class="fab fa-twitter mr-1"></i> Twitter Video Link</label>
                             <input type="text" id="static-twitter" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://x.com/user/status/123456...">
-                            <input type="text" id="static-twitter-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Video Caption">
+                            <div class="mt-2" id="static-twitter-caption-container"></div>
                          </div>
 
                          <div class="static-field-group">
                             <label class="static-label"><i class="fab fa-youtube mr-1"></i> YouTube Video Link</label>
                             <input type="text" id="static-youtube" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm" placeholder="https://youtube.com/watch?v=...">
-                            <input type="text" id="static-youtube-caption" class="static-input w-full p-3 border border-slate-300 rounded-lg text-sm mt-2" placeholder="Video Caption">
+                            <div class="mt-2" id="static-youtube-caption-container"></div>
                          </div>
 
                          <div class="static-field-group">
                              <label class="static-label">Main Content</label>
-                             <textarea id="static-content" rows="6" class="static-textarea w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[150px]" placeholder="Start writing your main update here..."></textarea>
+                             <div id="static-content-container"></div>
                          </div>
 
                          <div id="content-blocks-container"></div>
                          
                          <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 flex flex-col sm:flex-row items-center justify-center gap-3">
                              <select id="block-type-select" class="p-2.5 border border-slate-300 rounded-lg bg-white shadow-sm min-w-[200px] text-sm">
-                                 <option value="content">Paragraph (Extra)</option>
+                                 <option value="content">Paragraph (Rich Text)</option>
                                  <option value="table">Table (Pro)</option>
                                  <option value="image">Image (Extra)</option>
                                  <option value="quote">Quote</option>
@@ -288,11 +340,11 @@
                  <div class="p-6 overflow-y-auto">
                      <div class="mb-4">
                         <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Headline</label>
-                        <input type="text" id="edit-headline" class="w-full p-3 border border-slate-300 rounded-lg">
+                        <div id="edit-headline-container"></div>
                     </div>
                      <div class="mb-4">
-                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Content (Markdown/HTML)</label>
-                        <textarea id="edit-content" class="w-full p-3 border border-slate-300 rounded-lg min-h-[200px] font-mono text-sm leading-relaxed"></textarea>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Content</label>
+                        <div id="edit-content-container"></div>
                     </div>
                      <div class="mb-4">
                         <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Tags</label>
@@ -306,6 +358,17 @@
              </div>
         </div>
         
+        <div id="link-modal" class="link-modal-overlay">
+            <div class="link-modal-content">
+                 <h3 class="text-xl font-bold mb-4 text-slate-800">Add or Edit Link</h3>
+                 <input type="text" id="link-url-input" class="w-full p-3 border border-slate-300 rounded-lg mb-4" placeholder="https://example.com">
+                 <div class="flex justify-end gap-2">
+                     <button onclick="document.getElementById('link-modal').classList.remove('visible')" class="px-4 py-2 bg-slate-100 rounded text-sm font-bold">Cancel</button>
+                     <button id="add-link-btn" class="px-4 py-2 bg-indigo-600 text-white rounded text-sm font-bold">Add Link</button>
+                 </div>
+            </div>
+        </div>
+
         <div id="paste-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
                  <h3 class="text-lg font-bold mb-2">Paste Table Data</h3>
@@ -340,21 +403,17 @@
             const addBlockBtn = document.getElementById('add-block-button'), blockTypeSelect = document.getElementById('block-type-select');
             const tagsInput = document.getElementById('tags-input');
             const saveIndicator = document.getElementById('save-indicator');
+            const linkModal = document.getElementById('link-modal'), linkUrlInput = document.getElementById('link-url-input'), addLinkBtn = document.getElementById('add-link-btn');
             
             // STATIC FIELD REFERENCES
-            const staticHeadline = document.getElementById('static-headline');
-            const staticContent = document.getElementById('static-content');
             const staticImage = document.getElementById('static-image');
-            const staticImageCaption = document.getElementById('static-image-caption');
             const staticTwitter = document.getElementById('static-twitter');
-            const staticTwitterCaption = document.getElementById('static-twitter-caption');
             const staticYoutube = document.getElementById('static-youtube');
-            const staticYoutubeCaption = document.getElementById('static-youtube-caption');
             
             const recentPostsFeed = document.getElementById('recent-posts-feed');
             
             const editModal = document.getElementById('edit-modal');
-            const editHeadline = document.getElementById('edit-headline'), editContent = document.getElementById('edit-content'), editTags = document.getElementById('edit-tags');
+            const editTags = document.getElementById('edit-tags');
             const saveEditBtn = document.getElementById('save-edit-btn'), cancelEditBtn = document.getElementById('cancel-edit-btn');
             const countrySearchInput = document.getElementById('country-search-input'), countryContainer = document.getElementById('country-suggestions-container');
 
@@ -363,19 +422,56 @@
             let activeTableBlockId = null;
             let saveTimeout = null;
 
-            // --- AUTO-GROW FOR STATIC TEXTAREAS ---
-            function autoResize(el) {
-                el.style.height = 'auto';
-                el.style.height = el.scrollHeight + 'px';
+            // --- RICH TEXT HELPERS ---
+            window.formatText = function(cmd, value = null) {
+                document.execCommand(cmd, false, value);
+                triggerSave();
+                if (activeContentEditable) activeContentEditable.focus();
+            };
+
+            window.showLinkModal = function() {
+                linkUrlInput.value = '';
+                linkModal.classList.add('visible');
+                linkUrlInput.focus();
+            };
+
+            function renderRichEditor(id, placeholder, value, customClass = '') {
+                return `
+                <div class="rich-editor-wrapper">
+                    <div class="rich-toolbar">
+                        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); formatText('underline')" title="Underline"><i class="fas fa-underline"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); showLinkModal()" title="Link"><i class="fas fa-link"></i></button>
+                        <div class="color-picker-wrapper tool-btn" title="Text Color">
+                            <i class="fas fa-palette mr-1"></i>
+                            <input type="color" onchange="formatText('foreColor', this.value)">
+                        </div>
+                    </div>
+                    <div id="${id}" class="rich-content-area ${customClass}" contenteditable="true" data-placeholder="${placeholder}">${value || ''}</div>
+                </div>`;
             }
-            staticHeadline.addEventListener('input', function() { autoResize(this); triggerSave(); });
-            staticContent.addEventListener('input', function() { autoResize(this); triggerSave(); });
-            
-            [staticImage, staticImageCaption, staticTwitter, staticTwitterCaption, staticYoutube, staticYoutubeCaption, tagsInput].forEach(el => {
-                el.addEventListener('input', triggerSave);
-            });
+
+            // Init Static Editors
+            function initStaticEditors() {
+                document.getElementById('static-headline-container').innerHTML = renderRichEditor('static-headline', 'Enter main headline...', '', 'headline-editor');
+                document.getElementById('static-content-container').innerHTML = renderRichEditor('static-content', 'Start writing your main update here...', '', 'main-editor');
+                document.getElementById('static-image-caption-container').innerHTML = renderRichEditor('static-image-caption', 'Image Caption / Description', '', 'caption-editor');
+                document.getElementById('static-twitter-caption-container').innerHTML = renderRichEditor('static-twitter-caption', 'Video Caption', '', 'caption-editor');
+                document.getElementById('static-youtube-caption-container').innerHTML = renderRichEditor('static-youtube-caption', 'Video Caption', '', 'caption-editor');
+                
+                // Init Edit Modal Editors
+                document.getElementById('edit-headline-container').innerHTML = renderRichEditor('edit-headline', 'Headline', '', 'headline-editor');
+                document.getElementById('edit-content-container').innerHTML = renderRichEditor('edit-content', 'Content', '', 'main-editor');
+            }
 
             // --- AUTO-SAVE LOGIC ---
+            document.addEventListener('input', (e) => {
+                if(e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    triggerSave();
+                }
+            });
+
             function triggerSave() {
                 saveIndicator.classList.remove('visible');
                 clearTimeout(saveTimeout);
@@ -383,13 +479,14 @@
             }
 
             function saveDraft() {
+                if(!document.getElementById('static-headline')) return;
+
                 const blocks = [];
                 document.querySelectorAll('.dynamic-content-block').forEach(block => {
                     const type = block.dataset.blockType;
                     const blockData = { type: type, id: block.id };
 
                     if (type === 'table') {
-                        // Check if setup stage is hidden (table is active)
                         if (block.querySelector('.editor-stage').classList.contains('hidden') === false) {
                             blockData.thead = block.querySelector('.sheet-head').innerHTML;
                             blockData.tbody = block.querySelector('.sheet-body').innerHTML;
@@ -401,52 +498,55 @@
                             blockData.isTableReady = false;
                         }
                     } else {
-                        const inputs = block.querySelectorAll('textarea, input');
-                        blockData.mainValue = inputs[0]?.value || '';
-                        blockData.descValue = inputs[1]?.value || '';
+                        const richArea = block.querySelector('.rich-content-area');
+                        if (richArea) {
+                            blockData.mainValue = richArea.innerHTML; 
+                        } else {
+                            const inputs = block.querySelectorAll('textarea, input');
+                            blockData.mainValue = inputs[0]?.value || '';
+                            const richDesc = block.querySelector('.caption-editor');
+                            if(richDesc) blockData.descValue = richDesc.innerHTML;
+                            else blockData.descValue = inputs[1]?.value || '';
+                        }
                     }
                     blocks.push(blockData);
                 });
                 
                 const draftData = { 
-                    staticHeadline: staticHeadline.value, 
-                    staticContent: staticContent.value,
+                    staticHeadline: document.getElementById('static-headline').innerHTML, 
+                    staticContent: document.getElementById('static-content').innerHTML,
                     staticImage: staticImage.value,
-                    staticImageCaption: staticImageCaption.value,
+                    staticImageCaption: document.getElementById('static-image-caption').innerHTML,
                     staticTwitter: staticTwitter.value,
-                    staticTwitterCaption: staticTwitterCaption.value,
+                    staticTwitterCaption: document.getElementById('static-twitter-caption').innerHTML,
                     staticYoutube: staticYoutube.value,
-                    staticYoutubeCaption: staticYoutubeCaption.value,
+                    staticYoutubeCaption: document.getElementById('static-youtube-caption').innerHTML,
                     tags: tagsInput.value, 
                     blocks: blocks, 
                     timestamp: Date.now() 
                 };
                 localStorage.setItem('cms_autosave_draft_v2', JSON.stringify(draftData));
                 
-                // Visual Indicator
                 saveIndicator.classList.add('visible');
                 setTimeout(() => saveIndicator.classList.remove('visible'), 2000);
             }
 
             function loadDraft() {
                 const saved = localStorage.getItem('cms_autosave_draft_v2');
-                if (!saved) return; // Keep defaults
+                if (!saved) return;
                 try {
                     const draft = JSON.parse(saved);
                     blocksContainer.innerHTML = '';
                     
-                    if (draft.staticHeadline) staticHeadline.value = draft.staticHeadline;
-                    if (draft.staticContent) staticContent.value = draft.staticContent;
+                    if (draft.staticHeadline) document.getElementById('static-headline').innerHTML = draft.staticHeadline;
+                    if (draft.staticContent) document.getElementById('static-content').innerHTML = draft.staticContent;
                     if (draft.staticImage) staticImage.value = draft.staticImage;
-                    if (draft.staticImageCaption) staticImageCaption.value = draft.staticImageCaption;
+                    if (draft.staticImageCaption) document.getElementById('static-image-caption').innerHTML = draft.staticImageCaption;
                     if (draft.staticTwitter) staticTwitter.value = draft.staticTwitter;
-                    if (draft.staticTwitterCaption) staticTwitterCaption.value = draft.staticTwitterCaption;
+                    if (draft.staticTwitterCaption) document.getElementById('static-twitter-caption').innerHTML = draft.staticTwitterCaption;
                     if (draft.staticYoutube) staticYoutube.value = draft.staticYoutube;
-                    if (draft.staticYoutubeCaption) staticYoutubeCaption.value = draft.staticYoutubeCaption;
+                    if (draft.staticYoutubeCaption) document.getElementById('static-youtube-caption').innerHTML = draft.staticYoutubeCaption;
                     if (draft.tags) tagsInput.value = draft.tags;
-
-                    autoResize(staticHeadline);
-                    autoResize(staticContent);
 
                     if (draft.blocks && draft.blocks.length > 0) {
                         draft.blocks.forEach(blockData => {
@@ -459,11 +559,11 @@
             function clearDraft() { localStorage.removeItem('cms_autosave_draft_v2'); }
             function resetEditor() {
                 blocksContainer.innerHTML = '';
-                staticHeadline.value = ''; staticContent.value = '';
-                staticImage.value = ''; staticImageCaption.value = '';
-                staticTwitter.value = ''; staticTwitterCaption.value = '';
-                staticYoutube.value = ''; staticYoutubeCaption.value = '';
-                staticHeadline.style.height = 'auto'; staticContent.style.height = 'auto';
+                document.getElementById('static-headline').innerHTML = ''; 
+                document.getElementById('static-content').innerHTML = '';
+                staticImage.value = ''; document.getElementById('static-image-caption').innerHTML = '';
+                staticTwitter.value = ''; document.getElementById('static-twitter-caption').innerHTML = '';
+                staticYoutube.value = ''; document.getElementById('static-youtube-caption').innerHTML = '';
                 tagsInput.value = 'BREAKING, TMP NEWS';
                 saveDraft();
             }
@@ -526,7 +626,6 @@
                 if (redoBtn) redoBtn.disabled = (history.redo.length === 0);
             }
 
-            // ONLY DYNAMIC BLOCKS ARE SORTABLE
             Sortable.create(blocksContainer, {
                 animation: 150, handle: '.drag-handle', ghostClass: 'sortable-ghost', onEnd: triggerSave
             });
@@ -547,11 +646,7 @@
                 `;
 
                 const inputClass = "w-full p-3 border border-slate-300 rounded-lg bg-white text-sm mt-2";
-                const descInput = `<input type="text" class="${inputClass}" placeholder="Caption / Description (optional)" value="${data ? data.descValue : ''}">`;
                 
-                let mainEl = '';
-                let mainVal = data ? data.mainValue : '';
-
                 if (type === 'table') {
                     const isReady = data && data.isTableReady;
                     innerHTML += `
@@ -567,9 +662,9 @@
                                 <input type="text" class="table-caption-input" placeholder="Table Caption (Source...)" value="${data ? (data.caption||'') : ''}">
                                 <div class="table-footer-options">
                                     <select class="table-theme border border-slate-300 p-1 rounded text-xs">
-                                        <option value="" ${data && !data.theme ? 'selected':''}>Default Theme</option>
-                                        <option value="striped" ${data && data.theme === 'striped' ? 'selected':''}>Striped</option>
-                                        <option value="grid" ${data && data.theme === 'grid' ? 'selected':''}>Grid Border</option>
+                                            <option value="" ${data && !data.theme ? 'selected':''}>Default Theme</option>
+                                            <option value="striped" ${data && data.theme === 'striped' ? 'selected':''}>Striped</option>
+                                            <option value="grid" ${data && data.theme === 'grid' ? 'selected':''}>Grid Border</option>
                                     </select>
                                     <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-500">
                                         <input type="checkbox" class="table-sortable" ${data && data.sortable ? 'checked':''}> Sortable
@@ -626,25 +721,26 @@
                     innerHTML += `<h3 class="text-xs font-bold uppercase text-slate-400 mb-2">${title}</h3>`;
                     
                     switch (type) {
-                        case 'content': mainEl = `<textarea rows="4" class="${inputClass}" placeholder="Write additional paragraph...">${mainVal}</textarea>`; break;
-                        case 'quote': mainEl = `<textarea rows="2" class="${inputClass} italic" placeholder="Quote text...">${mainVal}</textarea>`; break;
-                        case 'image': mainEl = `<input type="text" class="${inputClass}" placeholder="Image URL" value="${mainVal}">${descInput}`; break;
-                        case 'link-button': mainEl = `<input type="text" class="${inputClass}" placeholder="Link URL" value="${mainVal}">${descInput.replace('Caption', 'Button Label')}`; break;
-                        default: mainEl = `<input type="text" class="${inputClass}" placeholder="Embed Code or URL" value="${mainVal}">${descInput}`; break;
+                        case 'content': 
+                            innerHTML += renderRichEditor(`${blockId}-editor`, 'Write additional paragraph...', data ? data.mainValue : '');
+                            break;
+                        case 'quote': 
+                            innerHTML += renderRichEditor(`${blockId}-editor`, 'Quote text...', data ? data.mainValue : '', 'italic');
+                            break;
+                        case 'image': 
+                            innerHTML += `<input type="text" class="${inputClass}" placeholder="Image URL" value="${data ? data.mainValue : ''}">${renderRichEditor(`${blockId}-desc`, 'Image Caption', data ? data.descValue : '', 'caption-editor')}`; 
+                            break;
+                        case 'link-button': 
+                            innerHTML += `<input type="text" class="${inputClass}" placeholder="Link URL" value="${data ? data.mainValue : ''}"><input type="text" class="${inputClass}" placeholder="Button Label" value="${data ? data.descValue : ''}">`; 
+                            break;
+                        default: 
+                            innerHTML += `<input type="text" class="${inputClass}" placeholder="Embed Code or URL" value="${data ? data.mainValue : ''}">${renderRichEditor(`${blockId}-desc`, 'Caption', data ? data.descValue : '', 'caption-editor')}`; 
+                            break;
                     }
-                    innerHTML += mainEl;
                 }
 
                 blockWrapper.innerHTML = innerHTML;
                 blocksContainer.appendChild(blockWrapper);
-                
-                blockWrapper.querySelectorAll('textarea, input').forEach(el => {
-                    if(el.tagName==='TEXTAREA') { 
-                        el.addEventListener('input', function() { autoResize(this); });
-                        if(data) autoResize(el);
-                    }
-                    el.addEventListener('input', triggerSave);
-                });
                 
                 if(type === 'table') {
                     blockWrapper.addEventListener('focusin', (e) => { if(e.target.classList.contains('sheet-cell')) activeContentEditable = e.target; });
@@ -653,6 +749,23 @@
 
                 if(isNew) triggerSave();
             }
+
+            // --- GLOBAL EVENTS ---
+            document.addEventListener('focusin', (e) => {
+                if (e.target.isContentEditable) {
+                    activeContentEditable = e.target;
+                }
+            });
+
+            addLinkBtn.onclick = () => {
+                const url = linkUrlInput.value.trim();
+                if (url && activeContentEditable) {
+                    activeContentEditable.focus();
+                    document.execCommand('createLink', false, url);
+                    triggerSave();
+                }
+                linkModal.classList.remove('visible');
+            };
 
             // --- TABLE LOGIC ---
             window.createTable = function(id) {
@@ -747,28 +860,20 @@
                 const data = document.getElementById('paste-input').value.trim();
                 const isPipe = data.includes('|');
                 const rows = data.split('\n');
-                
-                // Header
                 let headHtml = '<tr>'; 
                 rows[0].split(isPipe ? '|' : '\t').forEach(cell => headHtml += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`); 
                 headHtml += '</tr>';
-
-                // Body
                 let bodyHtml = '';
                 for(let i=1; i<rows.length; i++) {
                      bodyHtml += '<tr>'; 
                      rows[i].split(isPipe ? '|' : '\t').forEach(cell => bodyHtml += `<td><div contenteditable="true" class="sheet-cell">${cell.trim()}</div></td>`); 
                      bodyHtml += '</tr>';
                 }
-
                 const block = document.getElementById(activeTableBlockId);
                 block.querySelector('.sheet-head').innerHTML = headHtml;
                 block.querySelector('.sheet-body').innerHTML = bodyHtml;
-                
-                // Ensure editor is visible if not
                 block.querySelector('.setup-stage').classList.add('hidden');
                 block.querySelector('.editor-stage').classList.remove('hidden');
-
                 document.getElementById('paste-modal').classList.add('hidden');
                 initTableHistory(activeTableBlockId);
                 triggerSave();
@@ -805,39 +910,26 @@
                 publishButton.disabled = true;
                 document.getElementById("publish-spinner").classList.remove("hidden");
                 
-                const headline = staticHeadline.value.trim();
-                const mainContent = staticContent.value.trim();
-                const blocks = Array.from(document.querySelectorAll('.dynamic-content-block'));
-                
-                if (!headline && !mainContent && blocks.length === 0 && !staticImage.value && !staticTwitter.value && !staticYoutube.value) {
-                    statusMessage.textContent = 'Post cannot be completely empty!'; 
-                    statusMessage.className = 'text-center mt-4 text-sm font-bold text-red-600';
-                    publishButton.disabled = false;
-                    document.getElementById("publish-spinner").classList.add("hidden");
-                    return;
-                }
-
+                const headline = document.getElementById('static-headline').innerHTML;
+                const mainContent = document.getElementById('static-content').innerHTML;
                 let bodyParts = [];
                 
-                // 1. STATIC LINKS FIRST
                 if (staticImage.value.trim()) {
-                    const imgCap = staticImageCaption.value.trim() || 'Featured Image';
+                    const imgCap = document.getElementById('static-image-caption').innerHTML || 'Featured Image';
                     bodyParts.push(`![${imgCap}](${staticImage.value.trim()})`);
                 }
                 if (staticTwitter.value.trim()) {
-                    const twitCap = staticTwitterCaption.value.trim() || 'Featured Video';
+                    const twitCap = document.getElementById('static-twitter-caption').innerHTML || 'Featured Video';
                     bodyParts.push(`[twitter-video|${twitCap}](${staticTwitter.value.trim()})`);
                 }
                 if (staticYoutube.value.trim()) {
-                    const ytCap = staticYoutubeCaption.value.trim() || 'Featured Video';
+                    const ytCap = document.getElementById('static-youtube-caption').innerHTML || 'Featured Video';
                     bodyParts.push(`[youtube|${ytCap}](${staticYoutube.value.trim()})`);
                 }
 
-                // 2. MAIN CONTENT (Moved to Middle)
                 if (mainContent) bodyParts.push(mainContent);
 
-                // 3. DYNAMIC BLOCKS
-                blocks.forEach(block => {
+                document.querySelectorAll('.dynamic-content-block').forEach(block => {
                     const type = block.dataset.blockType;
                     if (type === 'table') {
                         const caption = block.querySelector('.table-caption-input').value;
@@ -846,13 +938,23 @@
                         const tableHTML = `<div class="table-container ${theme} ${sortable}">` + (caption ? `<caption>${caption}</caption>` : '') + `<table class="live-table"><thead>${block.querySelector('.sheet-head').innerHTML}</thead>` + `<tbody>${block.querySelector('.sheet-body').innerHTML}</tbody></table></div>`;
                         bodyParts.push(tableHTML);
                     } else {
-                        const inputs = block.querySelectorAll('textarea, input');
-                        const val = inputs[0]?.value.trim();
-                        const desc = inputs[1]?.value.trim();
+                        let val = '';
+                        let desc = '';
+                        const richArea = block.querySelector('.rich-content-area');
+                        if (richArea) {
+                            val = richArea.innerHTML;
+                        } else {
+                            const inputs = block.querySelectorAll('input');
+                            val = inputs[0]?.value.trim();
+                            const richDesc = block.querySelector('.caption-editor');
+                            if(richDesc) desc = richDesc.innerHTML;
+                            else desc = inputs[1]?.value.trim() || '';
+                        }
+
                         if (!val) return;
                         switch (type) {
-                            case 'content': bodyParts.push(val); break;
-                            case 'quote': bodyParts.push(`> ${val.replace(/\n/g, '\n> ')}`); break;
+                            case 'content': bodyParts.push(val); break; 
+                            case 'quote': bodyParts.push(`> ${val}`); break; 
                             case 'image': bodyParts.push(`![${desc}](${val})`); break;
                             case 'link-button': bodyParts.push(`[link-button|${desc}](${val})`); break;
                             case 'twitter': bodyParts.push(`[twitter|${desc}](${val})`); break;
@@ -906,6 +1008,7 @@
                 if (session) {
                     authView.classList.add('hidden'); editorView.classList.remove('hidden');
                     document.getElementById('writer-email').textContent = session.user.email;
+                    initStaticEditors(); // Initialize editors on login
                     if(blocksContainer.children.length === 0) loadDraft();
                     fetchRecentPosts();
                 } else {
@@ -916,18 +1019,37 @@
             async function fetchRecentPosts() {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if(!user) return;
-                const { data } = await supabaseClient.from('live_posts').select('*').eq('user_id', user.id).order('timestamp', { ascending: false }).limit(10);
+                
+                // Fetch top 10 items, prioritizing pinned posts
+                const { data } = await supabaseClient
+                    .from('live_posts')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('is_pinned', { ascending: false }) // Pinned first
+                    .order('timestamp', { ascending: false }) // Then newest
+                    .limit(10); // Top 10 items total
+
                 recentPostsFeed.innerHTML = '';
                 if(data) data.forEach(post => {
                     const div = document.createElement('div');
                     div.className = "p-3 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors rounded-lg group";
+                    const cleanHeadline = post.headline ? post.headline.replace(/<[^>]*>/g, '') : 'No Headline';
+                    
+                    // Pin Button Logic
+                    const pinClass = post.is_pinned ? 'text-amber-500' : 'text-gray-400 hover:text-amber-500';
+                    const pinText = post.is_pinned ? 'Unpin' : 'Pin';
+                    const pinIcon = 'fas fa-thumbtack';
+
                     div.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="font-bold text-sm text-slate-800 line-clamp-1">${post.headline || 'No Headline'}</p>
+                                <p class="font-bold text-sm text-slate-800 line-clamp-1">${cleanHeadline}</p>
                                 <p class="text-xs text-slate-400 mt-1">${new Date(post.timestamp).toLocaleTimeString()}</p>
                             </div>
                             <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button class="text-xs font-bold pin-btn ${pinClass}" data-id="${post.id}" data-pinned="${post.is_pinned}">
+                                    <i class="${pinIcon}"></i> ${pinText}
+                                </button>
                                 <button class="text-xs text-blue-600 font-bold edit-btn" data-id="${post.id}">Edit</button>
                                 <button class="text-xs text-red-600 font-bold delete-btn" data-id="${post.id}">Del</button>
                             </div>
@@ -938,6 +1060,25 @@
 
             recentPostsFeed.addEventListener('click', async (e) => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
+                
+                // Pin Handler
+                if (e.target.closest('.pin-btn')) {
+                    const btn = e.target.closest('.pin-btn');
+                    const id = btn.dataset.id;
+                    const isPinned = btn.dataset.pinned === 'true';
+                    
+                    if (!isPinned) {
+                        // Unpin ALL others first (enforce single pin)
+                        await supabaseClient.from('live_posts').update({ is_pinned: false }).eq('is_pinned', true);
+                        // Pin selected
+                        await supabaseClient.from('live_posts').update({ is_pinned: true }).eq('id', id);
+                    } else {
+                        // Unpin selected
+                        await supabaseClient.from('live_posts').update({ is_pinned: false }).eq('id', id);
+                    }
+                    fetchRecentPosts();
+                }
+
                 if (e.target.classList.contains('delete-btn')) {
                     if(confirm('Delete post?')) {
                         await supabaseClient.from('live_posts').delete().match({ id: e.target.dataset.id, user_id: user.id });
@@ -948,8 +1089,8 @@
                     const { data } = await supabaseClient.from('live_posts').select('*').eq('id', e.target.dataset.id).single();
                     if(data) {
                         currentEditingPostId = data.id;
-                        editHeadline.value = data.headline;
-                        editContent.value = data.content;
+                        document.getElementById('edit-headline').innerHTML = data.headline;
+                        document.getElementById('edit-content').innerHTML = data.content;
                         editTags.value = data.tags ? data.tags.join(', ') : '';
                         editModal.classList.remove('hidden');
                         editModal.classList.add('flex');
@@ -963,8 +1104,11 @@
             saveEditBtn.onclick = async () => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 const tags = editTags.value.split(',').map(t => t.trim()).filter(Boolean);
+                
                 await supabaseClient.from('live_posts').update({ 
-                    headline: editHeadline.value, content: editContent.value, tags 
+                    headline: document.getElementById('edit-headline').innerHTML, 
+                    content: document.getElementById('edit-content').innerHTML, 
+                    tags 
                 }).match({ id: currentEditingPostId, user_id: user.id });
                 closeEdit();
                 fetchRecentPosts();
