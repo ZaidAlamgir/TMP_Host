@@ -441,6 +441,22 @@
         // 2. HELPER FUNCTIONS
         // ==========================================
         
+        // --- NEW: HTML CLEANER & AUTO PARAGRAPH FIXER ---
+        function cleanRichText(html) {
+            if (!html) return '';
+            // 1. Replace empty lines (<div><br></div>) with a Markdown newline
+            let content = html.replace(/<div>\s*<br>\s*<\/div>/gi, '\n');
+            // 2. Replace start of new div lines (<div>) with a Double Markdown newline (Paragraph)
+            // This ensures "Auto Next" creates a distinct paragraph
+            content = content.replace(/<div>/gi, '\n\n');
+            // 3. Remove closing div tags (</div>)
+            content = content.replace(/<\/div>/gi, '');
+            // 4. Replace <br> with newlines
+            content = content.replace(/<br\s*\/?>/gi, '\n');
+            // Return trimmed content
+            return content.trim();
+        }
+
         // --- RICH TEXT FORMATTING HELPER ---
         window.formatText = function(cmd, value = null) {
             document.execCommand(cmd, false, value);
@@ -1219,7 +1235,12 @@
 
         publishButton.addEventListener('click', async () => {
             const headline = document.getElementById('article-headline').innerHTML.trim(); // Rich Text
-            const paragraph1 = document.getElementById('article-p1').innerHTML.trim(); // Rich Text
+            
+            // --- FIX APPLIED HERE: Clean Paragraph 1 ---
+            const rawP1 = document.getElementById('article-p1').innerHTML;
+            const paragraph1 = cleanRichText(rawP1); 
+            // -------------------------------------------
+            
             const selectedRepo = document.getElementById('target-repo-select').value;
             
             if (!headline || !paragraph1) {
@@ -1291,8 +1312,13 @@
                 }
                 else {
                     switch (blockType) {
-                        // CHANGED: Get innerHTML for all these block types
-                        case 'paragraph': body += `${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
+                        // --- FIX APPLIED HERE: Clean Paragraph Blocks ---
+                        case 'paragraph': 
+                             const rawContent = block.querySelector('.rich-content-area').innerHTML;
+                             body += `${cleanRichText(rawContent)}\n\n`; 
+                             break;
+                        // ------------------------------------------------
+                        
                         case 'headline-h2': body += `## ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
                         case 'headline-h3': body += `### ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
                         case 'headline-h4': body += `#### ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
