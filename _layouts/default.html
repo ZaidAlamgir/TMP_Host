@@ -70,13 +70,32 @@
         }
 
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
-            background-color: #ffffff; display: grid; grid-template-columns: repeat(5, 1fr);
-            align-items: center; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-            z-index: 9999; border-radius: 20px 20px 0 0;
-            padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box;
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+    
+            /* FIX 1: Allow height to grow if padding is added. Use min-height instead of fixed height. */
+            min-height: 65px; 
+            height: auto; 
+            background-color: #ffffff; 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr);
+            align-items: center; 
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+            z-index: 9999; 
+            border-radius: 20px 20px 0 0;
+    
+            /* FIX 2: Use the Android variable we created (which is 0px in the app) 
+            Fallback to env() for normal mobile browsers */
+            padding-bottom: var(--native-safe-area-bottom, env(safe-area-inset-bottom));
+    
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-        }
+    
+            /* Optional: Ensure buttons stay centered vertically */
+            padding-top: 5px; 
+          }
         .bottom-nav-link {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-decoration: none; color: #8e8e8e; font-size: 11px; font-weight: 600;
