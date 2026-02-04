@@ -197,6 +197,34 @@ layout: default
 
 <script>
 function setupArticleInteractions() {
+    const articleBody = document.querySelector('.article-body');
+    if (articleBody) {
+        const images = articleBody.querySelectorAll('img');
+        images.forEach(img => {
+            if (img.closest('figure')) return;
+            const captionText = img.getAttribute('title') || img.getAttribute('alt');
+
+            if (captionText && captionText.trim() !== '') {
+                const figure = document.createElement('figure');
+                figure.className = 'article-figure';
+                const caption = document.createElement('figcaption');
+                caption.className = 'article-image-caption';
+                caption.textContent = captionText;
+                const parent = img.parentNode;
+                
+                if (parent.tagName === 'P' && parent.children.length === 1 && parent.textContent.trim() === '') {
+                    parent.parentNode.replaceChild(figure, parent);
+                    figure.appendChild(img);
+                    figure.appendChild(caption);
+                } else {
+                    parent.insertBefore(figure, img);
+                    figure.appendChild(img);
+                    figure.appendChild(caption);
+                }
+            }
+        });
+    }
+
     const shareBtn = document.getElementById('native-share-button');
     
     if (shareBtn && !shareBtn.dataset.hasListener) {
