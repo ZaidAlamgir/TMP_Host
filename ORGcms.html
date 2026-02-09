@@ -441,7 +441,7 @@
         // 2. HELPER FUNCTIONS
         // ==========================================
         
-        // --- NEW: HTML CLEANER & AUTO PARAGRAPH FIXER ---
+        // --- HTML CLEANER & AUTO PARAGRAPH FIXER ---
         function cleanRichText(html) {
             if (!html) return '';
             // 1. Replace empty lines (<div><br></div>) with a Markdown newline
@@ -454,6 +454,31 @@
             // 4. Replace <br> with newlines
             content = content.replace(/<br\s*\/?>/gi, '\n');
             // Return trimmed content
+            return content.trim();
+        }
+
+        // --- NEW: CONTENT SANITIZER (FIX FOR JUNK DIVS IN QUOTES/BLOCKS) ---
+        // This converts the messy <div> structures from contentEditable into clean <br> tags
+        function sanitizeBlockContent(html) {
+            if (!html) return '';
+            let content = html;
+
+            // 1. Replace "good" empty lines (<div><br></div>) with a simple <br>
+            content = content.replace(/<div>\s*<br>\s*<\/div>/gi, '<br>');
+
+            // 2. Replace "junk" empty lines (<div></div>) with a simple <br>
+            content = content.replace(/<div>\s*<\/div>/gi, '<br>');
+
+            // 3. Replace any opening <div> with a <br> (effectively converting block level to line break)
+            content = content.replace(/<div>/gi, '<br>');
+
+            // 4. Remove all closing </div> tags (since we replaced the openers with <br>)
+            content = content.replace(/<\/div>/gi, '');
+
+            // 5. Remove any <br> that might have appeared at the very start of the string
+            // (caused by the first div being replaced)
+            content = content.replace(/^(<br>\s*)+/i, '');
+
             return content.trim();
         }
 
@@ -1312,10 +1337,10 @@
                 }
                 else {
                     switch (blockType) {
-                        // --- FIX APPLIED HERE: Clean Paragraph Blocks ---
+                        // --- FIX: Use sanitizeBlockContent for clean Paragraphs ---
                         case 'paragraph': 
                              const rawContent = block.querySelector('.rich-content-area').innerHTML;
-                             body += `${cleanRichText(rawContent)}\n\n`; 
+                             body += `${sanitizeBlockContent(rawContent)}\n\n`; 
                              break;
                         // ------------------------------------------------
                         
@@ -1327,10 +1352,18 @@
                             const imageDesc = block.querySelector('.rich-content-area').innerHTML.trim();
                             if (imageUrl) body += `![${imageDesc || 'Article image'}](${imageUrl})\n\n`;
                             break;
+
+                        // --- FIX: Use sanitizeBlockContent for clean Quotes ---
                         case 'quote':
-                            const quote = block.querySelector('.rich-content-area').innerHTML.trim();
-                            if (quote) body += `> ${quote.replace(/\n/g, '\n> ')}\n\n`;
+                            const rawQuote = block.querySelector('.rich-content-area').innerHTML;
+                            // Clean the junk divs into breaks
+                            const cleanQuote = sanitizeBlockContent(rawQuote);
+                            if (cleanQuote) {
+                                body += `> ${cleanQuote}\n\n`;
+                            }
                             break;
+                        // ------------------------------------------------
+
                         default:
                             const url = block.querySelector('.dynamic-social-url').value.trim();
                             const caption = block.querySelector('.rich-content-area').innerHTML.trim();
