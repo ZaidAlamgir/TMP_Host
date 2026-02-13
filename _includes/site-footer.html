@@ -1,27 +1,36 @@
 <footer class="bg-gray-800 text-gray-300 dark:bg-gray-900 w-full mt-auto">
     <div class="max-w-6xl mx-auto px-4 py-10 md:py-16">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            
             <div class="md:col-span-1">
                 <h2 class="text-2xl font-bold text-white mb-4">The Muslim Post</h2>
                 <p class="text-gray-400 text-sm mb-6">Reporting on global affairs and the Muslim world with clarity and integrity.</p>
                 <div class="flex space-x-4">
-                    <a href="https://x.com/TMPnewsAgency?t=mIdFVl5MbFDrzVGQ6_ZFcA&s=09" class="text-gray-400 hover:text-white transition-colors" aria-label="X (Twitter)">
-                        <i class="fab fa-x-twitter fa-lg"></i>
+                    <a href="https://x.com/TMPnewsAgency" class="text-gray-400 hover:text-white transition-colors" aria-label="X (Twitter)">
+                     <i class="fa-brands fa-x-twitter fa-lg"></i>
                     </a>
+
+                    <a href="https://upscrolled.com/tmpnews" class="text-gray-400 hover:text-white transition-colors" aria-label="Upscrolled">
+                     <i class="fa-solid fa-scroll fa-lg"></i>
+                    </a>
+
                     <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
-                        <i class="fab fa-facebook-f fa-lg"></i>
+                     <i class="fa-brands fa-facebook-f fa-lg"></i>
                     </a>
+
                     <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
-                        <i class="fab fa-instagram fa-lg"></i>
+                     <i class="fa-brands fa-instagram fa-lg"></i>
                     </a>
-                    <a href="https://youtube.com/@themuslimpostofficial?si=zIw5glJIYs-KxizD" class="text-gray-400 hover:text-white transition-colors" aria-label="YouTube">
-                        <i class="fab fa-youtube fa-lg"></i>
-                    </a>
+
+                    <a href="https://youtube.com/@themuslimpostofficial" class="text-gray-400 hover:text-white transition-colors" aria-label="YouTube">
+                     <i class="fa-brands fa-youtube fa-lg"></i>
+                   </a>
+
                     <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Telegram">
-                        <i class="fab fa-telegram fa-lg"></i>
+                     <i class="fa-brands fa-telegram fa-lg"></i>
                     </a>
-                </div>
             </div>
+      </div>
 
             <div>
                 <h3 class="text-lg font-semibold text-white mb-4 uppercase tracking-wider">Categories</h3>
@@ -44,7 +53,7 @@
                 <h3 class="text-lg font-semibold text-white mb-4 uppercase tracking-wider">Company</h3>
                 <ul class="space-y-3">
                     <li><a href="/about/" class="hover:text-white transition-colors">About Us</a></li>
-                    <li><a href="/support/" class="hover:text-white transition-colors">Support</a></li>
+                    <li><a href="/what-is-user-post/" class="hover:text-white transition-colors text-indigo-400">What is User Post?</a></li> <li><a href="/support/" class="hover:text-white transition-colors">Support</a></li>
                     <li>
                         <a href="mailto:contact@tmpnews.com?subject=Inquiry%20from%20Website" class="hover:text-white transition-colors flex items-center">
                             <i class="fas fa-envelope mr-2"></i> Contact Us
@@ -67,7 +76,7 @@
         </div>
         <div class="mt-12 border-t border-gray-700 pt-8 text-center">
             <p class="text-sm text-gray-400">
-                &copy; {% assign current_year = site.time | date: '%Y' %}{{ current_year }} TMP News. All rights reserved.
+                &copy; {{ site.time | date: '%Y' }} TMP News. All rights reserved.
             </p>
             <p class="text-xs text-gray-500 mt-2">
                 Content on this site is protected by copyright law. Unauthorized reproduction or distribution is strictly prohibited.
