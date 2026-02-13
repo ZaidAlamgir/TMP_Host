@@ -19,10 +19,13 @@ kramdown:
   hard_wrap: false
   syntax_highlighter: rouge
 
-# Tell Jekyll to process the _live_updates folder as a collection
+# Tell Jekyll to process the _live_updates and _authors folders as collections
 collections:
   live_updates:
     output: true 
+  authors:
+    output: true
+    permalink: /author/:name/
 
 # Tell Jekyll to include these files/folders in the final build
 include:

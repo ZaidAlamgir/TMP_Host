@@ -1,55 +1,130 @@
 ---
 layout: default
 title: Community Feed
-extra_css:
-  - /assets/style/post.css
-extra_js:
-  - /assets/js/post.js
 ---
 
-<script>
-    window.TMP_CONFIG = {
-        // PRODUCTION URL (Use this for the live website)
-        FEED_API_URL: "/feed", 
-        
-        // LOCAL TESTING (Uncomment the line below when testing on localhost)
-        // FEED_API_URL: "/feed.json",
+<style>
+    /* Feed Layout */
+    .feed-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .page-title { font-family: 'Merriweather', serif; font-size: 2rem; font-weight: 900; margin-bottom: 20px; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; }
+    
+    /* Card Design */
+    .feed-card { 
+        display: flex; gap: 20px; background: white; border: 1px solid #e5e7eb; 
+        border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: box-shadow 0.2s;
+    }
+    .feed-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    
+    .card-image { width: 160px; height: 110px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #f3f4f6; }
+    .card-image img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .card-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-tags { margin-bottom: 8px; }
+    .card-tag { font-size: 0.7rem; font-weight: 700; color: #dc2626; text-transform: uppercase; background: #fee2e2; padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
+    
+    .card-title { font-family: 'Merriweather', serif; font-size: 1.25rem; font-weight: 700; line-height: 1.3; color: #111; margin-bottom: 6px; text-decoration: none; }
+    .card-title:hover { color: #2563eb; }
+    
+    .card-excerpt { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #6b7280; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    
+    .card-meta { margin-top: 12px; font-size: 0.8rem; color: #9ca3af; display: flex; align-items: center; gap: 10px; }
+    .author-link { color: #4b5563; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px;}
+    .author-link:hover { text-decoration: underline; }
+    .author-avatar-small { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 
-        // FOR YOU API
-        FOR_YOU_API: "{{ '/opinions/feed.json' | relative_url }}",
-
-        // Links
-        postOpen: "{{ '/postopen' | relative_url }}",
-        auth: "{{ '/auth' | relative_url }}",
-        writePage: "{{ '/write' | relative_url }}"
-    };
-</script>
+    /* Loading State */
+    .loader { text-align: center; padding: 40px; color: #9ca3af; }
+    
+    @media (max-width: 640px) {
+        .feed-card { flex-direction: column; }
+        .card-image { width: 100%; height: 180px; }
+    }
+</style>
 
 <main>
-    <div class="post-container">
-        <div class="feed-tabs-wrapper">
-            <div class="feed-tabs">
-                <div class="feed-tab" data-feed="for-you">
-                    <i class="fas fa-sparkles"></i> For You
-                </div>
-                <div class="feed-tab active" data-feed="recent">
-                    <i class="fas fa-clock"></i> Recent
-                </div>
+    <div class="feed-container">
+        <h1 class="page-title">Community Opinions</h1>
+        
+        <div id="feed-list">
+            <div class="loader">
+                <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading latest opinions...
             </div>
         </div>
-
-        <div id="search-container">
-            <input type="text" id="tagSearchInput" placeholder="Search opinions by tag...">
-        </div>
-
-        <div id="forYouFeed" style="display: none; opacity: 0;"></div>
-
-        <div id="recentPostsContainer" style="opacity: 1;">
-            <div id="postsFeed"></div>
-            <div id="postsLoader" class="loader"></div>
-        </div>
-        
-        <div id="endOfFeedMessage">You're all caught up!</div>
-        <div id="scrollSentinel" style="height: 50px;"></div>
     </div>
 </main>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const feedList = document.getElementById('feed-list');
+    
+    try {
+        // 1. Fetch Writer DB (Existing)
+        let writers = [];
+        try {
+            const wRes = await fetch('/assets/data/writers_db.json');
+            if (wRes.ok) writers = await wRes.json();
+        } catch(e) { console.warn("Could not load writer DB"); }
+
+        // 2. Fetch from your new D1 API
+        const response = await fetch('/api/feed');
+        if (!response.ok) throw new Error("Failed to load feed");
+        
+        const posts = await response.json();
+        
+        if (posts.length === 0) {
+            feedList.innerHTML = '<div class="text-center py-10 text-gray-500">No articles found. Check back soon!</div>';
+            return;
+        }
+
+        // 3. Render Cards
+        feedList.innerHTML = posts.map(post => {
+            // Find writer info
+            const writerInfo = writers.find(w => w.name === post.author) || {};
+            const avatarUrl = writerInfo.avatar || '/assets/img/default-avatar.png'; // Fallback
+            
+            // Logic to create the new SSR Link
+            const authorSlug = post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'staff';
+            const postLink = `/opinion/${authorSlug}/${post.id}`;
+            
+            // Format Date
+            const dateStr = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            
+            // Parse Tags
+            let tagsHtml = '';
+            try {
+                const tags = JSON.parse(post.tags || '[]');
+                tags.slice(0, 2).forEach(t => tagsHtml += `<span class="card-tag">${t}</span>`);
+            } catch(e) {}
+
+            return `
+            <article class="feed-card">
+                ${post.image ? `
+                <a href="${postLink}" class="card-image">
+                    <img src="${post.image}" alt="${post.title}" loading="lazy">
+                </a>` : ''}
+                
+                <div class="card-content">
+                    <div>
+                        <div class="card-tags">${tagsHtml}</div>
+                        <a href="${postLink}" class="card-title">${post.title}</a>
+                        <div class="card-excerpt">${post.subheadline || 'Click to read full article...'}</div>
+                    </div>
+                    <div class="card-meta">
+                        <a href="/opinion/${authorSlug}" class="author-link">
+                            <img src="${avatarUrl}" class="author-avatar-small" onerror="this.style.display='none'">
+                            ${post.author}
+                        </a>
+                        <span>•</span>
+                        <span>${dateStr}</span>
+                    </div>
+                </div>
+            </article>
+            `;
+        }).join('');
+        
+    } catch (err) {
+        console.error(err);
+        feedList.innerHTML = `<div class="text-center py-10 text-red-500">Unable to load feed. Please try again later.</div>`;
+    }
+});
+</script>

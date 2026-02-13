@@ -1,0 +1,146 @@
+---
+layout: default
+permalink: /writer/
+---
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div id="loading-spinner" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
+    <p class="mt-4 text-gray-500 font-medium animate-pulse">Fetching Article...</p>
+</div>
+
+<div id="error-message" class="hidden container mx-auto p-10 text-center">
+    <h1 class="text-4xl font-bold text-gray-300 mb-4">404</h1>
+    <p class="text-xl text-gray-600">Article not found or has been moved.</p>
+    <a href="/" class="mt-6 inline-block bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition">Return Home</a>
+</div>
+
+<div id="article-content" class="hidden article-container fade-in">
+    <article>
+        <header>
+            <div id="d-tags" class="article-tags"></div>
+            
+            <h1 id="d-headline" class="article-headline"></h1>
+            
+            <div id="d-subheadline" class="article-subheadline"></div>
+            
+            <div class="article-meta">
+                <div>
+                    <div class="author-name">
+                        By <span id="d-author" class="text-gray-900 font-medium"></span>
+                    </div>
+                    <div id="d-date" class="publish-date"></div>
+                </div>
+                <div>
+                    <button id="native-share-button" class="share-btn" title="Share article"><i class="fas fa-share-alt"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <div class="article-body">
+            <figure id="d-figure" class="article-figure hidden">
+                <img id="d-image" src="" alt="">
+                <figcaption id="d-caption" class="article-image-caption"></figcaption>
+            </figure>
+            
+            <div id="d-body"></div>
+        </div> 
+    </article> 
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
+    .article-container { max-width: 1000px; margin: 0 auto; padding: 0.5rem 1rem 2rem 1rem; color: #111827; }
+    .article-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px; line-height: 1.2; margin-bottom: 0.75rem; }
+    .article-subheadline { font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563; line-height: 1.6; margin-bottom: 1.5rem; }
+    .article-body p { font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8; margin-bottom: 1.5rem; }
+    .article-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; }
+    .share-btn { width: 36px; height: 36px; border-radius: 50%; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; }
+    .tag { background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; margin-right: 0.5rem; }
+    /* Responsive */
+    @media (max-width: 768px) { .article-headline { font-size: 32px; } .article-subheadline { font-size: 18px; } }
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    /* Support for Rich Text from CMS */
+    #d-body h2 { font-size: 1.8rem; font-weight: 700; margin-top: 2rem; font-family: 'Merriweather', serif; }
+    #d-body blockquote { border-left: 4px solid #ccc; padding-left: 1rem; font-style: italic; color: #555; }
+    #d-body img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+</style>
+
+<script>
+    async function loadArticle() {
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get('id');
+
+        if (!slug) {
+            window.location.href = '/'; // No ID? Go home.
+            return;
+        }
+
+        try {
+            // 1. Fetch from your Cloudflare Function API
+            const response = await fetch(`/api/get-article?slug=${slug}`);
+            
+            if (!response.ok) throw new Error("Not Found");
+            
+            const article = await response.json();
+
+            // 2. Populate Data
+            document.title = article.title + " - The Muslim Post";
+            document.getElementById('d-headline').innerHTML = article.title; // innerHTML for rich text
+            
+            if (article.subheadline) {
+                document.getElementById('d-subheadline').innerHTML = article.subheadline;
+            }
+
+            document.getElementById('d-author').textContent = article.author || "TMP Staff";
+            
+            // Format Date
+            const dateObj = new Date(article.date);
+            document.getElementById('d-date').textContent = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+            // Handle Image
+            if (article.image) {
+                document.getElementById('d-figure').classList.remove('hidden');
+                document.getElementById('d-image').src = article.image;
+                if (article.image_description) {
+                    document.getElementById('d-caption').innerHTML = article.image_description;
+                }
+            }
+
+            // Handle Tags
+            if (article.tags) {
+                try {
+                    const tags = JSON.parse(article.tags);
+                    const tagContainer = document.getElementById('d-tags');
+                    tags.forEach(tag => {
+                        const span = document.createElement('span');
+                        span.className = 'tag';
+                        span.textContent = tag;
+                        tagContainer.appendChild(span);
+                    });
+                } catch(e) {}
+            }
+
+            // 3. Inject Content
+            // The content from D1 is raw HTML/Markdown from your CMS. 
+            // If it's pure HTML (which your CMS sends), just inject it.
+            document.getElementById('d-body').innerHTML = article.content;
+
+            // 4. Show Page
+            document.getElementById('loading-spinner').classList.add('hidden');
+            document.getElementById('article-content').classList.remove('hidden');
+            
+            // Re-run scripts (like Twitter embeds) if needed
+            if (window.twttr) window.twttr.widgets.load();
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('loading-spinner').classList.add('hidden');
+            document.getElementById('error-message').classList.remove('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadArticle);
+</script>

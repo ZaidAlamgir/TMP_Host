@@ -6,6 +6,8 @@ permalink: /latest.html
 
 {% assign latest_post = site.posts.first %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -35,6 +37,7 @@ permalink: /latest.html
   "description": "{{ latest_post.subheadline | default: latest_post.content | strip_html | truncatewords: 50 | escape }}"
 }
 </script>
+
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
 
@@ -46,9 +49,7 @@ permalink: /latest.html
         color: #111827;
     }
 
-    /* --- TYPOGRAPHY & RICH TEXT SUPPORT --- */
-    
-    /* 1. Headline Styling */
+    /* --- TYPOGRAPHY --- */
     .article-headline {
         font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px;
         color: #111827; line-height: 1.2; margin-bottom: 0.75rem; margin-top: 0.2rem;
@@ -57,38 +58,29 @@ permalink: /latest.html
     .article-headline.long-headline { font-size: 45px; }
     .article-headline.very-long-headline { font-size: 38px; }
 
-    /* Rich Text in Headline (Overrides Tailwind Reset) */
+    /* Rich Text in Headline */
     .article-headline b, .article-headline strong { font-weight: 900; color: inherit; }
     .article-headline i, .article-headline em { font-style: italic; color: inherit; }
     .article-headline u { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; }
     .article-headline a { color: inherit; text-decoration: underline; text-decoration-color: #1d4ed8; transition: color 0.2s; }
     .article-headline a:hover { color: #1d4ed8; }
 
-    /* 2. Subheadline Styling */
+    /* Subheadline */
     .article-subheadline {
         font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563;
         line-height: 1.6; margin-top: 0; margin-bottom: 1.5rem; font-weight: 400;
     }
     .article-subheadline.long-subheadline { font-size: 17px; }
 
-    /* Rich Text in Subheadline */
-    .article-subheadline b, .article-subheadline strong { font-weight: 700; color: #111827; }
-    .article-subheadline i, .article-subheadline em { font-style: italic; }
-    .article-subheadline u { text-decoration: underline; }
-    .article-subheadline a { color: #1d4ed8; text-decoration: underline; }
-
-    /* 3. Article Body Styling */
+    /* Body Styling */
     .article-body p {
         font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8;
         margin-bottom: 1.5rem; font-weight: 400;
     }
-
-    /* Rich Text in Body */
     .article-body b, .article-body strong { font-weight: 700; }
     .article-body i, .article-body em { font-style: italic; }
     .article-body u { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
     
-    /* Links in Body */
     .article-body a {
         color: #1d4ed8; text-decoration: underline; transition: color 0.2s ease;
         text-decoration-thickness: 1px; text-underline-offset: 2px;
@@ -96,7 +88,56 @@ permalink: /latest.html
     }
     .article-body a:hover { color: #1e3a8a; text-decoration-thickness: 2px; }
 
-    /* --- TABLE STYLES --- */
+    /* Meta Section */
+    .article-meta {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .author-name {
+        font-weight: 600; color: #111827; font-family: 'Inter', sans-serif;
+        display: flex; align-items: center; gap: 4px; 
+    }
+    
+    .author-link { 
+        text-decoration: none; color: inherit; transition: color 0.2s; 
+        display: inline-flex; align-items: center; gap: 4px;
+    }
+    .author-link:hover { color: #2563eb; text-decoration: underline; }
+
+    .article-meta .publish-date {
+        font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif; margin-top: 2px;
+    }
+    
+    /* Share Button */
+    .share-container { display: flex; }
+    .share-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 36px; height: 36px; border-radius: 50%;
+        background-color: #f3f4f6; color: #374151;
+        border: none; cursor: pointer; font-size: 1rem;
+        transition: all 0.2s; text-decoration: none;
+    }
+    .share-btn:hover { background-color: #e5e7eb; transform: translateY(-2px); }
+
+    .article-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; margin-top: 0.5rem; }
+    .tag { background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; }
+      
+    .article-figure { max-width: 100%; margin: 2rem auto; padding: 0; border: none; }
+    .article-figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px; }
+    .article-body > p > img:only-child, .article-body > img { max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; }
+    .article-image-caption { font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280; margin-top: 0.5rem; margin-bottom: 2rem; text-align: center; display: block; }
+    
+    .article-body h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1rem; }
+    .article-body h3 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
+    .article-body h4 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+    
+    .article-body blockquote { border-left: 3px solid #ccc; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #606770; font-size: 1.2rem; }
+    .embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 2rem auto; border-radius: 8px; }
+    .embed-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .embed-caption { font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280; margin-top: 0.5rem; text-align: center; }
+    
+    /* Table Styles */
     .table-scroll-wrapper { position: relative; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
     .article-body .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; background: white; }
     .article-body table { width: 100%; border-collapse: collapse; min-width: 600px; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0; }
@@ -112,94 +153,6 @@ permalink: /latest.html
     table.sortable th:hover { background-color: #eff6ff; color: #1d4ed8; }
     table.sortable th::after { content: '\f0dc'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 10px; opacity: 0.5; }
 
-    /* Article Meta & Share Section */
-    .article-meta {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;
-    }
-    .article-meta .author-name {
-        font-weight: 600; color: #111827; font-family: 'Inter', sans-serif;
-    }
-    .article-meta .publish-date {
-        font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif;
-    }
-    .share-container { display: flex; }
-    .share-btn {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 36px; height: 36px; border-radius: 50%;
-        background-color: #f3f4f6; color: #374151;
-        border: none; cursor: pointer; font-size: 1rem;
-        transition: all 0.2s; text-decoration: none;
-    }
-    .share-btn:hover {
-        background-color: #e5e7eb; transform: translateY(-2px);
-    }
-
-    .article-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-        margin-top: 0.5rem;
-    }
-    .tag {
-        background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem;
-        border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
-    }
-     
-    .article-figure {
-        max-width: 100%;
-        margin: 2rem auto;
-        padding: 0;
-        border: none;
-    }
-    .article-figure img {
-        max-width: 100%; height: auto; display: block;
-        margin: 0 auto;
-        border-radius: 8px;
-    }
-    .article-body > p > img:only-child, .article-body > img {
-         max-width: 100%; height: auto; display: block;
-         margin: 2rem auto; border-radius: 8px;
-    }
-    .article-image-caption {
-        font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280;
-        margin-top: 0.5rem;
-        margin-bottom: 2rem;
-        text-align: center;
-        display: block;
-    }
-    
-    /* Dynamic Headers inside body */
-    .article-body h2 {
-        font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem;
-        margin-top: 2.5rem; margin-bottom: 1rem;
-    }
-     .article-body h3 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; }
-     .article-body h4 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; }
-    
-    .article-body blockquote {
-        border-left: 3px solid #ccc; padding-left: 1.5rem; margin: 2rem 0;
-        font-style: italic; color: #606770; font-size: 1.2rem;
-    }
-    .embed-container {
-        position: relative; padding-bottom: 56.25%; height: 0;
-        overflow: hidden; max-width: 100%; margin: 2rem auto; border-radius: 8px;
-    }
-    .embed-container iframe {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    }
-    .embed-caption {
-        font-family: 'Inter', sans-serif; font-size: 14px;
-        color: #6b7280; margin-top: 0.5rem; text-align: center;
-    }
-    
-    /* Rich Text in Captions */
-    .embed-caption b, .embed-caption strong { font-weight: 700; }
-    .embed-caption i, .embed-caption em { font-style: italic; }
-    .embed-caption a { color: #1d4ed8; text-decoration: underline; }
-
-    /* Mobile Styles */
     @media (max-width: 768px) {
         .article-headline { font-size: 32px; }
         .article-headline.long-headline { font-size: 34px; }
@@ -234,7 +187,21 @@ permalink: /latest.html
 
                 <div class="article-meta">
                     <div class="meta-info">
-                        <div class="author-name">By {{ latest_post.author | default: 'Staff Writer' }}</div>
+                        <div class="author-name">
+                            <span>By</span> 
+                            {% assign author_name = latest_post.author | default: 'Staff Writer' %}
+                            {% assign author_slug = author_name | slugify %}
+                            {% assign static_author = site.authors | where: "slug", author_slug | first %}
+                            
+                            {% if static_author %}
+                                <a href="{{ static_author.url }}" class="author-link">
+                                    {{ author_name }}
+                                    <i class="fas fa-check-circle text-yellow-500 text-sm ml-1" title="Verified Staff"></i>
+                                </a>
+                            {% else %}
+                                <a href="/opinion/{{ author_slug }}" class="author-link">{{ author_name }}</a>
+                            {% endif %}
+                        </div>
                         <div class="publish-date">{{ latest_post.date | date: "%B %d, %Y" }}</div>
                     </div>
                     <div class="share-container">
@@ -259,8 +226,8 @@ permalink: /latest.html
             </div> 
             
             <script>
-            // IMAGE OPTIMIZATION
-            document.addEventListener('turbo:load', () => {
+            // IMAGE OPTIMIZATION (Using DOMContentLoaded)
+            document.addEventListener('DOMContentLoaded', () => {
                 requestAnimationFrame(() => {
                     const articleBody = document.querySelector('.article-body');
                     if (!articleBody) return;
@@ -300,7 +267,7 @@ permalink: /latest.html
             });
 
             // --- TABLE SORTING LOGIC ---
-            document.addEventListener('turbo:load', () => {
+            document.addEventListener('DOMContentLoaded', () => {
                 const tables = document.querySelectorAll('.table-container.sortable table');
                 tables.forEach(table => {
                     if (table.dataset.hasSortListener) return; 
@@ -343,8 +310,8 @@ permalink: /latest.html
     {% endif %}
 </div> 
 
-<script> // Share Script
-document.addEventListener('turbo:load', () => {
+<script> // Share Script (Using DOMContentLoaded)
+document.addEventListener('DOMContentLoaded', () => {
     const shareButton = document.getElementById('native-share-button');
 
     if (shareButton) {
@@ -376,8 +343,8 @@ document.addEventListener('turbo:load', () => {
 });
 </script>
 
-<script> // Embed Script
-document.addEventListener('turbo:load', () => {
+<script> // Embed Script (Using DOMContentLoaded)
+document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
         const articleBody = document.querySelector('.article-body');
         if (!articleBody) return;

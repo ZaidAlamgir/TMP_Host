@@ -1,0 +1,8 @@
+name = "tmp-website"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "_site"
+
+[[d1_databases]]
+binding = "DB_1"
+database_name = "TMPnews_wr_db_1"
+database_id = "2d6cae9f-7ad3-49af-8c99-bf20da848e21"

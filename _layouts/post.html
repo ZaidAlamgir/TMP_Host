@@ -17,7 +17,7 @@ layout: default
   "dateModified": "{{ page.date | date_to_xmlschema }}",
   "author": {
     "@type": "Person",
-    "name": "{{ page.author | default: 'TMP Staff' | escape }}"
+    "name": "{{ page.writer | default: page.author | default: 'TMP Staff' | escape }}"
   },
   "publisher": {
     "@type": "Organization",
@@ -161,17 +161,26 @@ layout: default
                 <div>
                     <div class="author-name">
                         By 
-                        {% assign author_slug = page.author | slugify %}
-                        {% assign author_page = site.authors | where: "slug", author_slug | first %}
-                        
-                        {% if author_page %}
-                            <a href="{{ author_page.url }}" class="hover:text-indigo-600 hover:underline transition-colors">
-                                {{ page.author | default: 'Staff Writer' }}
+                        {% if page.writer %}
+                            {% assign writer_slug = page.writer | slugify %}
+                            <a href="/writer/?id={{ writer_slug }}&source=writer_db" class="hover:text-indigo-600 hover:underline transition-colors text-gray-800">
+                                {{ page.writer }}
                             </a>
+
                         {% else %}
-                            {{ page.author | default: 'Staff Writer' }}
+                            {% assign author_name = page.author | default: 'TMP Staff' %}
+                            {% assign author_slug = author_name | slugify %}
+                            {% assign static_author = site.authors | where: "slug", author_slug | first %}
+                            
+                            {% if static_author %}
+                                <a href="{{ static_author.url }}" class="hover:text-indigo-600 hover:underline transition-colors font-bold text-gray-900">
+                                    {{ author_name }} <i class="fas fa-check-circle text-yellow-500 text-xs ml-1" title="Staff Writer"></i>
+                                </a>
+                            {% else %}
+                                <span class="text-gray-900 font-medium">{{ author_name }}</span>
+                            {% endif %}
                         {% endif %}
-                    </div>
+                        </div>
                     <div class="publish-date">{{ page.date | date: "%B %d, %Y" }}</div>
                 </div>
                 <div>
@@ -192,6 +201,53 @@ layout: default
             
             {{ content }}
         </div> 
+
+        <hr class="w-2/3 mx-auto border-gray-200 my-12">
+
+        {% if page.writer %}
+        <div class="mt-8 mb-12 p-6 bg-gray-50 rounded-xl border border-gray-100 text-center">
+            <p class="italic text-gray-500 text-sm font-inter leading-relaxed">
+                "The views expressed in this article are the author’s own and do not necessarily reflect TMPnews (The Muslim Post) editorial stance."
+            </p>
+        </div>
+        {% endif %}
+
+        <div class="mt-12">
+            <div class="flex items-center gap-2 mb-6">
+                <h3 class="text-2xl font-bold text-gray-900 font-inter">Related</h3>
+                <span class="w-2 h-2 rounded-full bg-blue-600 mt-1"></span>
+            </div>
+
+            <div class="flex flex-col">
+                {% comment %} 
+                   Logic: Find up to 5 related posts (by Jekyll's LSI or Recency).
+                   Limit to 5 to match the dynamic layout.
+                {% endcomment %}
+                {% assign related_posts = site.related_posts | slice: 0, 5 %}
+                
+                {% for post in related_posts %}
+                <a href="{{ post.url }}" class="group block border-b border-gray-100 last:border-0 py-4">
+                    <div class="flex gap-4 items-start">
+                         <div class="flex-grow">
+                             <h4 class="font-bold text-gray-900 text-lg leading-snug group-hover:text-blue-600 transition-colors font-merriweather mb-2">
+                                {{ post.title }}
+                             </h4>
+                             <div class="flex items-center gap-2 text-xs text-gray-500 font-inter uppercase tracking-wide">
+                                <span class="text-blue-600 font-semibold">{{ post.author | default: 'TMP Staff' }}</span>
+                                <span>•</span>
+                                <span>{{ post.date | date: "%b %d" }}</span>
+                             </div>
+                         </div>
+                         {% if post.image %}
+                         <div class="w-24 h-24 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                            <img src="{{ post.image }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
+                         </div>
+                         {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
     </article> 
 </div> 
 

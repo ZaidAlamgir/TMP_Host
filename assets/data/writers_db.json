@@ -1,0 +1,21 @@
+[
+  {
+    "id": "tmp-staff",
+    "name": "TMP Staff",
+    "designation": "Official Editorial Team",
+    "degree": "Verified Organization",
+    "badge": "staff-gold",
+    "image": "https://author.tmpnews.com/profile/tmpnews.webp",
+    "x": "https://x.com/TMPnewsAgency",
+    "bio": "Official updates and breaking news from The Muslim Post desk."
+  },
+  {
+    "id": "tmp-opinion",
+    "name": "TMP Opinion",
+    "designation": "Editorial Board",
+    "degree": "Opinion Desk",
+    "badge": "staff-red",
+    "image": "https://author.tmpnews.com/profile/tmp-opinion.webp",
+    "bio": "Unbiased perspectives and editorials from our senior editors."
+  }
+]

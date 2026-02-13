@@ -1,3 +1,4 @@
+# --- Jekyll Defaults ---
 _site/
 bin/
 .bundle/
@@ -5,4 +6,41 @@ vendor/bundle/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata
+
+# --- Secrets & Environment ---
 .env
+.dev.vars
+
+# --- The Files You Want to Ignore ("Trash") ---
+tmp-sync-worker/
+supabase/
+AmmarKhan/
+SW.js
+graphicCMSorg.html
+compose.html
+migration/
+notification.html
+notification-via-fire.html
+
+# --- Cloudflare Wrangler ---
+.wrangler/
+.cargo/
+dist/
+
+# --- Node.js / Javascript ---
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# --- OS Junk Files ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Editor Settings ---
+.vscode/
+.idea/
+*.swp
+*.swo
