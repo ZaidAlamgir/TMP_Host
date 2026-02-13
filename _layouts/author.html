@@ -92,9 +92,7 @@ layout: default
     </div>
 </div>
 
-
 <script>
-// Define the init function so we can call it on both events
 async function initAuthorPage() {
     const authorName = "{{ page.title }}"; 
     const container = document.getElementById('articles-grid');
@@ -102,16 +100,15 @@ async function initAuthorPage() {
     const loadMoreBtn = document.getElementById('load-more-btn');
     const tickColorClass = "{{ tick_color }}"; 
 
-    // Safety: If we are not on the author page (container missing), stop.
     if (!container) return;
 
-    // Reset for new navigation
+    // State management
     container.innerHTML = ''; 
     let combinedPosts = [];
     let visibleCount = 0;
     const POSTS_PER_PAGE = 10;
 
-    // 1. SERIALIZE STATIC POSTS (Re-evaluated on every load)
+    // 1. SERIALIZE STATIC POSTS
     const staticPosts = [
         {% assign author_posts = site.posts | where: "author", page.title %}
         {% for post in author_posts %}
@@ -127,12 +124,11 @@ async function initAuthorPage() {
         {% endfor %}
     ];
 
-    // Start loading
     loading.classList.remove('hidden');
-    loadMoreBtn.classList.add('hidden'); // Hide button while loading
+    loadMoreBtn.classList.add('hidden');
 
     try {
-        // 2. FETCH DYNAMIC POSTS (D1)
+        // 2. FETCH DYNAMIC POSTS
         const response = await fetch('/api/feed');
         let d1Posts = [];
         
@@ -150,35 +146,39 @@ async function initAuthorPage() {
                 }));
         }
 
-        // 3. COMBINE & SORT
+        // 3. COMBINE, SORT, AND RESET COUNTER
         combinedPosts = [...staticPosts, ...d1Posts];
         combinedPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        visibleCount = 0; // Reset counter explicitly
 
         if (combinedPosts.length > 0) {
-            renderBatch();
+            renderBatch(); // Load first 10
         } else {
             container.innerHTML = `<p class="text-center text-gray-500 italic">No articles found.</p>`;
         }
 
     } catch (e) {
         console.warn("Error processing posts:", e);
-        combinedPosts = staticPosts; 
+        combinedPosts = staticPosts;
+        visibleCount = 0;
         if (combinedPosts.length > 0) renderBatch();
-        else container.innerHTML = `<p class="text-center text-gray-500 italic">No articles found.</p>`;
     } finally {
         if(loading) loading.classList.add('hidden');
     }
 
-    // 4. RENDER FUNCTION
+    // 4. IMPROVED RENDER FUNCTION
     function renderBatch() {
-        const nextBatch = combinedPosts.slice(visibleCount, visibleCount + POSTS_PER_PAGE);
+        // Calculate the slice
+        const endRange = visibleCount + POSTS_PER_PAGE;
+        const nextBatch = combinedPosts.slice(visibleCount, endRange);
         
+        let batchHtml = '';
         nextBatch.forEach(post => {
-            // Check if user is Staff or Community for badge color
-            const labelColor = post.type === "Staff Article" ? "{{ tick_color }}" : "text-blue-500"; 
+            const labelColor = post.type === "Staff Article" ? tickColorClass : "text-blue-500"; 
             const labelText = post.type === "Staff Article" ? "Staff Article" : "User Opinion";
 
-            const html = `
+            batchHtml += `
             <article class="flex flex-col md:flex-row gap-6 hover:bg-gray-50 p-6 rounded-2xl transition-all duration-200 border border-transparent hover:border-gray-100 group fade-in-up">
                 ${post.image ? `
                 <div class="md:w-1/3 shrink-0 overflow-hidden rounded-xl">
@@ -204,11 +204,14 @@ async function initAuthorPage() {
                 </div>
             </article>
             `;
-            container.insertAdjacentHTML('beforeend', html);
         });
 
+        container.insertAdjacentHTML('beforeend', batchHtml);
+        
+        // Update state
         visibleCount += nextBatch.length;
 
+        // Button visibility
         if (visibleCount >= combinedPosts.length) {
             loadMoreBtn.classList.add('hidden');
         } else {
@@ -216,23 +219,25 @@ async function initAuthorPage() {
         }
     }
 
-    // 5. RE-ATTACH LISTENER (Important for Turbo re-renders)
-    // Remove old listener to prevent duplicates if any
+    // 5. CLEAN EVENT ATTACHMENT
     const newBtn = loadMoreBtn.cloneNode(true);
     loadMoreBtn.parentNode.replaceChild(newBtn, loadMoreBtn);
     
-    newBtn.addEventListener('click', () => {
+    newBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         const originalText = newBtn.innerText;
         newBtn.innerText = "Loading...";
+        newBtn.disabled = true; // Prevent double clicks
+
         setTimeout(() => {
             renderBatch();
             newBtn.innerText = originalText;
-        }, 300);
+            newBtn.disabled = false;
+        }, 400);
     });
 }
 
-// --- HYBRID EVENT LISTENERS ---
-// This ensures it runs on BOTH fresh loads and Turbo navigations
+// Turbo and standard lifecycle
 document.addEventListener("DOMContentLoaded", initAuthorPage);
 document.addEventListener("turbo:load", initAuthorPage);
 </script>
