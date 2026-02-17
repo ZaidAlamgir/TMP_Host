@@ -288,27 +288,37 @@ permalink: /auth.html
 
     function initAuth() {
         if (typeof window.supabase === 'undefined') {
-            console.error("Supabase library not loaded. Ensure it is in the head of standalone.html");
+            setTimeout(initAuth, 100);
             return;
         }
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const authFormContainer = document.getElementById('auth-form-container');
+        // Singleton Client Logic
+        let supabase;
+        if (typeof window.getSupabaseClient === 'function') {
+            supabase = window.getSupabaseClient();
+        } else {
+            if (!window._sharedSupabaseClient) {
+                window._sharedSupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            supabase = window._sharedSupabaseClient;
+        }
 
+        const authFormContainer = document.getElementById('auth-form-container');
         if (!authFormContainer) return;
 
-        // Reveal the form immediately if found
         authFormContainer.classList.remove('hidden');
 
         // Check if user is already logged in
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
-                // Redirect to home if logged in
-                window.location.replace("{{ '/' | relative_url }}"); 
+                if (window.AndroidInterface) {
+                    syncToAndroid(session);
+                } else {
+                    window.location.replace("{{ '/profile/' | relative_url }}"); 
+                }
             }
         });
 
-        // Initialize all event listeners
         setupFormListeners(supabase);
     }
 
@@ -317,185 +327,202 @@ permalink: /auth.html
         const stepSignUp2 = document.getElementById('stepSignUp2');
         const stepSignIn = document.getElementById('stepSignIn');
         
-        const emailForm = document.getElementById('emailForm');
-        const registerForm = document.getElementById('registerForm');
-        const signInForm = document.getElementById('signInForm');
-        
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const fullNameInput = document.getElementById('fullName');
-        
-        const signInEmailInput = document.getElementById('signInEmail');
-        const signInPasswordInput = document.getElementById('signInPassword');
-        
-        const backToStep1Link = document.getElementById('backToStep1');
-        const goToSignInLink = document.getElementById('goToSignIn');
-        const goToSignUpLink = document.getElementById('goToSignUp');
-        
-        const googleSignInSignUpBtn = document.getElementById('googleSignInSignUp');
-        const googleSignInBtn = document.getElementById('googleSignIn');
-        
-        const emailError = document.getElementById('emailError');
-        const registerError = document.getElementById('registerError');
         const signInError = document.getElementById('signInError');
-        
-        const reqLength = document.getElementById('req-length');
-        const reqNumber = document.getElementById('req-number');
-        const reqUppercase = document.getElementById('req-uppercase');
-        
-        let userEmail = '';
+        const registerError = document.getElementById('registerError');
+        const emailError = document.getElementById('emailError');
 
         function showStep(stepElement) {
             document.querySelectorAll('.auth-step').forEach(step => step.classList.remove('active'));
             stepElement.classList.add('active');
         }
 
-        // Navigation
-        if (goToSignInLink) goToSignInLink.onclick = (e) => { e.preventDefault(); showStep(stepSignIn); };
-        if (goToSignUpLink) goToSignUpLink.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); };
-        if (backToStep1Link) backToStep1Link.onclick = (e) => { e.preventDefault(); showStep(stepSignUp1); registerError.textContent = ''; };
+        // --- STRICT EVENT LISTENERS TO PREVENT WEBVIEW REFRESH ---
 
-        // Email Form Submit
-        if (emailForm) emailForm.onsubmit = (e) => {
-            e.preventDefault();
-            userEmail = emailInput.value;
-            showStep(stepSignUp2);
-        };
+        // 1. Sign In Form
+        const signInForm = document.getElementById('signInForm');
+        if (signInForm) {
+            signInForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // STOPS ANDROID PAGE REFRESH
+                const email = document.getElementById('signInEmail').value.trim();
+                const password = document.getElementById('signInPassword').value;
+                const btn = signInForm.querySelector('.btn-primary');
+                
+                if (signInError) signInError.textContent = '';
+                if (btn) { btn.disabled = true; btn.textContent = 'Signing In...'; }
 
-        // Register Form Submit
-        if (registerForm) registerForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const password = passwordInput.value;
-            const fullName = fullNameInput.value;
-            registerError.textContent = '';
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
 
-            const { data, error } = await supabase.auth.signUp({
-                email: userEmail,
-                password: password,
-                options: { data: { full_name: fullName } }
+                if (error) {
+                    if (signInError) signInError.textContent = error.message;
+                    if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
+                } else if (data.session) {
+                    handleSuccessfulLogin(data.session);
+                }
             });
-
-            if (error) {
-                registerError.textContent = error.message;
-            } else if (data.session) {
-                handleSuccessfulLogin(data.session.user);
-            } else if (data.user) {
-                showStep(stepSignUp1);
-                emailInput.value = '';
-                emailError.textContent = 'Success! Please check your email for a confirmation link.';
-                emailError.style.color = '#42b72a';
-            }
-        };
-
-        // Sign In Form Submit
-        if (signInForm) signInForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const email = signInEmailInput.value;
-            const password = signInPasswordInput.value;
-            signInError.textContent = '';
-
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) {
-                signInError.textContent = error.message;
-            } else if (data.user) {
-                handleSuccessfulLogin(data.user);
-            }
-        };
-
-        // --- SMART GOOGLE SIGN IN LOGIC (Web + Android + Localhost) ---
-const handleGoogleSignIn = async () => {
-    // 1. UI Loading State
-    if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = true; googleSignInSignUpBtn.classList.add('loading'); }
-    if(googleSignInBtn) { googleSignInBtn.disabled = true; googleSignInBtn.classList.add('loading'); }
-    if(signInError) signInError.textContent = '';
-    if(emailError) emailError.textContent = '';
-    
-    // 2. Check Environment
-    const isInsideApp = (window.AndroidInterface && typeof window.AndroidInterface.share === 'function');
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    let redirectUrl;
-
-    if (isInsideApp) {
-        console.log("App detected. Redirecting to tmpnews://auth/callback");
-        redirectUrl = 'tmpnews://auth/callback';
-    } else if (isLocalhost) {
-        // Automatically uses http://localhost:4000/callback.html (or whatever port you are using)
-        console.log("Localhost detected.");
-        redirectUrl = `${window.location.origin}/callback.html`;
-    } else {
-        console.log("Production Web detected.");
-        redirectUrl = 'https://www.tmpnews.com/callback.html';
-    }
-
-    console.log("Using Redirect URL:", redirectUrl);
-
-    // 3. Call Supabase
-    const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { 
-            redirectTo: redirectUrl,
-            skipBrowserRedirect: false 
         }
-    });
-    
-    // 4. Handle Error
-    if (error) {
-        const activeErrorEl = document.getElementById('stepSignIn') && document.getElementById('stepSignIn').classList.contains('active') ? signInError : emailError;
-        if(activeErrorEl) activeErrorEl.textContent = error.message;
-        
-        if(googleSignInSignUpBtn) { googleSignInSignUpBtn.disabled = false; googleSignInSignUpBtn.classList.remove('loading'); }
-        if(googleSignInBtn) { googleSignInBtn.disabled = false; googleSignInBtn.classList.remove('loading'); }
-    }
-};
-        if(googleSignInSignUpBtn) googleSignInSignUpBtn.onclick = handleGoogleSignIn;
-        if(googleSignInBtn) googleSignInBtn.onclick = handleGoogleSignIn;
 
-        // Password Toggle Logic
-        const authFormContainer = document.getElementById('auth-form-container');
-        if (authFormContainer) {
-            authFormContainer.onclick = (e) => {
-                if (e.target.classList.contains('toggle-password')) {
-                    const icon = e.target;
-                    const passwordField = icon.previousElementSibling;
-                    if (passwordField) {
-                        passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
-                        icon.classList.toggle('fa-eye');
-                        icon.classList.toggle('fa-eye-slash');
+        // 2. Email Verification (Step 1)
+        const emailForm = document.getElementById('emailForm');
+        if (emailForm) {
+            emailForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                window.userEmail = document.getElementById('email').value.trim();
+                showStep(stepSignUp2);
+            });
+        }
+
+        // 3. Register Form (Step 2)
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const password = document.getElementById('password').value;
+                const fullName = document.getElementById('fullName').value.trim();
+                const btn = registerForm.querySelector('.btn-primary');
+
+                if (registerError) registerError.textContent = '';
+                if (btn) { btn.disabled = true; btn.textContent = 'Creating Account...'; }
+
+                const { data, error } = await supabase.auth.signUp({
+                    email: window.userEmail,
+                    password: password,
+                    options: { data: { full_name: fullName } }
+                });
+
+                if (error) {
+                    if (registerError) registerError.textContent = error.message;
+                    if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
+                } else if (data.session) {
+                    handleSuccessfulLogin(data.session);
+                } else if (data.user) {
+                    showStep(stepSignUp1);
+                    if (emailError) {
+                        emailError.textContent = 'Success! Please check your email for a confirmation link.';
+                        emailError.style.color = '#42b72a';
                     }
                 }
-            };
+            });
         }
+
+        // Navigation Linking
+        document.getElementById('goToSignIn')?.addEventListener('click', (e) => { e.preventDefault(); showStep(stepSignIn); });
+        document.getElementById('goToSignUp')?.addEventListener('click', (e) => { e.preventDefault(); showStep(stepSignUp1); });
+        document.getElementById('backToStep1')?.addEventListener('click', (e) => { e.preventDefault(); showStep(stepSignUp1); if(registerError) registerError.textContent=''; });
+
+        // --- GOOGLE SIGN IN ---
+        const handleGoogleSignIn = async () => {
+            const googleBtn1 = document.getElementById('googleSignInSignUp');
+            const googleBtn2 = document.getElementById('googleSignIn');
+            
+            if (googleBtn1) { googleBtn1.disabled = true; googleBtn1.classList.add('loading'); }
+            if (googleBtn2) { googleBtn2.disabled = true; googleBtn2.classList.add('loading'); }
+            if (signInError) signInError.textContent = '';
+            if (emailError) emailError.textContent = '';
+            
+            const isInsideApp = (window.AndroidInterface && typeof window.AndroidInterface.share === 'function');
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            let redirectUrl;
+            if (isInsideApp) {
+                redirectUrl = 'tmpnews://auth/callback';
+            } else if (isLocalhost) {
+                redirectUrl = `${window.location.origin}/callback.html`;
+            } else {
+                redirectUrl = 'https://www.tmpnews.com/callback.html';
+            }
+
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { 
+                    redirectTo: redirectUrl,
+                    skipBrowserRedirect: false 
+                }
+            });
+            
+            if (error) {
+                const activeErrorEl = document.getElementById('stepSignIn').classList.contains('active') ? signInError : emailError;
+                if(activeErrorEl) activeErrorEl.textContent = error.message;
+                if (googleBtn1) { googleBtn1.disabled = false; googleBtn1.classList.remove('loading'); }
+                if (googleBtn2) { googleBtn2.disabled = false; googleBtn2.classList.remove('loading'); }
+            }
+        };
+
+        document.getElementById('googleSignInSignUp')?.addEventListener('click', handleGoogleSignIn);
+        document.getElementById('googleSignIn')?.addEventListener('click', handleGoogleSignIn);
+
+        // Password Toggle Logic
+        document.getElementById('auth-form-container')?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('toggle-password')) {
+                const icon = e.target;
+                const passwordField = icon.previousElementSibling;
+                if (passwordField) {
+                    passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                }
+            }
+        });
 
         // Password Validation Logic
+        const passwordInput = document.getElementById('password');
         if (passwordInput) {
-            passwordInput.oninput = () => {
+            passwordInput.addEventListener('input', () => {
                 const value = passwordInput.value;
-                reqLength.classList.toggle('valid', value.length >= 8);
-                reqNumber.classList.toggle('valid', /\d/.test(value));
-                reqUppercase.classList.toggle('valid', /[A-Z]/.test(value));
-            };
+                document.getElementById('req-length')?.classList.toggle('valid', value.length >= 8);
+                document.getElementById('req-number')?.classList.toggle('valid', /\d/.test(value));
+                document.getElementById('req-uppercase')?.classList.toggle('valid', /[A-Z]/.test(value));
+            });
         }
     }
 
-    function handleSuccessfulLogin(supabaseUser) {
+    // --- CRITICAL APP BRIDGE LOGIC ---
+    function handleSuccessfulLogin(session) {
         const userToCache = { 
-            uid: supabaseUser.id, 
-            displayName: supabaseUser.user_metadata?.full_name, 
-            email: supabaseUser.email, 
-            photoURL: supabaseUser.user_metadata?.avatar_url 
+            uid: session.user.id, 
+            displayName: session.user.user_metadata?.full_name, 
+            email: session.user.email, 
+            photoURL: session.user.user_metadata?.avatar_url 
         };
         localStorage.setItem('cachedUser', JSON.stringify(userToCache));
-        window.location.replace("{{ '/profile/' | relative_url }}");
+
+        // Detect if loaded inside your Android WebView
+        if (window.AndroidInterface) {
+            syncToAndroid(session);
+        } else {
+            window.location.replace("{{ '/profile/' | relative_url }}");
+        }
     }
 
-    // Trigger Init
+    function syncToAndroid(session) {
+        try {
+            const role = session.user.user_metadata?.role || 'user';
+            const metadataJson = JSON.stringify(session.user.user_metadata || {});
+            
+            // Pass the token to MainActivity securely
+            window.AndroidInterface.updateSupabaseSession(
+                session.access_token || "", 
+                session.user.id || "", 
+                session.user.email || "", 
+                role, 
+                metadataJson
+            );
+            
+            // Close webview and show Profile Fragment natively
+            window.AndroidInterface.openNativeProfile();
+        } catch(e) {
+            console.error("Failed to sync to Android App:", e);
+            // Fallback just in case the bridge fails
+            window.location.replace("{{ '/profile/' | relative_url }}");
+        }
+    }
+
+    // Trigger Init Safely
     if (document.readyState === 'loading') {
         document.addEventListener('turbo:load', initAuth, { once: true });
+        document.addEventListener('DOMContentLoaded', initAuth, { once: true });
     } else {
         initAuth();
     }
