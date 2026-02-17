@@ -2,8 +2,10 @@
 layout: authenticated
 title: My Account - The Muslim Post
 ---
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+
 <style>
-    /* Same styles as before, abbreviated for clarity */
+    /* Your Original Styles */
     .profile-header-actions { margin-bottom: 1rem; display: flex; align-items: center; }
     .btn-back-smart { background: none; border: 1px solid #e5e7eb; padding: 0.5rem 1rem; border-radius: 6px; color: #4b5563; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; text-decoration: none; }
     .btn-back-smart:hover { background-color: #f3f4f6; color: #1f2937; }
@@ -32,8 +34,33 @@ title: My Account - The Muslim Post
     .message.info { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
     .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Required for Tabs to hide/show */
+    .profile-view { display: none; }
+    .profile-view.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* New CMS Styles */
+    .dynamic-content-block { border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 3.5rem 1.25rem 1.5rem 1.25rem; margin-top: 1.5rem; background-color: #ffffff; position: relative; }
+    .drag-handle { position: absolute; top: 0; left: 0; width: 100%; height: 2.5rem; display: flex; align-items: center; justify-content: center; cursor: grab; color: #94a3b8; background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; border-radius: 0.75rem 0.75rem 0 0; }
+    .remove-block-btn { position: absolute; top: 1.25rem; transform: translateY(-50%); right: 0.75rem; width: 1.75rem; height: 1.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ef4444; cursor: pointer; border: none; background: none; z-index: 20; }
+    .rich-editor-wrapper { border: 1px solid #cbd5e1; border-radius: 0.5rem; background: #fff; overflow: hidden; margin-bottom: 0.5rem; }
+    .rich-toolbar { display: flex; align-items: center; gap: 4px; padding: 6px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .rich-content-area { min-height: 80px; padding: 0.75rem; outline: none; line-height: 1.6; color: #334155; overflow-y: auto; }
+    .rich-content-area.headline-editor { min-height: 60px; font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
+    .rich-content-area:empty:before { content: attr(data-placeholder); color: #94a3b8; pointer-events: none; }
+    .tag-suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .tag-chip, .country-chip { font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.85rem; border-radius: 9999px; cursor: pointer; border: 1px solid transparent; }
+    .tag-chip { background-color: #f1f5f9; color: #475569; }
+    .country-chip { background-color: #ecfdf5; color: #047857; border-color: #6ee7b7; }
+    .country-list-scroll { max-height: 220px; overflow-y: auto; padding: 4px; border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 0.5rem; }
+    .tool-btn { padding: 5px 8px; border-radius: 4px; border: 1px solid transparent; cursor: pointer; color: #475569; font-size: 0.8rem; background: white; border-color: #cbd5e1; display: flex; align-items: center; gap: 4px; }
+    .link-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.4); z-index: 1000; display: flex; justify-content: center; align-items: flex-start; padding-top: 15vh; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+    .link-modal-overlay.visible { opacity: 1; pointer-events: all; }
+    .link-modal-content { background-color: white; padding: 2rem; border-radius: 1rem; width: 90%; max-width: 500px; }
 </style>
-<div class="profile-container-wrapper">
+
+<div class="profile-container-wrapper" style="display: none;">
     <div class="profile-layout">
         <nav class="profile-nav">
              <div class="profile-header-actions">
@@ -46,6 +73,11 @@ title: My Account - The Muslim Post
             <ul>
                 <li><a href="#" class="nav-link active" data-view="profile-view" title="Profile"><i class="fas fa-user fa-fw"></i> <span>Profile</span></a></li>
                 <li><a href="#" class="nav-link" data-view="my-posts-view" title="My Posts"><i class="fas fa-newspaper fa-fw"></i> <span>My Posts</span></a></li>
+                
+                <li id="nav-writer-panel" style="display: none;">
+                    <a href="#" class="nav-link" data-view="writer-view" title="Writer Panel"><i class="fas fa-pen-nib fa-fw"></i> <span style="color: #4f46e5; font-weight: bold;">Writer Panel</span></a>
+                </li>
+                
                 <li><a href="#" class="nav-link" data-view="security-view" title="Security"><i class="fas fa-shield-alt fa-fw"></i> <span>Security</span></a></li>
                 <li><a href="#" id="sign-out-btn" title="Sign Out"><i class="fas fa-sign-out-alt fa-fw"></i> <span>Sign Out</span></a></li>
             </ul>
@@ -80,7 +112,85 @@ title: My Account - The Muslim Post
                 <h2>My Posts</h2>
                 <div id="my-posts-list"></div>
             </div>
+
+            <div id="writer-view" class="profile-view">
+                <h2 style="color: #4f46e5; margin-bottom: 5px;">Author CMS</h2>
+                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 20px;">Create and publish articles directly to the news feed.</p>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #94a3b8; text-transform: uppercase;">Headline</label>
+                    <div id="article-headline-container"></div> 
+                    <label style="font-size: 0.75rem; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-top: 1rem; display: block;">Subheadline</label>
+                    <div id="article-subheadline-container"></div> 
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div><label style="font-size: 0.85rem; font-weight: 500;">Main Image URL</label><input type="text" id="article-main-image-url" style="width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" placeholder="https://media.tmpnews.com/images/..."></div>
+                    <div><label style="font-size: 0.85rem; font-weight: 500;">Author Name</label><input type="text" id="article-author" style="width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 0.5rem; background: #f3f4f6;" readonly></div>
+                </div>
+                 
+                <div style="margin-bottom: 2rem;">
+                    <label style="font-size: 0.85rem; font-weight: 500;">Image Description</label>
+                    <div id="article-main-image-desc-container"></div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.9rem; font-weight: bold; color: #1e293b;">Article Body</label>
+                    <div id="article-p1-container"></div>
+                </div>
+
+                <div id="dynamic-content-blocks"></div>
+
+                <div style="margin: 2rem 0; padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                    <select id="block-type-select" style="padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.3rem;">
+                        <option value="paragraph">Paragraph</option>
+                        <option value="headline-h2">Headline (H2)</option>
+                        <option value="headline-h3">Headline (H3)</option>
+                        <option value="image">Image Block</option>
+                        <option value="quote">Quote</option>
+                        <option value="twitter">Twitter Embed</option>
+                        <option value="youtube">YouTube Embed</option>
+                    </select>
+                    <button id="add-block-button" style="background: #1e293b; color: white; padding: 0.5rem 1rem; border-radius: 0.3rem; border: none; cursor: pointer;">
+                        <i class="fas fa-plus"></i> Add Block
+                    </button>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="font-size: 0.85rem; font-weight: 500;">Tags (comma separated)</label>
+                    <input type="text" id="article-tags" style="width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 0.5rem;" placeholder="e.g., politics, world">
+                    <div id="tag-suggestions-container" class="tag-suggestions">
+                        <div class="tag-chip" data-tag="Breaking">Breaking</div>
+                        <div class="tag-chip" data-tag="World">World</div>
+                        <div class="tag-chip" data-tag="Politics">Politics</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <p style="font-size: 0.75rem; font-weight: bold; color: #047857; text-transform: uppercase;">OIC Member Countries</p>
+                        <input type="text" id="country-search-input" style="padding: 0.3rem 0.5rem; font-size: 0.8rem; border: 1px solid #6ee7b7; border-radius: 0.3rem;" placeholder="Search country...">
+                    </div>
+                    <div id="country-suggestions-container" class="tag-suggestions country-list-scroll"></div>
+                </div>
+
+                <button id="publish-button" style="width: 100%; background: #4f46e5; color: white; font-weight: bold; padding: 1rem; border-radius: 0.5rem; border: none; font-size: 1.1rem; cursor: pointer;">
+                    <span id="publish-text">Publish to User Posts</span>
+                </button>
+                <div id="publish-status-message" class="message" style="text-align: center; margin-top: 10px;"></div>
+            </div>
         </main>
+    </div>
+</div>
+
+<div id="link-modal" class="link-modal-overlay">
+    <div class="link-modal-content">
+         <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">Add Link</h3>
+         <input type="text" id="link-url-input" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; margin-bottom: 1rem;" placeholder="https://example.com">
+         <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+             <button id="cancel-link-btn" style="padding: 0.6rem 1.2rem; border-radius: 0.5rem; background: #f3f4f6; border: none; cursor: pointer;">Cancel</button>
+             <button id="add-link-btn" style="padding: 0.6rem 1.2rem; border-radius: 0.5rem; background: #4f46e5; color: white; border: none; cursor: pointer;">Add Link</button>
+         </div>
     </div>
 </div>
 
@@ -89,11 +199,22 @@ title: My Account - The Muslim Post
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
 
     document.addEventListener('turbo:load', () => {
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase;
+          if (window.supabaseClient) {
+         supabase = window.supabaseClient;
+            } else {
+         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+             window.supabaseClient = supabase;
+        }
         const basePath = document.body.getAttribute('data-base-path') || '';
 
         let isProfileInitialized = false;
         let currentUser = null; 
+
+        // CMS Globals
+        window.cmsInitialized = false;
+        window.isWriter = false;
+        let activeContentEditable = null;
 
         // Immediate cache check
         const cachedUserStr = localStorage.getItem('tmp_cached_user_details');
@@ -113,6 +234,20 @@ title: My Account - The Muslim Post
                 if (typeof initializeSupabaseHeader === 'function') {
                     initializeSupabaseHeader(basePath, true);
                 }
+
+                // ==========================================
+                // NEW: SILENT BACKGROUND ROLE CHECK
+                // ==========================================
+                supabase.from('profiles').select('role').eq('id', currentUser.id).maybeSingle()
+                    .then(({data, error}) => {
+                        if (data && data.role === 'writer') {
+                            document.getElementById('nav-writer-panel').style.display = 'block';
+                            document.getElementById('article-author').value = fullName || email.split('@')[0];
+                            window.isWriter = true;
+                        }
+                    });
+                // ==========================================
+
                 if (!isProfileInitialized) {
                     initializeProfilePage(currentUser, supabase, basePath);
                     isProfileInitialized = true;
@@ -136,7 +271,6 @@ title: My Account - The Muslim Post
 
         function initializeProfilePage(user, supabase, basePath) {
             if (!user) return;
-            // (Standard element selectors - same as before)
             const profileForm = document.getElementById('profileForm');
             const resetPasswordBtn = document.getElementById('resetPasswordBtn');
             const signOutBtn = document.getElementById('sign-out-btn');
@@ -160,7 +294,17 @@ title: My Account - The Muslim Post
                 e.preventDefault();
                 if (link.id === 'sign-out-btn') return;
                 const targetViewId = link.getAttribute('data-view');
+                
                 if (targetViewId === 'my-posts-view') loadUserPosts(user, supabase); 
+                
+                // ==========================================
+                // NEW: TRIGGER CMS SETUP ONLY WHEN CLICKED
+                // ==========================================
+                if (targetViewId === 'writer-view' && !window.cmsInitialized) {
+                    initStaticEditors();
+                    window.cmsInitialized = true;
+                }
+
                 views.forEach(view => view.classList.remove('active'));
                 navLinks.forEach(navLink => navLink.classList.remove('active'));
                 document.getElementById(targetViewId).classList.add('active');
@@ -179,13 +323,7 @@ title: My Account - The Muslim Post
                 if (target.closest('.btn-delete')) {
                     if (!postId) return;
                     if (confirm('Are you sure you want to permanently delete this post?')) {
-                        // NEW TABLE: user_posts
-                        const { error } = await supabase
-                            .from('user_posts')
-                            .delete()
-                            .eq('id', postId)
-                            .eq('user_id', currentUserId);
-
+                        const { error } = await supabase.from('user_posts').delete().eq('id', postId).eq('user_id', currentUserId);
                         if (error) alert(`Error deleting post: ${error.message}`);
                         else {
                             postItem.style.transition = 'opacity 0.3s ease';
@@ -205,7 +343,6 @@ title: My Account - The Muslim Post
                         editContainer.style.display = 'none';
                         postItem.appendChild(editContainer);
                     }
-                    // Parse content back to form (simplified logic)
                     const originalContentHTML = contentDisplay.querySelector('.post-content').innerHTML;
                     let formHTML = '';
                     const tempDiv = document.createElement('div');
@@ -234,13 +371,7 @@ title: My Account - The Muslim Post
                         return value;
                     }).filter(v => v).join('\n\n');
 
-                    // NEW TABLE: user_posts
-                    const { error } = await supabase
-                        .from('user_posts')
-                        .update({ content: newContent })
-                        .eq('id', postId)
-                        .eq('user_id', currentUserId);
-
+                    const { error } = await supabase.from('user_posts').update({ content: newContent }).eq('id', postId).eq('user_id', currentUserId);
                     if (error) alert(`Error updating post: ${error.message}`);
                     else {
                         invalidatePostsCache(currentUserId);
@@ -285,7 +416,7 @@ title: My Account - The Muslim Post
                     const cachedData = localStorage.getItem(cacheKey);
                     if (cachedData) {
                         const { posts, timestamp } = JSON.parse(cachedData);
-                        if (Date.now() - timestamp < 300000) { // 5 mins
+                        if (Date.now() - timestamp < 300000) { 
                             renderPosts(posts, postsList);
                             return;
                         }
@@ -293,28 +424,101 @@ title: My Account - The Muslim Post
                 }
                 postsList.innerHTML = '<div class="loader"></div>'; 
                 
-                // NEW TABLE: user_posts
-                const { data: posts, error } = await supabaseInstance
-                    .from('user_posts')
-                    .select('*')
-                    .eq('user_id', userForPosts.id)
-                    .order('created_at', { ascending: false });
+                // Fetch from BOTH tables simultaneously
+                const [activeRes, archiveRes] = await Promise.all([
+                    supabaseInstance.from('user_posts').select('*').eq('user_id', userForPosts.id),
+                    supabaseInstance.from('post_to_webpage').select('*').eq('user_id', userForPosts.id)
+                ]);
 
-                if (error) { postsList.innerHTML = `<div class="message error">Could not load posts. ${error.message}</div>`; return; }
-                if (posts) localStorage.setItem(cacheKey, JSON.stringify({ posts: posts, timestamp: Date.now() }));
-                renderPosts(posts, postsList);
+                if (activeRes.error) console.error("Error loading active posts:", activeRes.error);
+                if (archiveRes.error) console.error("Error loading archived posts:", archiveRes.error);
+
+                let combinedPosts = [];
+
+                // Format active posts
+                if (activeRes.data) {
+                    combinedPosts.push(...activeRes.data.map(p => ({ 
+                        ...p, 
+                        isArchived: false, 
+                        sortDate: new Date(p.created_at).getTime() 
+                    })));
+                }
+
+                // Format archived posts
+                if (archiveRes.data) {
+                    combinedPosts.push(...archiveRes.data.map(p => ({ 
+                        ...p, 
+                        isArchived: true, 
+                        sortDate: new Date(p.archived_at).getTime() 
+                    })));
+                }
+
+                // Sort newest to oldest
+                combinedPosts.sort((a, b) => b.sortDate - a.sortDate);
+
+                localStorage.setItem(cacheKey, JSON.stringify({ posts: combinedPosts, timestamp: Date.now() }));
+                renderPosts(combinedPosts, postsList);
             }
 
             function renderPosts(posts, container) {
-                if (!posts || posts.length === 0) { container.innerHTML = `<p>You haven't created any posts yet.</p>`; return; }
+                if (!posts || posts.length === 0) { 
+                    container.innerHTML = `<p>You haven't created any posts yet.</p>`; 
+                    return; 
+                }
+                
                 container.innerHTML = posts.map(post => {
-                    const contentHTML = parseContentToHTML(post.content);
-                    return `<div class="user-post-item" data-post-id="${post.id}"><div class="post-content-display"><div class="post-content">${contentHTML}</div><div class="post-details"><span class="post-date">Posted on ${new Date(post.created_at).toLocaleDateString()}</span><div class="post-actions"><button class="btn-edit" title="Edit"><i class="fas fa-pencil-alt"></i></button><button class="btn-delete" title="Delete"><i class="fas fa-trash-alt"></i></button></div></div></div><div class="post-edit-container" style="display: none;"></div></div>`;
+                    // RENDERING FOR ARCHIVED/PUBLISHED POSTS
+                    if (post.isArchived) {
+                        return `
+                        <div class="user-post-item" style="border-left: 4px solid #10b981; background: #f8fafc;">
+                            <div class="post-content">
+                                <h3 style="font-size: 1.1rem; font-weight: bold; color: #1e293b; margin-bottom: 0.5rem;">${post.headline || 'Untitled Article'}</h3>
+                                <span style="display: inline-block; background: #d1fae5; color: #047857; font-size: 0.75rem; font-weight: 600; padding: 2px 8px; border-radius: 9999px;">
+                                    <i class="fas fa-check-circle"></i> Published to D1
+                                </span>
+                            </div>
+                            <div class="post-details" style="display: block; margin-top: 15px;">
+                                <div style="margin-bottom: 12px;">
+                                    <a href="${post.web_link}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; color: #4f46e5; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                                        <i class="fas fa-external-link-alt"></i> View Live Article
+                                    </a>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #475569; background: #f1f5f9; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                                    <i class="fas fa-info-circle text-indigo-500 mr-1"></i> 
+                                    This article has been permanently archived to the main database. To request edits or deletion, please contact 
+                                    <a href="mailto:admin@tmpnews.com" style="color: #4f46e5; font-weight: 600;">admin@tmpnews.com</a>.
+                                </div>
+                                <div style="margin-top: 8px; font-size: 0.75rem; color: #94a3b8;">
+                                    Archived on ${new Date(post.archived_at).toLocaleString()}
+                                </div>
+                            </div>
+                        </div>`;
+                    } 
+                    // RENDERING FOR ACTIVE POSTS (Under 20 mins)
+                    else {
+                        const contentHTML = parseContentToHTML(post.content);
+                        return `
+                        <div class="user-post-item" data-post-id="${post.id}">
+                            <div class="post-content-display">
+                                <span style="display: inline-block; background: #fef3c7; color: #047857; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-bottom: 8px; border: 1px solid #fcd34d;">
+                                    <i class="fas fa-clock"></i> Active Draft (Editable)
+                                </span>
+                                <div class="post-content">${contentHTML}</div>
+                                <div class="post-details">
+                                    <span class="post-date">Posted on ${new Date(post.created_at).toLocaleString()}</span>
+                                    <div class="post-actions">
+                                        <button class="btn-edit" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+                                        <button class="btn-delete" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-edit-container" style="display: none;"></div>
+                        </div>`;
+                    }
                 }).join('');
             }
 
-            // (Update Name / Reset Password / Delete Account logic remains same)
-             profileForm.addEventListener('submit', async (e) => {
+            profileForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const newName = document.getElementById('fullName').value.trim();
                 const currentMetaName = user.user_metadata?.full_name || '';
@@ -336,8 +540,9 @@ title: My Account - The Muslim Post
             });
             signOutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
-                const { error } = await supabase.auth.signOut();
+                await supabase.auth.signOut();
                 localStorage.clear();
+                window.location.href = basePath + '/';
             });
             deleteAccountBtn.addEventListener('click', async () => {
                 if (!confirm('Are you absolutely sure?')) return;
@@ -350,12 +555,173 @@ title: My Account - The Muslim Post
                     window.location.href = `${basePath}/`;
                 } catch (error) { showMessage(deleteMessage, `Error: ${error.message}`, 'error'); }
             });
-             function showMessage(element, text, type) {
+            function showMessage(element, text, type) {
                 element.textContent = text;
                 element.className = `message ${type}`;
                 element.style.display = 'block';
                 setTimeout(() => { if (element) element.style.display = 'none'; }, 3000);
             }
+
+            // ==========================================
+            // NEW: CMS EDITOR FUNCTIONS & EVENT LISTENERS
+            // ==========================================
+            window.formatText = function(cmd, value = null) {
+                document.execCommand(cmd, false, value);
+                if (activeContentEditable) activeContentEditable.focus();
+            };
+
+            function renderRichEditor(id, placeholder, value, customClass = '') {
+                return `
+                <div class="rich-editor-wrapper">
+                    <div class="rich-toolbar">
+                        <button class="tool-btn" onmousedown="event.preventDefault(); window.formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); window.formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button class="tool-btn" onmousedown="event.preventDefault(); window.showLinkModal()" title="Link"><i class="fas fa-link"></i></button>
+                    </div>
+                    <div id="${id}" class="rich-content-area ${customClass}" contenteditable="true" data-placeholder="${placeholder}">${value || ''}</div>
+                </div>`;
+            }
+
+            function initStaticEditors() {
+                document.getElementById('article-headline-container').innerHTML = renderRichEditor('article-headline', 'Main Headline', '', 'headline-editor');
+                document.getElementById('article-subheadline-container').innerHTML = renderRichEditor('article-subheadline', 'Subheadline', '', 'subheadline-editor');
+                document.getElementById('article-main-image-desc-container').innerHTML = renderRichEditor('article-main-image-desc', 'Image Description', '', 'caption-editor');
+                document.getElementById('article-p1-container').innerHTML = renderRichEditor('article-p1', 'Start writing your article...', '');
+
+                if(typeof Sortable !== 'undefined') {
+                    Sortable.create(document.getElementById('dynamic-content-blocks'), { animation: 150, handle: '.drag-handle', ghostClass: 'sortable-ghost' });
+                }
+                
+                const oicCountriesList = ["Afghanistan", "Albania", "Algeria", "Azerbaijan", "Bahrain", "Bangladesh", "Egypt", "Indonesia", "Iran", "Iraq", "Malaysia", "Morocco", "Nigeria", "Pakistan", "Palestine", "Qatar", "Saudi Arabia", "Turkey", "United Arab Emirates"];
+                const tagsInput = document.getElementById('article-tags');
+                
+                window.renderCountries = function(filterText = '') {
+                    const countryContainer = document.getElementById('country-suggestions-container');
+                    countryContainer.innerHTML = ''; 
+                    const filtered = oicCountriesList.filter(c => c.toLowerCase().includes(filterText.toLowerCase()));
+                    filtered.forEach(country => {
+                        const chip = document.createElement('div');
+                        chip.className = 'country-chip'; 
+                        chip.textContent = country;
+                        chip.onclick = () => {
+                            const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
+                            if (!currentTags.includes(country)) tagsInput.value = tagsInput.value ? `${tagsInput.value}, ${country}` : country;
+                        };
+                        countryContainer.appendChild(chip);
+                    });
+                };
+                window.renderCountries();
+            }
+
+            function createBlockHTML(blockType, blockId) {
+                let html = `<div class="drag-handle"><i class="fas fa-grip-vertical"></i></div><button onclick="document.getElementById('${blockId}').remove();" class="remove-block-btn"><i class="fas fa-times"></i></button>`;
+                switch (blockType) {
+                    case 'paragraph': html += renderRichEditor(`${blockId}-editor`, 'Paragraph...', ''); break;
+                    case 'headline-h2': html += `<h3 style="font-size:0.8rem;color:#94a3b8;margin-bottom:5px;">H2 Headline</h3>` + renderRichEditor(`${blockId}-editor`, 'Heading...', '', 'headline-editor'); break;
+                    case 'headline-h3': html += `<h3 style="font-size:0.8rem;color:#94a3b8;margin-bottom:5px;">H3 Headline</h3>` + renderRichEditor(`${blockId}-editor`, 'Heading...', '', 'headline-editor'); break;
+                    case 'image': html += `<div style="margin-bottom:10px;"><label style="font-size:0.8rem;">Image URL</label><input type="text" class="dynamic-image-url" style="width:100%;padding:5px;border:1px solid #cbd5e1;border-radius:4px;"></div><label style="font-size:0.8rem;">Caption</label>` + renderRichEditor(`${blockId}-desc`, 'Caption...', '', 'caption-editor'); break;
+                    case 'quote': html += `<h3 style="font-size:0.8rem;color:#94a3b8;margin-bottom:5px;">Blockquote</h3>` + renderRichEditor(`${blockId}-quote`, 'Quote...', ''); break;
+                    default: html += `<div style="margin-bottom:10px;"><label style="font-size:0.8rem;">${blockType} URL</label><input type="text" class="dynamic-social-url" style="width:100%;padding:5px;border:1px solid #cbd5e1;border-radius:4px;"></div>`;
+                }
+                return html;
+            }
+
+            document.getElementById('add-block-button').addEventListener('click', () => {
+                const type = document.getElementById('block-type-select').value;
+                const blockId = `block-${Date.now()}`;
+                const div = document.createElement('div');
+                div.className = 'dynamic-content-block';
+                div.id = blockId;
+                div.dataset.blockType = type;
+                div.innerHTML = createBlockHTML(type, blockId);
+                document.getElementById('dynamic-content-blocks').appendChild(div);
+            });
+
+            document.getElementById('country-search-input').addEventListener('input', (e) => window.renderCountries && window.renderCountries(e.target.value));
+            
+            document.getElementById('tag-suggestions-container').addEventListener('click', (e) => {
+                if(e.target.classList.contains('tag-chip')) {
+                    const tag = e.target.dataset.tag;
+                    const tagsInput = document.getElementById('article-tags');
+                    const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
+                    if (!currentTags.includes(tag)) tagsInput.value = tagsInput.value ? `${tagsInput.value}, ${tag}` : tag;
+                }
+            });
+
+            const linkModal = document.getElementById('link-modal');
+            const linkUrlInput = document.getElementById('link-url-input');
+            window.showLinkModal = function(url='') { linkUrlInput.value = url; linkModal.classList.add('visible'); linkUrlInput.focus(); }
+            
+            document.getElementById('add-link-btn').onclick = () => {
+                if(activeContentEditable) {
+                    activeContentEditable.focus();
+                    document.execCommand('createLink', false, linkUrlInput.value);
+                }
+                linkModal.classList.remove('visible');
+            };
+            document.getElementById('cancel-link-btn').onclick = () => linkModal.classList.remove('visible');
+            document.addEventListener('focusin', (e) => { if(e.target.isContentEditable) activeContentEditable = e.target; });
+
+            document.getElementById('publish-button').addEventListener('click', async () => {
+                if(!window.isWriter) return;
+                
+                const publishBtn = document.getElementById('publish-button');
+                const statusMessage = document.getElementById('publish-status-message');
+                const headline = document.getElementById('article-headline').innerHTML;
+                const p1 = document.getElementById('article-p1').innerHTML;
+                
+                if(!headline || !p1) { showMessage(statusMessage, 'Headline and Body required.', 'error'); return; }
+
+                publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+                publishBtn.disabled = true;
+
+                let fullContent = `<div class="article-body"><div class="paragraph">${p1}</div>`;
+                document.querySelectorAll('.dynamic-content-block').forEach(block => {
+                    const type = block.dataset.blockType;
+                    if(type === 'paragraph') fullContent += `<div class="paragraph">${block.querySelector('.rich-content-area').innerHTML}</div>`;
+                    else if(type.startsWith('headline')) {
+                        const level = type === 'headline-h2' ? 'h2' : 'h3';
+                        fullContent += `<${level}>${block.querySelector('.rich-content-area').innerHTML}</${level}>`;
+                    } else if(type === 'image') {
+                        const url = block.querySelector('.dynamic-image-url').value;
+                        const desc = block.querySelector('.rich-content-area').innerHTML;
+                        if(url) fullContent += `<figure><img src="${url}" alt="Article Image"><figcaption>${desc}</figcaption></figure>`;
+                    } else if(type === 'quote') {
+                        fullContent += `<blockquote>${block.querySelector('.rich-content-area').innerHTML}</blockquote>`;
+                    } else {
+                        const url = block.querySelector('.dynamic-social-url').value;
+                        if(url) fullContent += `<div class="embed-link"><a href="${url}">External Content (${type})</a></div>`;
+                    }
+                });
+                fullContent += `</div>`;
+
+                const payload = {
+                    user_id: currentUser.id,
+                    headline: headline,
+                    content: fullContent,
+                    tags: document.getElementById('article-tags').value.split(',').map(t=>t.trim()).filter(t=>t),
+                    media_url: document.getElementById('article-main-image-url').value || null,
+                    link: null, 
+                    web_link: null
+                };
+
+                const { error } = await supabase.from('user_posts').insert(payload);
+
+                publishBtn.innerHTML = '<span id="publish-text">Publish to User Posts</span>';
+                publishBtn.disabled = false;
+
+                if (error) {
+                    showMessage(statusMessage, `Error publishing: ${error.message}`, 'error');
+                } else {
+                    showMessage(statusMessage, 'Article Published!', 'success');
+                    invalidatePostsCache(currentUser.id);
+                    document.getElementById('article-headline').innerHTML = '';
+                    document.getElementById('article-subheadline').innerHTML = '';
+                    document.getElementById('article-p1').innerHTML = '';
+                    document.getElementById('dynamic-content-blocks').innerHTML = '';
+                    setTimeout(() => { document.querySelector('[data-view="my-posts-view"]').click(); }, 1000);
+                }
+            });
         } 
     }); 
 </script>
