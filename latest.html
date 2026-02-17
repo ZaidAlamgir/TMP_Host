@@ -153,11 +153,86 @@ permalink: /latest.html
     table.sortable th:hover { background-color: #eff6ff; color: #1d4ed8; }
     table.sortable th::after { content: '\f0dc'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 10px; opacity: 0.5; }
 
+    /* --- RECOMMENDED ARTICLES (NEW) --- */
+    .recommended-section {
+        margin: 4rem 0 2rem 0;
+        padding-top: 2rem;
+        border-top: 2px solid #e5e7eb;
+    }
+    .recommended-section h3 {
+        font-family: 'Merriweather', serif;
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: #111827;
+        margin-bottom: 1.5rem;
+    }
+    .recommended-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    .recommended-card {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .recommended-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .recommended-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .recommended-content {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .recommended-tag {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #dc2626;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+    }
+    .recommended-title {
+        font-family: 'Merriweather', serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        line-height: 1.4;
+        color: #111827;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .recommended-meta {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: #6b7280;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     @media (max-width: 768px) {
         .article-headline { font-size: 32px; }
         .article-headline.long-headline { font-size: 34px; }
         .article-headline.very-long-headline { font-size: 30px; }
         .article-subheadline { font-size: 18px; font-weight: 400; }
+        .recommended-section h3 { font-size: 1.5rem; }
     }
 </style>
 
@@ -305,7 +380,30 @@ permalink: /latest.html
             });
             </script>
         </article>
-    {% else %}
+        
+        <div class="recommended-section">
+            <h3>Latest News</h3>
+            <div class="recommended-grid">
+                {% for post in site.posts limit:5 offset:1 %}
+                    <a href="{{ post.url }}" class="recommended-card">
+                        {% if post.image %}
+                            <img src="{{ post.image }}" alt="{{ post.title }}" class="recommended-image">
+                        {% endif %}
+                        <div class="recommended-content">
+                            {% if post.tags and post.tags.size > 0 %}
+                                <span class="recommended-tag">{{ post.tags[0] }}</span>
+                            {% endif %}
+                            <h4 class="recommended-title">{{ post.title }}</h4>
+                            <div class="recommended-meta">
+                                <span class="recommended-author">{{ post.author | default: 'TMP Staff' }}</span>
+                                <span class="recommended-date">{{ post.date | date: "%b %d, %Y" }}</span>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
         <p style="text-align: center;">No posts have been published yet.</p>
     {% endif %}
 </div> 
@@ -343,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<script> // Embed Script (Using DOMContentLoaded)
+<script> // Legacy Custom Embed Script (Handles [twitter|caption] formatting if used)
 document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
         const articleBody = document.querySelector('.article-body');
@@ -391,3 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script async src="//www.instagram.com/embed.js"></script>
+<script async src="https://www.tiktok.com/embed.js"></script>
