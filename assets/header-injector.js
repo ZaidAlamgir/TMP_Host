@@ -412,23 +412,28 @@ function initializeSupabaseHeader(forceRerender = false) {
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX7pnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
     
     if (window.supabase) {
-         const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-         sb.auth.onAuthStateChange((event, session) => {
-             const user = session?.user;
-             if (user) {
-                 const userToCache = {
-                     uid: user.id,
-                     displayName: user.user_metadata?.full_name,
-                     email: user.email,
-                     photoURL: user.user_metadata?.avatar_url
-                 };
-                 localStorage.setItem(CACHED_USER_KEY, JSON.stringify(userToCache));
-                 renderSupabaseHeader(userToCache); 
-             } else {
-                 localStorage.removeItem(CACHED_USER_KEY);
-                 renderSupabaseHeader(null); 
-             }
-         });
+         // FIX: Apply Singleton Pattern to prevent infinite loop on Turbo loads
+         if (!window.supabaseClient) {
+             window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+             
+             // Attach the onAuthStateChange listener ONLY once
+             window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                 const user = session?.user;
+                 if (user) {
+                     const userToCache = {
+                         uid: user.id,
+                         displayName: user.user_metadata?.full_name,
+                         email: user.email,
+                         photoURL: user.user_metadata?.avatar_url
+                     };
+                     localStorage.setItem(CACHED_USER_KEY, JSON.stringify(userToCache));
+                     renderSupabaseHeader(userToCache); 
+                 } else {
+                     localStorage.removeItem(CACHED_USER_KEY);
+                     renderSupabaseHeader(null); 
+                 }
+             });
+         }
     }
 }
 
