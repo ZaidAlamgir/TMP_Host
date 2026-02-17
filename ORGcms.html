@@ -482,6 +482,23 @@
             return content.trim();
         }
 
+        // --- NEW: HEADLINE CLEANER (FIX FOR DIVS IN H2/H3/H4) ---
+        function cleanHeadline(html) {
+            if (!html) return '';
+            let content = html;
+            
+            // Replace block elements and line breaks with a single space to keep headlines strictly inline
+            content = content.replace(/<div>/gi, ' ');
+            content = content.replace(/<\/div>/gi, '');
+            content = content.replace(/<br\s*\/?>/gi, ' ');
+            content = content.replace(/&nbsp;/gi, ' ');
+            
+            // Remove any resulting multiple spaces
+            content = content.replace(/\s{2,}/g, ' ');
+            
+            return content.trim();
+        }
+
         // --- RICH TEXT FORMATTING HELPER ---
         window.formatText = function(cmd, value = null) {
             document.execCommand(cmd, false, value);
@@ -1259,9 +1276,11 @@
         }
 
         publishButton.addEventListener('click', async () => {
-            const headline = document.getElementById('article-headline').innerHTML.trim(); // Rich Text
             
-            // --- FIX APPLIED HERE: Clean Paragraph 1 ---
+            // --- FIX APPLIED HERE: Clean Main Headlines ---
+            const rawHeadline = document.getElementById('article-headline').innerHTML; 
+            const headline = cleanHeadline(rawHeadline); 
+            
             const rawP1 = document.getElementById('article-p1').innerHTML;
             const paragraph1 = cleanRichText(rawP1); 
             // -------------------------------------------
@@ -1275,9 +1294,16 @@
 
             setPublishingState(true);
             
-            const subheadline = document.getElementById('article-subheadline').innerHTML.trim(); // Rich Text
+            // --- FIX APPLIED HERE: Clean Other Text Fields ---
+            const rawSubheadline = document.getElementById('article-subheadline').innerHTML; 
+            const subheadline = cleanHeadline(rawSubheadline); 
+            
             const mainImageUrl = document.getElementById('article-main-image-url').value.trim();
-            const mainImageDesc = document.getElementById('article-main-image-desc').innerHTML.trim(); // Rich Text
+            
+            const rawMainImageDesc = document.getElementById('article-main-image-desc').innerHTML; 
+            const mainImageDesc = cleanHeadline(rawMainImageDesc);
+            // -------------------------------------------
+            
             const authorName = document.getElementById('article-author').value.trim();
             const tags = tagsInput.value.trim();
             const categories = categoriesInput.value.trim(); 
@@ -1344,12 +1370,13 @@
                              break;
                         // ------------------------------------------------
                         
-                        case 'headline-h2': body += `## ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
-                        case 'headline-h3': body += `### ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
-                        case 'headline-h4': body += `#### ${block.querySelector('.rich-content-area').innerHTML.trim()}\n\n`; break;
+                        // --- FIX: Use cleanHeadline for clean H2, H3, H4 ---
+                        case 'headline-h2': body += `## ${cleanHeadline(block.querySelector('.rich-content-area').innerHTML)}\n\n`; break;
+                        case 'headline-h3': body += `### ${cleanHeadline(block.querySelector('.rich-content-area').innerHTML)}\n\n`; break;
+                        case 'headline-h4': body += `#### ${cleanHeadline(block.querySelector('.rich-content-area').innerHTML)}\n\n`; break;
                         case 'image':
                             const imageUrl = block.querySelector('.dynamic-image-url').value.trim();
-                            const imageDesc = block.querySelector('.rich-content-area').innerHTML.trim();
+                            const imageDesc = cleanHeadline(block.querySelector('.rich-content-area').innerHTML);
                             if (imageUrl) body += `![${imageDesc || 'Article image'}](${imageUrl})\n\n`;
                             break;
 
@@ -1366,7 +1393,7 @@
 
                         default:
                             const url = block.querySelector('.dynamic-social-url').value.trim();
-                            const caption = block.querySelector('.rich-content-area').innerHTML.trim();
+                            const caption = sanitizeBlockContent(block.querySelector('.rich-content-area').innerHTML);
                             
                             if (url) {
                                 let embedHtml = '';
