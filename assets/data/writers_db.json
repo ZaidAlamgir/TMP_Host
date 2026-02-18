@@ -17,5 +17,15 @@
     "badge": "staff-red",
     "image": "https://author.tmpnews.com/profile/tmp-opinion.webp",
     "bio": "Unbiased perspectives and editorials from our senior editors."
+  },
+  {
+    "id": "the-muslim-post",
+    "name": "The Muslim Post",
+    "designation": "Official News Desk",
+    "degree": "Verified Organization",
+    "badge": "staff-gold",
+    "image": "https://author.tmpnews.com/profile/tmpnews.webp",
+    "x": "https://x.com/TMPnewsAgency",
+    "bio": "Official updates, international reports, and breaking news from The Muslim Post."
   }
 ]
