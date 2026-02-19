@@ -1,21 +1,10 @@
-// =========================================
-// 1. CONFIGURATION & STATE
-// =========================================
-let postState = {
-    page: 1,
-    isLoading: false,
-    hasMore: true,
-    allCachedPosts: [], // Keep for local search filtering
-    observer: null
-};
+let postState = { page: 1, isLoading: false, hasMore: true, allCachedPosts: [], observer: null };
 
 const CONFIG = {
-    // Point directly to our NEW local D1/KV API file
     WORKER_API: "/api/feed", 
     FOR_YOU_API: window.TMP_CONFIG?.FOR_YOU_API || "/opinions/feed.json"
 };
 
-// --- SUPABASE SETUP (For Writer Button) ---
 let supabase;
 if (window.supabaseClient) {
     supabase = window.supabaseClient;
@@ -27,9 +16,6 @@ if (window.supabaseClient) {
     window.supabaseClient = supabase;
 }
 
-// =========================================
-// 2. GLOBAL TAB HANDLER
-// =========================================
 function handleGlobalTabClick(e) {
     const tab = e.target.closest('.feed-tab');
     if (!tab || tab.classList.contains('active')) return;
@@ -46,7 +32,6 @@ function handleGlobalTabClick(e) {
         recentDiv.style.display = 'none';
         forYouDiv.style.display = 'block';
         if(searchDiv) searchDiv.style.display = 'none';
-        
         if(forYouDiv.innerHTML.trim() === '') loadForYouPosts();
     } else {
         forYouDiv.style.display = 'none';
@@ -55,43 +40,24 @@ function handleGlobalTabClick(e) {
     }
 }
 
-// =========================================
-// 3. MAIN SETUP FUNCTION
-// =========================================
 async function setupPostPage() {
     const feedContainer = document.getElementById('recentPostsContainer');
     if (!feedContainer) return; 
 
-    console.log("🚀 Post Page Initializing...");
+    postState.page = 1; postState.hasMore = true; postState.isLoading = false;
+    postState.allCachedPosts = []; feedContainer.innerHTML = ''; 
 
-    // Reset State on fresh load
-    postState.page = 1;
-    postState.hasMore = true;
-    postState.isLoading = false;
-    postState.allCachedPosts = []; 
-    feedContainer.innerHTML = ''; 
-
-    // Listeners
     document.removeEventListener('click', handleGlobalTabClick);
     document.addEventListener('click', handleGlobalTabClick);
 
     setupSearch();
     if (supabase) verifyWriterStatus();
 
-    // Fetch first 50 posts
     await fetchPosts(1);
-
-    // Watch for scrolling to load more
     setupInfiniteScroll();
 }
 
-// MAKE IT GLOBAL for bottom-nav.js to trigger it
 window.initPostPage = setupPostPage;
-
-
-// =========================================
-// 4. CORE FEATURES (Fetch & Render)
-// =========================================
 
 async function fetchPosts(page) {
     if (postState.isLoading || !postState.hasMore) return;
@@ -113,9 +79,7 @@ async function fetchPosts(page) {
             return;
         }
 
-        if (newPosts.length < 50) {
-            postState.hasMore = false; // Stop fetching if less than 50 returned
-        }
+        if (newPosts.length < 50) postState.hasMore = false; 
 
         postState.allCachedPosts = [...postState.allCachedPosts, ...newPosts];
         renderFeed(document.getElementById('recentPostsContainer'), newPosts, true);
@@ -130,17 +94,15 @@ async function fetchPosts(page) {
 
 function renderFeed(container, posts, append = false) {
     if (!append) container.innerHTML = ''; 
-
     posts.forEach(p => {
         const el = document.createElement('div');
         el.className = 'user-post';
         
         let basePath = window.TMP_CONFIG?.postOpen || '/postopen';
         let link = (p.link && p.link !== '#') ? p.link : `${basePath}?id=${p.id}`;
-        
         el.onclick = function() { window.location.href = link; };
 
-        const imageHtml = p.image ? `<img src="${p.image}" class="post-image-preview" loading="lazy" alt="Post Image">` : '';
+        const imageHtml = p.image ? `<img src="${p.image}" class="post-image-preview" loading="lazy">` : '';
 
         el.innerHTML = `
             ${imageHtml}
@@ -160,8 +122,6 @@ function renderFeed(container, posts, append = false) {
 
 function setupInfiniteScroll() {
     const container = document.getElementById('recentPostsContainer');
-    
-    // Create a hidden sentinel element at the very bottom
     let sentinel = document.getElementById('infinite-scroll-sentinel');
     if (!sentinel) {
         sentinel = document.createElement('div');
@@ -173,12 +133,11 @@ function setupInfiniteScroll() {
     if (postState.observer) postState.observer.disconnect();
 
     postState.observer = new IntersectionObserver((entries) => {
-        // If user scrolls near the sentinel, fetch next page
         if (entries[0].isIntersecting && postState.hasMore && !postState.isLoading) {
             postState.page++;
             fetchPosts(postState.page);
         }
-    }, { rootMargin: '200px' }); // Load when user is 200px away from bottom
+    }, { rootMargin: '200px' }); 
 
     postState.observer.observe(sentinel);
 }
@@ -195,8 +154,7 @@ function setupSearch() {
             
             if(term) {
                 const filtered = postState.allCachedPosts.filter(p => 
-                    (p.title||'').toLowerCase().includes(term) || 
-                    (p.author||'').toLowerCase().includes(term)
+                    (p.title||'').toLowerCase().includes(term) || (p.author||'').toLowerCase().includes(term)
                 );
                 renderFeed(container, filtered, false); 
             } else {
@@ -205,10 +163,6 @@ function setupSearch() {
         });
     }
 }
-
-// =========================================
-// 5. WRITER & FOR YOU HELPERS
-// =========================================
 
 async function verifyWriterStatus() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -253,6 +207,5 @@ async function loadForYouPosts() {
     }
 }
 
-// --- INIT TRIGGERS ---
 setupPostPage();
 document.addEventListener('turbo:load', setupPostPage);
