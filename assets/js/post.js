@@ -94,12 +94,25 @@ async function fetchPosts(page) {
 
 function renderFeed(container, posts, append = false) {
     if (!append) container.innerHTML = ''; 
+    
+    // We fetch the writers array globally (optional but good if you want avatars on scroll)
+    // For performance, we'll just format the text correctly here.
+    
     posts.forEach(p => {
         const el = document.createElement('div');
         el.className = 'user-post';
         
-        let basePath = window.TMP_CONFIG?.postOpen || '/postopen';
-        let link = (p.link && p.link !== '#') ? p.link : `${basePath}?id=${p.id}`;
+        // 1. Clean Author
+        const cleanAuthor = p.author ? p.author.replace(/^By\s+/i, '').trim() : 'Staff';
+        const authorSlug = cleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        
+        // 2. SEO Title Slug
+        const titleSlug = p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article';
+        
+        // 3. New SEO Link
+        let basePath = `/opinion/${authorSlug}/${titleSlug}?id=${p.id}`;
+        
+        let link = (p.link && p.link !== '#') ? p.link : basePath;
         el.onclick = function() { window.location.href = link; };
 
         const imageHtml = p.image ? `<img src="${p.image}" class="post-image-preview" loading="lazy">` : '';
@@ -109,7 +122,7 @@ function renderFeed(container, posts, append = false) {
             <h3 class="post-headline">${p.title || 'Untitled'}</h3>
             <div class="post-footer">
                 <div class="post-info">
-                    <span class="author">${p.author || 'Writer'}</span>
+                    <span class="author">${cleanAuthor}</span>
                     <span class="separator">•</span>
                     <span class="date">${new Date(p.date).toLocaleDateString()}</span>
                 </div>

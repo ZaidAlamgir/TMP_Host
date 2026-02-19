@@ -57,9 +57,10 @@ title: Community Feed
 window.loadCommunityFeed = async () => {
     const feedList = document.getElementById('feed-list');
     if (!feedList) return; 
+
     const localCache = localStorage.getItem('tmp_feed_cache');
     if (localCache) {
-        feedList.innerHTML = localCache;
+        feedList.innerHTML = localCache; 
     } else {
         feedList.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading latest opinions...</div>';
     }
@@ -83,10 +84,20 @@ window.loadCommunityFeed = async () => {
         }
 
         const newHtml = posts.map(post => {
-            const writerInfo = writers.find(w => w.name === post.author) || {};
-            const avatarUrl = writerInfo.avatar || '/assets/img/default-avatar.png';
-            const authorSlug = post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'staff';
-            const postLink = `/opinion/${authorSlug}/${post.id}`;
+            // 1. FIX WRITER NAME (Remove "By ")
+            const cleanAuthor = post.author ? post.author.replace(/^By\s+/i, '').trim() : 'Staff';
+            const writerInfo = writers.find(w => w.name === cleanAuthor) || {};
+            
+            // 2. FIX IMAGE KEY
+            const avatarUrl = writerInfo.image || '/assets/img/default-avatar.png';
+            
+            // 3. FIX PROFILE SLUG
+            const authorSlug = cleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            
+            // 4. FIX SEO HEADLINE URL
+            const titleSlug = post.title ? post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article';
+            const postLink = `/opinion/${authorSlug}/${titleSlug}?id=${post.id}`;
+            
             const dateStr = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
             let tagsHtml = '';
@@ -111,7 +122,7 @@ window.loadCommunityFeed = async () => {
                     <div class="card-meta">
                         <a href="/opinion/${authorSlug}" class="author-link">
                             <img src="${avatarUrl}" class="author-avatar-small" onerror="this.style.display='none'">
-                            ${post.author}
+                            ${cleanAuthor}
                         </a>
                         <span>•</span>
                         <span>${dateStr}</span>

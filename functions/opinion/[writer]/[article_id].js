@@ -5,36 +5,30 @@ export async function onRequest(context) {
   const db = env.DB_1;
 
   // --- 0. CACHE CONFIGURATION ---
-  // Cache generated page for 5 minutes (browser) and 1 hour (CDN)
   const CACHE_HEADERS = {
       "Content-Type": "text/html",
       "Cache-Control": "public, max-age=300, s-maxage=3600"
   };
 
-  // --- 1. ROBUST ID EXTRACTION ---
+  // --- 1. ROBUST ID EXTRACTION (UPDATED FOR SEO SLUGS) ---
   let writer = params.writer;
-  let article_id = params.article_id || params.slug || params.id;
+  
+  // Look for ?id= first, then fall back to the path parameters
+  let article_id = url.searchParams.get('id') || params.article_id || params.slug || params.id;
 
   if (!article_id || !writer) {
       const pathSegments = url.pathname.split('/').filter(s => s.length > 0);
       if (pathSegments.length >= 3) {
           writer = pathSegments[1];
-          article_id = pathSegments[2];
+          article_id = url.searchParams.get('id') || pathSegments[2];
       }
   }
 
   if (!article_id) return new Response(`Error: Missing Article ID`, { status: 400 });
 
   // --- 2. PREPARE DATA PROMISES (PARALLEL EXECUTION) ---
-  // We start all tasks immediately to save time
-  
-  // A. Fetch Article
   const postPromise = db.prepare("SELECT * FROM articles WHERE id = ?").bind(article_id).first();
-
-  // B. Fetch Writers DB (with internal caching)
   const writersPromise = fetchWithCache(`${siteBase}/assets/data/writers_db.json`, context);
-
-  // C. Fetch Template (with internal caching)
   const templatePromise = fetchWithCache(`${siteBase}/dynamic-template.html`, context);
 
   // --- 3. AWAIT ALL DATA ---
@@ -45,10 +39,14 @@ export async function onRequest(context) {
   // --- 4. PROCESS DATA ---
   const dateStr = new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-  // Find Writer
+  // Clean Author Name (Strip "By ")
+  const cleanAuthor = post.author ? post.author.replace(/^By\s+/i, '').trim() : 'Staff';
+  const authorSlug = cleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+  // Find Writer Profile
   let writerProfile = null;
   if (writersData) {
-      writerProfile = writersData.find(w => w.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === writer);
+      writerProfile = writersData.find(w => w.name === cleanAuthor || w.id === authorSlug);
   }
 
   // Badge Logic
@@ -70,7 +68,6 @@ export async function onRequest(context) {
       if (badge.includes('staff')) isStaff = true;
   }
 
-  // Disclaimer
   const disclaimer = !isStaff ? `
     <div class="mt-8 p-6 bg-gray-50 rounded-xl border border-gray-100 text-center">
         <p class="italic text-gray-500 text-sm font-inter leading-relaxed">
@@ -79,27 +76,28 @@ export async function onRequest(context) {
     </div>
   ` : '';
 
-  // --- 5. RELATED ARTICLES (Simplified for Speed) ---
-  // Only run this if we have the article. We fetch simple latest 5 to save calculation time.
+  // --- 5. RELATED ARTICLES (UPDATED LINKS) ---
   let relatedHtml = '';
   try {
-      // Optimized query: Just get latest 5 excluding current, skipping the heavy text search
       const { results: relatedPosts } = await db.prepare(
           `SELECT id, title, author, date, image FROM articles WHERE id != ? ORDER BY date DESC LIMIT 5`
       ).bind(article_id).all();
 
       if (relatedPosts && relatedPosts.length > 0) {
           const cards = relatedPosts.map(p => {
-              const pWriterSlug = p.author.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              const pCleanAuthor = p.author ? p.author.replace(/^By\s+/i, '').trim() : 'Staff';
+              const pWriterSlug = pCleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+              const pTitleSlug = p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article';
+              
               return `
-                <a href="/opinion/${pWriterSlug}/${p.id}" class="group block border-b border-gray-100 last:border-0 py-4">
+                <a href="/opinion/${pWriterSlug}/${pTitleSlug}?id=${p.id}" class="group block border-b border-gray-100 last:border-0 py-4">
                     <div class="flex gap-4 items-start">
                          <div class="flex-grow">
                              <h4 class="font-bold text-gray-900 text-lg leading-snug group-hover:text-blue-600 transition-colors font-merriweather mb-2">
                                 ${p.title}
                              </h4>
                              <div class="flex items-center gap-2 text-xs text-gray-500 font-inter uppercase tracking-wide">
-                                <span class="text-blue-600 font-semibold">${p.author}</span>
+                                <span class="text-blue-600 font-semibold">${pCleanAuthor}</span>
                              </div>
                          </div>
                          ${p.image ? `<div class="w-24 h-24 shrink-0 overflow-hidden rounded-lg bg-gray-100"><img src="${p.image}" class="w-full h-full object-cover" loading="lazy"></div>` : ''}
@@ -133,9 +131,11 @@ export async function onRequest(context) {
             ${post.subheadline ? `<p class="text-lg text-gray-600 leading-relaxed mb-6">${post.subheadline}</p>` : ''}
             
             <div class="flex items-center gap-3">
-                 ${writerProfile && writerProfile.image ? `<img src="${writerProfile.image}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"><i class="fas fa-user text-gray-500"></i></div>`}
+                 <a href="/opinion/${authorSlug}">
+                    ${writerProfile && writerProfile.image ? `<img src="${writerProfile.image}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"><i class="fas fa-user text-gray-500"></i></div>`}
+                 </a>
                  <div>
-                    <div class="font-bold text-gray-900">${post.author} ${badgeHtml}</div>
+                    <div class="font-bold text-gray-900"><a href="/opinion/${authorSlug}" class="hover:underline">${cleanAuthor}</a> ${badgeHtml}</div>
                     <div class="text-sm text-gray-500">${dateStr}</div>
                  </div>
             </div>
@@ -154,7 +154,6 @@ export async function onRequest(context) {
   if (templateHtmlRaw) {
       let finalHtml = templateHtmlRaw.replace(/<title>[\s\S]*?<\/title>/i, `<title>${post.title} | TMP News</title>`);
       finalHtml = finalHtml.replace('REPLACE_ME_CONTENT', articleHtml);
-      // Remove any dynamic holder placeholders if they exist
       finalHtml = finalHtml.replace(/<div[^>]*id="dynamic-title-holder"[^>]*>.*?<\/div>/i, '');
       return new Response(finalHtml, { headers: CACHE_HEADERS });
   }
@@ -162,30 +161,20 @@ export async function onRequest(context) {
   return new Response(articleHtml, { headers: CACHE_HEADERS });
 }
 
-// --- HELPER: CACHED FETCH ---
-// This uses the Cloudflare Cache API to prevent fetching static files on every request
 async function fetchWithCache(url, context) {
     const cache = caches.default;
     const cacheKey = new Request(url);
-    
-    // 1. Check Cache
     let response = await cache.match(cacheKey);
-    
     if (!response) {
-        // 2. Fetch from Network if not cached
         try {
             response = await fetch(url);
-            // 3. Save to Cache (if response is valid)
             if (response.ok) {
-                // Clone response to put in cache
                 context.waitUntil(cache.put(cacheKey, response.clone()));
             }
         } catch (e) {
             return null;
         }
     }
-
-    // Return JSON or Text based on extension
     if (url.endsWith('.json')) return await response.json();
     return await response.text();
 }
