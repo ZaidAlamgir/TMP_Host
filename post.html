@@ -54,45 +54,41 @@ title: Community Feed
 </main>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+window.loadCommunityFeed = async () => {
     const feedList = document.getElementById('feed-list');
-    
+    if (!feedList) return; 
+    const localCache = localStorage.getItem('tmp_feed_cache');
+    if (localCache) {
+        feedList.innerHTML = localCache;
+    } else {
+        feedList.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading latest opinions...</div>';
+    }
+
     try {
-        // 1. Fetch Writer DB (Existing)
         let writers = [];
         try {
             const wRes = await fetch('/assets/data/writers_db.json');
             if (wRes.ok) writers = await wRes.json();
         } catch(e) { console.warn("Could not load writer DB"); }
 
-        // 2. Fetch from your new D1 API
         const response = await fetch('/api/feed');
         if (!response.ok) throw new Error("Failed to load feed");
         
-        // --- THIS IS THE FIX ---
         const data = await response.json();
         const posts = data.posts || [];
-        // -----------------------
         
         if (posts.length === 0) {
             feedList.innerHTML = '<div class="text-center py-10 text-gray-500">No articles found. Check back soon!</div>';
             return;
         }
 
-        // 3. Render Cards
-        feedList.innerHTML = posts.map(post => {
-            // Find writer info
+        const newHtml = posts.map(post => {
             const writerInfo = writers.find(w => w.name === post.author) || {};
-            const avatarUrl = writerInfo.avatar || '/assets/img/default-avatar.png'; // Fallback
-            
-            // Logic to create the new SSR Link
+            const avatarUrl = writerInfo.avatar || '/assets/img/default-avatar.png';
             const authorSlug = post.author ? post.author.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'staff';
             const postLink = `/opinion/${authorSlug}/${post.id}`;
-            
-            // Format Date
             const dateStr = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
-            // Parse Tags
             let tagsHtml = '';
             try {
                 const tags = JSON.parse(post.tags || '[]');
@@ -125,9 +121,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             `;
         }).join('');
         
+        feedList.innerHTML = newHtml;
+        localStorage.setItem('tmp_feed_cache', newHtml); 
+        
     } catch (err) {
         console.error(err);
-        feedList.innerHTML = `<div class="text-center py-10 text-red-500">Unable to load feed. Please try again later.</div>`;
+        if (!localCache) {
+            feedList.innerHTML = `<div class="text-center py-10 text-red-500">Unable to load feed. Please try again later.</div>`;
+        }
     }
-});
+};
+
+document.addEventListener("DOMContentLoaded", window.loadCommunityFeed);
+document.addEventListener("turbo:load", window.loadCommunityFeed);
 </script>
