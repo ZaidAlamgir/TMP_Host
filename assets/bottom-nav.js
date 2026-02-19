@@ -98,6 +98,13 @@
             window.AndroidInterface.stopLoadingAnimation();
         }
 
+        // --- ADD THIS CRITICAL FIX ---
+        // This wakes up the Post page script so it fetches the D1 articles!
+        if (window.initPostPage && document.getElementById('recentPostsContainer')) {
+            window.initPostPage();
+        }
+        // -----------------------------
+
         let bar = document.getElementById(CONFIG.loaderId);
 
         // Resurrect if missing (Turbo edge case)
@@ -122,7 +129,7 @@
 
         // Cleanup
         setTimeout(() => {
-            if (bar.parentNode) bar.remove();
+            if (bar && bar.parentNode) bar.remove();
         }, 500); 
     }
 
