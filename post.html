@@ -69,7 +69,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const response = await fetch('/api/feed');
         if (!response.ok) throw new Error("Failed to load feed");
         
-        const posts = await response.json();
+        // --- THIS IS THE FIX ---
+        const data = await response.json();
+        const posts = data.posts || [];
+        // -----------------------
         
         if (posts.length === 0) {
             feedList.innerHTML = '<div class="text-center py-10 text-gray-500">No articles found. Check back soon!</div>';
