@@ -270,6 +270,18 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 (function() {
     // --- IIFE START ---
     
+    // --- Safe Parse Helper ---
+    function safeJSONParse(dataStr, fallback = []) {
+        if (!dataStr) return fallback;
+        try { 
+            const parsed = JSON.parse(dataStr);
+            return parsed !== null ? parsed : fallback;
+        } catch (e) { 
+            console.warn("Cleared corrupted local data.");
+            return fallback; 
+        }
+    }
+
     // --- Translation Logic (Standard) ---
     window.currentTranslatingPostId = null;
     const SEPARATOR_TOKEN = "|||||"; 
@@ -373,8 +385,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             this.postId = String(postId);
             this.postElement = postElement;
             
-            // PROFESSIONAL FIX: Get liked state from localStorage FIRST
-            const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
+            // PROFESSIONAL FIX: Get liked state from safe localStorage FIRST
+            const likedPosts = new Set(safeJSONParse(localStorage.getItem('likedLivePosts'), []));
             this.isLiked = likedPosts.has(this.postId);
             
             // Store liked state on canvas immediately
@@ -783,9 +795,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                 }
             }
             
-            // PROFESSIONAL FIX: Update localStorage to track user likes
-            // Ensure we use STRING ID to prevent duplications/mismatches
-            const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
+            // PROFESSIONAL FIX: Update localStorage to track user likes safely
+            const likedPosts = new Set(safeJSONParse(localStorage.getItem('likedLivePosts'), []));
             if (this.isLiked) {
                 likedPosts.add(this.postId);
             } else {
@@ -893,14 +904,22 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
         const SUPABASE_URL = 'https://ofszjurrajwtbwlfckhi.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mc3pqdXJyYWp3dGJ3bGZja2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MDk2MzgsImV4cCI6MjA3NDk4NTYzOH0.kKafp8dEL7V0Y10-oNbjluYblA03a0V_OqB9XOBd9SA';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Wrap Supabase initialization to avoid errors from Adblockers
+        let supabaseClient;
+        if (typeof supabase !== 'undefined') {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
         
         const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json'; 
         
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
-        const INITIAL_LOAD_COUNT = 30; 
-        const SUBSEQUENT_LOAD_COUNT = 30;
+        
+        // LOAD COUNTS UPDATED TO 80
+        const INITIAL_LOAD_COUNT = 80; 
+        const SUBSEQUENT_LOAD_COUNT = 80;
+        
         const CACHE_KEY = 'cachedLiveFeed';
         const PREFETCH_KEY = 'prefetchedLiveFeed';
         const PREFETCH_TIMESTAMP_KEY = 'prefetchedLiveFeedTimestamp';
@@ -908,9 +927,10 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         let allPosts = []; 
         let loadedPostsCount = 0; 
         
-        const viewedPosts = new Set(JSON.parse(sessionStorage.getItem('viewedLivePosts') || '[]'));
-        const likedPosts = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
-        const animatedPosts = new Set(JSON.parse(sessionStorage.getItem('animatedLivePosts') || '[]'));
+        // Used Safe Parse helper to prevent cache-related infinite loading errors
+        const viewedPosts = new Set(safeJSONParse(sessionStorage.getItem('viewedLivePosts'), []));
+        const likedPosts = new Set(safeJSONParse(localStorage.getItem('likedLivePosts'), []));
+        const animatedPosts = new Set(safeJSONParse(sessionStorage.getItem('animatedLivePosts'), []));
 
         if (!localStorage.getItem('anonClientId')) { localStorage.setItem('anonClientId', 'anon-' + Date.now() + Math.random().toString(36).substring(2, 9)); }
 
@@ -933,8 +953,18 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     const url = socialUrl;
                     switch (socialType) {
                         case 'link-button': htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`; break;
-                        case 'twitter': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
-                        case 'twitter-video': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-conversation="none"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
+                        case 'twitter': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${url.replace('x.com', 'twitter.com')}">View Post on X</a></blockquote>${caption}</div>`; break;
+                        case 'twitter-video': 
+                            // Strip tracking parameters (?s=...) which break the Twitter embed parser
+                            let cleanTwUrl = url.replace('x.com', 'twitter.com').split('?')[0];
+                            if (!cleanTwUrl.startsWith('http')) cleanTwUrl = 'https://' + cleanTwUrl;
+                            
+                            htmlBlock = `<div class="my-4" style="display: flex; justify-content: center; width: 100%;">
+                                <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
+                                    <a href="${cleanTwUrl}">Loading embedded X post...</a>
+                                </blockquote>
+                            </div>${caption}`; 
+                            break;
                         case 'instagram': htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;
                         case 'instagram-video': const igMatch = url.match(/\/(p|reel)\/([a-zA-Z0-9_-]+)/); if (igMatch && igMatch[2]) { htmlBlock = `<div class="instagram-video-container my-4"><iframe src="https://www.instagram.com/p/${igMatch[2]}/embed" frameborder="0" scrolling="no" allowtransparency="true"></iframe></div>${caption}</div>`; } else { htmlBlock = `<div class="my-4"><blockquote class("instagram-media") data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; } break;
                         case 'facebook': htmlBlock = `<div class="my-4"><div class="fb-post" data-href="${url}" data-width="auto" data-show-text="true"></div>${caption}</div>`; break;
@@ -967,17 +997,51 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         }
 
         function loadSocialScripts() {
-            const scripts = { twitter: 'https://platform.twitter.com/widgets.js', instagram: '//www.instagram.com/embed.js', facebook: 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0', tiktok: 'https://www.tiktok.com/embed.js', reddit: 'https://embed.reddit.com/widgets.js', telegram: 'https://telegram.org/js/telegram-widget.js?22', linkedin: 'https://platform.linkedin.com/Voyager/js/posts/embed.js' };
-            if (document.querySelector('.twitter-tweet') && !document.querySelector(`script[src="${scripts.twitter}"]`)) { const s = document.createElement('script'); s.src = scripts.twitter; s.async = true; document.body.appendChild(s); }
-            if (document.querySelector('.instagram-media') && !document.querySelector(`script[src="${scripts.instagram}"]`)) { const s = document.createElement('script'); s.src = scripts.instagram; s.async = true; document.body.appendChild(s); }
-            if (document.querySelector('.fb-post') && !document.querySelector(`script[src*="connect.facebook.net"]`)) { const s = document.createElement('script'); s.src = scripts.facebook; s.async = true; s.defer=true; s.crossOrigin="anonymous"; document.body.appendChild(s); }
+            const scripts = { instagram: '//www.instagram.com/embed.js', facebook: 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0', tiktok: 'https://www.tiktok.com/embed.js', reddit: 'https://embed.reddit.com/widgets.js', telegram: 'https://telegram.org/js/telegram-widget.js?22', linkedin: 'https://platform.linkedin.com/Voyager/js/posts/embed.js' };
+            
+            // --- BULLETPROOF TWITTER (X) LOADER ---
+            if (document.querySelector('.twitter-tweet')) {
+                window.twttr = (function(d, s, id) {
+                    var js, fjs = d.getElementsByTagName(s)[0],
+                    t = window.twttr || {};
+                    if (d.getElementById(id)) return t;
+                    js = d.createElement(s);
+                    js.id = id;
+                    js.src = "https://platform.twitter.com/widgets.js";
+                    fjs.parentNode.insertBefore(js, fjs);
+                    t._e = [];
+                    t.ready = function(f) { t._e.push(f); };
+                    return t;
+                }(document, "script", "twitter-wjs"));
+
+                // Slight delay ensures the new HTML is fully painted in the DOM before Twitter scans it
+                setTimeout(() => {
+                    if (window.twttr && window.twttr.widgets) {
+                        window.twttr.widgets.load();
+                    }
+                }, 300);
+            }
+            
+            // --- OTHER SOCIAL SCRIPTS ---
+            if (document.querySelector('.instagram-media')) {
+                if (!document.querySelector(`script[src="${scripts.instagram}"]`)) { 
+                    const s = document.createElement('script'); s.src = scripts.instagram; s.async = true; 
+                    s.onload = () => { if (window.instgrm?.Embeds) window.instgrm.Embeds.process(); };
+                    document.body.appendChild(s); 
+                } else if (window.instgrm?.Embeds) window.instgrm.Embeds.process();
+            }
+
+            if (document.querySelector('.fb-post')) {
+                if (!document.querySelector(`script[src*="connect.facebook.net"]`)) { 
+                    const s = document.createElement('script'); s.src = scripts.facebook; s.async = true; s.defer = true; s.crossOrigin = "anonymous"; 
+                    document.body.appendChild(s); 
+                } else if (window.FB?.XFBML) window.FB.XFBML.parse();
+            }
+
             if (document.querySelector('.tiktok-embed') && !document.querySelector(`script[src="${scripts.tiktok}"]`)) { const s = document.createElement('script'); s.src = scripts.tiktok; s.async = true; document.body.appendChild(s); }
             if (document.querySelector('.reddit-embed-bq') && !document.querySelector(`script[src="${scripts.reddit}"]`)) { const s = document.createElement('script'); s.src = scripts.reddit; s.async = true; s.charset="UTF-8"; document.body.appendChild(s); }
             if (document.querySelector('.telegram-post') && !document.querySelector(`script[src="${scripts.telegram}"]`)) { const s = document.createElement('script'); s.src = scripts.telegram; s.async = true; document.body.appendChild(s); }
             if (document.querySelector('.linkedin-post') && !document.querySelector(`script[src="${scripts.linkedin}"]`)) { const s = document.createElement('script'); s.src = scripts.linkedin; s.async = true; document.body.appendChild(s); }
-            if (window.twttr?.widgets) window.twttr.widgets.load();
-            if (window.instgrm?.Embeds) window.instgrm.Embeds.process();
-            if (window.FB?.XFBML) window.FB.XFBML.parse();
         }
 
         const ANALYTICS_WRITE_URL = 'https://data.tmpnews.com/feed.json'; 
@@ -1065,30 +1129,44 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             }, 100);
         }
 
+        // --- UPDATED SAFE JSON FETCH FUNCTION ---
         async function fetchFullFeed(forceCacheBypass = false) {
              const prefetchedData = localStorage.getItem(PREFETCH_KEY);
              if (prefetchedData) {
                 localStorage.removeItem(PREFETCH_KEY);
                 localStorage.removeItem(PREFETCH_TIMESTAMP_KEY);
-                allPosts = JSON.parse(prefetchedData);
-                sessionStorage.setItem(CACHE_KEY, JSON.stringify(allPosts));
-                return allPosts;
+                const parsed = safeJSONParse(prefetchedData, null);
+                if (Array.isArray(parsed)) {
+                    allPosts = parsed;
+                    sessionStorage.setItem(CACHE_KEY, JSON.stringify(allPosts));
+                    return allPosts;
+                }
              }
-             const cachedData = sessionStorage.getItem(CACHE_KEY); 
-             if (cachedData && !forceCacheBypass) {
-                allPosts = JSON.parse(cachedData);
-                return allPosts;
-            }
-            try {
-                const fetchOptions = forceCacheBypass ? { cache: 'no-cache' } : {};
-                const response = await fetch(LIVE_FEED_URL, fetchOptions); 
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                if (!Array.isArray(data)) throw new Error("Invalid data format.");
-                sessionStorage.setItem(CACHE_KEY, JSON.stringify(data)); 
-                allPosts = data;
-                return allPosts;
-            } catch (error) { console.error('Error fetching feed:', error); return []; }
+
+             if (!forceCacheBypass) {
+                 const cachedData = sessionStorage.getItem(CACHE_KEY); 
+                 const parsed = safeJSONParse(cachedData, null);
+                 if (Array.isArray(parsed)) {
+                    allPosts = parsed;
+                    return allPosts;
+                 }
+             }
+
+             try {
+                 const fetchOptions = forceCacheBypass ? { cache: 'no-cache' } : {};
+                 const response = await fetch(LIVE_FEED_URL, fetchOptions); 
+                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                 
+                 const data = await response.json();
+                 if (!Array.isArray(data)) throw new Error("API did not return an array.");
+                 
+                 sessionStorage.setItem(CACHE_KEY, JSON.stringify(data)); 
+                 allPosts = data;
+                 return allPosts;
+             } catch (error) { 
+                 console.error('Error fetching feed:', error); 
+                 return []; 
+             }
         }
 
         async function loadMorePosts(isFullRefresh = false) {
@@ -1179,53 +1257,58 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             loadMorePosts(false);
         };
         
-        supabaseClient.channel('live_updates_listener')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
-                sessionStorage.removeItem(CACHE_KEY); 
-                localStorage.removeItem(PREFETCH_KEY); 
-                const newPostData = payload.new;
-                if (payload.eventType === 'INSERT') {
-                    if (!newPostData.is_pinned) {
-                        renderPost(newPostData, liveFeed, true); 
-                        allPosts.unshift(newPostData);
-                        loadedPostsCount++;
-                        // Fix button handlers for new post
-                        setTimeout(fixLiveButtonClickHandlers, 100);
-                    } else { loadMorePosts(true); }
-                } 
-                else if (payload.eventType === 'UPDATE') {
-                    const existingElement = document.getElementById(`post-${newPostData.id}`);
-                    
-                    // Use 'is-pinned' (hyphen) to match your CSS class
-                    const currentIsPinned = existingElement ? existingElement.classList.contains('is-pinned') : false;
-                    const newIsPinned = newPostData.is_pinned;
-
-                    if (existingElement && newIsPinned !== currentIsPinned) { 
-                        loadMorePosts(true); 
-                    }
-                    else if (existingElement) {
-                        // Just update the numbers without reloading
-                        const likeCountSpan = existingElement.querySelector(`#like-count-${newPostData.id}`);
-                        const viewCountSpan = existingElement.querySelector(`#view-count-${newPostData.id}`);
+        // Supabase safe-wrapped block
+        if (typeof supabase !== 'undefined' && supabaseClient) {
+            supabaseClient.channel('live_updates_listener')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
+                    sessionStorage.removeItem(CACHE_KEY); 
+                    localStorage.removeItem(PREFETCH_KEY); 
+                    const newPostData = payload.new;
+                    if (payload.eventType === 'INSERT') {
+                        if (!newPostData.is_pinned) {
+                            renderPost(newPostData, liveFeed, true); 
+                            allPosts.unshift(newPostData);
+                            loadedPostsCount++;
+                            // Fix button handlers for new post
+                            setTimeout(fixLiveButtonClickHandlers, 100);
+                        } else { loadMorePosts(true); }
+                    } 
+                    else if (payload.eventType === 'UPDATE') {
+                        const existingElement = document.getElementById(`post-${newPostData.id}`);
                         
-                        if (likeCountSpan) {
-                            const currentLikes = parseInt(likeCountSpan.textContent.replace(/,/g, '')) || 0;
-                            animateCountUp(likeCountSpan, currentLikes, newPostData.like_count);
+                        // Use 'is-pinned' (hyphen) to match your CSS class
+                        const currentIsPinned = existingElement ? existingElement.classList.contains('is-pinned') : false;
+                        const newIsPinned = newPostData.is_pinned;
+
+                        if (existingElement && newIsPinned !== currentIsPinned) { 
+                            loadMorePosts(true); 
                         }
-                        if (viewCountSpan) {
-                            const currentViews = parseInt(viewCountSpan.textContent.replace(/,/g, '')) || 0;
-                            animateCountUp(viewCountSpan, currentViews, newPostData.view_count);
+                        else if (existingElement) {
+                            // Just update the numbers without reloading
+                            const likeCountSpan = existingElement.querySelector(`#like-count-${newPostData.id}`);
+                            const viewCountSpan = existingElement.querySelector(`#view-count-${newPostData.id}`);
+                            
+                            if (likeCountSpan) {
+                                const currentLikes = parseInt(likeCountSpan.textContent.replace(/,/g, '')) || 0;
+                                animateCountUp(likeCountSpan, currentLikes, newPostData.like_count);
+                            }
+                            if (viewCountSpan) {
+                                const currentViews = parseInt(viewCountSpan.textContent.replace(/,/g, '')) || 0;
+                                animateCountUp(viewCountSpan, currentViews, newPostData.view_count);
+                            }
                         }
                     }
-                }
-                else if (payload.eventType === 'DELETE') {
-                    const elementToRemove = document.getElementById(`post-${payload.old.id}`);
-                    if (elementToRemove) elementToRemove.remove();
-                    allPosts = allPosts.filter(p => p.id !== payload.old.id);
-                    loadedPostsCount = document.querySelectorAll('#live-feed .live-post').length; 
-                    if (payload.old.is_pinned) loadMorePosts(true);
-                }
-            }).subscribe();
+                    else if (payload.eventType === 'DELETE') {
+                        const elementToRemove = document.getElementById(`post-${payload.old.id}`);
+                        if (elementToRemove) elementToRemove.remove();
+                        allPosts = allPosts.filter(p => p.id !== payload.old.id);
+                        loadedPostsCount = document.querySelectorAll('#live-feed .live-post').length; 
+                        if (payload.old.is_pinned) loadMorePosts(true);
+                    }
+                }).subscribe();
+        } else {
+            console.warn("Supabase SDK blocked or failed to load. Real-time live updates disabled, standard feed continues.");
+        }
 
         // Setup share button delegation initially
         setupShareButtonDelegation();
@@ -1235,7 +1318,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         
         if (totalPostsOnScreen > 0) {
             const posts = document.querySelectorAll('.live-post');
-            const likedPostsSet = new Set(JSON.parse(localStorage.getItem('likedLivePosts') || '[]'));
+            const likedPostsSet = new Set(safeJSONParse(localStorage.getItem('likedLivePosts'), []));
             
             posts.forEach(postEl => {
                 const postId = postEl.id.replace('post-', '');
@@ -1249,7 +1332,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
             const cachedData = sessionStorage.getItem(CACHE_KEY);
             if (cachedData) { 
-                const fullFeed = JSON.parse(cachedData);
+                const fullFeed = safeJSONParse(cachedData, []);
                 const loadMoreBtn = document.getElementById('load-more-btn');
                 allPosts = fullFeed.filter(p => !p.is_pinned); 
                 
