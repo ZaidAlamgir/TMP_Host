@@ -7,61 +7,150 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 ---
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
 
-    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    /* --- BBC-Inspired Editorial Variables --- */
+    :root {
+        --bbc-red: #b80000;
+        --text-black: #141414;
+        --text-body: #222222;
+        --text-muted: #555555;
+        --bg-page: #f6f6f6;
+        --border-color: #e5e5e5;
+    }
+
+    body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-black); }
     
     .live-container { 
-        max-width: 1440px; 
+        max-width: 1000px; /* Tighter width for better reading line-length */
         margin: 0 auto; 
         padding: 0 1rem 4rem 1rem; 
         min-height: 100vh; 
     }
     
-    .live-header { text-align: center; margin-bottom: 2.5rem; }
-    .live-post { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin: 0 auto 2rem auto; max-width: 800px; }
-    .live-post-content { padding: 1.5rem; }
-    .post-body { text-align: center; }
-    .post-body > * { text-align: left; margin-left: auto; margin-right: auto; }
-    .post-body .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
-    .live-post-headline { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 1rem; line-height: 1.2; }
-    .live-post-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.875rem; color: #4b5563; }
-    .live-post-author-group { display: flex; align-items: center; gap: 0.5rem; }
-    .live-post-author { font-weight: 600; }
-    .live-post-time { font-weight: 600; color: #ef4444; margin-left: auto; }
+    .live-header { 
+        text-align: left; 
+        margin-bottom: 1.5rem; 
+        padding: 1rem 0 1rem 0; /* Reduced top gap here */
+        border-bottom: 4px solid var(--text-black);
+    }
+    .live-header h1 {
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
 
-    .post-author-logo { width: 30px; height: 30px; color: #3498db; }
-    .post-author-logo .tmp-text { font-size: 80px; font-weight: bold; fill: #0a0707; }
+    /* --- Flat, Editorial Post Styling --- */
+    .live-post { 
+        background-color: #fff; 
+        border-radius: 0; /* Sharp corners */
+        box-shadow: none; /* Removed soft shadow */
+        border: 1px solid var(--border-color);
+        border-top: 4px solid var(--bbc-red); /* Signature Live News top bar */
+        margin: 0 auto 1.5rem auto; 
+        max-width: 800px; 
+    }
+    .live-post.is-pinned { 
+        border-top: 4px solid #d97706; /* Rich golden amber for pinned */
+        background-color: #fff3c4; /* More golden background */
+    }
+    
+    .live-post-content { padding: 1.5rem 2rem; }
+    
+    .live-post-meta { 
+        display: flex; 
+        align-items: center; 
+        gap: 0.75rem; 
+        margin-bottom: 1rem; 
+        font-size: 0.875rem; 
+        color: var(--text-muted); 
+    }
+    .live-post-author-group { display: flex; align-items: center; gap: 0.5rem; }
+    .live-post-author { font-weight: 700; color: var(--text-black); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; }
+    .live-post-time { font-weight: 700; color: var(--bbc-red); margin-left: auto; display: flex; align-items: center; }
+
+    .live-post-headline { 
+        font-size: 1.5rem; 
+        font-weight: 800; 
+        color: var(--text-black); 
+        margin-bottom: 1rem; 
+        line-height: 1.25; 
+        letter-spacing: -0.01em;
+    }
+
+    .post-body { text-align: left; }
+    .post-body > * { text-align: left; margin-left: auto; margin-right: auto; }
+    
+    /* --- Image & Text Gap Logic --- */
+    .post-body .my-4 { margin: 1.5rem 0 0.5rem 0; } 
+    
+    .post-body img { 
+        max-width: 100%; 
+        border-radius: 0 !important; /* Force sharp corners on images */
+        margin-bottom: 0; 
+        display: block;
+    }
+    
+    .post-body .media-caption { 
+        text-align: left; 
+        font-size: 0.85rem; 
+        color: var(--text-muted); 
+        margin-top: 0.5rem; 
+        padding-bottom: 0; 
+        margin-bottom: 1rem;
+        font-style: normal; 
+        border-left: 2px solid var(--border-color);
+        padding-left: 10px;
+    }
+
+    /* --- Logo Colors Fixed --- */
+    .post-author-logo { width: 24px; height: 24px; color: #0066cc; /* TMP Blue for shapes */ }
+    .post-author-logo .tmp-text { font-size: 75px; font-weight: bold; fill: #141414; /* Black text */ }
     .post-author-logo .square { fill: currentColor; }
-    .post-author-logo .rotating-circle { transform-origin: center; animation: rotate 10s linear infinite; stroke: currentColor; }
+    .post-author-logo .rotating-circle { 
+        display: block; 
+        stroke: currentColor; 
+        transform-origin: center; 
+        animation: rotate 10s linear infinite; 
+    }
     @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    .live-indicator { display: flex; align-items: center; gap: 0.5rem; }
-    .live-indicator .dot { width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 8px 2px #ef4444; animation: glow 1.5s infinite ease-in-out; }
-    @keyframes glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .live-indicator { display: flex; align-items: center; margin-right: 0.5rem; }
+    .live-indicator .dot { width: 10px; height: 10px; background-color: var(--bbc-red); border-radius: 50%; animation: glow 1.5s infinite ease-in-out; }
+    @keyframes glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
     
-    /* --- RICH TEXT STYLES ADDED HERE --- */
-    .post-body p strong, .post-body b { font-weight: 700; color: #111827; }
+    /* --- RICH TEXT STYLES --- */
+    .post-body p strong, .post-body b { font-weight: 800; color: var(--text-black); }
     .post-body p em, .post-body i { font-style: italic; }
     .post-body p u, .post-body .rich-underline { text-decoration: underline; text-decoration-color: rgba(0,0,0,0.3); text-underline-offset: 3px; }
-    /* ---------------------------------- */
 
-    .post-body p { font-size: 1.125rem; line-height: 1.7; color: #374151; margin-bottom: 1.25rem; }
-    .post-body img { max-width: 100%; border-radius: 8px; margin-bottom: 0.25rem; }
-    .post-body blockquote { font-style: italic; color: #4b5563; border-left: 3px solid #d1d5db; padding-left: 1.5rem; margin: 1.5rem 0; font-size: 1.1rem; }
-    .post-body .media-caption { text-align: center; font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem; padding-bottom: 1rem; font-style: italic; }
+    .post-body p { font-size: 1.05rem; line-height: 1.65; color: var(--text-body); margin-bottom: 1.25rem; }
     
-    .table-container { overflow-x: auto; margin: 1.5rem 0; border-radius: 8px; border: 1px solid #e5e7eb; background: white; }
-    .table-container caption { caption-side: top; text-align: left; padding: 0.75rem; font-size: 0.9rem; font-weight: 600; color: #4b5563; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    .post-body blockquote { 
+        font-style: normal; 
+        font-weight: 600;
+        color: var(--text-black); 
+        border-left: 4px solid var(--bbc-red); 
+        padding-left: 1.5rem; 
+        margin: 1.5rem 0; 
+        font-size: 1.2rem; 
+        line-height: 1.4;
+    }
+    
+    .table-container { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border-color); background: white; }
+    .table-container caption { caption-side: top; text-align: left; padding: 0.75rem; font-size: 0.9rem; font-weight: 700; color: var(--text-black); background: var(--bg-page); border-bottom: 1px solid var(--border-color); }
     .live-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-    .live-table th, .live-table td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; font-size: 0.95rem; }
-    .live-table thead th { background-color: #f3f4f6; font-weight: 700; color: #111827; }
-    .table-container.striped .live-table tbody tr:nth-child(even) { background-color: #f9fafb; }
-    .table-container.grid .live-table th, .table-container.grid .live-table td { border: 1px solid #d1d5db; }
+    .live-table th, .live-table td { padding: 0.75rem 1rem; border: 1px solid var(--border-color); text-align: left; font-size: 0.95rem; }
+    .live-table thead th { background-color: var(--bg-page); font-weight: 700; color: var(--text-black); }
+    .table-container.striped .live-table tbody tr:nth-child(even) { background-color: #fafafa; }
 
-    .tags-container { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .tag-badge { background-color: #eef2ff; color: #4338ca; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
+    .tags-container { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag-badge { background-color: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; text-decoration: none; transition: all 0.2s; }
+    .tag-badge:hover { color: var(--text-black); border-color: var(--text-black); }
     
     .post-footer {
         display: flex;
@@ -69,99 +158,95 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         align-items: center;
         margin-top: 1.5rem;
         padding-top: 1rem;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid var(--border-color);
         min-height: 50px;
         box-sizing: border-box;
-        flex-wrap: nowrap;
     }
     
     .share-btn {
-        background-color: #f3f4f6;
-        border: none;
-        border-radius: 999px;
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        flex-shrink: 0;
-        white-space: nowrap;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .post-stats {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 0.875rem;
-        color: #6b7280;
-        flex-shrink: 0;
-        padding: 5px 0;
-    }
-    
-    .like-btn-canvas {
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-        flex-shrink: 0;
-        display: block;
-        margin: 0;
         background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-black);
+        border-radius: 0; /* Sharp button */
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s;
     }
+    .share-btn:hover { background-color: var(--bg-page); }
+    
+    .post-stats { display: flex; align-items: center; gap: 1rem; font-size: 0.875rem; font-weight: 600; color: var(--text-muted); }
+    .like-btn-canvas { width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; margin: 0; background-color: transparent; }
     
     .professional-btn {
-        background-color: #1f2937;
+        background-color: var(--text-black);
         color: white;
-        padding: 12px 28px;
+        padding: 12px 24px;
         border: none;
-        border-radius: 8px;
-        font-weight: 600;
+        border-radius: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         cursor: pointer;
         text-decoration: none;
         display: inline-block;
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
     
-    .live-post.is-pinned { border: 2px solid #f59e0b; }
-    .pinned-badge { color: #b45309; background-color: #fef3c7; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 999px; display: inline-flex; align-items: center; gap: 0.25rem; }
-    .responsive-iframe-container { position: relative; overflow: hidden; width: 100%; max-width: 550px; margin: 1rem auto; }
+    .pinned-badge { color: #b45309; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.25rem; }
+    .responsive-iframe-container { position: relative; overflow: hidden; width: 100%; max-width: 100%; margin: 1rem auto; }
     .responsive-iframe-container-16x9 { padding-top: 56.25%; }
     .responsive-iframe-container iframe { position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 100%; height: 100%; border: none; }
-    .instagram-video-container { position: relative; padding-bottom: 125%; height: 0; overflow: hidden; max-width: 500px; margin: 1rem auto; border-radius: 8px; }
+    .instagram-video-container { position: relative; padding-bottom: 125%; height: 0; overflow: hidden; max-width: 500px; margin: 1rem auto; border-radius: 0; }
     .instagram-video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-    .widget-container { padding: 0; margin: 1.5rem auto !important; max-width: 100%; overflow: hidden; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .widget-container { padding: 0; margin: 1.5rem auto !important; max-width: 100%; overflow: hidden; border: 1px solid var(--border-color); }
     
-    .stat-item span { display: inline-block; transition: transform 0.3s ease, opacity 0.3s ease; }
-
-    .loader { display: block; width: 40px; height: 40px; margin: 2rem auto; border: 4px solid #f3f4f6; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+    .loader { display: block; width: 40px; height: 40px; margin: 2rem auto; border: 4px solid var(--border-color); border-top-color: var(--bbc-red); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .app-only-feature { display: none !important; }
     body.android-app-view .app-only-feature { display: flex !important; }
 
-    .live-translation-controls { gap: 8px; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #e5e7eb; }
-    .translate-chip-btn { background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 20px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
-    .translate-chip-btn:hover { background-color: #dcfce7; }
-    .translate-chip-btn.hindi { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
-    .translated-text-block { background-color: #f8fafc; border-left: 4px solid #3b82f6; padding: 1rem; margin: 1rem 0; border-radius: 4px; font-size: 1.05rem; color: #1e293b; animation: fadeIn 0.4s ease; }
-    .translated-headline { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; line-height: 1.3; }
+    .live-translation-controls { gap: 8px; margin-top: 1.5rem; margin-bottom: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+    .translate-chip-btn { background-color: transparent; border: 1px solid #166534; color: #166534; border-radius: 0; padding: 6px 14px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .translate-chip-btn.hindi { border-color: #1e40af; color: #1e40af; }
+    .translated-text-block { background-color: var(--bg-page); border-left: 4px solid #1e40af; padding: 1.25rem; margin: 1rem 0; font-size: 1.05rem; color: var(--text-body); }
+    .translated-headline { font-size: 1.2rem; font-weight: 800; color: var(--text-black); margin-bottom: 0.75rem; line-height: 1.3; }
     
-    .translation-progress-container { display: none; margin: 10px 0; width: 100%; background-color: #e2e8f0; border-radius: 4px; overflow: hidden; height: 6px; }
-    .translation-progress-bar { height: 100%; width: 50%; background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%); background-size: 200% 100%; border-radius: 4px; animation: loading-indeterminate 1.5s infinite linear; }
-    
+    .translation-progress-container { display: none; margin: 10px 0; width: 100%; background-color: var(--border-color); height: 4px; }
+    .translation-progress-bar { height: 100%; width: 50%; background: var(--bbc-red); animation: loading-indeterminate 1.5s infinite linear; }
     @keyframes loading-indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
-    .processing-text { display: none; font-size: 0.75rem; color: #64748b; font-style: italic; margin-bottom: 4px; }
+    .processing-text { display: none; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
 
-    @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+    /* --- MOBILE BREADTH OPTIMIZATION --- */
+    @media (max-width: 640px) {
+        .live-container { 
+            padding: 0 0 4rem 0; /* Remove side padding to use full breadth */
+        }
+        .live-header {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .live-post { 
+            border-left: none; /* Remove side borders so it bleeds edge-to-edge */
+            border-right: none; 
+            margin-bottom: 1rem; 
+        }
+        .live-post-content { 
+            padding: 1.25rem 1rem; /* tighter internal padding on mobile */
+        }
+    }
 </style>
 
 <div id="fb-root"></div>
 
 <div class="live-container">
-    <header class="live-header py-8">
-        <h1 class="text-4xl font-extrabold text-gray-800 flex items-center justify-center gap-3">Live Coverage <div class="live-indicator"><div class="dot"></div></div></h1>
+    <header class="live-header">
+        <h1><div class="live-indicator"><div class="dot"></div></div> Live Updates</h1>
     </header>
 
     <div id="live-feed-persistence-wrapper" data-turbo-permanent>
@@ -171,10 +256,10 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         </div>
     </div>
 
-    <div id="feed-controls" class="text-center mt-8">
+    <div id="feed-controls" class="text-center mt-8 px-4">
         <button id="load-more-btn" class="professional-btn" onclick="if(window.triggerLoadMoreLivePosts) window.triggerLoadMoreLivePosts(event)">Load Previous Updates</button>
         <a href="https://archive-live.tmpnews.com" id="archive-btn" class="professional-btn" style="display: none;">Check Archive History</a>
-        <p id="no-more-posts-msg" class="text-gray-500 font-medium py-3" style="display: none;">This is the end. No more updates.</p>
+        <p id="no-more-posts-msg" class="text-gray-500 font-bold py-4 uppercase text-sm" style="display: none;">End of live coverage.</p>
     </div>
 </div>
 
@@ -255,7 +340,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
                 const translationContainer = document.createElement('div');
                 translationContainer.className = 'translated-text-block';
-                translationContainer.innerHTML = `<div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#3b82f6; margin-bottom:8px;">Translated Content</div><div class="translated-headline">${transHeadline}</div><div style="line-height:1.6;">${transBody.replace(/\n/g, '<br>')}</div>`;
+                translationContainer.innerHTML = `<div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#1e40af; margin-bottom:8px; letter-spacing:0.05em;">Translated Content</div><div class="translated-headline">${transHeadline}</div><div style="line-height:1.65;">${transBody.replace(/\n/g, '<br>')}</div>`;
                 contentDiv.appendChild(translationContainer);
                 const controls = postElement.querySelector('.live-translation-controls');
                 if(controls) controls.style.opacity = '1';
@@ -358,8 +443,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             this.ctx.translate(this.buttonCenter.x, this.buttonCenter.y);
             
             // Set colors based on liked state
-            this.ctx.strokeStyle = this.isLiked ? '#facc15' : '#6b7280';
-            this.ctx.fillStyle = this.isLiked ? '#fde047' : '#374151';
+            this.ctx.strokeStyle = this.isLiked ? '#b80000' : '#555555'; /* Changed to BBC red when liked */
+            this.ctx.fillStyle = this.isLiked ? '#b80000' : 'transparent';
             this.ctx.lineWidth = 2;
             this.ctx.lineCap = 'round';
             this.ctx.lineJoin = 'round';
@@ -392,7 +477,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             
             // Add shadow only if liked
             if (this.isLiked) {
-                this.ctx.shadowColor = 'rgba(250, 204, 21, 0.5)';
+                this.ctx.shadowColor = 'rgba(184, 0, 0, 0.3)';
                 this.ctx.shadowBlur = 8;
             } else {
                 this.ctx.shadowColor = 'transparent';
@@ -417,8 +502,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             this.ctx.rotate(rotation);
             
             // Use the current isLiked state for colors
-            this.ctx.strokeStyle = this.isLiked ? '#facc15' : '#6b7280';
-            this.ctx.fillStyle = this.isLiked ? '#fde047' : '#374151';
+            this.ctx.strokeStyle = this.isLiked ? '#b80000' : '#555555';
+            this.ctx.fillStyle = this.isLiked ? '#b80000' : 'transparent';
             this.ctx.lineWidth = 2;
             this.ctx.lineCap = 'round';
             this.ctx.lineJoin = 'round';
@@ -450,7 +535,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             
             // Only add shadow if liked
             if (this.isLiked) {
-                this.ctx.shadowColor = 'rgba(250, 204, 21, 0.5)';
+                this.ctx.shadowColor = 'rgba(184, 0, 0, 0.3)';
                 this.ctx.shadowBlur = 8;
             } else {
                 this.ctx.shadowColor = 'transparent';
@@ -464,7 +549,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 
         createParticles(x, y) {
             const particleCount = 15;
-            const colors = ['#ec4899', '#38bdf8', '#facc15', '#4ade80'];
+            const colors = ['#b80000', '#141414', '#e5e5e5']; /* Themed particles */
             
             for (let i = 0; i < particleCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
@@ -500,7 +585,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             this.ctx.clearRect(0, 0, this.logicalWidth, this.logicalHeight);
             let isDirty = false;
 
-            // Handle circle animation (blue expanding circle)
+            // Handle circle animation
             if (this.circleAnimation.isAnimating) {
                 this.circleAnimation.radius += 2.5;
                 this.circleAnimation.opacity -= 0.04;
@@ -510,7 +595,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     this.ctx.save();
                     this.ctx.beginPath();
                     this.ctx.arc(this.buttonCenter.x, this.buttonCenter.y, this.circleAnimation.radius, 0, Math.PI * 2);
-                    this.ctx.strokeStyle = `rgba(59, 130, 246, ${this.circleAnimation.opacity})`;
+                    this.ctx.strokeStyle = `rgba(184, 0, 0, ${this.circleAnimation.opacity})`;
                     this.ctx.lineWidth = 2;
                     this.ctx.stroke();
                     this.ctx.restore();
@@ -842,12 +927,12 @@ image: /assets/images/live/TMPnewsliveBanner.webp
                     htmlBlock = `<div class="my-4 widget-container" data-type="${widgetType}" style="max-width: 600px; margin: 1.5rem auto;">${widgetContent}</div>${caption}`;
                 } else if (imgAlt || imgUrl) {
                     const captionHTML = (imgAlt && imgAlt.toLowerCase() !== 'image' && imgAlt.trim() !== '') ? `<p class="media-caption">${imgAlt}</p>` : '';
-                    htmlBlock = `<div class="my-4"><img src="${imgUrl}" alt="${imgAlt || ''}" class="my-0 mx-auto rounded-lg">${captionHTML}</div>`;
+                    htmlBlock = `<div class="my-4"><img src="${imgUrl}" alt="${imgAlt || ''}" class="my-0 mx-auto rounded-none">${captionHTML}</div>`;
                 } else if (socialType) {
                     const caption = socialDesc ? `<p class="media-caption">${socialDesc}</p>` : '';
                     const url = socialUrl;
                     switch (socialType) {
-                        case 'link-button': htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="background-color: #2563eb; color: white; display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`; break;
+                        case 'link-button': htmlBlock = `<div class="my-4 text-center"><a href="${url}" target="_blank" class="professional-btn" style="display: inline-block; text-decoration: none; width: auto; min-width: 200px;">${socialDesc || 'Open Link'} <i class="fas fa-external-link-alt ml-2"></i></a></div>`; break;
                         case 'twitter': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'twitter-video': htmlBlock = `<div class="my-4"><blockquote class="twitter-tweet" data-dnt="true" data-theme="light" data-conversation="none"><a href="${url.replace('x.com', 'twitter.com')}"></a></blockquote>${caption}</div>`; break;
                         case 'instagram': htmlBlock = `<div class="my-4"><blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${url}" data-instgrm-version="14"></blockquote>${caption}</div>`; break;
@@ -943,16 +1028,20 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             if (postData.is_pinned) postElement.classList.add('is-pinned');
             let tagsHTML = postData.tags?.length > 0 ? '<div class="tags-container">' + postData.tags.map(tag => `<a href="#" class="tag-badge">#${tag}</a>`).join('') + '</div>' : '';
             let pinnedBadgeHTML = postData.is_pinned ? `<span class="pinned-badge"><i class="fas fa-thumbtack fa-xs"></i><span class="ml-1.5">PINNED</span></span>` : '';
-            const logoSVG = `<svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text><circle cx="100" cy="100" r="80" fill="none" stroke-width="2" class="rotating-circle"/></svg>`;
+            
+            // Re-added the rotating circle shape into the SVG payload
+            const logoSVG = `<svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><circle cx="100" cy="100" r="80" fill="none" stroke-width="8" class="rotating-circle"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text></svg>`;
+            
+            // Format time for editorial layout (just time if today, date if older - simplified for now)
             const formattedDate = new Date(postData.timestamp).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
             
             const initialViewCount = postData.view_count || 0;
             const initialLikeCount = postData.like_count || 0;
             
             const progressBarHTML = `<div class="processing-text">Downloading model & translating...</div><div class="translation-progress-container"><div class="translation-progress-bar"></div></div>`;
-            const translationButtonsHTML = `<div class="live-translation-controls app-only-feature"><button class="translate-chip-btn hindi" onclick="requestLivePostTranslation('${postData.id}', 'hi')"><i class="fas fa-language"></i> Hindi</button><button class="translate-chip-btn" onclick="requestLivePostTranslation('${postData.id}', 'ur')"><i class="fas fa-language"></i> Urdu</button></div>`;
+            const translationButtonsHTML = `<div class="live-translation-controls app-only-feature"><button class="translate-chip-btn hindi" onclick="requestLivePostTranslation('${postData.id}', 'hi')">Hindi</button><button class="translate-chip-btn" onclick="requestLivePostTranslation('${postData.id}', 'ur')">Urdu</button></div>`;
 
-            postElement.innerHTML = `<div class="live-post-content p-4 md:p-6"><div class="live-post-meta"><div class="live-post-author-group">${logoSVG}<span class="live-post-author">By ${postData.author_name}</span></div><span class="live-post-time">${formattedDate}</span>${pinnedBadgeHTML}</div><h2 class="live-post-headline">${postData.headline || ''}</h2>${tagsHTML}<div class="post-body pt-4">${parseContent(postData.content)}</div>${progressBarHTML}${translationButtonsHTML}<div class="post-footer"><div class="post-stats" data-post-id="${postData.id}"><canvas id="like-canvas-${postData.id}" class="like-btn-canvas" width="40" height="40" title="Like"></canvas><span id="like-count-${postData.id}" class="like-count">${initialLikeCount}</span><div class="stat-item" style="margin-left: 0.5rem;"><i class="fas fa-eye"></i><span id="view-count-${postData.id}">${initialViewCount}</span></div></div><button class="share-btn" data-post-id="${postData.id}" data-post-headline="${postData.headline || 'Live Update'}"><i class="fas fa-share-alt mr-2"></i>Share</button></div></div>`;
+            postElement.innerHTML = `<div class="live-post-content"><div class="live-post-meta"><div class="live-post-author-group">${logoSVG}<span class="live-post-author">${postData.author_name}</span></div><span class="live-post-time">${formattedDate}</span>${pinnedBadgeHTML}</div><h2 class="live-post-headline">${postData.headline || ''}</h2><div class="post-body">${parseContent(postData.content)}</div>${tagsHTML}${progressBarHTML}${translationButtonsHTML}<div class="post-footer"><div class="post-stats" data-post-id="${postData.id}"><canvas id="like-canvas-${postData.id}" class="like-btn-canvas" width="40" height="40" title="Like"></canvas><span id="like-count-${postData.id}" class="like-count">${initialLikeCount}</span><div class="stat-item" style="margin-left: 0.5rem;"><i class="fas fa-eye"></i><span id="view-count-${postData.id}">${initialViewCount}</span></div></div><button class="share-btn" data-post-id="${postData.id}" data-post-headline="${postData.headline || 'Live Update'}"><i class="fas fa-share-alt mr-2"></i>Share</button></div></div>`;
             
             if (insertAtTop) { container.prepend(postElement); } else { container.appendChild(postElement); }
             
