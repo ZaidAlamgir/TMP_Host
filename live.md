@@ -9,8 +9,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
 
-    /* --- BBC-Inspired Editorial Variables --- */
     :root {
         --bbc-red: #b80000;
         --text-black: #141414;
@@ -23,7 +23,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-black); }
     
     .live-container { 
-        max-width: 1000px; /* Tighter width for better reading line-length */
+        max-width: 1000px; 
         margin: 0 auto; 
         padding: 0 1rem 4rem 1rem; 
         min-height: 100vh; 
@@ -107,17 +107,19 @@ image: /assets/images/live/TMPnewsliveBanner.webp
         padding-left: 10px;
     }
 
-    /* --- Logo Colors Fixed --- */
-    .post-author-logo { width: 24px; height: 24px; color: #0066cc; /* TMP Blue for shapes */ }
-    .post-author-logo .tmp-text { font-size: 75px; font-weight: bold; fill: #141414; /* Black text */ }
+    /* --- Static Logo Colors & Font --- */
+    .post-author-logo { width: 24px; height: 24px; color: #3498D8; /* TMP Blue for shapes */ }
+    .post-author-logo .tmp-text { 
+        font-family: 'Playfair Display', serif; /* Applies the new elegant serif font */
+        font-size: 75px; 
+        font-weight: 700; 
+        fill: #141414; /* Black text */ 
+    }
     .post-author-logo .square { fill: currentColor; }
-    .post-author-logo .rotating-circle { 
+    .post-author-logo .static-circle { 
         display: block; 
         stroke: currentColor; 
-        transform-origin: center; 
-        animation: rotate 10s linear infinite; 
     }
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     .live-indicator { display: flex; align-items: center; margin-right: 0.5rem; }
     .live-indicator .dot { width: 10px; height: 10px; background-color: var(--bbc-red); border-radius: 50%; animation: glow 1.5s infinite ease-in-out; }
@@ -1093,8 +1095,8 @@ image: /assets/images/live/TMPnewsliveBanner.webp
             let tagsHTML = postData.tags?.length > 0 ? '<div class="tags-container">' + postData.tags.map(tag => `<a href="#" class="tag-badge">#${tag}</a>`).join('') + '</div>' : '';
             let pinnedBadgeHTML = postData.is_pinned ? `<span class="pinned-badge"><i class="fas fa-thumbtack fa-xs"></i><span class="ml-1.5">PINNED</span></span>` : '';
             
-            // Re-added the rotating circle shape into the SVG payload
-            const logoSVG = `<svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><circle cx="100" cy="100" r="80" fill="none" stroke-width="8" class="rotating-circle"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" class="tmp-text">TMP</text></svg>`;
+            // Fixed, perfectly centered logo with Playfair Display font
+            const logoSVG = `<svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><circle cx="100" cy="100" r="80" fill="none" stroke-width="8" class="static-circle"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" class="tmp-text">TMP</text></svg>`;
             
             // Format time for editorial layout (just time if today, date if older - simplified for now)
             const formattedDate = new Date(postData.timestamp).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });

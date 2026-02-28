@@ -16,8 +16,11 @@ body {
     border-bottom: 1px solid #e5e7eb;
     padding: 5px 0;
     background-color: #fff;
-    position: sticky;
+    position: fixed; /* Changed from sticky to fixed */
     top: 0;
+    left: 0;
+    width: 100%; /* Ensure it takes full width */
+    box-sizing: border-box;
     z-index: 1000;
 }
 

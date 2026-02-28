@@ -6,7 +6,6 @@
     <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
-    
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     <script async src="//www.instagram.com/embed.js"></script>
     <script async src="https://www.tiktok.com/embed.js"></script>
@@ -21,7 +20,6 @@
     <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
     <meta property="og:description" content="{{ page.subheadline | default: site.description | strip_html }}">
     <meta property="og:image" content="{{ page.image | absolute_url | default: '/android-chrome-512x512.png' | absolute_url }}">
-
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="{{ page.url | absolute_url }}">
     <meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
@@ -50,18 +48,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        /* 2. LAYOUT FIX: No top padding on body (Fixes blank space) */
         html, body {
-            overflow-x: hidden; /* Stops horizontal scrolling */
+            overflow-x: hidden;
             width: 100%;
             max-width: 100%;
             margin: 0;
         }
         body { 
-            padding-bottom: 80px; /* Only bottom padding for nav */
-            padding-top: 0;       /* Removed top padding */
+            padding-bottom: 80px;
+            padding-top: 55px;
         }
-        
         .turbo-progress-bar {
             display: none !important;
             visibility: hidden !important;
@@ -74,8 +70,6 @@
             bottom: 0; 
             left: 0; 
             right: 0;
-    
-            /* FIX 1: Allow height to grow if padding is added. Use min-height instead of fixed height. */
             min-height: 65px; 
             height: auto; 
             background-color: #ffffff; 
@@ -85,15 +79,9 @@
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
             z-index: 9999; 
             border-radius: 20px 20px 0 0;
-    
-            /* FIX 2: Use the Android variable we created (which is 0px in the app) 
-            Fallback to env() for normal mobile browsers */
             padding-bottom: var(--native-safe-area-bottom, env(safe-area-inset-bottom));
-    
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-    
-            /* Optional: Ensure buttons stay centered vertically */
             padding-top: 5px; 
           }
         .bottom-nav-link {
