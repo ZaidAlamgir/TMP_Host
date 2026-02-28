@@ -141,3 +141,12 @@ body {
         padding-left: 0.5rem;
     }
 }
+
+/* --- Force Android Progress Bar to stick to the bottom of the header --- */
+#android_progress_bar {
+    position: fixed !important;
+    top: 51px !important; /* This is the exact height of your header (5px padding + 40px content + 5px padding + 1px border) */
+    left: 0 !important;
+    z-index: 1000 !important;
+    margin: 0 !important;
+}

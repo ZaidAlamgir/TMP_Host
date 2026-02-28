@@ -7,9 +7,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
 ---
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
 
     :root {
         --bbc-red: #b80000;
@@ -110,7 +108,7 @@ image: /assets/images/live/TMPnewsliveBanner.webp
     /* --- Static Logo Colors & Font --- */
     .post-author-logo { width: 24px; height: 24px; color: #3498D8; /* TMP Blue for shapes */ }
     .post-author-logo .tmp-text { 
-        font-family: 'Playfair Display', serif; /* Applies the new elegant serif font */
+        font-family: serif; /* Applies the new elegant serif font */
         font-size: 75px; 
         font-weight: 700; 
         fill: #141414; /* Black text */ 
