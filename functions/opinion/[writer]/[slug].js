@@ -73,12 +73,12 @@ export async function onRequest(context) {
 </head>
 <body class="bg-white">
 
-    <div class="border-b mb-10"><div class="container mx-auto p-4 font-bold text-xl"><a href="/">TMP News</a></div></div>
+    <div class="border-b mb-4"><div class="container mx-auto p-4 font-bold text-xl"><a href="/">TMP News</a></div></div>
 
     <div class="article-container fade-in">
         <article>
             <header>
-                <div class="article-tags">${tagHtml}</div>
+                <div class="article-tags mb-3">${tagHtml}</div>
                 
                 <h1 class="article-headline">${article.title}</h1>
                 
