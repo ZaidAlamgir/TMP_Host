@@ -14,8 +14,10 @@ const PATHS = {
 
 // --- HELPER: FINISH LOADING ANIMATION (Optimized) ---
 function completeLoadingAnimation() {
-    const bar = document.getElementById('android_progress_bar');
-    if (bar) {
+    // Use querySelectorAll to catch duplicates if multiple were injected
+    const bars = document.querySelectorAll('#android_progress_bar');
+    
+    bars.forEach(bar => {
         bar.style.width = '100%';
         requestAnimationFrame(() => {
             bar.style.opacity = '0';
@@ -24,8 +26,19 @@ function completeLoadingAnimation() {
                 if (bar.parentElement) bar.parentElement.removeChild(bar); 
             }, 250);
         });
-    }
+    });
 }
+
+// --- NEW: PREVENT TURBO CACHE DUPLICATION ---
+// Remove the progress bar completely before Turbo caches the page state
+document.addEventListener("turbo:before-cache", function() {
+    const bars = document.querySelectorAll('#android_progress_bar');
+    bars.forEach(bar => {
+        if (bar.parentElement) {
+            bar.parentElement.removeChild(bar);
+        }
+    });
+});
 
 // --- HELPER: GENERATE USER COLOR ---
 function generateColorForUser(userId) {
