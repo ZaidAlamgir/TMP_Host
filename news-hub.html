@@ -10,7 +10,6 @@ permalink: /news/hub/
         padding: 2rem 1rem 80px 1rem; 
         max-width: 900px; 
         margin: 0 auto; 
-        /* Min-height prevents footer jumping (layout shift) */
         min-height: 80vh; 
     }
     
@@ -23,7 +22,6 @@ permalink: /news/hub/
         display: grid; 
         grid-template-columns: 1fr; 
         gap: 1.5rem; 
-        /* Min-height ensures the grid holds its shape during updates */
         min-height: 200px;
     }
     
@@ -36,12 +34,10 @@ permalink: /news/hub/
         color: inherit; 
         display: flex; 
         flex-direction: column;
-        /* Optimized transitions */
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        will-change: transform; /* Performance Hint for Browser */
+        will-change: transform; 
     }
 
-    /* Only animate when specifically requested (new content) */
     .news-card.fade-in {
         animation: smoothFade 0.5s ease-out forwards;
         opacity: 0;
@@ -90,6 +86,27 @@ permalink: /news/hub/
     .loader.visible { display: block; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
+    /* Load More Button Styles */
+    .load-more-container {
+        text-align: center;
+        margin-top: 3rem;
+        display: none; /* Hidden by default */
+    }
+    .load-more-btn {
+        background-color: #0073e6;
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 25px;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 115, 230, 0.2);
+        transition: background-color 0.2s, transform 0.1s;
+    }
+    .load-more-btn:active { transform: scale(0.97); }
+    
     @media (min-width: 768px) {
         .news-card { flex-direction: row; }
         .news-card .news-card-image-wrapper { width: 300px; height: auto; flex-shrink: 0; }
@@ -107,18 +124,30 @@ permalink: /news/hub/
 
     <div id="loader" class="loader"></div>
     <p id="no-results-message" class="no-results-message"></p>
+
+    <div id="load-more-container" class="load-more-container">
+        <button id="load-more-btn" class="load-more-btn">Load More News</button>
+    </div>
 </main>
 
 <script>
 document.addEventListener('turbo:load', async () => {
     const grid = document.getElementById('articles-grid');
+    if (!grid) return;
+
     const loader = document.getElementById('loader');
     const noResultsMsg = document.getElementById('no-results-message');
     const pageTitle = document.getElementById('page-title');
     const pageSubtitle = document.getElementById('page-subtitle');
     
-    // UPDATED CACHE KEY TO V3
-    const CACHE_KEY = 'tmp_news_hub_v3';
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    const CACHE_KEY = 'tmp_news_hub_v4';
+    const BATCH_SIZE = 50; // How many articles to load at a time
+    
+    let currentFilteredArticles = [];
+    let currentRenderedCount = 0;
     
     // --- UTILS ---
     function formatTag(tag) {
@@ -134,11 +163,11 @@ document.addEventListener('turbo:load', async () => {
         });
     }
 
-    function buildCardsHTML(articles, shouldAnimate) {
-        if (!articles || articles.length === 0) return '';
+    // Now accepts a specific array of articles to render, no hardcoded slice
+    function buildCardsHTML(articlesToRender, shouldAnimate) {
+        if (!articlesToRender || articlesToRender.length === 0) return '';
         
-        // Only render top 50 for performance
-        return articles.slice(0, 50).map(post => {
+        return articlesToRender.map(post => {
             const image = post.image || 'https://placehold.co/600x400/e2e8f0/64748b?text=No+Image';
             const alt = post.image_description || 'Article image';
             const subheadline = post.subheadline || 'Click to read more.';
@@ -161,7 +190,6 @@ document.addEventListener('turbo:load', async () => {
         const urlParams = new URLSearchParams(window.location.search);
         const tagFilter = urlParams.get('tag');
 
-        // Update Header
         if (tagFilter) {
             pageTitle.innerHTML = `News in <span class="tag-highlight">${formatTag(tagFilter)}</span>`;
             pageSubtitle.style.display = 'none';
@@ -170,56 +198,76 @@ document.addEventListener('turbo:load', async () => {
             pageSubtitle.style.display = 'block';
         }
 
-        const filtered = filterArticles(articles, tagFilter);
+        currentFilteredArticles = filterArticles(articles, tagFilter);
 
-        if (filtered.length === 0) {
+        if (currentFilteredArticles.length === 0) {
             grid.innerHTML = '';
             noResultsMsg.textContent = tagFilter ? `No articles found for "${formatTag(tagFilter)}".` : "No articles found.";
             noResultsMsg.style.display = 'block';
+            loadMoreContainer.style.display = 'none';
             return;
         }
 
         noResultsMsg.style.display = 'none';
         
-        // IMPORTANT: Build HTML string first
-        const newHTML = buildCardsHTML(filtered, animate);
+        // Render Initial Batch
+        currentRenderedCount = Math.min(BATCH_SIZE, currentFilteredArticles.length);
+        const initialBatch = currentFilteredArticles.slice(0, currentRenderedCount);
+        grid.innerHTML = buildCardsHTML(initialBatch, animate);
         
-        grid.innerHTML = newHTML;
+        // Show/Hide Load More Button
+        if (currentFilteredArticles.length > currentRenderedCount) {
+            loadMoreContainer.style.display = 'block';
+        } else {
+            loadMoreContainer.style.display = 'none';
+        }
+    }
+
+    // --- LOAD MORE LISTENER ---
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', () => {
+            const nextCount = Math.min(currentRenderedCount + BATCH_SIZE, currentFilteredArticles.length);
+            const nextBatch = currentFilteredArticles.slice(currentRenderedCount, nextCount);
+            
+            // Append new items smoothly without erasing old ones
+            const newHTML = buildCardsHTML(nextBatch, true);
+            grid.insertAdjacentHTML('beforeend', newHTML);
+            
+            currentRenderedCount = nextCount;
+            
+            // Hide button if we reached the end
+            if (currentRenderedCount >= currentFilteredArticles.length) {
+                loadMoreContainer.style.display = 'none';
+            }
+        });
     }
 
     // --- STABLE LOADING LOGIC ---
-
-    // 1. Check if Turbo already restored the content
     if (grid.childElementCount > 0) {
-        console.log("Content restored by Turbo. Skipping initial render.");
+        console.log("Content restored by Turbo.");
     } else {
-        // 2. If empty, try LocalStorage (Instant Load)
         const cachedData = localStorage.getItem(CACHE_KEY);
         if (cachedData) {
             try {
                 const articles = JSON.parse(cachedData);
-                updateUI(articles, false); // false = No animation (instant appear)
+                updateUI(articles, false); 
             } catch (e) {
-                console.error("Cache invalid");
                 localStorage.removeItem(CACHE_KEY);
             }
         } else {
-            // 3. Only show loader if absolutely nothing is on screen
             loader.classList.add('visible');
         }
     }
 
-    // 4. Background Update (Optimized with setTimeout)
-    // This small delay (100ms) allows the page transition animation to finish 
-    // BEFORE the browser freezes to parse the potentially large JSON file.
     setTimeout(async () => {
+        if (!document.getElementById('articles-grid')) return;
+
         try {
             const response = await fetch('/search.json');
             if (!response.ok) throw new Error('Network error');
             
             const freshArticles = await response.json();
             
-            // 5. Smart Compare
             const cachedData = localStorage.getItem(CACHE_KEY);
             const cachedArticles = cachedData ? JSON.parse(cachedData) : [];
             
@@ -230,10 +278,7 @@ document.addEventListener('turbo:load', async () => {
             if (isNewContent) {
                 console.log("New content detected. Updating...");
                 localStorage.setItem(CACHE_KEY, JSON.stringify(freshArticles));
-                // This is a real update, so we allow animation
                 updateUI(freshArticles, true);
-            } else {
-                console.log("Content up to date. No re-render.");
             }
             
         } catch (error) {
@@ -243,8 +288,8 @@ document.addEventListener('turbo:load', async () => {
                 noResultsMsg.style.display = 'block';
             }
         } finally {
-            loader.classList.remove('visible');
+            if (loader) loader.classList.remove('visible');
         }
-    }, 100); // <-- CRITICAL FIX: 100ms delay
+    }, 100); 
 });
 </script>

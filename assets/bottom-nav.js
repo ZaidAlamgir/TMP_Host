@@ -4,33 +4,34 @@
         linkSelector: '.bottom-nav-link',
         activeClass: 'active',
         loaderId: 'android_progress_bar',
-        headerSelector: '.header', // Target the header class specifically
+        headerSelector: '.header', 
         fallbackHeaderHeight: '51px' 
     };
 
-    // --- HELPER: Normalize URLs (Fixes "Latest" tab issue) ---
-    // Removes trailing slashes AND .html extensions for robust matching
     function normalizePath(path) {
-        return path
-            .replace(/\/$/, "")       // Remove trailing slash
-            .replace(/\.html$/, "");  // Remove .html extension
+        return path.replace(/\/$/, "").replace(/\.html$/, ""); 
     }
 
     // --- 1. LOADER START ---
     function startLoader() {
+        // NEW FIX: If Android App handles it natively, trigger it and SKIP the web loader!
         if (window.AndroidInterface && window.AndroidInterface.showLoadingAnimation) {
             window.AndroidInterface.showLoadingAnimation();
+            return; // 🛑 EXIT HERE: Prevents the double animation
         }
 
         let bar = document.getElementById(CONFIG.loaderId);
         const header = document.querySelector(CONFIG.headerSelector);
         
-        // Create if missing
+        // Prevent "Double Firing"
+        if (bar && bar.style.opacity === '1') {
+            return;
+        }
+
         if (!bar) {
             bar = document.createElement('div');
             bar.id = CONFIG.loaderId;
-            
-            // [FIX] Inject into Header if possible, otherwise Body
+            bar.setAttribute('data-turbo-permanent', 'true');
             if (header) {
                 header.appendChild(bar); 
             } else {
@@ -38,9 +39,6 @@
             }
         }
 
-        // [FIX] Dynamic Positioning Logic
-        // If inside header: Stick to bottom of header using absolute positioning
-        // If fallback: Use fixed positioning
         if (header && bar.parentNode === header) {
             bar.style.cssText = `
                 position: absolute; 
@@ -54,13 +52,11 @@
                 pointer-events: none;
                 transition: none;
             `;
-            // Ensure header can hold absolute children
             const headerStyle = window.getComputedStyle(header);
             if (headerStyle.position === 'static') {
                 header.style.position = 'relative';
             }
         } else {
-            // Fallback for when header isn't found
             bar.style.cssText = `
                 position: fixed; 
                 top: ${CONFIG.fallbackHeaderHeight}; 
@@ -75,7 +71,7 @@
             `;
         }
 
-        void bar.offsetWidth; // Force Paint
+        void bar.offsetWidth; // Force browser to paint
 
         // Animate to 30% instantly
         requestAnimationFrame(() => {
@@ -83,81 +79,105 @@
             bar.style.width = '30%';
         });
 
-        // Trickle to 80%
+        // Trickle to 85% smoothly while waiting for network
         setTimeout(() => {
             if (bar && bar.parentNode) {
-                bar.style.transition = 'width 3s ease-out';
-                bar.style.width = '80%';
+                bar.style.transition = 'width 4s cubic-bezier(0.1, 0.8, 0.3, 1)';
+                bar.style.width = '85%';
             }
         }, 400);
     }
 
     // --- 2. LOADER FINISH ---
     function completeLoader() {
-        if (window.AndroidInterface && window.AndroidInterface.stopLoadingAnimation) {
-            window.AndroidInterface.stopLoadingAnimation();
-        }
-
-        // --- ADD THIS CRITICAL FIX ---
-        // This wakes up the Post page script so it fetches the D1 articles!
+        // ALWAYS wake up the post page if needed
         if (window.initPostPage && document.getElementById('recentPostsContainer')) {
             window.initPostPage();
         }
-        // -----------------------------
+
+        // NEW FIX: If Android App handles it natively, stop it and SKIP the web loader!
+        if (window.AndroidInterface && window.AndroidInterface.stopLoadingAnimation) {
+            window.AndroidInterface.stopLoadingAnimation();
+            return; // 🛑 EXIT HERE: Prevents the double animation
+        }
 
         let bar = document.getElementById(CONFIG.loaderId);
+        let wasRecreated = false;
 
-        // Resurrect if missing (Turbo edge case)
+        // If Turbo wiped the bar out, recreate it with plenty of runway (60%)
         if (!bar) {
             bar = document.createElement('div');
             bar.id = CONFIG.loaderId;
-            // Quick set to 30% to look continuous
-            bar.style.width = '30%';
-            bar.style.height = '3px';
-            bar.style.backgroundColor = '#0073e6';
-            bar.style.position = 'fixed'; 
-            bar.style.zIndex = '9999';
-            document.body.appendChild(bar);
+            const header = document.querySelector(CONFIG.headerSelector);
+            wasRecreated = true;
+            
+            if (header) {
+                header.appendChild(bar);
+                bar.style.cssText = `position: absolute; bottom: 0; left: 0; height: 3px; background-color: #0073e6; z-index: 9999; opacity: 1; pointer-events: none; transition: none; width: 60%;`;
+            } else {
+                document.body.appendChild(bar);
+                bar.style.cssText = `position: fixed; top: ${CONFIG.fallbackHeaderHeight}; left: 0; height: 3px; background-color: #0073e6; z-index: 9999; opacity: 1; pointer-events: none; transition: none; width: 60%;`;
+            }
         }
 
-        // ZIP TO 100%
-        requestAnimationFrame(() => {
-            bar.style.transition = 'width 0.3s ease-out, opacity 0.2s ease 0.2s'; 
-            bar.style.width = '100%';
-            bar.style.opacity = '0'; 
-        });
+        void bar.offsetWidth; 
 
-        // Cleanup
+        // Wait a tiny moment to guarantee the browser painted the starting position
         setTimeout(() => {
-            if (bar && bar.parentNode) bar.remove();
-        }, 500); 
+            if (!bar) return;
+            
+            // Step 1: Smooth, visible push to 100% over half a second
+            bar.style.transition = 'width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
+            bar.style.width = '100%';
+            bar.style.opacity = '1'; 
+            
+            // Step 2: Wait until it completely hits the edge (500ms), THEN fade it out
+            setTimeout(() => {
+                if (bar) {
+                    bar.style.transition = 'opacity 0.3s ease-out';
+                    bar.style.opacity = '0'; 
+                }
+            }, 500);
+
+            // Step 3: Cleanup and remove
+            setTimeout(() => {
+                if (bar && bar.parentNode) bar.remove();
+            }, 800); 
+
+        }, wasRecreated ? 20 : 0); 
     }
 
-    // --- 3. LOGIC (Updated for robust matching) ---
+    // --- 3. LOGIC ---
     function highlightActiveLink() {
-        // Normalize current window path
         const currentPath = normalizePath(window.location.pathname) || "/";
-        
         const links = document.querySelectorAll(CONFIG.linkSelector);
         links.forEach(l => l.classList.remove(CONFIG.activeClass));
 
         let matchFound = false;
-        
-        links.forEach(link => {
-            if (matchFound) return;
-            
-            // Normalize link path
-            const rawLinkPath = new URL(link.href, window.location.origin).pathname;
-            const linkPath = normalizePath(rawLinkPath) || "/";
 
-            // [FIX] Robust comparison
-            if (linkPath === currentPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
-                link.classList.add(CONFIG.activeClass);
+        const isArticlePage = currentPath.startsWith('/news/') && !currentPath.startsWith('/news/hub');
+        
+        if (isArticlePage) {
+            const latestTab = document.getElementById('nav-articles') || document.querySelector(`${CONFIG.linkSelector}[href*="latest"]`);
+            if (latestTab) {
+                latestTab.classList.add(CONFIG.activeClass);
                 matchFound = true;
             }
-        });
+        }
+        
+        if (!matchFound) {
+            links.forEach(link => {
+                if (matchFound) return;
+                const rawLinkPath = new URL(link.href, window.location.origin).pathname;
+                const linkPath = normalizePath(rawLinkPath) || "/";
 
-        // Default to Home if no match
+                if (linkPath === currentPath || (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+                    link.classList.add(CONFIG.activeClass);
+                    matchFound = true;
+                }
+            });
+        }
+
         if (!matchFound) {
             const home = document.querySelector(`${CONFIG.linkSelector}[href="/"]`);
             if (home) home.classList.add(CONFIG.activeClass);
