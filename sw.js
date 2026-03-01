@@ -1,10 +1,12 @@
 // Bump this version whenever you change CSS/JS files significantly!
-const CACHE_NAME = 'tmp-cache-v2'; 
+const CACHE_NAME = 'tmp-cache-v3'; 
 
 // ONLY cache static structural files here!
 // We removed dynamic HTML pages (like '/', '/live/') from this list. 
 // We will cache HTML dynamically on the fly so the install never fails.
 const STATIC_ASSETS = [
+    '/',                      // ADD THIS BACK! Caches the homepage
+    '/index.html',            // Add this just in case
     '/assets/style/style.css',
     '/assets/style/index-menu.css',
     '/assets/style/home.css',
