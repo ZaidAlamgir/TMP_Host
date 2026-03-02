@@ -95,8 +95,8 @@ window.loadCommunityFeed = async () => {
             const authorSlug = cleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
             
             // 4. FIX SEO HEADLINE URL
-            const titleSlug = post.title ? post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article';
-            const postLink = `/opinion/${authorSlug}/${titleSlug}?id=${post.id}`;
+            const titleSlug = post.slug ? post.slug : (post.title ? post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article');
+            const postLink = `/opinion/${authorSlug}/${titleSlug}`;
             
             const dateStr = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
