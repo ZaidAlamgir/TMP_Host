@@ -9,7 +9,7 @@ export async function onRequest(context) {
   for (const db of dbs) {
     if (!db) continue;
     try {
-      article = await db.prepare("SELECT * FROM articles WHERE id = ?").bind(slug).first();
+      article = await db.prepare("SELECT * FROM articles WHERE slug = ?").bind(slug).first();
       if (article) break;
     } catch (e) { console.error("DB Error", e); }
   }

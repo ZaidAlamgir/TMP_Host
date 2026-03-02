@@ -110,7 +110,7 @@ function renderFeed(container, posts, append = false) {
         const titleSlug = p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article';
         
         // 3. New SEO Link
-        let basePath = `/opinion/${authorSlug}/${titleSlug}?id=${p.id}`;
+       let basePath = `/opinion/${authorSlug}/${titleSlug}`; 
         
         let link = (p.link && p.link !== '#') ? p.link : basePath;
         el.onclick = function() { window.location.href = link; };
