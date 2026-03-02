@@ -90,7 +90,7 @@ export async function onRequest(context) {
               const pTitleSlug = p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article';
               
               return `
-                <a href="/opinion/${pWriterSlug}/${pTitleSlug}?id=${p.id}" class="group block border-b border-gray-100 last:border-0 py-4">
+                  <a href="/opinion/${pWriterSlug}/${pTitleSlug}" class="group block border-b border-gray-100 last:border-0 py-4">
                     <div class="flex gap-4 items-start">
                          <div class="flex-grow">
                              <h4 class="font-bold text-gray-900 text-lg leading-snug group-hover:text-blue-600 transition-colors font-merriweather mb-2">
