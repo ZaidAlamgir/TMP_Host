@@ -27,7 +27,7 @@ export async function onRequest(context) {
   if (!article_id) return new Response(`Error: Missing Article ID`, { status: 400 });
 
   // --- 2. PREPARE DATA PROMISES (PARALLEL EXECUTION) ---
-  const postPromise = db.prepare("SELECT * FROM articles WHERE id = ?").bind(article_id).first();
+  const postPromise = db.prepare("SELECT * FROM articles WHERE slug = ?").bind(article_id).first();
   const writersPromise = fetchWithCache(`${siteBase}/assets/data/writers_db.json`, context);
   const templatePromise = fetchWithCache(`${siteBase}/dynamic-template.html`, context);
 
