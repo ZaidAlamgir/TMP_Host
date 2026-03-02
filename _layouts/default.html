@@ -29,6 +29,11 @@
     <script>
         (function() {
             try {
+                // 1. Instantly detect the Android App and add a CSS class to the HTML tag
+                if (typeof window.AndroidInterface !== 'undefined') {
+                    document.documentElement.classList.add('is-android-app');
+                }
+                
                 const isDarkMode = window.AndroidInterface.getDarkModeStatus() === 'true';
                 if (isDarkMode) {
                     document.documentElement.classList.add('dark-mode');
@@ -38,6 +43,20 @@
             }
         })();
     </script>
+
+    <style>
+        html.is-android-app #header-placeholder,
+        html.is-android-app .header {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            pointer-events: none !important;
+        }
+        html.is-android-app body {
+            padding-top: 0 !important;
+        }
+    </style>
 
     <link rel="stylesheet" href="{{ '/assets/style/style.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/index-menu.css' | relative_url }}">
@@ -109,7 +128,7 @@
         <link rel="stylesheet" href="{{ css_file | relative_url }}">
     {% endfor %}
 </head>
-<body class="{{ page.body_class }} flex flex-col min-h-screen" data-base-path="{{ site.baseurl }}" data-latest-post-url="{% if site.posts.first %}{{ site.posts.first.url | relative_url }}{% else %}{{ '/latest.html' | relative_url }}{% endif %}"></body>
+<body class="{{ page.body_class }} flex flex-col min-h-screen" data-base-path="{{ site.baseurl }}" data-latest-post-url="{% if site.posts.first %}{{ site.posts.first.url | relative_url }}{% else %}{{ '/latest.html' | relative_url }}{% endif %}">
     
     <div id="header-placeholder" data-turbo-permanent>
         <header class="header" data-header-type="public" style="z-index: 1000;">

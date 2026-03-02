@@ -452,6 +452,12 @@
     }
 
     function initHeaderFlow(forceRerender = false) {
+        if (typeof window.AndroidInterface !== 'undefined') {
+            const headerPlaceholder = document.getElementById('header-placeholder');
+            if (headerPlaceholder) headerPlaceholder.innerHTML = '';
+            return;
+        }
+
         const pathname = window.location.pathname;
         const skipHeaderPages = [PATHS.AUTH, '/auth-callback.html', '/callback.html'];
 
@@ -469,8 +475,6 @@
             initializeSupabaseHeader(forceRerender);
         }
     }
-
-    // No Delays
     document.addEventListener('turbo:load', function() {
         initHeaderFlow();
         completeLoadingAnimation(); 
