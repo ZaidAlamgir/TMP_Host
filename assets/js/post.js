@@ -106,7 +106,8 @@ function renderFeed(container, posts, append = false) {
         const cleanAuthor = p.author ? p.author.replace(/^By\s+/i, '').trim() : 'Staff';
         const authorSlug = cleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
         
-        const titleSlug = p.slug ? p.slug : p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        // 2 & 3. New SEO Link using Database Slug
+        const titleSlug = p.slug ? p.slug : (p.title ? p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article');
         let basePath = `/opinion/${authorSlug}/${titleSlug}`;
         
         let link = (p.link && p.link !== '#') ? p.link : basePath;

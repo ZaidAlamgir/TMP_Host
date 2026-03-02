@@ -55,7 +55,7 @@ export async function onRequest(context) {
 }
 
 async function fetchPageAndCache(db, kv, key, limit, offset) {
-    const query = `SELECT id, title, subheadline, author, date, image, tags FROM articles WHERE title IS NOT NULL AND title != "" ORDER BY date DESC LIMIT ? OFFSET ?`;
+    const query = `SELECT id, slug, title, subheadline, author, date, image, tags FROM articles WHERE title IS NOT NULL AND title != "" ORDER BY date DESC LIMIT ? OFFSET ?`;
     const { results } = await db.prepare(query).bind(limit, offset).all();
 
     const dataToCache = {
