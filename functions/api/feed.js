@@ -20,7 +20,7 @@ export async function onRequest(context) {
         });
     }
 
-    const CACHE_KEY = `feed_page_${page}`;
+    const CACHE_KEY = `feed_page_v2_${page}`;
     let cachedData = await kv.get(CACHE_KEY, { type: "json" });
     let serveStale = false;
     let mustFetch = false;
