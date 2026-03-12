@@ -1,31 +1,31 @@
-const CACHE_NAME = 'tmp-cache-v4'; 
-const CACHE_NAME = 'tmp-cache-v6'; 
-
+// Bumped to v7 - Clean installation
+const CACHE_NAME = 'tmp-cache-v7'; 
 const STATIC_ASSETS = [
     '/',                      
-    '/index.html',   
+    '/index.html',            
     '/assets/style/style.css',
-    '/assets/style/dark-mode.css',
-    '/assets/style/home.css',
     '/assets/style/index-menu.css',
-    '/assets/style/post.css',          
-    '/assets/style/menu.css',         
-    '/assets/style/profile.css',       
-    '/assets/style/login.css',         
+    '/assets/style/home.css',
+    '/assets/style/dark-mode.css',
+    '/assets/style/post.css',
+    '/assets/style/menu.css',
+    '/assets/style/profile.css',
+    '/assets/style/login.css',
     '/assets/header-injector.js',
     '/assets/bottom-nav.js',
-    '/post.js',                        
-    '/home.js',                       
-    '/cache-manager.js',               
+    '/post.js',
+    '/home.js',
+    '/cache-manager.js',
     '/favicon-32x32.png',
     '/favicon.svg'
 ];
-
+// 1. FAULT-TOLERANT INSTALL
 self.addEventListener('install', (event) => {
     self.skipWaiting(); 
     event.waitUntil(
         caches.open(CACHE_NAME).then(async (cache) => {
             console.log('Service Worker: Caching Static App Shell');
+            
             let cachedCount = 0;
             for (let asset of STATIC_ASSETS) {
                 try {
@@ -45,6 +45,7 @@ self.addEventListener('install', (event) => {
     );
 });
 
+// 2. CLEANUP OLD CACHES
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -61,9 +62,12 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim(); 
 });
 
+// 3. SMART ROUTING FETCH
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
+
+    // RULE 1: STRICT BYPASS
     if (
         url.origin.includes('supabase.co') || 
         url.origin.includes('accounts.google.com') ||
@@ -74,8 +78,10 @@ self.addEventListener('fetch', (event) => {
         request.method !== 'GET' ||                   
         request.headers.get('accept')?.includes('application/json') 
     ) {
-        return; 
+        return; // Exit SW natively
     }
+
+    // RULE 2: NETWORK-FIRST FOR HTML
     if (request.headers.get('accept') && request.headers.get('accept').includes('text/html')) {
         event.respondWith(
             fetch(request)
@@ -93,6 +99,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // RULE 3: CACHE-FIRST FOR ASSETS
     event.respondWith(
         caches.match(request).then((cachedResponse) => {
             if (cachedResponse) {
