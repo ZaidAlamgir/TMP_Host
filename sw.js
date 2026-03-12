@@ -1,8 +1,12 @@
-// Bumped to v7 - Clean installation
-const CACHE_NAME = 'tmp-cache-v7'; 
-const STATIC_ASSETS = [
+const CORE_CACHE = 'tmp-core-v10';
+const ARTICLE_CACHE = 'tmp-articles-v10';
+const ASSET_CACHE = 'tmp-assets-v10';
+
+const CORE_ASSETS = [
     '/',                      
     '/index.html',            
+    '/offline.html',  
+    'https://author.tmpnews.com/profile/tmpnews.webp',     
     '/assets/style/style.css',
     '/assets/style/index-menu.css',
     '/assets/style/home.css',
@@ -19,40 +23,43 @@ const STATIC_ASSETS = [
     '/favicon-32x32.png',
     '/favicon.svg'
 ];
-// 1. FAULT-TOLERANT INSTALL
+
+const limitCacheSize = (name, size) => {
+    caches.open(name).then(cache => {
+        cache.keys().then(keys => {
+            if (keys.length > size) {
+                cache.delete(keys[0]).then(() => limitCacheSize(name, size));
+            }
+        });
+    });
+};
+
 self.addEventListener('install', (event) => {
     self.skipWaiting(); 
     event.waitUntil(
-        caches.open(CACHE_NAME).then(async (cache) => {
-            console.log('Service Worker: Caching Static App Shell');
-            
-            let cachedCount = 0;
-            for (let asset of STATIC_ASSETS) {
+        caches.open(CORE_CACHE).then(async (cache) => {
+            console.log('SW: Caching Core App Shell');
+            for (let asset of CORE_ASSETS) {
                 try {
                     const response = await fetch(asset);
                     if (response.ok) {
                         await cache.put(asset, response);
-                        cachedCount++;
-                    } else {
-                        console.warn(`SW Install: Failed to fetch ${asset} (Status: ${response.status})`);
                     }
                 } catch (err) {
-                    console.error(`SW Install: Network error on ${asset}`, err);
+                    console.error(`SW Install: Network error on ${asset}`);
                 }
             }
-            console.log(`SW Install: Cached ${cachedCount} out of ${STATIC_ASSETS.length} assets.`);
         })
     );
 });
 
-// 2. CLEANUP OLD CACHES
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        console.log('Service Worker: Clearing old cache', cacheName);
+                    if (cacheName !== CORE_CACHE && cacheName !== ARTICLE_CACHE && cacheName !== ASSET_CACHE) {
+                        console.log('SW: Wiping old cache memory ->', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
@@ -62,12 +69,9 @@ self.addEventListener('activate', (event) => {
     return self.clients.claim(); 
 });
 
-// 3. SMART ROUTING FETCH
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
-
-    // RULE 1: STRICT BYPASS
     if (
         url.origin.includes('supabase.co') || 
         url.origin.includes('accounts.google.com') ||
@@ -78,48 +82,55 @@ self.addEventListener('fetch', (event) => {
         request.method !== 'GET' ||                   
         request.headers.get('accept')?.includes('application/json') 
     ) {
-        return; // Exit SW natively
+        return; 
     }
 
-    // RULE 2: NETWORK-FIRST FOR HTML
     if (request.headers.get('accept') && request.headers.get('accept').includes('text/html')) {
         event.respondWith(
             fetch(request)
                 .then((networkResponse) => {
                     if (networkResponse && networkResponse.status === 200) {
                         const responseClone = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+                        caches.open(ARTICLE_CACHE).then((cache) => {
+                            cache.put(request, responseClone).then(() => {
+                                limitCacheSize(ARTICLE_CACHE, 150); 
+                            });
+                        });
                     }
                     return networkResponse;
                 })
                 .catch(() => {
-                    return caches.match(request);
+                    return caches.match(request).then((cachedResponse) => {
+                        if (cachedResponse) {
+                            return cachedResponse; 
+                        }
+                        return caches.match('/offline.html');
+                    });
                 })
         );
         return;
     }
 
-    // RULE 3: CACHE-FIRST FOR ASSETS
     event.respondWith(
         caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-                return cachedResponse; 
-            }
-
-            return fetch(request).then((networkResponse) => {
-                if (!networkResponse || networkResponse.status !== 200) {
-                    return networkResponse;
-                }
-
-                if (networkResponse.type === 'basic' || networkResponse.type === 'cors') {
+            const fetchPromise = fetch(request).then((networkResponse) => {
+                if (networkResponse && networkResponse.status === 200 && (networkResponse.type === 'basic' || networkResponse.type === 'cors')) {
                     const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+                    caches.open(ASSET_CACHE).then((cache) => {
+                        cache.put(request, responseClone).then(() => {
+                            limitCacheSize(ASSET_CACHE, 100); 
+                        });
+                    });
                 }
-
                 return networkResponse;
-            }).catch((err) => {
-                console.warn('SW Fetch: Network failure for', request.url, err);
-            });
+            }).catch(() => { /* Silent network fail */ });
+
+            if (cachedResponse) {
+                event.waitUntil(fetchPromise); 
+                return cachedResponse;
+            }
+            
+            return fetchPromise;
         })
     );
 });
