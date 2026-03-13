@@ -1434,6 +1434,11 @@
             const now = new Date();
             const dateStr = now.toISOString().split('T')[0];
             const slug = headline.replace(/<[^>]*>/g, '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''); // Strip HTML for filename
+            let liveArticleUrl = `https://www.tmpnews.com/news/`;
+            if (catList.length > 0) {
+                liveArticleUrl += `${catList.join('/')}/`; 
+            }
+            liveArticleUrl += `${slug}/`;
             
             let filePath, owner;
 
@@ -1474,8 +1479,7 @@
                         console.error("Failed to trigger build:", err);
                     }
 
-                    // 2. Trigger Notification System (New Repo)
-                    await triggerNotificationSystem(headline, subheadline, authorName, mainImageUrl);
+                    await triggerNotificationSystem(headline, subheadline, authorName, mainImageUrl, liveArticleUrl);
 
                     updateStatus(`Published & Build Triggered!`, '#16a34a');
                     
