@@ -1,6 +1,6 @@
-const CORE_CACHE = 'tmp-core-v12';
-const ARTICLE_CACHE = 'tmp-articles-v12';
-const ASSET_CACHE = 'tmp-assets-v12';
+const CORE_CACHE = 'tmp-core-v14';
+const ARTICLE_CACHE = 'tmp-articles-v14';
+const ASSET_CACHE = 'tmp-assets-v14';
 
 const CORE_ASSETS = [
     '/',                      
@@ -24,7 +24,6 @@ const CORE_ASSETS = [
     '/favicon.svg'
 ];
 
-// Keeps your storage clean by deleting the oldest articles when you pass the limit
 const limitCacheSize = (name, size) => {
     caches.open(name).then(cache => {
         cache.keys().then(keys => {
@@ -39,7 +38,7 @@ self.addEventListener('install', (event) => {
     self.skipWaiting(); 
     event.waitUntil(
         caches.open(CORE_CACHE).then(async (cache) => {
-            console.log('SW: Caching Core App Shell v13');
+            console.log('SW: Caching Core App Shell v14');
             for (let asset of CORE_ASSETS) {
                 try {
                     const response = await fetch(asset);
@@ -59,7 +58,7 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    // Wipes out v12 and v11 to free up space
+                    // Wipes out old versions (v13, v12, etc.) to free up space
                     if (cacheName !== CORE_CACHE && cacheName !== ARTICLE_CACHE && cacheName !== ASSET_CACHE) {
                         console.log('SW: Wiping old cache memory ->', cacheName);
                         return caches.delete(cacheName);
@@ -75,8 +74,9 @@ self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
 
-    // 1. Bypass Logic (Crucial for Supabase Auth and APIs)
     if (
+        url.pathname.includes('ORGcms.html') ||
+        url.pathname.includes('liveCMS.html') ||
         url.origin.includes('supabase.co') || 
         url.origin.includes('accounts.google.com') ||
         url.origin.includes('data.tmpnews.com') ||
@@ -89,36 +89,43 @@ self.addEventListener('fetch', (event) => {
         return; 
     }
 
-    // 2. UNIVERSAL HTML ROUTING (Instant Load for everything)
     if (request.headers.get('accept') && request.headers.get('accept').includes('text/html')) {
+        
+        const isHomePage = (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '');
+        if (isHomePage) {
+            event.respondWith(
+                fetch(request).then((networkResponse) => {
+                    if (networkResponse && networkResponse.ok) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CORE_CACHE).then((cache) => cache.put(request, responseClone));
+                    }
+                    return networkResponse;
+                }).catch(() => {
+                    return caches.match(request).then(cached => cached || caches.match('/offline.html'));
+                })
+            );
+            return; 
+        }
+
         event.respondWith(
             caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
                 
-                // Always reach out to the internet in the background to get the freshest data
                 const fetchPromise = fetch(request).then((networkResponse) => {
                     if (networkResponse && networkResponse.ok) {
                         const responseClone = networkResponse.clone();
-                        
-                        // Sort into the correct cache bucket
-                        const isCore = (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '');
-                        const targetCache = isCore ? CORE_CACHE : ARTICLE_CACHE;
-                        
-                        caches.open(targetCache).then((cache) => {
+                        caches.open(ARTICLE_CACHE).then((cache) => {
                             cache.put(request, responseClone).then(() => {
-                                if (!isCore) limitCacheSize(ARTICLE_CACHE, 150); // Keeps your 100+ articles safe!
+                                limitCacheSize(ARTICLE_CACHE, 150);
                             });
                         });
                     }
                     return networkResponse;
-                }).catch(() => { return null; }); // Silent fail if user drops offline
+                }).catch(() => { return null; }); 
 
-                // If we have the page/article in storage, SHOW IT INSTANTLY
                 if (cachedResponse) {
-                    event.waitUntil(fetchPromise); // Keeps SW alive to finish the background fetch
+                    event.waitUntil(fetchPromise); 
                     return cachedResponse;
                 }
-
-                // If it's a brand new article not in storage, wait for the internet fetch
                 return fetchPromise.then((networkResponse) => {
                     return networkResponse || caches.match('/offline.html');
                 });
@@ -127,7 +134,6 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 3. Asset Routing (CSS, JS, Images)
     event.respondWith(
         caches.match(request).then((cachedResponse) => {
             const fetchPromise = fetch(request).then((networkResponse) => {
