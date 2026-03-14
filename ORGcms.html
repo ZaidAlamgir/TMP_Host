@@ -1235,8 +1235,9 @@
         });
 
         // --- NEW: NOTIFICATION TRIGGER ---
-        async function triggerNotificationSystem(headline, subheadline, author, mainImageUrl) {
+        async function triggerNotificationSystem(headline, subheadline, author, mainImageUrl, articleUrl) {
             console.log("🚀 Triggering Notification System...");
+            console.log("🔗 Deep Link URL being sent:", articleUrl); // Added a log so you can see it in browser console
             
             const url = `https://api.github.com/repos/${GITHUB_CONFIG.notifyOwner}/${GITHUB_CONFIG.notifyRepo}/dispatches`;
             
@@ -1248,7 +1249,8 @@
                     author: author,
                     image_url: mainImageUrl,
                     date: new Date().toISOString(),
-                    type: "standard"
+                    type: "standard",
+                    link: articleUrl || "https://www.tmpnews.com/" 
                 }
             };
 
