@@ -1,7 +1,6 @@
-const CORE_CACHE = 'tmp-core-v14';
-const ARTICLE_CACHE = 'tmp-articles-v14';
-const ASSET_CACHE = 'tmp-assets-v14';
-
+const CORE_CACHE = 'tmp-core-v15';
+const ARTICLE_CACHE = 'tmp-articles-v15';
+const ASSET_CACHE = 'tmp-assets-v15';
 const CORE_ASSETS = [
     '/',                      
     '/index.html',            
@@ -15,15 +14,16 @@ const CORE_ASSETS = [
     '/assets/style/menu.css',
     '/assets/style/profile.css',
     '/assets/style/login.css',
+    '/assets/style/live.css',    
     '/assets/header-injector.js',
     '/assets/bottom-nav.js',
+    '/assets/js/live.js',   
     '/post.js',
     '/home.js',
     '/cache-manager.js',
     '/favicon-32x32.png',
     '/favicon.svg'
 ];
-
 const limitCacheSize = (name, size) => {
     caches.open(name).then(cache => {
         cache.keys().then(keys => {
@@ -33,12 +33,11 @@ const limitCacheSize = (name, size) => {
         });
     });
 };
-
 self.addEventListener('install', (event) => {
     self.skipWaiting(); 
     event.waitUntil(
         caches.open(CORE_CACHE).then(async (cache) => {
-            console.log('SW: Caching Core App Shell v14');
+            console.log('SW: Caching Core App Shell v15');
             for (let asset of CORE_ASSETS) {
                 try {
                     const response = await fetch(asset);
@@ -52,13 +51,11 @@ self.addEventListener('install', (event) => {
         })
     );
 });
-
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    // Wipes out old versions (v13, v12, etc.) to free up space
                     if (cacheName !== CORE_CACHE && cacheName !== ARTICLE_CACHE && cacheName !== ASSET_CACHE) {
                         console.log('SW: Wiping old cache memory ->', cacheName);
                         return caches.delete(cacheName);
@@ -69,7 +66,6 @@ self.addEventListener('activate', (event) => {
     );
     return self.clients.claim(); 
 });
-
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
@@ -88,7 +84,6 @@ self.addEventListener('fetch', (event) => {
     ) {
         return; 
     }
-
     if (request.headers.get('accept') && request.headers.get('accept').includes('text/html')) {
         
         const isHomePage = (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '');
@@ -106,7 +101,6 @@ self.addEventListener('fetch', (event) => {
             );
             return; 
         }
-
         event.respondWith(
             caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
                 
@@ -133,7 +127,6 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-
     event.respondWith(
         caches.match(request).then((cachedResponse) => {
             const fetchPromise = fetch(request).then((networkResponse) => {
@@ -147,7 +140,6 @@ self.addEventListener('fetch', (event) => {
                 }
                 return networkResponse;
             }).catch(() => { /* Silent network fail */ });
-
             if (cachedResponse) {
                 event.waitUntil(fetchPromise); 
                 return cachedResponse;

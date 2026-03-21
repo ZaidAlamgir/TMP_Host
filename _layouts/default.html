@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff" id="theme-color-meta">
     <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
-    
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     <script async src="//www.instagram.com/embed.js"></script>
     <script async src="https://www.tiktok.com/embed.js"></script>
-
     <meta name="description" content="{{ page.subheadline | default: site.description | strip_html }}">
     {% assign meta_keywords = page.tags | default: site.keywords %}
     <meta name="keywords" content="{{ meta_keywords | join: ', ' }}">
     <link rel="canonical" href="{{ page.url | absolute_url }}">
-    
     <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
     <meta property="og:url" content="{{ page.url | absolute_url }}">
     <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
@@ -25,25 +23,25 @@
     <meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
     <meta name="twitter:description" content="{{ page.subheadline | default: site.description | strip_html }}">
     <meta name="twitter:image" content="{{ page.image | absolute_url | default: '/android-chrome-512x512.png' | absolute_url }}">
-
     <script>
         (function() {
             try {
-                // 1. Instantly detect the Android App and add a CSS class to the HTML tag
                 if (typeof window.AndroidInterface !== 'undefined') {
                     document.documentElement.classList.add('is-android-app');
                 }
                 
                 const isDarkMode = window.AndroidInterface.getDarkModeStatus() === 'true';
+                const themeMeta = document.getElementById('theme-color-meta'); 
+                
                 if (isDarkMode) {
                     document.documentElement.classList.add('dark-mode');
+                    if (themeMeta) themeMeta.setAttribute('content', '#111827');
                 }
             } catch (e) {
                 console.log('Flicker-Fix: Not in app. Defaulting to light mode.');
             }
         })();
     </script>
-
     <style>
         html.is-android-app #header-placeholder,
         html.is-android-app .header {
@@ -57,7 +55,6 @@
             padding-top: 0 !important;
         }
     </style>
-
     <link rel="stylesheet" href="{{ '/assets/style/style.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/index-menu.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/home.css' | relative_url }}">
@@ -65,17 +62,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
-        html, body {
+        html {
+            background-color: #ffffff !important; 
+        }
+        body {
             overflow-x: hidden;
             width: 100%;
             max-width: 100%;
             margin: 0;
-        }
-        body { 
+            background-color: #ffffff; 
             padding-bottom: 80px;
             padding-top: 55px;
+        }
+        html.dark-mode {
+            background-color: #111827 !important;
+        }
+        html.dark-mode body {
+            background-color: #111827; 
+        }
+        .header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            margin-top: 0 !important; 
+            width: 100% !important;
+            z-index: 9999 !important;
+            background-color: #ffffff;
+            -webkit-transform: translate3d(0, 0, 0) !important;
+            transform: translate3d(0, 0, 0) !important;
+            -webkit-backface-visibility: hidden !important;
+            backface-visibility: hidden !important;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -300px;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background-color: #ffffff;
+            z-index: -1;
+            pointer-events: none;
         }
         .turbo-progress-bar {
             display: none !important;
@@ -83,12 +112,11 @@
             opacity: 0 !important;
             height: 0 !important;
         }
-
         .bottom-nav {
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            right: 0;
+            position: fixed !important; 
+            bottom: 0 !important; 
+            left: 0 !important; 
+            right: 0 !important;
             min-height: 65px; 
             height: auto; 
             background-color: #ffffff; 
@@ -96,13 +124,28 @@
             grid-template-columns: repeat(5, 1fr);
             align-items: center; 
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
-            z-index: 9999; 
+            z-index: 9999 !important; 
             border-radius: 20px 20px 0 0;
             padding-bottom: var(--native-safe-area-bottom, env(safe-area-inset-bottom));
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            padding-top: 5px; 
-          }
+            padding-top: 5px;
+            -webkit-transform: translate3d(0, 0, 0) !important;
+            transform: translate3d(0, 0, 0) !important;
+            -webkit-backface-visibility: hidden !important;
+            backface-visibility: hidden !important;
+        }
+        .bottom-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -300px;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background-color: inherit;
+            z-index: -1;
+            pointer-events: none;
+        }
         .bottom-nav-link {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-decoration: none; color: #8e8e8e; font-size: 11px; font-weight: 600;
@@ -122,6 +165,10 @@
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
             border-top: 1px solid #374151;
         }
+    
+        html.dark-mode .header::before {
+            background-color: #111827;
+        }
     </style>
 
     {% for css_file in page.extra_css %}
@@ -131,7 +178,7 @@
 <body class="{{ page.body_class }} flex flex-col min-h-screen" data-base-path="{{ site.baseurl }}" data-latest-post-url="{% if site.posts.first %}{{ site.posts.first.url | relative_url }}{% else %}{{ '/latest.html' | relative_url }}{% endif %}">
     
     <div id="header-placeholder" data-turbo-permanent>
-        <header class="header" data-header-type="public" style="z-index: 1000;">
+        <header class="header" data-header-type="placeholder" style="z-index: 1000;">
             <div class="header-content">
                 <div class="header-left">
                     <button class="index-menu-button" style="opacity: 0.5; cursor: default;">
@@ -159,13 +206,10 @@
             </div>
         </header>
     </div>
-    
     <div class="main-content-wrapper" style="flex-grow: 1; width: 100%;">
         {{ content }}
     </div>   
-
     {% include site-footer.html %}  
-    
     <nav class="bottom-nav" id="bottom-nav" data-turbo-permanent>
         <a href="{{ '/live/' | relative_url }}" class="bottom-nav-link" id="nav-live">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"></path><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"></path><circle cx="12" cy="12" r="2"></circle><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"></path><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"></path></svg>
@@ -188,13 +232,11 @@
             <span>Post</span>
         </a>
     </nav>
-
     <script src="{{ '/assets/header-injector.js' | relative_url }}"></script>
     <script src="{{ '/assets/bottom-nav.js' | relative_url }}"></script> 
     {% for js_file in page.extra_js %}
         <script src="{{ js_file | relative_url }}"></script>
     {% endfor %} 
-
     <script>
     document.addEventListener('turbo:load', () => {
       const articleBodies = document.querySelectorAll('.article-body, .post-content');
@@ -212,7 +254,6 @@
       });
     });
     </script>
-
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
