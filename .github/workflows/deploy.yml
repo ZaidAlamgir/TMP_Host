@@ -11,6 +11,10 @@ permissions:
   contents: read
   deployments: write
 
+# the Node 20 warning
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -109,7 +113,6 @@ jobs:
           token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
           path: ./_article_repos/international-news
       
-      # --- NEW STEP: Checkout User Archives ---
       - name: 14. Checkout User Archives
         uses: actions/checkout@v4
         with:
@@ -117,8 +120,107 @@ jobs:
           token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
           path: ./_article_repos/user-archives
 
+      # --- NEW CHECKOUT STEPS ---
+      - name: 15. Checkout History
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-history
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/history
+
+      - name: 16. Checkout Indian Muslims
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-indian-muslims
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/indian-muslims
+
+      - name: 17. Checkout Middle East
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-middle-east
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/middle-east
+
+      - name: 18. Checkout Climate
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-climate
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/climate
+
+      - name: 19. Checkout Defense
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-defense
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/defense
+
+      - name: 20. Checkout South Asia
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-south-asia
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/south-asia
+
+      - name: 21. Checkout Africa
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-africa
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/africa
+
+      - name: 22. Checkout Europe
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-europe
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/europe
+
+      - name: 23. Checkout Central Asia
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-central-asia
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/central-asia
+
+      - name: 24. Checkout Crime Alert
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-crime-alert
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/crime-alert
+
+      - name: 25. Checkout South East Asia
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-south-east-asia
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/south-east-asia
+
+      - name: 26. Checkout East Asia
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-east-asia
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/east-asia
+
+      - name: 27. Checkout North America
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-north-america
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/north-america
+
+      - name: 28. Checkout South America
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-south-america
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/south-america
+
       # --- CONSOLIDATION ---
-      - name: 15. Consolidate All Posts
+      - name: 29. Consolidate All Posts
         run: |
           echo "--- Starting Consolidation ---"
           mkdir -p ./main_site/_posts
@@ -145,6 +247,20 @@ jobs:
           copy_posts "sports"
           copy_posts "national-news"
           copy_posts "international-news"
+          copy_posts "history"
+          copy_posts "indian-muslims"
+          copy_posts "middle-east"
+          copy_posts "climate"
+          copy_posts "defense"
+          copy_posts "south-asia"
+          copy_posts "africa"
+          copy_posts "europe"
+          copy_posts "central-asia"
+          copy_posts "crime-alert"
+          copy_posts "south-east-asia"
+          copy_posts "east-asia"
+          copy_posts "north-america"
+          copy_posts "south-america"
           
           # --- SPECIAL COPY FOR USER ARCHIVES ---
           # (This repo uses '_posts' instead of 'posts')
@@ -158,19 +274,19 @@ jobs:
           echo "--- Verification: Files in _posts ---"
           ls -R ./main_site/_posts
       
-      - name: 16. Setup Ruby
+      - name: 30. Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: ./main_site 
           
-      - name: 17. Build with Jekyll
+      - name: 31. Build with Jekyll
         run: bundle exec jekyll build --trace
         working-directory: ./main_site 
 
       # --- ASSET LINKS FIX ---
-      - name: 17b. Setup AssetLinks Rewrite for Cloudflare
+      - name: 31b. Setup AssetLinks Rewrite for Cloudflare
         run: |
           echo "Setting up AssetLinks Rewrite..."
           cp .well-known/assetlinks.json _site/assetlinks.json
@@ -180,7 +296,7 @@ jobs:
           echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site
         
-      - name: 18. Upload artifact for deployment
+      - name: 32. Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: jekyll-site
