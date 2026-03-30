@@ -57,6 +57,7 @@
 
     function generateCategoryDropdownHTML() {
         const categories = [
+            // Original Categories
             { name: "World Politics", tag: "world-politics" },
             { name: "Indian Politics", tag: "indian-politics" },
             { name: "Muslim World", tag: "muslim-world" },
@@ -67,8 +68,24 @@
             { name: "Weather", tag: "weather" },
             { name: "Sports", tag: "sports" },
             { name: "National News", tag: "national-news" },
-            { name: "International News", tag: "international-news" }
+            { name: "International News", tag: "international-news" },
+            // New Categories
+            { name: "History", tag: "history" },
+            { name: "Indian Muslims", tag: "indian-muslims" },
+            { name: "Middle East", tag: "middle-east" },
+            { name: "Climate", tag: "climate" },
+            { name: "Defense", tag: "defense" },
+            { name: "South Asia", tag: "south-asia" },
+            { name: "Africa", tag: "africa" },
+            { name: "Europe", tag: "europe" },
+            { name: "Central Asia", tag: "central-asia" },
+            { name: "Crime Alert", tag: "crime-alert" },
+            { name: "South East Asia", tag: "south-east-asia" },
+            { name: "East Asia", tag: "east-asia" },
+            { name: "North America", tag: "north-america" },
+            { name: "South America", tag: "south-america" }
         ];
+        
         let dropdownHTML = `<ul class="categories-dropdown">`;
         dropdownHTML += `<li><a href="${PATHS.NEWS_HUB}">All Categories</a></li>`;
         categories.forEach(cat => {

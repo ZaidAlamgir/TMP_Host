@@ -218,6 +218,132 @@ title: Home - The Muslim Post
                         <p class="news-card-subheadline">Significant news and stories from across the globe.</p>
                     </div>
                 </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=history" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/7f8c8d/ffffff?text=History" alt="History" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">History</h3>
+                        <p class="news-card-subheadline">Historical events, analyses, and their impact on today's world.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=indian-muslims" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/d35400/ffffff?text=Indian+Muslims" alt="Indian Muslims" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Indian Muslims</h3>
+                        <p class="news-card-subheadline">News, issues, and stories concerning the Muslim community in India.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=middle-east" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/c0392b/ffffff?text=Middle+East" alt="Middle East" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Middle East</h3>
+                        <p class="news-card-subheadline">Geopolitics, conflicts, and developments in the Middle East region.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=climate" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/27ae60/ffffff?text=Climate" alt="Climate" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Climate</h3>
+                        <p class="news-card-subheadline">Climate change, environmental issues, and global sustainability efforts.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=defense" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/2c3e50/ffffff?text=Defense" alt="Defense" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Defense</h3>
+                        <p class="news-card-subheadline">Military technology, defense policies, and global security analysis.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=south-asia" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/f39c12/ffffff?text=South+Asia" alt="South Asia" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">South Asia</h3>
+                        <p class="news-card-subheadline">Regional news, politics, and culture from the South Asian subcontinent.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=africa" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/d35400/ffffff?text=Africa" alt="Africa" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Africa</h3>
+                        <p class="news-card-subheadline">Comprehensive coverage of politics, economy, and events across Africa.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=europe" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/2980b9/ffffff?text=Europe" alt="Europe" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Europe</h3>
+                        <p class="news-card-subheadline">European Union politics, economics, and regional news.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=central-asia" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/16a085/ffffff?text=Central+Asia" alt="Central Asia" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Central Asia</h3>
+                        <p class="news-card-subheadline">Developments and geopolitics in the Central Asian nations.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=crime-alert" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/c0392b/ffffff?text=Crime+Alert" alt="Crime Alert" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">Crime Alert</h3>
+                        <p class="news-card-subheadline">Latest reports on crime, law enforcement, and judicial news.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=south-east-asia" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/1abc9c/ffffff?text=South+East+Asia" alt="South East Asia" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">South East Asia</h3>
+                        <p class="news-card-subheadline">News and economic analysis from Southeast Asian countries.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=east-asia" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/e74c3c/ffffff?text=East+Asia" alt="East Asia" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">East Asia</h3>
+                        <p class="news-card-subheadline">Geopolitics, technology, and economic news from East Asia.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=north-america" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/34495e/ffffff?text=North+America" alt="North America" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">North America</h3>
+                        <p class="news-card-subheadline">Key political and social developments in the US and Canada.</p>
+                    </div>
+                </a>
+                <a href="{{ '/news/hub/' | relative_url }}?tag=south-america" class="news-card">
+                    <div class="news-card-image-wrapper">
+                        <img src="https://placehold.co/600x400/2ecc71/ffffff?text=South+America" alt="South America" class="news-card-image" loading="lazy">
+                    </div>
+                    <div class="news-card-text">
+                        <h3 class="news-card-headline">South America</h3>
+                        <p class="news-card-subheadline">News covering politics, culture, and economy in South America.</p>
+                    </div>
+                </a>
             </div>
         </section>
         <section class="content-section features-section reveal-on-scroll">
