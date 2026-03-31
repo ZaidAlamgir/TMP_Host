@@ -192,6 +192,37 @@
             if (!content) return '';
             const placeholders = [];
             let tempContent = content;
+
+            // 1. --- NEW HTML PROTECTION PASS ---
+            // Protects raw HTML output from the updated Live CMS before the legacy cleaner runs.
+            const htmlBlocks = [
+                /<figure class="post-image">[\s\S]*?<\/figure>/gi,
+                /<div class="embed-container">[\s\S]*?<\/div>\n<\/div>/gi,
+                /<div class="table-container[^>]*>[\s\S]*?<\/table><\/div>/gi,
+                /<a href="[^"]+" class="button"[^>]*>[\s\S]*?<\/a>/gi
+            ];
+
+            htmlBlocks.forEach(pattern => {
+                tempContent = tempContent.replace(pattern, match => {
+                    // Apply live.css friendly classes directly to the raw HTML output
+                    let styledMatch = match
+                        .replace(/<figure class="post-image">/gi, '<div class="my-4">')
+                        .replace(/<\/figure>/gi, '</div>')
+                        .replace(/<img /gi, '<img class="my-0 mx-auto rounded-none" ')
+                        .replace(/<figcaption>/gi, '<p class="media-caption">')
+                        .replace(/<\/figcaption>/gi, '</p>')
+                        .replace(/<div class="embed-container">/gi, '<div class="my-4" style="display: flex; flex-direction: column; align-items: center; width: 100%;">')
+                        .replace(/<div class="embed-caption">/gi, '<p class="media-caption" style="width: 100%;">')
+                        .replace(/<\/div>\n<\/div>/gi, '</p></div>') 
+                        .replace(/class="button"/gi, 'class="professional-btn" style="display: inline-block; text-decoration: none; width: auto; min-width: 200px; margin: 1.5rem 0;"');
+                    
+                    placeholders.push(styledMatch);
+                    return `\n\n__PLACEHOLDER_${placeholders.length - 1}__\n\n`;
+                });
+            });
+
+            // 2. --- LEGACY JUNK CLEANER (DO NOT REMOVE) ---
+            // Safely cleans up the messy <div><br></div> strings from older posts.
             tempContent = tempContent
                 .replace(/&nbsp;/gi, ' ')  
                 .replace(/<div>\s*<br\s*\/?>\s*<\/div>/gi, '\n\n') 
@@ -200,6 +231,9 @@
                 .replace(/<br\s*\/?>/gi, '\n')             
                 .replace(/\n{3,}/g, '\n\n')                
                 .trim();                                   
+
+            // 3. --- LEGACY MARKDOWN EXTRACTION ---
+            // Keeps the old [twitter|Desc](url) format working for past database entries.
             const allKeywords = 'link-button|twitter-video|twitter|instagram-video|instagram|facebook|youtube|tiktok|linkedin|reddit|telegram';
             const regex = new RegExp(`\\[(${allKeywords})\\|?(.*)\\]\\((.*)\\)|!\\[(.*?)\\]\\((.*)\\)|\\[WIDGET\\|(.*)\\|(.*)\\]([\\s\\S]*?)(?=\\n\\n|$)`, 'g');
             tempContent = tempContent.replace(regex, (match, socialType, socialDesc, socialUrl, imgAlt, imgUrl, widgetType, widgetCaption, widgetContent) => {
@@ -238,18 +272,25 @@
                 placeholders.push(htmlBlock);
                 return `__PLACEHOLDER_${placeholders.length - 1}__`;
             });
+
+            // 4. --- FORMATTING AND PARAGRAPH WRAPPING ---
             const processedText = tempContent.replace(/\r\n/g, '\n').split(/\n\s*\n/).map(p => {
-                if (p.startsWith('__PLACEHOLDER_')) return p;
-                if (p.trim() === '') return '';
-                if (p.trim().startsWith('<div class="table-container"') || p.trim().startsWith('<table')) { return p; }
+                const trimmed = p.trim();
+                // If it's one of our extracted blocks, ignore formatting it
+                if (trimmed.startsWith('__PLACEHOLDER_')) return p;
+                if (trimmed === '') return '';
+                if (trimmed.startsWith('<div class="table-container"') || trimmed.startsWith('<table')) { return p; }
                 
-                p = p.replace(/<b>(.*?)<\/b>/g, '<strong>$1</strong>')
-                     .replace(/<i>(.*?)<\/i>/g, '<em>$1</em>')
-                     .replace(/<u>(.*?)<\/u>/g, '<span class="rich-underline">$1</span>')
-                     .replace(/<font color=["']?([^"'>]+)["']?>(.*?)<\/font>/g, '<span style="color: $1;">$2</span>');
+                // Allow bold, italic, and underline tags to pass through beautifully
+                p = p.replace(/<b>(.*?)<\/b>/gi, '<strong>$1</strong>')
+                     .replace(/<i>(.*?)<\/i>/gi, '<em>$1</em>')
+                     .replace(/<u>(.*?)<\/u>/gi, '<span class="rich-underline">$1</span>')
+                     .replace(/<font color=["']?([^"'>]+)["']?>(.*?)<\/font>/gi, '<span style="color: $1;">$2</span>');
                 
                 return p.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>').trim() === '' ? '' : `<p>${p.replace(/\n/g, '<br>')}</p>`;
             }).join('');
+
+            // 5. --- RESTORE PLACEHOLDERS ---
             return processedText.replace(/__PLACEHOLDER_(\d+)__/g, (match, index) => placeholders[parseInt(index, 10)]);
         }
 
@@ -450,18 +491,26 @@
             if(e) e.preventDefault();
             loadMorePosts(false);
         };
+        
         if (typeof supabase !== 'undefined' && supabaseClient) {
             supabaseClient.channel('live_updates_listener')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
                     sessionStorage.removeItem(CACHE_KEY); 
                     localStorage.removeItem(PREFETCH_KEY); 
                     const newPostData = payload.new;
+                    
                     if (payload.eventType === 'INSERT') {
                         if (!newPostData.is_pinned) {
                             renderPost(newPostData, liveFeed, true); 
                             allPosts.unshift(newPostData);
                             loadedPostsCount++;
-                        } else { loadMorePosts(true); }
+                            
+                            // 🚀 FIX: Re-run the social script loader to compile new embeds instantly
+                            setTimeout(loadSocialScripts, 200); 
+                            
+                        } else { 
+                            loadMorePosts(true); 
+                        }
                     } 
                     else if (payload.eventType === 'UPDATE') {
                         const existingElement = document.getElementById(`post-${newPostData.id}`);
@@ -497,6 +546,7 @@
         } else {
             console.warn("Supabase SDK blocked or failed to load. Real-time live updates disabled.");
         }
+        
         const totalPostsOnScreen = document.querySelectorAll('#live-feed .live-post').length;
         if (totalPostsOnScreen > 0) {
             const cachedData = sessionStorage.getItem(CACHE_KEY);
