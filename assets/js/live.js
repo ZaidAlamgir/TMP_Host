@@ -71,6 +71,23 @@
             return;
         }
     });
+    
+    // --- UPDATED: Accurate Carousel Counter with Peek Offset ---
+    window.updateCarouselCounter = function(track, total) {
+        let slide = track.querySelector('.carousel-slide');
+        if (!slide) return;
+        // Calculate offset based on slide width + gap (8px)
+        let snapWidth = slide.offsetWidth + 8;
+        let index = Math.round(track.scrollLeft / snapWidth);
+        // Prevent index from exceeding bounds on over-scroll bounce
+        index = Math.max(0, Math.min(index, total - 1));
+        
+        let counter = track.parentElement.querySelector('.image-counter');
+        if (counter) {
+            counter.innerText = (index + 1) + '/' + total;
+        }
+    };
+
     window.currentTranslatingPostId = null;
     const SEPARATOR_TOKEN = "|||||"; 
     window.requestLivePostTranslation = function(postId, lang) {
@@ -188,15 +205,70 @@
         const likedPosts = new Set(safeJSONParse(localStorage.getItem('likedLivePosts'), []));
         const animatedPosts = new Set(safeJSONParse(sessionStorage.getItem('animatedLivePosts'), []));
         if (!localStorage.getItem('anonClientId')) { localStorage.setItem('anonClientId', 'anon-' + Date.now() + Math.random().toString(36).substring(2, 9)); }
+        
         function parseContent(content) {
             if (!content) return '';
             const placeholders = [];
             let tempContent = content;
 
+            // --- 0. MULTI-IMAGE CAROUSEL EXTRACTION ---
+            let images = [];
+            let replacedFirst = false;
+
+            // Extract HTML figure images
+            tempContent = tempContent.replace(/<figure class="post-image">[\s\S]*?<img[^>]*src="([^"]+)"[^>]*>[\s\S]*?(?:<figcaption>(.*?)<\/figcaption>[\s\S]*?)?<\/figure>/gi, (match, src, caption) => {
+                images.push({ src, caption: caption ? caption.replace(/<[^>]+>/g, '') : '' });
+                return '__IMG_TOKEN__';
+            });
+
+            // Extract Markdown images
+            tempContent = tempContent.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, src) => {
+                images.push({ src, caption: (alt && alt.toLowerCase() !== 'image') ? alt : '' });
+                return '__IMG_TOKEN__';
+            });
+
+            if (images.length > 0) {
+                let sliderHtml = '';
+                if (images.length === 1) {
+                    let img = images[0];
+                    let captionHTML = img.caption ? `<p class="media-caption">${img.caption}</p>` : '';
+                    sliderHtml = `<div class="my-4"><img src="${img.src}" alt="${img.caption}" class="my-0 mx-auto rounded-none">${captionHTML}</div>`;
+                } else {
+                    // --- UPDATED: YouTube Style Peek-A-Boo Carousel ---
+                    // flex: 0 0 92% makes the slide slightly smaller than full width.
+                    // gap: 8px adds white space between them.
+                    // padding-right: 10% ensures the very last slide can still snap perfectly to the left.
+                    sliderHtml = `
+                    <div class="image-carousel-container" style="position: relative; max-width: 100%; margin: 1.5rem 0;">
+                        <div class="image-counter" style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; z-index: 10; pointer-events: none; backdrop-filter: blur(4px); box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            1/${images.length}
+                        </div>
+                        <div class="carousel-track" onscroll="window.updateCarouselCounter(this, ${images.length})" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; gap: 8px; padding-right: 10%;">
+                            ${images.map((img, i) => `
+                                <div class="carousel-slide" style="flex: 0 0 92%; scroll-snap-align: start; position: relative; background: #111; display: flex; flex-direction: column; justify-content: center; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+                                    <img src="${img.src}" alt="${img.caption}" class="my-0 mx-auto rounded-none" style="width: 100%; max-height: 60vh; display: block; object-fit: contain;">
+                                    ${img.caption ? `<div style="background: white; padding: 12px;"><p class="media-caption" style="margin: 0; font-size: 0.85rem; color: var(--text-muted); text-align: left;">${img.caption}</p></div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <style>.carousel-track::-webkit-scrollbar { display: none; }</style>
+                    </div>`;
+                }
+                placeholders.push(sliderHtml);
+                let pIndex = placeholders.length - 1;
+                
+                // Replace ONLY the first instance with the carousel, delete the rest
+                tempContent = tempContent.replace(/__IMG_TOKEN__/g, () => {
+                    if (!replacedFirst) {
+                        replacedFirst = true;
+                        return `\n\n__PLACEHOLDER_${pIndex}__\n\n`;
+                    }
+                    return ''; 
+                });
+            }
+
             // 1. --- NEW HTML PROTECTION PASS ---
-            // Protects raw HTML output from the updated Live CMS before the legacy cleaner runs.
             const htmlBlocks = [
-                /<figure class="post-image">[\s\S]*?<\/figure>/gi,
                 /<div class="embed-container">[\s\S]*?<\/div>\n<\/div>/gi,
                 /<div class="table-container[^>]*>[\s\S]*?<\/table><\/div>/gi,
                 /<a href="[^"]+" class="button"[^>]*>[\s\S]*?<\/a>/gi
@@ -204,13 +276,7 @@
 
             htmlBlocks.forEach(pattern => {
                 tempContent = tempContent.replace(pattern, match => {
-                    // Apply live.css friendly classes directly to the raw HTML output
                     let styledMatch = match
-                        .replace(/<figure class="post-image">/gi, '<div class="my-4">')
-                        .replace(/<\/figure>/gi, '</div>')
-                        .replace(/<img /gi, '<img class="my-0 mx-auto rounded-none" ')
-                        .replace(/<figcaption>/gi, '<p class="media-caption">')
-                        .replace(/<\/figcaption>/gi, '</p>')
                         .replace(/<div class="embed-container">/gi, '<div class="my-4" style="display: flex; flex-direction: column; align-items: center; width: 100%;">')
                         .replace(/<div class="embed-caption">/gi, '<p class="media-caption" style="width: 100%;">')
                         .replace(/<\/div>\n<\/div>/gi, '</p></div>') 
@@ -222,7 +288,6 @@
             });
 
             // 2. --- LEGACY JUNK CLEANER (DO NOT REMOVE) ---
-            // Safely cleans up the messy <div><br></div> strings from older posts.
             tempContent = tempContent
                 .replace(/&nbsp;/gi, ' ')  
                 .replace(/<div>\s*<br\s*\/?>\s*<\/div>/gi, '\n\n') 
@@ -233,17 +298,13 @@
                 .trim();                                   
 
             // 3. --- LEGACY MARKDOWN EXTRACTION ---
-            // Keeps the old [twitter|Desc](url) format working for past database entries.
             const allKeywords = 'link-button|twitter-video|twitter|instagram-video|instagram|facebook|youtube|tiktok|linkedin|reddit|telegram';
-            const regex = new RegExp(`\\[(${allKeywords})\\|?(.*)\\]\\((.*)\\)|!\\[(.*?)\\]\\((.*)\\)|\\[WIDGET\\|(.*)\\|(.*)\\]([\\s\\S]*?)(?=\\n\\n|$)`, 'g');
-            tempContent = tempContent.replace(regex, (match, socialType, socialDesc, socialUrl, imgAlt, imgUrl, widgetType, widgetCaption, widgetContent) => {
+            const regex = new RegExp(`\\[(${allKeywords})\\|?(.*)\\]\\((.*)\\)|\\[WIDGET\\|(.*)\\|(.*)\\]([\\s\\S]*?)(?=\\n\\n|$)`, 'g');
+            tempContent = tempContent.replace(regex, (match, socialType, socialDesc, socialUrl, widgetType, widgetCaption, widgetContent) => {
                 let htmlBlock = '';
                 if (widgetType) {
                     const caption = widgetCaption ? `<p class="media-caption">${widgetCaption}</p>` : '';
                     htmlBlock = `<div class="my-4 widget-container" data-type="${widgetType}" style="max-width: 600px; margin: 1.5rem auto;">${widgetContent}</div>${caption}`;
-                } else if (imgAlt || imgUrl) {
-                    const captionHTML = (imgAlt && imgAlt.toLowerCase() !== 'image' && imgAlt.trim() !== '') ? `<p class="media-caption">${imgAlt}</p>` : '';
-                    htmlBlock = `<div class="my-4"><img src="${imgUrl}" alt="${imgAlt || ''}" class="my-0 mx-auto rounded-none">${captionHTML}</div>`;
                 } else if (socialType) {
                     const caption = socialDesc ? `<p class="media-caption">${socialDesc}</p>` : '';
                     const url = socialUrl;
@@ -276,12 +337,10 @@
             // 4. --- FORMATTING AND PARAGRAPH WRAPPING ---
             const processedText = tempContent.replace(/\r\n/g, '\n').split(/\n\s*\n/).map(p => {
                 const trimmed = p.trim();
-                // If it's one of our extracted blocks, ignore formatting it
                 if (trimmed.startsWith('__PLACEHOLDER_')) return p;
                 if (trimmed === '') return '';
                 if (trimmed.startsWith('<div class="table-container"') || trimmed.startsWith('<table')) { return p; }
                 
-                // Allow bold, italic, and underline tags to pass through beautifully
                 p = p.replace(/<b>(.*?)<\/b>/gi, '<strong>$1</strong>')
                      .replace(/<i>(.*?)<\/i>/gi, '<em>$1</em>')
                      .replace(/<u>(.*?)<\/u>/gi, '<span class="rich-underline">$1</span>')
@@ -505,7 +564,6 @@
                             allPosts.unshift(newPostData);
                             loadedPostsCount++;
                             
-                            // 🚀 FIX: Re-run the social script loader to compile new embeds instantly
                             setTimeout(loadSocialScripts, 200); 
                             
                         } else { 
