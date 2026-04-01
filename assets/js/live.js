@@ -71,6 +71,41 @@
             return;
         }
     });
+
+    // --- NEW: Desktop Drag-to-Scroll Functionality ---
+    let isDraggingCarousel = false;
+    let carouselStartX, carouselScrollLeft;
+    let currentCarousel = null;
+
+    document.addEventListener('mousedown', (e) => {
+        const track = e.target.closest('.carousel-track');
+        if (!track) return;
+        isDraggingCarousel = true;
+        currentCarousel = track;
+        currentCarousel.style.cursor = 'grabbing';
+        currentCarousel.style.scrollSnapType = 'none'; // Disable snapping while dragging for smooth movement
+        carouselStartX = e.pageX - currentCarousel.offsetLeft;
+        carouselScrollLeft = currentCarousel.scrollLeft;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDraggingCarousel || !currentCarousel) return;
+        e.preventDefault(); // Prevents default browser image dragging/text selection
+        const x = e.pageX - currentCarousel.offsetLeft;
+        const walk = (x - carouselStartX) * 1.5; // Scroll speed multiplier
+        currentCarousel.scrollLeft = carouselScrollLeft - walk;
+    });
+
+    const stopCarouselDrag = () => {
+        if (!isDraggingCarousel || !currentCarousel) return;
+        isDraggingCarousel = false;
+        currentCarousel.style.cursor = 'grab';
+        currentCarousel.style.scrollSnapType = 'x mandatory'; // Re-enable snapping so it locks into place
+        currentCarousel = null;
+    };
+
+    document.addEventListener('mouseup', stopCarouselDrag);
+    document.addEventListener('mouseleave', stopCarouselDrag);
     
     // --- UPDATED: Accurate Carousel Counter with Peek Offset ---
     window.updateCarouselCounter = function(track, total) {
@@ -235,18 +270,16 @@
                     sliderHtml = `<div class="my-4"><img src="${img.src}" alt="${img.caption}" class="my-0 mx-auto rounded-none">${captionHTML}</div>`;
                 } else {
                     // --- UPDATED: YouTube Style Peek-A-Boo Carousel ---
-                    // flex: 0 0 92% makes the slide slightly smaller than full width.
-                    // gap: 8px adds white space between them.
-                    // padding-right: 10% ensures the very last slide can still snap perfectly to the left.
+                    // Added cursor: grab to the track, and draggable="false" to images
                     sliderHtml = `
                     <div class="image-carousel-container" style="position: relative; max-width: 100%; margin: 1.5rem 0;">
                         <div class="image-counter" style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.75); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; z-index: 10; pointer-events: none; backdrop-filter: blur(4px); box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                             1/${images.length}
                         </div>
-                        <div class="carousel-track" onscroll="window.updateCarouselCounter(this, ${images.length})" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; gap: 8px; padding-right: 10%;">
+                        <div class="carousel-track" onscroll="window.updateCarouselCounter(this, ${images.length})" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; gap: 8px; padding-right: 10%; cursor: grab;">
                             ${images.map((img, i) => `
                                 <div class="carousel-slide" style="flex: 0 0 92%; scroll-snap-align: start; position: relative; background: #111; display: flex; flex-direction: column; justify-content: center; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
-                                    <img src="${img.src}" alt="${img.caption}" class="my-0 mx-auto rounded-none" style="width: 100%; max-height: 60vh; display: block; object-fit: contain;">
+                                    <img src="${img.src}" alt="${img.caption}" draggable="false" class="my-0 mx-auto rounded-none" style="width: 100%; max-height: 60vh; display: block; object-fit: contain;">
                                     ${img.caption ? `<div style="background: white; padding: 12px;"><p class="media-caption" style="margin: 0; font-size: 0.85rem; color: var(--text-muted); text-align: left;">${img.caption}</p></div>` : ''}
                                 </div>
                             `).join('')}
