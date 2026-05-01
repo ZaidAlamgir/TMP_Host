@@ -386,8 +386,43 @@
             return processedText.replace(/__PLACEHOLDER_(\d+)__/g, (match, index) => placeholders[parseInt(index, 10)]);
         }
 
+        // Function to find placeholders and inject the Telegram widget
+function renderTelegramEmbeds() {
+    // Find all the placeholders your CMS created
+    const placeholders = document.querySelectorAll('.telegram-embed-placeholder');
+    
+    placeholders.forEach(container => {
+        // Skip if we already rendered this one
+        if (container.dataset.rendered) return; 
+        
+        const tgPostPath = container.getAttribute('data-tg-post');
+        
+        if (tgPostPath) {
+            // Create the official Telegram script dynamically
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = "https://telegram.org/js/telegram-widget.js?22";
+            script.setAttribute('data-telegram-post', tgPostPath);
+            script.setAttribute('data-width', '100%'); 
+            
+            // Inject it into the placeholder
+            container.appendChild(script);
+            
+            // Mark as rendered so it doesn't duplicate
+            container.dataset.rendered = "true"; 
+        }
+    });
+}
+// EXAMPLE of where to put it:
+// fetchLiveUpdatesFromSupabase().then(data => {
+//    document.getElementById('live-feed-container').innerHTML = data.html;
+//    renderTelegramEmbeds(); // <--- Call it right after DOM updates
+// });
+
         function loadSocialScripts() {
             const scripts = { instagram: '//www.instagram.com/embed.js', facebook: 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v19.0', tiktok: 'https://www.tiktok.com/embed.js', reddit: 'https://embed.reddit.com/widgets.js', telegram: 'https://telegram.org/js/telegram-widget.js?22', linkedin: 'https://platform.linkedin.com/Voyager/js/posts/embed.js' };
+            
+            renderTelegramEmbeds();
             
             if (document.querySelector('.twitter-tweet')) {
                 window.twttr = (function(d, s, id) {

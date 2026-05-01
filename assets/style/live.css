@@ -338,3 +338,18 @@ body.android-app-view .app-only-feature { display: flex !important; }
     50% { transform: scale(0.7); }
     100% { transform: scale(1); }
 }
+
+/* Telegram Embed Styling */
+.telegram-embed-placeholder {
+    width: 100%;
+    min-height: 100px; /* Prevents layout shift while loading */
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+/* Optional: Target the iframe that Telegram injects to ensure max-width */
+.telegram-embed-placeholder iframe {
+    max-width: 100% !important;
+    border-radius: 8px; /* Matches modern UI aesthetics */
+}
