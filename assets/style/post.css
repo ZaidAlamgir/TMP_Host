@@ -136,20 +136,17 @@
 }
 
 /* =========================================
-   FIXED FOOTER LAYOUT (No Overlap)
+   FIXED FOOTER LAYOUT
    ========================================= */
-
-/* The Footer Container */
 .post-container .post-footer { 
     display: flex; 
-    justify-content: space-between; /* Pushes Info to left, Button to right */
+    justify-content: space-between; 
     align-items: center; 
     margin-top: 16px; 
     padding-top: 16px; 
     border-top: 1px solid #f1f3f4;
 }
 
-/* Left Side: Author and Date */
 .post-container .post-info {
     font-size: 13px;
     color: #5f6368;
@@ -167,7 +164,6 @@
     color: #dadce0;
 }
 
-/* Right Side: Read Full Button */
 .post-container .read-full-action {
     font-size: 13px;
     font-weight: 600;
@@ -176,7 +172,7 @@
     align-items: center;
     gap: 4px;
     transition: color 0.2s;
-    white-space: nowrap; /* Prevents text breaking */
+    white-space: nowrap; 
 }
 
 .post-container .user-post:hover .read-full-action {
@@ -188,7 +184,6 @@
     font-size: 11px;
 }
 
-/* Loader */
 .post-container .loader { 
     display: none; 
     margin: 30px auto; 
@@ -212,4 +207,59 @@
     .post-container { margin: 0; border: none; border-radius: 0; padding: 20px; }
     .post-container .post-headline { font-size: 18px; }
     .post-container .post-image-preview { height: 180px; }
+}
+
+/* =========================================
+   TELEGRAM & EMBED WIDGET FIXES
+   ========================================= */
+
+/* 1. Remove flexbox from the main wrapper to prevent squashing */
+.post-container .embed-container,
+.embed-container {
+    display: block !important; 
+    text-align: center; /* Centers the content without using flex */
+    margin: 2rem auto;
+    width: 100%;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* 2. Make the placeholder a simple, full-width block */
+.post-container .telegram-embed-placeholder,
+.telegram-embed-placeholder {
+    display: block !important;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* 3. CRITICAL: Let Telegram control the height! 
+   We only force the width and remove borders. We do NOT use 'height' here. */
+.post-container .telegram-embed-placeholder iframe,
+.telegram-embed-placeholder iframe {
+    display: block !important;
+    width: 100% !important;
+    max-height: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    /* Added a minimum height so it doesn't collapse while loading */
+    min-height: 250px; 
+}
+
+/* 4. Keep the caption styled correctly */
+.embed-caption {
+    display: block;
+    margin: 10px auto 0 auto; 
+    padding: 12px; 
+    background: #f9fafb; 
+    border-left: 4px solid #1d4ed8; 
+    color: #374151; 
+    font-size: 0.95rem; 
+    width: 100%; 
+    max-width: 500px; 
+    text-align: left; 
+    border-radius: 4px; 
+    box-sizing: border-box;
 }
