@@ -501,14 +501,27 @@ permalink: /auth.html
             const role = session.user.user_metadata?.role || 'user';
             const metadataJson = JSON.stringify(session.user.user_metadata || {});
             
-            // Pass the token to MainActivity securely
-            window.AndroidInterface.updateSupabaseSession(
-                session.access_token || "", 
-                session.user.id || "", 
-                session.user.email || "", 
-                role, 
-                metadataJson
-            );
+            try {
+                // Try the 6-argument version with refresh token first
+                window.AndroidInterface.updateSupabaseSession(
+                    session.access_token || "", 
+                    session.refresh_token || null,
+                    session.user.id || "", 
+                    session.user.email || "", 
+                    role, 
+                    metadataJson
+                );
+            } catch(err) {
+                console.warn("Retrying with 5-argument signature:", err);
+                // Fall back to 5-argument version if 6-argument is not supported by the current app version
+                window.AndroidInterface.updateSupabaseSession(
+                    session.access_token || "", 
+                    session.user.id || "", 
+                    session.user.email || "", 
+                    role, 
+                    metadataJson
+                );
+            }
             
             // Close webview and show Profile Fragment natively
             window.AndroidInterface.openNativeProfile();
