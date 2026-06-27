@@ -1,0 +1,42 @@
+---
+// src/pages/news/[category]/[...slug].astro
+import { getCollection, render } from 'astro:content';
+
+// Import your detailed article layout
+import PostLayout from '../../../layouts/PostLayout.astro';
+
+// 1. Generate the dynamic URLs based on the markdown files
+export async function getStaticPaths() {
+  const allNews = await getCollection('news');
+  
+  return allNews.map(entry => {
+    // Determine the category folder based on the first tag, fallback to 'general'
+    const category = (entry.data.tags && entry.data.tags.length > 0) ? entry.data.tags[0] : 'general';
+    
+    return {
+      params: { 
+        category: category, 
+        slug: entry.id 
+      },
+      props: { entry },
+    };
+  });
+}
+
+// 2. Fetch the specific article data and render the Markdown
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<PostLayout 
+    title={entry.data.title}
+    subheadline={entry.data.subheadline}
+    date={entry.data.date}
+    image={entry.data.image}
+    image_description={entry.data.image_description}
+    tags={entry.data.tags}
+    author={entry.data.author}
+    writer={entry.data.writer}
+>
+    <Content />
+</PostLayout>

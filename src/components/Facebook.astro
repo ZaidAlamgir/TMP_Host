@@ -1,0 +1,14 @@
+---
+// src/components/Facebook.astro
+const { id, caption } = Astro.props;
+---
+
+<div class="embed-container">
+    <div 
+      class="fb-post" 
+      data-href={`https://www.facebook.com/${id}`} 
+      data-width="500" 
+      data-show-text="true">
+    </div>
+    {caption && <div class="embed-caption">{caption}</div>}
+</div>

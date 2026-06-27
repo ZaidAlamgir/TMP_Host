@@ -1,0 +1,87 @@
+image: node:22-alpine
+
+default:
+  tags:
+    - self-hosted
+
+variables:
+  GROUP_READ_TOKEN: $GITLAB_GROUP_READ_TOKEN 
+
+pages:
+  stage: deploy
+  before_script:
+    # Only install git via apk if running inside an Alpine Docker container
+    - if command -v apk >/dev/null 2>&1; then apk add --no-cache git; fi
+  script:
+    - echo "Creating staging directories..."
+    - mkdir -p ./_article_repos
+
+    - echo "Fetching content repositories..."
+    - |
+      clone_content_repo() {
+        local repo_name=$1
+        local target_dir=$2
+        echo "Cloning $repo_name..."
+        git clone "https://oauth2:${GROUP_READ_TOKEN}@gitlab.com/themuslimpost/${repo_name}.git" "./_article_repos/${target_dir}"
+      }
+
+    - clone_content_repo "articles-world-politics" "world-politics"
+    - clone_content_repo "articles-indian-politics" "indian-politics"
+    - clone_content_repo "articles-muslim-world" "muslim-world"
+    - clone_content_repo "articles-technology" "technology"
+    - clone_content_repo "articles-medical-science" "medical-science"
+    - clone_content_repo "articles-global-economy" "global-economy"
+    - clone_content_repo "articles-art-culture" "art-culture"
+    - clone_content_repo "articles-weather" "weather"
+    - clone_content_repo "articles-sports" "sports"
+    - clone_content_repo "articles-national-news" "national-news"
+    - clone_content_repo "articles-international-news" "international-news"
+    - clone_content_repo "articles-history" "history"
+    - clone_content_repo "articles-indian-muslims" "indian-muslims"
+    - clone_content_repo "articles-middle-east" "middle-east"
+    - clone_content_repo "articles-climate" "climate"
+    - clone_content_repo "articles-defense" "defense"
+    - clone_content_repo "articles-south-asia" "south-asia"
+    - clone_content_repo "articles-africa" "africa"
+    - clone_content_repo "articles-europe" "europe"
+    - clone_content_repo "articles-central-asia" "central-asia"
+    - clone_content_repo "articles-crime-alert" "crime-alert"
+    - clone_content_repo "articles-south-east-asia" "south-east-asia"
+    - clone_content_repo "articles-east-asia" "east-asia"
+    - clone_content_repo "articles-north-america" "north-america"
+    - clone_content_repo "articles-south-america" "south-america"
+    - clone_content_repo "user-archives" "user-archives"
+
+    - echo "Consolidating all posts..."
+    - mkdir -p ./src/content/news
+    - |
+      for dir in ./_article_repos/*; do
+        if [ -d "$dir/posts" ]; then
+          echo "Copying posts from $(basename $dir)..."
+          cp -r "$dir/posts"/. ./src/content/news/
+        fi
+      done
+    - |
+      if [ -d "./_article_repos/user-archives/_posts" ]; then
+        echo "Copying user archives..."
+        cp -r "./_article_repos/user-archives/_posts/." ./src/content/news/
+      fi
+
+    - npm ci
+    - npm run build
+
+    - echo "Setting up AssetLinks and preparing Page Artifacts..."
+    - cp public/.well-known/assetlinks.json dist/assetlinks.json || true
+    - mkdir -p dist/.well-known
+    - cp public/.well-known/assetlinks.json dist/.well-known/ || true
+    - rm -rf public
+    - mv dist public
+
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH == "astro-migration"
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+    - if: $CI_PIPELINE_SOURCE == "web"

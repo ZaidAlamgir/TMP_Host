@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Complete Your Subscription">
+    <link rel="stylesheet" href="/assets/style/payment-selection.css">
+
+    <main class="payment-selection-container">
+        <div class="selection-card">
+            <div class="card-header">
+                <h1 class="main-title">Complete Your Subscription</h1>
+                <p class="subtitle">You have selected the <strong id="selected-plan-name">...</strong> plan. Please choose your preferred payment method below to proceed.</p>
+            </div>
+
+            <div class="plan-summary">
+                <div class="plan-details">
+                    <span class="plan-name" id="summary-plan-name">...</span>
+                    <span class="plan-cycle" id="summary-plan-cycle">...</span>
+                </div>
+                <div class="plan-price" id="summary-plan-price">₹...</div>
+            </div>
+
+            <div class="payment-methods-grid">
+                <div class="method-card" id="qr-code-card" style="border: 2px solid #28a745; background-color: #f0fff4; position: relative; overflow: hidden;">
+                    <div style="background: #28a745; color: white; padding: 4px 12px; position: absolute; top: 0; right: 0; font-size: 0.8rem; border-bottom-left-radius: 8px;">Recommended</div>
+                    <h3 style="font-weight: 600; color: #1c1e21; margin-bottom: 1rem;">Pay via UPI QR</h3>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                        <div style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                            <img src="/assets/images/QR/TMPnewsQR.jpg" alt="Payment QR Code" style="max-width: 180px; display: block;">
+                        </div>
+                        <div style="text-align: center;">
+                            <p style="margin-bottom: 0.5rem; color: #333;"><strong>Step 1:</strong> Scan with any UPI App (Paytm, GPay, PhonePe)</p>
+                            <p style="margin-bottom: 0.5rem; color: #333;"><strong>Step 2:</strong> Pay the amount shown above</p>
+                            <div style="margin-bottom: 0.5rem;">
+                                <a href="/founder/" style="color: #28a745; font-weight: 700; font-size: 0.85rem; text-decoration: underline;">ⓘ Who is AMMAR KHAN?</a>
+                            </div>
+                            <p style="font-size: 0.9rem; color: #155724; background: rgba(40, 167, 69, 0.1); padding: 8px; border-radius: 4px; border: 1px solid #c3e6cb;">
+                                <strong>Note:</strong> Currently, all premium features (Ad-Free) are unlocked for everyone. This subscription is a voluntary contribution to <strong>#SupportTMPNews</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="method-card" id="paytm-verification-card" style="border: 1px solid #e5e7eb; background-color: #f9fafb; opacity: 0.7;">
+                    <div style="background: #dc3545; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">⚠️ TEMPORARILY UNAVAILABLE</div>
+                    <div class="logo-container" style="filter: grayscale(100%);">
+                        <svg class="method-logo" style="max-width: 140px;" viewBox="0 0 110 32" xmlns="http://www.w3.org/2000/svg"><path fill="#00b2ef" d="M108.8 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-9-1.1h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 1.1h-8.2c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5m-15.1 14.3 3.6 3.6c.4.4.4 1.1 0 1.5l-4.1 4.1c-.2.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-6.9c0-.6.2-1.1.6-1.5l5-5c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5l-3.6 3.6c-.4.4-1 .4-1.4 0l-.8-.8c-.4-.4-.4-1.1 0-1.5m-1 15.6h-4.6c-.3 0-.5-.2-.5-.5V18.1c0-.6.2-1.1.6-1.5l10.3-10.3c.4-.4 1-.4 1.4 0l4.2 4.2c.4.4.4 1.1 0 1.5L71 15.6c-.4.4-1 .4-1.4 0l-5.7-5.7c-.4-.4-.4-1.1 0-1.5l3.6-3.6c.4-.4.4-1.1 0-1.5l-4.1-4.1c-.2-.2-.5.3-.7.3h-4.6c-.3 0-.5-.2-.5-.5v-1c0-.3-.2-.5-.5-.5h-6.1c-.3 0-.5.2-.5.5v1c0 .3-.2.5-.5.5h-4.6c-.3 0-.5.2-.5.5v28.8c0 .3.2.5.5.5m-9-29.9h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9.1 0h-8.2c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5m-9 0H14c-.3 0-.5.2-.5.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M12.9 0H4.7C4.4 0 4.2.2 4.2.5v30c0 .3.2.5.5.5h8.2c.3 0 .5-.2.5-.5v-30c0-.3-.2-.5-.5-.5M3.6 1.1H.5C.2 1.1 0 1.3 0 1.6v28.8c0 .3.2.5.5.5h3.1c.3 0 .5-.2.5-.5V1.6c0-.3-.2-.5-.5-.5"></path></svg>
+                    </div>
+                    <h3 id="paytm-card-title" style="font-weight: 600; color: #6b7280; font-size: 1.1rem; margin-bottom: 0.5rem;">Gateway Paused</h3>
+                    <p id="paytm-card-description" class="method-description" style="color: #6b7280;">Gateway under maintenance. Please use the QR code option above.</p>
+                    <button id="temp-free-access-btn" class="payment-button" style="background-color: #9ca3af; color: white; display: none; cursor: not-allowed;" disabled>Unavailable</button>
+                </div>
+
+                <div class="method-card" id="paypal-card" style="opacity: 0.7; pointer-events: none;">
+                    <div style="background: #dc3545; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px;">⚠️ TEMPORARILY UNAVAILABLE</div>
+                    <div class="logo-container" style="filter: grayscale(100%);">
+                        <svg class="method-logo paypal-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 78 50">
+                            <path fill="#003087" d="m38 3-1.9.1c-1 .1-1.8 1-2 2L33.5 10c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L43 3.5c0-1.9-1.5-3.4-3.3-3.4H38zm12.2 0c-1.9 0-3.3 1.5-3.3 3.5l-.6 4.3c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L58 3.5c0-1.9-1.5-3.4-3.3-3.4h-1.5zm12.3 0c-1.9 0-3.3 1.5-3.3 3.5l-.6 4.3c-.1.7.5 1.3 1.2 1.3h4.5c1.9 0 3.3-1.5 3.3-3.5L70.5 3.5c0-1.9-1.5-3.4-3.3-3.4h-1.5z"/>
+                            <path fill="#009CDE" d="m69.3 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6h-12c-.7 0-1.3-.4-1.5-1.1l-3.4-12.2c-.2-.7-.8-1.1-1.5-1.1h-1.3c-1 0-1.8-.7-1.9-1.7l-.9-7.1c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
+                            <path fill="#012169" d="m57.1 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6h-12c-.7 0-1.3-.4-1.5-1.1l-3.4-12.2c-.2-.7-.8-1.1-1.5-1.1h-1.3c-1 0-1.8-.7-1.9-1.7l-.9-7.1c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
+                            <path fill="#003087" d="M26.4 26.1c.2.7.8 1.1 1.5 1.1h1.3c1 0 1.8-.7 1.9-1.7l1-7.1c.1-1-.4-1.8-1.1-1.8H27c-.7 0-1.3.4-1.5 1.1z"/>
+                            <path fill="#009CDE" d="m32.8 24.3-3.4 22.3c-.2 1-.9 1.6-1.9 1.6H15.6c-.7 0-1.3-.4-1.5-1.1L12 34.6c-.2-.7-.8-1.1-1.5-1.1H9.2c-1 0-1.8-.7-1.9-1.7L6.4 24.7c-.1-1 .4-1.8 1.1-1.8h3.9c.7 0 1.3.4 1.5 1.1l1 4c.2.6.8 1 1.5 1h1.3c1 0 1.8-.7 1.9-1.7l.9-7.1c.1-1-.4-1.8-1.1-1.8h-1.9c-1 0-1.8.7-1.9 1.6z"/>
+                        </svg>
+                    </div>
+                    <p class="method-description" id="paypal-description"><strong>For International Customers & Reviewers.</strong><br>Current unavailable due to maintenance.</p>
+                    <div id="paypal-button-container" style="display:none;"></div>
+                </div>
+            </div>
+            
+            <div class="back-link-container">
+                <a href="/support/" class="back-link">&larr; Change Subscription Plan</a>
+            </div>
+        </div>
+
+        <div id="payment-loader" style="display: none; text-align: center; padding: 3rem 1rem;">
+            <div class="spinner"></div>
+            <p class="loader-text">Activating Plan... Please wait.</p>
+        </div>
+    </main>
+
+    <script is:inline src="https://www.paypal.com/sdk/js?client-id=Af7dnbRkin14RvL_d_liM6z83VQ1ALcT0N2L4uMrkUcLU-YN_rPaTjJ8Z7dWCiJTAI97vp76rPfbnXro&currency=USD"></script>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script is:inline>
+        document.addEventListener('turbo:load', async () => {
+            const SUPABASE_URL = 'https://yfrqnghduttudqbnodwr.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmcnFuZ2hkdXR0dWRxYm5vZHdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NDc3MTgsImV4cCI6MjA3NDEyMzcxOH0.i7JCX74CnE7pvZnBpCbuz6ajmSgIlA9Mx0FhlPJjzxU';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan');
+            const amount = urlParams.get('amount');
+            const cycle = urlParams.get('cycle');
+            
+            if (!plan || !amount || !cycle) {
+                document.querySelector('.selection-card').innerHTML = '<p class="error-message">Invalid subscription details. Please <a href="/support/">go back</a> and select a plan.</p>';
+                return;
+            }
+
+            document.getElementById('selected-plan-name').textContent = plan;
+            document.getElementById('summary-plan-name').textContent = plan;
+            document.getElementById('summary-plan-price').textContent = `₹${amount}`;
+            document.getElementById('summary-plan-cycle').textContent = `/ ${cycle}`;
+
+            await handlePaymentOptions();
+
+            async function handlePaymentOptions() {
+                const paytmCardDescription = document.getElementById('paytm-card-description');
+                const tempButton = document.getElementById('temp-free-access-btn');
+
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (session) {
+                    paytmCardDescription.innerHTML = 'Account active, but gateway is paused. <br><strong>Please use the QR option above.</strong>';
+                } else {
+                    paytmCardDescription.innerHTML = 'Please log in and use the QR option. <br><strong>Gateway is currently paused.</strong>';
+                    tempButton.style.display = 'block';
+                    tempButton.textContent = 'Log In (Required)';
+                    tempButton.style.background = '#6c757d';
+                    tempButton.onclick = () => {
+                        sessionStorage.setItem('postLoginRedirect', window.location.href);
+                        window.location.href = "/auth/";
+                    };
+                }
+            }
+        });
+    </script>
+</Layout>

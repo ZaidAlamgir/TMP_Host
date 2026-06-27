@@ -1,0 +1,45 @@
+---
+// src/layouts/PostLayouts.astro
+import Layout from './Layout.astro';
+
+const { title } = Astro.props;
+const currentYear = new Date().getFullYear();
+---
+
+<Layout title={title}>
+    <style is:inline>
+        .main-article-content {
+            max-width: 900px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+
+        .site-footer {
+            background-color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 2rem;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .footer-disclaimer {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+    </style>
+
+    <main class="main-article-content">
+        <slot />
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-disclaimer">
+                &copy; {currentYear} TMP News Agency. All rights reserved. Content on this site is protected by copyright law.
+            </div>
+        </div>
+    </footer>
+</Layout>

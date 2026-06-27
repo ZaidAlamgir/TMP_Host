@@ -32,7 +32,7 @@ jobs:
 
       - name: 2. Create Staging Directories
         run: |
-          mkdir -p ./main_site/_posts
+          mkdir -p ./main_site/src/content/news
           mkdir -p ./_article_repos
         
       # --- CHECKOUT STEPS ---
@@ -223,14 +223,14 @@ jobs:
       - name: 29. Consolidate All Posts
         run: |
           echo "--- Starting Consolidation ---"
-          mkdir -p ./main_site/_posts
+          mkdir -p ./main_site/src/content/news
 
           # Function for standard repos (using 'posts' folder)
           copy_posts() {
             src="./_article_repos/$1/posts"
             if [ -d "$src" ]; then
               echo "Processing $1..."
-              cp -r "$src"/. ./main_site/_posts/
+              cp -r "$src"/. ./main_site/src/content/news/
             else
               echo "Skipping $1 (No posts folder found)"
             fi
@@ -266,41 +266,42 @@ jobs:
           # (This repo uses '_posts' instead of 'posts')
           if [ -d "./_article_repos/user-archives/_posts" ]; then
              echo "Processing user-archives..."
-             cp -r "./_article_repos/user-archives/_posts/." ./main_site/_posts/
+             cp -r "./_article_repos/user-archives/_posts/." ./main_site/src/content/news/
           else
              echo "Skipping user-archives (No _posts folder found yet)"
           fi
           
-          echo "--- Verification: Files in _posts ---"
-          ls -R ./main_site/_posts
+          echo "--- Verification: Files in src/content/news ---"
+          ls -R ./main_site/src/content/news
       
-      - name: 30. Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: 30. Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          ruby-version: '3.2'
-          bundler-cache: true
-          working-directory: ./main_site 
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: ./main_site/package-lock.json
           
-      - name: 31. Build with Jekyll
-        run: bundle exec jekyll build --trace
+      - name: 31. Build with Astro
+        run: |
+          npm ci
+          npm run build
         working-directory: ./main_site 
 
       # --- ASSET LINKS FIX ---
       - name: 31b. Setup AssetLinks Rewrite for Cloudflare
         run: |
           echo "Setting up AssetLinks Rewrite..."
-          cp .well-known/assetlinks.json _site/assetlinks.json
-          mkdir -p _site/.well-known
-          cp .well-known/assetlinks.json _site/.well-known/
-          echo "/.well-known/assetlinks.json /assetlinks.json 200" >> _site/_redirects
+          mkdir -p dist/.well-known
+          cp public/.well-known/assetlinks.json dist/.well-known/assetlinks.json || true
+          echo "/.well-known/assetlinks.json /assetlinks.json 200" >> dist/_redirects
           echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site
         
       - name: 32. Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
-          name: jekyll-site
-          path: ./main_site/_site
+          name: astro-site
+          path: ./main_site/dist
           retention-days: 1
 
   # --- SEPARATE DEPLOY JOB ---
@@ -319,7 +320,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: jekyll-site
+          name: astro-site
           # This downloads the site to a folder named '_site' in the current directory
           path: ./_site
           

@@ -1,0 +1,432 @@
+---
+import Layout from './Layout.astro';
+import { getCollection } from 'astro:content';
+
+// 1. Grab all the variables passed from the Markdown file
+const { 
+    title, 
+    subheadline, 
+    date, 
+    image, 
+    image_description, 
+    tags = [], 
+    author, 
+    writer 
+} = Astro.props;
+
+// 2. Format the dates using standard JavaScript
+const formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+// 3. Handle Author vs Writer logic
+const displayAuthor = writer || author || 'TMP Staff';
+const writerSlug = writer ? writer.toLowerCase().replace(/[^a-z0-9]+/g, '-') : null;
+
+// 4. Fetch Related Posts (Gets the 5 most recent articles, excluding the current one)
+const allNews = await getCollection('news');
+const relatedPosts = allNews
+    .filter(post => post.data.title !== title)
+    .sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf())
+    .slice(0, 5);
+
+// 5. Generate the absolute URL for the Schema
+const currentUrl = Astro.url.href;
+---
+
+<Layout title={title} subheadline={subheadline} image={image} tags={tags}>
+    
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": currentUrl
+      },
+      "headline": title,
+      "image": image ? [image] : [],
+      "datePublished": date,
+      "dateModified": date,
+      "author": {
+        "@type": "Person",
+        "name": displayAuthor
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "The Muslim Post",
+        "logo": {
+          "@type": "ImageObject",
+          "url": new URL('/android-chrome-512x512.png', Astro.url).href
+        }
+      },
+      "description": subheadline || ""
+    })} />
+
+    <style is:inline>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
+        .article-container { max-width: 1000px; margin: 0 auto; padding: 0.5rem 1rem 2rem 1rem; color: #111827; flex-grow: 1; }
+        .article-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px; line-height: 1.2; margin-bottom: 0.75rem; word-wrap: break-word; }
+        .article-subheadline { font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563; line-height: 1.6; margin-top: 0; margin-bottom: 0.5rem; font-weight: 400; }
+        .article-headline b, .article-headline strong { font-weight: 900; color: inherit; }
+        .article-headline i, .article-headline em { font-style: italic; color: inherit; }
+        .article-headline u { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+        .article-headline a { color: inherit; text-decoration: underline; text-decoration-color: #1d4ed8; transition: color 0.2s; }
+        .article-headline a:hover { color: #1d4ed8; }
+        .article-subheadline b, .article-subheadline strong { font-weight: 700; color: inherit; }
+        .article-subheadline i, .article-subheadline em { font-style: italic; }
+        .article-subheadline u { text-decoration: underline; }
+        .article-subheadline a { color: #1d4ed8; text-decoration: underline; }
+        .article-body { font-family: 'Merriweather', serif; font-size: 18px; line-height: 1.8; color: #111827; }
+        .article-body p { margin-bottom: 0.75rem; } 
+        .article-body p:empty { display: none !important; }
+        .article-body p:first-of-type { margin-top: 0.25rem !important; }
+        .article-body br { display: inline !important; margin: 0 !important; content: normal !important; }
+        .article-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.85rem; }
+        .article-body ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.85rem; }
+        .article-body li { margin-bottom: 0.5rem; }
+        .article-body hr { margin: 2rem 0; border: 0; border-top: 1px solid #e5e7eb; }
+        .article-body b u, .article-body u b, .article-body strong u, .article-body u strong { display: inline-block; margin-top: 0.25rem !important; margin-bottom: 0.25rem !important; font-size: 1.15rem; line-height: 1.3; }
+        .article-body b, .article-body strong { font-weight: 700; }
+        .article-body i, .article-body em { font-style: italic; }
+        .article-body u { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+        .article-body a { color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; word-break: break-all; overflow-wrap: anywhere; cursor: pointer; }
+        .article-body a:hover { color: #1e40af; text-decoration-thickness: 2px; }
+        .article-body h2 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.8rem; margin-top: 0.75rem !important; margin-bottom: 1.15rem !important; display: block; line-height: 1.3; }
+        .article-body h3 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.5rem; margin-top: 0.75rem !important; margin-bottom: 1.15rem !important; display: block; line-height: 1.3; }
+        .article-body h4 { font-family: 'Merriweather', serif; font-weight: 700; font-size: 1.2rem; margin-top: 0.75rem !important; margin-bottom: 1.15rem !important; display: block; line-height: 1.3; }
+        .article-body blockquote { 
+            border-left: 4px solid #3b82f6; 
+            margin: 2rem 0; 
+            font-style: italic; 
+            color: #4b5563; 
+            background: #f8fafc; 
+            padding: 1.5rem; 
+            border-radius: 0 8px 8px 0; 
+        }
+        .article-body blockquote p { margin-bottom: 0.75rem; }
+        .article-body blockquote p:last-child { margin-bottom: 0; }
+        .telegram-embed-placeholder {
+            display: block !important;
+            width: 100%;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            height: auto !important;
+            min-height: 150px;
+            overflow: visible !important;
+        }
+        .telegram-embed-placeholder iframe {
+            display: block !important;
+            width: 100% !important;
+            max-height: none !important;
+            border: none !important;
+            margin: 0 auto !important;
+            min-height: 250px !important;
+        }
+        .article-body br + h2, .article-body br + h3, .article-body br + h4 { display: none !important; }
+        .article-body h2 + br, .article-body h3 + br, .article-body h4 + br { display: none !important; }
+        .article-figure { max-width: 100%; margin: -0.75rem auto 0.5rem auto; padding: 0; border: none; }
+        .article-figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px; }
+        .article-body > p > img:only-child, .article-body > img { max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; }
+        .article-image-caption { font-family: 'Inter', sans-serif; font-size: 14px; color: #6b7280; margin-top: 0.5rem; margin-bottom: 0.75rem !important; text-align: center; display: block; line-height: 1.25 !important; }
+        .table-scroll-wrapper { position: relative; margin: 1.5rem 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .article-body .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; background: white; }
+        .article-body table { width: 100%; border-collapse: collapse; min-width: 600px; font-family: 'Inter', sans-serif; font-size: 15px; margin: 0; }
+        .article-body caption { caption-side: bottom; padding: 8px; font-size: 0.85rem; color: #6b7280; text-align: left; border-top: 1px solid #f3f4f6; background: #fdfdfd; font-style: italic; }
+        .article-body th, .article-body td { padding: 12px 16px; vertical-align: top; line-height: 1.5; color: #374151; }
+        .article-body th { background-color: #f8fafc; font-weight: 700; text-align: left; color: #111827; white-space: nowrap; border-bottom: 2px solid #e2e8f0; }
+        .article-body td { border-bottom: 1px solid #f1f5f9; }
+        .article-body tr:last-child td { border-bottom: none; }
+        .table-container.striped tr:nth-child(even) { background-color: #f9fafb; }
+        .table-container.grid table { border: 1px solid #cbd5e1; }
+        .table-container.grid th, .table-container.grid td { border: 1px solid #cbd5e1; }
+        table.sortable th { cursor: pointer; user-select: none; position: relative; padding-right: 24px; }
+        table.sortable th:hover { background-color: #eff6ff; color: #1d4ed8; }
+        table.sortable th::after { content: '\f0dc'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 10px; opacity: 0.5; }
+        .table-scroll-wrapper::after { content: '\f061'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 0; right: 0; bottom: 0; width: 40px; background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1) 80%); display: flex; align-items: center; justify-content: center; color: #94a3b8; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; font-size: 12px; padding-left: 10px; }
+        .table-scroll-wrapper.is-scrollable::after { opacity: 1; }
+        .table-scroll-wrapper.scrolled-end::after { opacity: 0; }
+        .embed-container { margin: 2rem 0; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 100%; }
+        .embed-caption { margin-top: 10px; padding: 12px; background: #f9fafb; border-left: 4px solid #1d4ed8; color: #374151; font-family: 'Inter', sans-serif; font-size: 0.95rem; width: 100%; max-width: 550px; text-align: left; border-radius: 4px; line-height: 1.25 !important; word-wrap: break-word; }
+        .embed-caption b, .embed-caption strong { font-weight: 700; }
+        .embed-caption i, .embed-caption em { font-style: italic; }
+        .embed-caption a { color: #1d4ed8; text-decoration: underline; }
+        iframe.embed-responsive { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .twitter-tweet { margin: 0 auto !important; max-width: 550px !important; width: 100% !important; }
+        .article-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
+        .author-name { font-weight: 600; font-family: 'Inter', sans-serif; }
+        .publish-date { font-size: 0.9rem; color: #6b7280; font-family: 'Inter', sans-serif; }
+        .share-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background-color: #f3f4f6; color: #374151; border: none; cursor: pointer; font-size: 1rem; }
+        .article-tags { display: flex; flex-wrap: nowrap; gap: 0.5rem; margin-bottom: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 4px; }
+        .article-tags::-webkit-scrollbar { display: none; }
+        .tag { background: rgba(220, 38, 38, 0.1); color: #dc2626; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+        @media (max-width: 768px) { .article-headline { font-size: 32px; } .article-subheadline { font-size: 18px; } }
+    </style>
+
+    <div id="fb-root"></div>
+    <script is:inline async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0"></script>
+
+    <div class="article-container">
+        <article>
+            <header>
+                {tags && tags.length > 0 && (
+                    <div class="article-tags">
+                        {tags.map((tag) => (
+                            <span class="tag">{tag}</span>
+                        ))}
+                    </div>
+                )}
+                
+                <h1 class="article-headline">{title}</h1>
+                
+                {subheadline && (
+                    <div class="article-subheadline">{subheadline}</div>
+                )}
+                
+                <div class="article-meta">
+                    <div>
+                        <div class="author-name">
+                            By 
+                            {writer ? (
+                                <a href={`/writer/?id=${writerSlug}&source=writer_db`} class="hover:text-indigo-600 hover:underline transition-colors text-gray-800">
+                                    {writer}
+                                </a>
+                            ) : (
+                                <span class="text-gray-900 font-medium">
+                                    {displayAuthor} {author && <i class="fas fa-check-circle text-yellow-500 text-xs ml-1" title="Staff Writer"></i>}
+                                </span>
+                            )}
+                        </div>
+                        <div class="publish-date">{formattedDate}</div>
+                    </div>
+                    <div>
+                        <button id="native-share-button" class="share-btn" title="Share article"><i class="fas fa-share-alt"></i></button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="article-body">
+                {image && (
+                <figure class="article-figure">
+                    <img src={image} alt={image_description || 'Article main image'} />
+                    {image_description && (
+                        <figcaption class="article-image-caption">{image_description}</figcaption>
+                    )}
+                </figure>
+                )}
+                
+                <slot />
+            </div> 
+
+            <hr class="w-2/3 mx-auto border-gray-200 my-12" />
+
+            {writer && (
+            <div class="mt-8 mb-12 p-6 bg-gray-50 rounded-xl border border-gray-100 text-center">
+                <p class="italic text-gray-500 text-sm font-inter leading-relaxed">
+                    "The views expressed in this article are the author’s own and do not necessarily reflect TMPnews (The Muslim Post) editorial stance."
+                </p>
+            </div>
+            )}
+
+            <div class="mt-12">
+                <div class="flex items-center gap-2 mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900 font-inter">Related</h3>
+                    <span class="w-2 h-2 rounded-full bg-blue-600 mt-1"></span>
+                </div>
+
+                <div class="flex flex-col">
+                    {relatedPosts.map(post => {
+                        // Find the category for the URL link
+                        const category = (post.data.tags && post.data.tags.length > 0) ? post.data.tags[0] : 'general';
+                        const postDate = new Date(post.data.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+
+                        return (
+                        <a href={`/news/${category}/${post.id}`} class="group block border-b border-gray-100 last:border-0 py-4">
+                            <div class="flex gap-4 items-start">
+                                 <div class="flex-grow">
+                                     <h4 class="font-bold text-gray-900 text-lg leading-snug group-hover:text-blue-600 transition-colors font-merriweather mb-2">
+                                        {post.data.title}
+                                     </h4>
+                                     <div class="flex items-center gap-2 text-xs text-gray-500 font-inter uppercase tracking-wide">
+                                        <span class="text-blue-600 font-semibold">{post.data.author || 'TMP Staff'}</span>
+                                        <span>•</span>
+                                        <span>{postDate}</span>
+                                     </div>
+                                 </div>
+                                 {post.data.image && (
+                                 <div class="w-24 h-24 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                    <img src={post.data.image} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                                 </div>
+                                 )}
+                            </div>
+                        </a>
+                        );
+                    })}
+                </div>
+            </div>
+        </article> 
+    </div> 
+
+    <script is:inline>
+    function renderTelegramEmbeds() {
+        const injectWidget = (container, path) => {
+            if (container.dataset.rendered) return; 
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = "https://telegram.org/js/telegram-widget.js?22";
+            script.setAttribute('data-telegram-post', path);
+            script.setAttribute('data-width', '100%'); 
+            container.appendChild(script);
+            container.dataset.rendered = "true"; 
+        };
+
+        document.querySelectorAll('.telegram-embed-placeholder').forEach(container => {
+            const tgPostPath = container.getAttribute('data-tg-post');
+            if (tgPostPath) injectWidget(container, tgPostPath);
+        });
+
+        document.querySelectorAll('.article-body a[href*="t.me/"]').forEach(link => {
+            if (link.closest('.embed-container')) return;
+            
+            const tgMatch = link.href.match(/t\.me\/([a-zA-Z0-9_]+\/\d+)/);
+            if (tgMatch) {
+                const tgPath = tgMatch[1];
+                const captionText = link.textContent; 
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'embed-container';
+                
+                const placeholder = document.createElement('div');
+                placeholder.className = 'telegram-embed-placeholder';
+                
+                wrapper.appendChild(placeholder);
+                
+                if (captionText && !captionText.includes('t.me/')) {
+                    const caption = document.createElement('div');
+                    caption.className = 'embed-caption';
+                    caption.innerHTML = captionText + '&nbsp;';
+                    wrapper.appendChild(caption);
+                }
+
+                const parent = link.parentNode;
+                if (parent.tagName === 'P' && parent.textContent.trim() === captionText) {
+                    parent.parentNode.replaceChild(wrapper, parent);
+                } else {
+                    parent.replaceChild(wrapper, link);
+                }
+
+                injectWidget(placeholder, tgPath);
+            }
+        });
+    }
+
+    function setupArticleInteractions() {
+        const articleBody = document.querySelector('.article-body');
+        if (articleBody) {
+            const images = articleBody.querySelectorAll('img');
+            images.forEach(img => {
+                if (img.closest('figure')) return;
+                const captionText = img.getAttribute('title') || img.getAttribute('alt');
+
+                if (captionText && captionText.trim() !== '') {
+                    const figure = document.createElement('figure');
+                    figure.className = 'article-figure';
+                    const caption = document.createElement('figcaption');
+                    caption.className = 'article-image-caption';
+                    caption.textContent = captionText;
+                    const parent = img.parentNode;
+                    
+                    if (parent.tagName === 'P' && parent.children.length === 1 && parent.textContent.trim() === '') {
+                        parent.parentNode.replaceChild(figure, parent);
+                        figure.appendChild(img);
+                        figure.appendChild(caption);
+                    } else {
+                        parent.insertBefore(figure, img);
+                        figure.appendChild(img);
+                        figure.appendChild(caption);
+                    }
+                }
+            });
+        }
+
+        const shareBtn = document.getElementById('native-share-button');
+        
+        if (shareBtn && !shareBtn.dataset.hasListener) {
+            shareBtn.dataset.hasListener = "true"; 
+            
+            shareBtn.addEventListener('click', async () => {
+                const shareTitle = document.title;
+                const shareText = "Read this article on The Muslim Post";
+                const shareUrl = window.location.href;
+                if (window.AndroidInterface && window.AndroidInterface.share) {
+                    window.AndroidInterface.share(shareTitle, shareText, shareUrl);
+                } 
+                else if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: shareTitle,
+                            text: shareText,
+                            url: shareUrl
+                        });
+                    } catch (err) {
+                        if (err.name !== 'AbortError') copyToClipboard(shareUrl);
+                    }
+                } 
+                else {
+                    copyToClipboard(shareUrl);
+                }
+            });
+        }
+
+        const tables = document.querySelectorAll('.table-container.sortable table');
+        tables.forEach(table => {
+            if (table.dataset.hasSortListener) return; 
+            table.dataset.hasSortListener = "true";
+
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', () => {
+                    const tbody = table.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    const isAsc = header.classList.contains('asc');
+                    
+                    headers.forEach(h => h.classList.remove('asc', 'desc'));
+                    header.classList.toggle('asc', !isAsc);
+                    header.classList.toggle('desc', isAsc);
+                    
+                    const direction = !isAsc ? 1 : -1;
+                    const sortedRows = rows.sort((a, b) => {
+                        const aCol = a.children[index].textContent.trim();
+                        const bCol = b.children[index].textContent.trim();
+                        const aNum = parseFloat(aCol.replace(/[^0-9.-]+/g,""));
+                        const bNum = parseFloat(bCol.replace(/[^0-9.-]+/g,""));
+                        
+                        if (!isNaN(aNum) && !isNaN(bNum) && aCol.match(/\d/)) {
+                            return (aNum - bNum) * direction;
+                        }
+                        return aCol.localeCompare(bCol) * direction;
+                    });
+                    
+                    tbody.innerHTML = '';
+                    sortedRows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        });
+
+        renderTelegramEmbeds();
+    }
+
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert('Link copied to clipboard!');
+        } catch (err) {
+            prompt("Copy this link:", text);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', setupArticleInteractions);
+    document.addEventListener('turbo:load', setupArticleInteractions);
+    document.addEventListener('turbo:load', function() {
+        if (window.twttr && window.twttr.widgets) { window.twttr.widgets.load(); }
+        if (window.instgrm) { window.instgrm.Embeds.process(); }
+    });
+    </script>
+</Layout>

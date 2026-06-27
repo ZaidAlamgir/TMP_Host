@@ -1,0 +1,228 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Support The Muslim Post">
+    <link rel="stylesheet" href="/assets/style/support.css">
+
+    <style is:inline>
+        .quick-amount-selector {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .quick-amount-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .quick-amount-btn:hover { border-color: #bbb; }
+        .quick-amount-btn.selected {
+            border-color: #6a3ab2; 
+            background-color: #f4effc;
+            color: #6a3ab2;
+            box-shadow: 0 2px 8px rgba(106, 58, 178, 0.1);
+        }
+        .custom-amount-form .custom-amount-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+            font-size: 0.95rem;
+        }
+        .custom-amount-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1c1e21;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .custom-amount-input:focus,
+        .custom-amount-input:focus-visible {
+            border-color: #6a3ab2;
+            box-shadow: 0 0 0 3px rgba(106, 58, 178, 0.15);
+            outline: none;
+        }
+        .custom-amount-input::-webkit-outer-spin-button,
+        .custom-amount-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .custom-amount-input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+    </style>
+
+    <main class="support-page-container">
+        <section class="support-header">
+            <h1 class="main-title">Support Independent Journalism</h1>
+            <p class="subtitle">The Muslim Post is a reader-supported publication. Your contribution empowers us to remain independent, pursue in-depth reporting, and bring you the stories that matter. Choose a plan that works for you.</p>
+        </section>
+
+        <section class="subscription-grid">
+            <div class="subscription-card">
+                <div class="card-header">
+                    <h2 class="tier-name">Regular</h2>
+                    <p class="tier-price">₹90 <span class="billing-cycle">/ month</span></p>
+                    <p class="tier-description">Essential access to support our work and read most of our articles.</p>
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                    <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                    <li><i class="fas fa-times-circle feature-disabled"></i> Access to premium articles</li>
+                    <li><i class="fas fa-times-circle feature-disabled"></i> Suggestion rights</li>
+                    <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
+                </ul>
+                <a href="/payment-selection/?plan=Regular&amount=90&cycle=month" class="card-button">Choose Regular</a>
+            </div>
+
+            <div class="subscription-card popular">
+                <div class="popular-badge">Most Popular</div>
+                <div class="card-header">
+                    <h2 class="tier-name">Gold</h2>
+                    <p class="tier-price">₹599 <span class="billing-cycle">/ year</span></p>
+                    <p class="tier-description">Unlock exclusive content and get the best value with our annual plan.</p>
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                    <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Access to all premium articles</strong></li>
+                    <li><i class="fas fa-times-circle feature-disabled"></i> Suggestion rights</li>
+                    <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
+                </ul>
+                <a href="/payment-selection/?plan=Gold&amount=599&cycle=year" class="card-button">Choose Gold</a>
+            </div>
+
+            <div class="subscription-card">
+                <div class="card-header">
+                    <h2 class="tier-name">Diamond</h2>
+                    <p class="tier-price">₹1000 <span class="billing-cycle">/ year</span></p>
+                    <p class="tier-description">For dedicated readers who want a deeper involvement in our direction.</p>
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                    <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                    <li><i class="fas fa-check-circle"></i> Access to all premium articles</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Right to give suggestions for changes</strong></li>
+                    <li><i class="fas fa-times-circle feature-disabled"></i> Article posting rights</li>
+                </ul>
+                <a href="/payment-selection/?plan=Diamond&amount=1000&cycle=year" class="card-button">Choose Diamond</a>
+            </div>
+
+            <div class="subscription-card membership">
+                <div class="card-header">
+                    <h2 class="tier-name">Membership</h2>
+                    <p class="tier-price">₹5000 <span class="billing-cycle">/ year</span></p>
+                    <p class="tier-description">Become a verified contributor and part of our core community.</p>
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Read the majority of our articles</li>
+                    <li><i class="fas fa-check-circle"></i> Support independent journalism</li>
+                    <li><i class="fas fa-check-circle"></i> Access to all premium articles</li>
+                    <li><i class="fas fa-check-circle"></i> Right to give suggestions for changes</li>
+                    <li><i class="fas fa-check-circle"></i> <strong>Become a writer & post articles (after verification)</strong></li>
+                </ul>
+                <a href="/payment-selection/?plan=Membership&amount=5000&cycle=year" class="card-button">Become a Member</a>
+            </div>
+
+            <div class="subscription-card" id="custom-support-card">
+                <div class="card-header">
+                    <h2 class="tier-name">Support TMP</h2>
+                    <p class="tier-price">₹ <span class="billing-cycle">One-time</span></p>
+                    <p class="tier-description">Make a one-time contribution to support our mission.</p>
+                </div>
+                
+                <div class="custom-amount-form">
+                    <div class="quick-amount-selector">
+                        <button class="quick-amount-btn" data-amount="100">₹100</button>
+                        <button class="quick-amount-btn" data-amount="250">₹250</button>
+                        <button class="quick-amount-btn" data-amount="500">₹500</button>
+                    </div>
+
+                    <label for="custom-amount-input" class="custom-amount-label">Or enter a custom amount (in ₹):</label>
+                    <input type="number" id="custom-amount-input" class="custom-amount-input" placeholder="e.g., 100" min="10">
+                    <p class="error-message" id="custom-amount-error" style="display:none;"></p>
+                    
+                    <button id="custom-support-button" class="card-button" style="margin-top: 15px;">Proceed to Pay</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq-section">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <h3 class="faq-question">What payment methods do you accept?</h3>
+                <p class="faq-answer">We accept payments via <strong>Paytm PG</strong> for our Indian readers (which includes UPI, Wallets, and Cards) and <strong>PayPal</strong> for our international readers. You will be able to choose your preferred method on the next screen.</p>
+            </div>
+            <div class="faq-item">
+                <h3 class="faq-question">Can I cancel my subscription?</h3>
+                <p class="faq-answer">Yes, you can cancel your recurring subscription at any time through your account profile page. Your access will continue until the end of your current billing period. Please see our <a href="/refund-policy/">Cancellation & Refund Policy</a> for more details.</p>
+            </div>
+            <div class="faq-item">
+                <h3 class="faq-question">Is my payment information secure?</h3>
+                <p class="faq-answer">Absolutely. All payments are processed by trusted, secure payment gateways (<strong>Paytm PG</strong> and PayPal). We do not collect or store any of your sensitive payment information on our servers. For more information, please read our <a href="/privacy/">Privacy Policy</a> for more details.</p>
+            </div>
+        </section>
+    </main>
+
+    <script is:inline>
+        document.addEventListener('turbo:load', () => {
+            const supportButton = document.getElementById('custom-support-button');
+            const amountInput = document.getElementById('custom-amount-input');
+            const errorMessage = document.getElementById('custom-amount-error');
+            const quickButtons = document.querySelectorAll('.quick-amount-btn');
+            const minAmount = 10;
+
+            function clearQuickButtonSelection() {
+                quickButtons.forEach(btn => btn.classList.remove('selected'));
+            }
+
+            quickButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    clearQuickButtonSelection();
+                    button.classList.add('selected');
+                    const amount = button.getAttribute('data-amount');
+                    amountInput.value = amount;
+                    errorMessage.style.display = 'none';
+                });
+            });
+
+            if (amountInput) {
+                amountInput.addEventListener('input', () => {
+                    clearQuickButtonSelection();
+                    if (errorMessage.style.display === 'block') {
+                        errorMessage.style.display = 'none';
+                    }
+                });
+            }
+
+            if (supportButton) {
+                supportButton.addEventListener('click', () => { 
+                    const amount = parseFloat(amountInput.value);
+
+                    if (isNaN(amount) || amount < minAmount) {
+                        errorMessage.textContent = `Please enter a valid amount (minimum ₹${minAmount}).`;
+                        errorMessage.style.display = 'block';
+                    } else {
+                        errorMessage.style.display = 'none';
+                        window.location.href = `/payment-selection/?plan=One-time Support&amount=${amount}&cycle=one-time`;
+                    }
+                });
+            }
+        });
+    </script>
+</Layout>

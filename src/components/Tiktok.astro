@@ -1,0 +1,15 @@
+---
+// src/components/Tiktok.astro
+const { username, id, caption } = Astro.props;
+---
+
+<div class="embed-container">
+    <blockquote 
+      class="tiktok-embed" 
+      cite={`https://www.tiktok.com/@${username}/video/${id}`} 
+      data-video-id={id} 
+      style="max-width: 605px; min-width: 325px;">
+      <section><a target="_blank" href={`https://www.tiktok.com/@${username}/video/${id}`}></a></section>
+    </blockquote>
+    {caption && <div class="embed-caption">{caption}</div>}
+</div>
