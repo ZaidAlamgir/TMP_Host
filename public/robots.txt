@@ -31,4 +31,4 @@ Disallow: /.jekyll-cache/
 
 Allow: /
 
-Sitemap: https://www.tmpnews.com/sitemap.xml
+Sitemap: https://www.tmpnews.com/sitemap-index.xml

@@ -32,6 +32,7 @@ if (latestPost) {
     const category = (latestPost.data.tags && latestPost.data.tags.length > 0) ? latestPost.data.tags[0] : 'general';
     latestUrl = `/news/${category}/${latestPost.id}`;
 }
+const canonicalUrl = new URL(Astro.url.pathname, 'https://www.tmpnews.com').toString();
 ---
 
 <!DOCTYPE html>
@@ -42,6 +43,7 @@ if (latestPost) {
     <meta name="theme-color" content="#ffffff" id="theme-color-meta">
     
     <title>{pageTitle}</title>
+    <link rel="canonical" href={canonicalUrl} />
     
     <script is:inline src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
     <script is:inline async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>

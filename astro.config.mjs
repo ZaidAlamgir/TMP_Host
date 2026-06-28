@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 // Custom plugin to translate Jekyll {% include %} tags into HTML in memory
 function jekyllEmbedTranslator() {
@@ -41,6 +42,8 @@ function jekyllEmbedTranslator() {
 }
 
 export default defineConfig({
+  site: 'https://www.tmpnews.com',
+  integrations: [sitemap()],
   vite: {
     plugins: [jekyllEmbedTranslator()]
   }
