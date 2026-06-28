@@ -36,188 +36,47 @@ jobs:
           mkdir -p ./_article_repos
         
       # --- CHECKOUT STEPS ---
-      - name: 3. Checkout World Politics
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-world-politics
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/world-politics
+      - name: 3-28. Clone All Article Repositories in Parallel
+        run: |
+          mkdir -p ./_article_repos
+          
+          clone_repo() {
+            local repo="TheMuslimPost/$1"
+            local path="./_article_repos/$2"
+            echo "Cloning $repo in parallel..."
+            git clone --depth 1 "https://${{ secrets.GH_PAT_FOR_CHECKOUT }}@github.com/${repo}.git" "$path" > /dev/null 2>&1 &
+          }
 
-      - name: 4. Checkout Indian Politics
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-indian-politics
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/indian-politics
+          clone_repo "tmp-articles-world-politics" "world-politics"
+          clone_repo "tmp-articles-indian-politics" "indian-politics"
+          clone_repo "tmp-articles-muslim-world" "muslim-world"
+          clone_repo "tmp-articles-technology" "technology"
+          clone_repo "tmp-articles-medical-science" "medical-science"
+          clone_repo "tmp-articles-global-economy" "global-economy"
+          clone_repo "tmp-articles-art-culture" "art-culture"
+          clone_repo "tmp-articles-weather" "weather"
+          clone_repo "tmp-articles-sports" "sports"
+          clone_repo "tmp-articles-national-news" "national-news"
+          clone_repo "tmp-articles-international-news" "international-news"
+          clone_repo "tmp-user-archives" "user-archives"
+          clone_repo "tmp-articles-history" "history"
+          clone_repo "tmp-articles-indian-muslims" "indian-muslims"
+          clone_repo "tmp-articles-middle-east" "middle-east"
+          clone_repo "tmp-articles-climate" "climate"
+          clone_repo "tmp-articles-defense" "defense"
+          clone_repo "tmp-articles-south-asia" "south-asia"
+          clone_repo "tmp-articles-africa" "africa"
+          clone_repo "tmp-articles-europe" "europe"
+          clone_repo "tmp-articles-central-asia" "central-asia"
+          clone_repo "tmp-articles-crime-alert" "crime-alert"
+          clone_repo "tmp-articles-south-east-asia" "south-east-asia"
+          clone_repo "tmp-articles-east-asia" "east-asia"
+          clone_repo "tmp-articles-north-america" "north-america"
+          clone_repo "tmp-articles-south-america" "south-america"
 
-      - name: 5. Checkout Muslim World
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-muslim-world
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/muslim-world
-
-      - name: 6. Checkout Technology
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-technology
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/technology
-
-      - name: 7. Checkout Medical Science
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-medical-science
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/medical-science
-
-      - name: 8. Checkout Global Economy
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-global-economy
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/global-economy
-
-      - name: 9. Checkout Art & Culture
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-art-culture
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/art-culture
-
-      - name: 10. Checkout Weather
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-weather
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/weather
-
-      - name: 11. Checkout Sports
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-sports
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/sports
-
-      - name: 12. Checkout National News
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-national-news
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/national-news
-
-      - name: 13. Checkout International News
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-international-news
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/international-news
-      
-      - name: 14. Checkout User Archives
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-user-archives
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/user-archives
-
-      # --- NEW CHECKOUT STEPS ---
-      - name: 15. Checkout History
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-history
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/history
-
-      - name: 16. Checkout Indian Muslims
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-indian-muslims
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/indian-muslims
-
-      - name: 17. Checkout Middle East
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-middle-east
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/middle-east
-
-      - name: 18. Checkout Climate
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-climate
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/climate
-
-      - name: 19. Checkout Defense
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-defense
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/defense
-
-      - name: 20. Checkout South Asia
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-south-asia
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/south-asia
-
-      - name: 21. Checkout Africa
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-africa
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/africa
-
-      - name: 22. Checkout Europe
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-europe
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/europe
-
-      - name: 23. Checkout Central Asia
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-central-asia
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/central-asia
-
-      - name: 24. Checkout Crime Alert
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-crime-alert
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/crime-alert
-
-      - name: 25. Checkout South East Asia
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-south-east-asia
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/south-east-asia
-
-      - name: 26. Checkout East Asia
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-east-asia
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/east-asia
-
-      - name: 27. Checkout North America
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-north-america
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/north-america
-
-      - name: 28. Checkout South America
-        uses: actions/checkout@v4
-        with:
-          repository: TheMuslimPost/tmp-articles-south-america
-          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
-          path: ./_article_repos/south-america
+          echo "Waiting for all concurrent clones to complete..."
+          wait
+          echo "Clones completed successfully!"
 
       # --- CONSOLIDATION ---
       - name: 29. Consolidate All Posts
@@ -274,16 +133,15 @@ jobs:
           echo "--- Verification: Files in src/content/news ---"
           ls -R ./main_site/src/content/news
       
-      - name: 29b. Cache Astro Content and Vite Assets
+      - name: 29b. Cache Node Modules and Astro Cache
         uses: actions/cache@v4
         with:
           path: |
+            ./main_site/node_modules
             ./main_site/.astro
-            ./main_site/node_modules/.vite
-          key: ${{ runner.os }}-astro-${{ hashFiles('./main_site/package-lock.json') }}-${{ github.run_id }}
+          key: ${{ runner.os }}-astro-node-cache-${{ hashFiles('./main_site/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-astro-${{ hashFiles('./main_site/package-lock.json') }}-
-            ${{ runner.os }}-astro-
+            ${{ runner.os }}-astro-node-cache-
 
       - name: 30. Setup Node.js
         uses: actions/setup-node@v4
@@ -294,7 +152,7 @@ jobs:
           
       - name: 31. Build with Astro
         run: |
-          npm ci
+          npm install --prefer-offline --no-audit --no-fund
           npm run build
         working-directory: ./main_site 
 
