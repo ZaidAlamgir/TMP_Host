@@ -188,7 +188,9 @@ if (latestPost) {
         @media (min-width: 1024px) {
             .top-story-card {
                 flex-direction: row;
-                height: 460px;
+                min-height: 460px;
+                height: auto;
+                align-items: stretch !important;
             }
             .top-story-image-wrapper {
                 width: 60%;
