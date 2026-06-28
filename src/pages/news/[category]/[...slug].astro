@@ -8,19 +8,50 @@ import PostLayout from '../../../layouts/PostLayout.astro';
 // 1. Generate the dynamic URLs based on the markdown files
 export async function getStaticPaths() {
   const allNews = await getCollection('news');
-  
-  return allNews.map(entry => {
-    // Determine the category folder based on the first tag, fallback to 'general'
-    const category = (entry.data.tags && entry.data.tags.length > 0) ? entry.data.tags[0] : 'general';
+  const pathMap = new Map();
+
+  for (const entry of allNews) {
+    const tags = entry.data.tags || [];
     
-    return {
-      params: { 
-        category: category, 
-        slug: entry.id 
-      },
-      props: { entry },
-    };
-  });
+    // Extract filename and clean slug (e.g. removing '2026-06-28-' prefix)
+    const filename = entry.id.split('/').pop() || entry.id;
+    const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+
+    // List of categories to map this article to
+    const targetCategories = new Set([
+      'general',
+      'breaking-news',
+      'international-news',
+      'national-news'
+    ]);
+    
+    // Also add the article's own tags (lowercased and hyphenated)
+    tags.forEach(t => {
+      if (t) targetCategories.add(t.toLowerCase().replace(/\s+/g, '-'));
+    });
+
+    for (const cat of targetCategories) {
+      // 1. Canonical nested ID: /news/category/2026/06/filename
+      const key1 = `${cat}/${entry.id}`;
+      if (!pathMap.has(key1)) {
+        pathMap.set(key1, { params: { category: cat, slug: entry.id }, props: { entry } });
+      }
+
+      // 2. Canonical flat ID: /news/category/filename
+      const key2 = `${cat}/${filename}`;
+      if (!pathMap.has(key2)) {
+        pathMap.set(key2, { params: { category: cat, slug: filename }, props: { entry } });
+      }
+
+      // 3. Clean flat slug (without date prefix): /news/category/clean-slug
+      const key3 = `${cat}/${cleanSlug}`;
+      if (!pathMap.has(key3)) {
+        pathMap.set(key3, { params: { category: cat, slug: cleanSlug }, props: { entry } });
+      }
+    }
+  }
+
+  return Array.from(pathMap.values());
 }
 
 // 2. Fetch the specific article data and render the Markdown
