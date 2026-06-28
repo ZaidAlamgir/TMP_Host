@@ -151,7 +151,7 @@ export async function onRequest(context) {
 
   // 6. FETCH SHELL & INJECT
   try {
-    const templateRes = await fetch(`${siteBase}/dynamic-template.html`);
+    const templateRes = await fetch(`${siteBase}/dynamic-template/index.html`);
     if (templateRes.ok) {
         let templateHtml = await templateRes.text();
         templateHtml = templateHtml.replace('REPLACE_ME_CONTENT', profileHtml);
