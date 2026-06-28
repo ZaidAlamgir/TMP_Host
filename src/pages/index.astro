@@ -44,33 +44,492 @@ if (latestPost) {
     })} />
 
     <style is:inline>
-        .top-story-image-wrapper { position: relative; overflow: hidden; }
-        .dark-gradient::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); pointer-events: none; }
-        .mobile-meta-overlay { position: absolute; bottom: 12px; left: 0; right: 0; padding: 0 1rem; z-index: 2; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; text-align: center; }
-        .mobile-meta-overlay .highlight { color: #b80000; }
-        .desktop-kicker { display: none; }
-        .desktop-meta { display: none; }
-        .top-story-text { padding: 0.75rem 1.5rem 1.5rem 1.5rem; display: flex; flex-direction: column; height: 100%; }
-        .top-story-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.15rem !important; color: #111827; margin: 0 0 0.5rem 0 !important; line-height: 1.3; letter-spacing: -0.01em; }
-        .top-story-subheadline-container { position: relative; margin-bottom: 0; }
-        .top-story-subheadline { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 1rem; color: #4b5563; line-height: 24px; margin: 0; height: 72px; overflow: hidden; }
-        .top-story-subheadline-container::after { content: ''; position: absolute; bottom: -30px; left: -3rem; right: -3rem; height: 70px; background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.85) 60%, #ffffff 100%); pointer-events: none; z-index: 1; }
-        .top-story-read-more { position: relative; z-index: 2; margin-top: -10px; font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 800; color: #000; text-transform: uppercase; display: inline-block; }
-        @media (min-width: 768px) {
-            .dark-gradient::after { display: none !important; }
-            .mobile-meta-overlay { display: none !important; } 
-            .top-story-read-more { display: none !important; } 
-            .desktop-kicker { display: block; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 800; color: #b80000; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.5rem 0; }
-            .desktop-meta { display: flex; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: #6b7280; margin-top: auto; padding-top: 1.25rem; border-top: 1px solid #e5e7eb; align-items: center; justify-content: space-between; }
-            .top-story-text { padding: 2rem; }
-            .top-story-headline { font-size: 2rem !important; margin-bottom: 0.75rem !important; }
-            .top-story-subheadline-container { margin-bottom: 1.5rem; }
+        /* Custom premium homepage styles */
+        .home-page {
+            background-color: #f8fafc !important;
         }
-        .support-cta-banner{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;background-color:#000 !important;border-bottom:none !important;padding:0.35rem 1.5rem !important;margin:0 auto 1.5rem auto;max-width:fit-content;border-radius:50px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}
-        .support-cta-banner p{margin:0 !important;font-family:'Inter',sans-serif;font-size:0.85rem !important;color:#fff !important;font-weight:500}
-        .support-cta-button{background-color:#facc15 !important;color:#000 !important;padding:0.25rem 0.75rem !important;border-radius:20px !important;font-family:'Inter',sans-serif;font-size:0.75rem !important;font-weight:800 !important;text-decoration:none !important;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:none !important;transition:opacity 0.2s}
-        .support-cta-button:hover{opacity:0.9;color:#000 !important}
-        @media (max-width:640px){.support-cta-banner{flex-direction:column;padding:0.75rem 1rem !important;gap:0.5rem;border-radius:0 !important;width:100% !important;max-width:100% !important;margin:0 0 1.5rem 0 !important;box-sizing:border-box}.support-cta-banner p{font-size:0.75rem !important;line-height:1.3;text-align:center}}
+        .support-cta-banner {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            background-color: #0f172a !important; /* Sleek slate-900 */
+            border-bottom: none !important;
+            padding: 0.5rem 1.5rem !important;
+            margin: 0 auto 1.5rem auto;
+            max-width: fit-content;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .support-cta-banner p {
+            margin: 0 !important;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem !important;
+            color: #f1f5f9 !important;
+            font-weight: 500;
+        }
+        .support-cta-button {
+            background-color: #facc15 !important;
+            color: #0f172a !important;
+            padding: 0.25rem 0.75rem !important;
+            border-radius: 20px !important;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem !important;
+            font-weight: 800 !important;
+            text-decoration: none !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            box-shadow: none !important;
+            transition: opacity 0.2s;
+        }
+        .support-cta-button:hover {
+            opacity: 0.9;
+            color: #0f172a !important;
+        }
+        @media (max-width: 640px) {
+            .support-cta-banner {
+                flex-direction: column;
+                padding: 0.75rem 1rem !important;
+                gap: 0.5rem;
+                border-radius: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 0 1.5rem 0 !important;
+                box-sizing: border-box;
+            }
+            .support-cta-banner p {
+                font-size: 0.75rem !important;
+                line-height: 1.3;
+                text-align: center;
+            }
+        }
+
+        .top-story-section {
+            max-width: 1200px;
+            margin: 0 auto 3rem auto;
+            padding: 0 1rem;
+        }
+        .top-story-card {
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .top-story-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        }
+        .top-story-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #f1f5f9;
+        }
+        .top-story-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .top-story-card:hover .top-story-image-wrapper img {
+            transform: scale(1.03);
+        }
+        .desktop-kicker {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #dc2626;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .top-story-headline {
+            font-family: 'Merriweather', serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+        .top-story-subheadline {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .top-story-meta {
+            display: flex;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .top-story-text {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+        @media (min-width: 1024px) {
+            .top-story-card {
+                flex-direction: row;
+                height: 460px;
+            }
+            .top-story-image-wrapper {
+                width: 60%;
+                height: 100%;
+                aspect-ratio: auto;
+            }
+            .top-story-text {
+                width: 40%;
+                padding: 2.5rem;
+            }
+            .top-story-headline {
+                font-size: 2.25rem;
+            }
+        }
+
+        /* Coverage and Filters */
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .section-title {
+            font-family: 'Merriweather', serif;
+            font-weight: 900;
+            font-size: 2.25rem;
+            color: #0f172a;
+        }
+        .section-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+        
+        .category-filter-container {
+            margin: 1.5rem 0 2.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+        }
+        .category-filter-scroll {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 0.25rem 0.25rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-filter-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .filter-btn {
+            background: #ffffff;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            padding: 0.55rem 1.25rem;
+            border-radius: 9999px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .filter-btn:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+        .filter-btn.active {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Articles Grid */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        @media (min-width: 640px) {
+            .articles-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 1024px) {
+            .articles-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .article-card {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .article-card.fade-in {
+            animation: smoothFade 0.4s ease-out forwards;
+        }
+        @keyframes smoothFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.07);
+        }
+        .article-card-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: #f1f5f9;
+        }
+        .article-card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .article-card:hover .article-card-image {
+            transform: scale(1.04);
+        }
+        .article-card-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #ffffff;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            z-index: 10;
+        }
+        .article-card-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .article-card-title {
+            font-family: 'Merriweather', serif;
+            font-weight: 900;
+            font-size: 1.15rem;
+            line-height: 1.4;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .article-card-excerpt {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .article-card-meta {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 0.75rem;
+        }
+
+        .loader {
+            display: none;
+            margin: 3rem auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        .loader.visible {
+            display: block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .no-results-message {
+            text-align: center;
+            color: #64748b;
+            padding: 3rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            display: none;
+        }
+        
+        .load-more-container {
+            text-align: center;
+            margin-top: 3rem;
+            display: none;
+        }
+        .load-more-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 25px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+            transition: all 0.2s ease;
+        }
+        .load-more-btn:hover {
+            background-color: #1d4ed8;
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
+        }
+        .load-more-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Features Section */
+        .features-section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 3.5rem 2rem;
+            margin: 4rem auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            max-width: 1200px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+        @media (min-width: 768px) {
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .feature-item {
+            text-align: center;
+            padding: 1rem;
+        }
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem auto;
+        }
+        .feature-item h3 {
+            font-family: 'Merriweather', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+        .feature-item p {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.925rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 5rem 2rem;
+            text-align: center;
+            border-radius: 24px;
+            margin: 4rem auto;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+        }
+        .cta-content h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        .cta-content p {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            max-width: 600px;
+            margin: 0 auto 2.5rem auto;
+            line-height: 1.7;
+        }
+        .cta-button {
+            background: #2563eb;
+            color: #ffffff !important;
+            padding: 1rem 2.5rem;
+            border-radius: 9999px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+        .cta-button:hover {
+            background: #1d4ed8;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
+        }
+        .cta-button:active {
+            transform: translateY(0);
+        }
     </style>
 
     <div class="support-cta-banner">
@@ -83,286 +542,89 @@ if (latestPost) {
         {latestPost && (
         <section class="top-story-section">
             <a href={latestUrl} class="top-story-card">
-                <div class="top-story-image-wrapper dark-gradient">
+                <div class="top-story-image-wrapper">
                     <img src={latestPost.data.image || 'https://placehold.co/1200x800/e2e8f0/64748b?text=Image+Not+Available'} alt={latestPost.data.image_description || 'Top story image'} />
-                    <div class="mobile-meta-overlay">
-                        <span class="highlight">Latest Report</span> &bull; 
-                        <span>By {latestPost.data.author || "TMP Staff"}</span> &bull; 
-                        <span>{formattedDate}</span>
-                    </div>
                 </div>
                 <div class="top-story-text">
-                    <p class="desktop-kicker">Latest Report</p>
-                    <h1 class="top-story-headline">{latestPost.data.title}</h1>
-                    <div class="top-story-subheadline-container">
+                    <div>
+                        <p class="desktop-kicker">Latest Report</p>
+                        <h1 class="top-story-headline">{latestPost.data.title}</h1>
                         <p class="top-story-subheadline">{truncatedSubheadline}</p>
                     </div>
-                    <span class="top-story-read-more">Read More &#8594;</span>
-                    <div class="desktop-meta">
+                    <div class="top-story-meta">
                         <span class="top-story-author">By {latestPost.data.author || "TMP Staff"} &bull; {formattedDate}</span>
-                        <span class="read-more" style="color:#000;font-weight:800;text-transform:uppercase;">Read More &#8594;</span>
+                        <span class="read-more" style="color:#2563eb;font-weight:800;text-transform:uppercase;font-size:0.85rem;">Read Article &#8594;</span>
                     </div>
                 </div>
             </a>
         </section>
         )}
 
-        <div class="content-wrapper">
-            <hr class="section-divider" />
-            <section class="content-section news-section">
-                <h2 class="section-title">In the News</h2>
-                <p class="section-subtitle">Stay updated with the latest trends, research, and important discussions.</p>
+        <div class="content-container">
+            <section class="latest-news-section">
+                <div class="section-header">
+                    <h2 class="section-title">Latest Coverage</h2>
+                    <p class="section-subtitle">Discover real-time reporting and analysis from our global newsroom.</p>
+                </div>
                 
-                <div class="news-grid-full">
-                    <a href="/news/hub/?tag=world-politics" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/3498db/ffffff?text=World+Politics" alt="World Politics" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">World Politics</h3>
-                            <p class="news-card-subheadline">Global affairs, international relations, and major political developments across the world.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=indian-politics" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/f1c40f/ffffff?text=Indian+Politics" alt="Indian Politics" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Indian Politics</h3>
-                            <p class="news-card-subheadline">In-depth coverage of the political landscape, policies, and elections within India.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=muslim-world" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/2ecc71/ffffff?text=Muslim+World" alt="Muslim World" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Muslim World</h3>
-                            <p class="news-card-subheadline">Issues, culture, and events concerning Muslim communities globally.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=technology" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/9b59b6/ffffff?text=Technology" alt="Technology" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Technology</h3>
-                            <p class="news-card-subheadline">The latest in AI, gadgets, and digital innovation shaping our future.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=medical-science" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/e74c3c/ffffff?text=Medical+Science" alt="Medical Science" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Medical Science</h3>
-                            <p class="news-card-subheadline">Breakthroughs in health, medicine, and scientific research.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=global-economy" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/1abc9c/ffffff?text=Global+Economy" alt="Global Economy" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Global Economy</h3>
-                            <p class="news-card-subheadline">Analysis of financial markets, trade, and economic policies.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=art-culture" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/e67e22/ffffff?text=Art+%26+Culture" alt="Art & Culture" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Art & Culture</h3>
-                            <p class="news-card-subheadline">Exploring cinema, literature, and the arts from around the world.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=weather" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/8e44ad/ffffff?text=Weather" alt="Weather" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Weather</h3>
-                            <p class="news-card-subheadline">Latest forecasts, climate updates, and weather-related news.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=sports" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/27ae60/ffffff?text=Sports" alt="Sports" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Sports</h3>
-                            <p class="news-card-subheadline">Scores, highlights, and analysis from the world of sports.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=national-news" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/c0392b/ffffff?text=National+News" alt="National News" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">National News</h3>
-                            <p class="news-card-subheadline">Key developments and events happening within the country.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=international-news" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/34495e/ffffff?text=International+News" alt="International News" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">International News</h3>
-                            <p class="news-card-subheadline">Significant news and stories from across the globe.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=history" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/7f8c8d/ffffff?text=History" alt="History" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">History</h3>
-                            <p class="news-card-subheadline">Historical events, analyses, and their impact on today's world.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=indian-muslims" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/d35400/ffffff?text=Indian+Muslims" alt="Indian Muslims" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Indian Muslims</h3>
-                            <p class="news-card-subheadline">News, issues, and stories concerning the Muslim community in India.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=middle-east" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/c0392b/ffffff?text=Middle+East" alt="Middle East" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Middle East</h3>
-                            <p class="news-card-subheadline">Geopolitics, conflicts, and developments in the Middle East region.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=climate" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/27ae60/ffffff?text=Climate" alt="Climate" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Climate</h3>
-                            <p class="news-card-subheadline">Climate change, environmental issues, and global sustainability efforts.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=defense" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/2c3e50/ffffff?text=Defense" alt="Defense" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Defense</h3>
-                            <p class="news-card-subheadline">Military technology, defense policies, and global security analysis.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=south-asia" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/f39c12/ffffff?text=South+Asia" alt="South Asia" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">South Asia</h3>
-                            <p class="news-card-subheadline">Regional news, politics, and culture from the South Asian subcontinent.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=africa" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/d35400/ffffff?text=Africa" alt="Africa" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Africa</h3>
-                            <p class="news-card-subheadline">Comprehensive coverage of politics, economy, and events across Africa.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=europe" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/2980b9/ffffff?text=Europe" alt="Europe" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Europe</h3>
-                            <p class="news-card-subheadline">European Union politics, economics, and regional news.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=central-asia" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/16a085/ffffff?text=Central+Asia" alt="Central Asia" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Central Asia</h3>
-                            <p class="news-card-subheadline">Developments and geopolitics in the Central Asian nations.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=crime-alert" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/c0392b/ffffff?text=Crime+Alert" alt="Crime Alert" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">Crime Alert</h3>
-                            <p class="news-card-subheadline">Latest reports on crime, law enforcement, and judicial news.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=south-east-asia" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/1abc9c/ffffff?text=South+East+Asia" alt="South East Asia" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">South East Asia</h3>
-                            <p class="news-card-subheadline">News and economic analysis from Southeast Asian countries.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=east-asia" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/e74c3c/ffffff?text=East+Asia" alt="East Asia" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">East Asia</h3>
-                            <p class="news-card-subheadline">Geopolitics, technology, and economic news from East Asia.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=north-america" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/34495e/ffffff?text=North+America" alt="North America" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">North America</h3>
-                            <p class="news-card-subheadline">Key political and social developments in the US and Canada.</p>
-                        </div>
-                    </a>
-                    <a href="/news/hub/?tag=south-america" class="news-card">
-                        <div class="news-card-image-wrapper">
-                            <img src="https://placehold.co/600x400/2ecc71/ffffff?text=South+America" alt="South America" class="news-card-image" loading="lazy" />
-                        </div>
-                        <div class="news-card-text">
-                            <h3 class="news-card-headline">South America</h3>
-                            <p class="news-card-subheadline">News covering politics, culture, and economy in South America.</p>
-                        </div>
-                    </a>
+                <!-- Category Scroll Bar -->
+                <div class="category-filter-container">
+                    <div class="category-filter-scroll" id="category-filter-bar">
+                        <button class="filter-btn active" data-tag="all">All Latest</button>
+                        <button class="filter-btn" data-tag="world-politics">World Politics</button>
+                        <button class="filter-btn" data-tag="indian-politics">Indian Politics</button>
+                        <button class="filter-btn" data-tag="muslim-world">Muslim World</button>
+                        <button class="filter-btn" data-tag="technology">Technology</button>
+                        <button class="filter-btn" data-tag="global-economy">Global Economy</button>
+                        <button class="filter-btn" data-tag="middle-east">Middle East</button>
+                        <button class="filter-btn" data-tag="climate">Climate</button>
+                        <button class="filter-btn" data-tag="defense">Defense</button>
+                        <button class="filter-btn" data-tag="sports">Sports</button>
+                        <button class="filter-btn" data-tag="art-culture">Art & Culture</button>
+                    </div>
+                </div>
+                
+                <div class="articles-grid" id="home-articles-grid">
+                    <!-- Cards will be populated dynamically -->
+                </div>
+                
+                <div id="home-loader" class="loader"></div>
+                <div id="home-no-results" class="no-results-message"></div>
+                
+                <div id="home-load-more-container" class="load-more-container">
+                    <button id="home-load-more-btn" class="load-more-btn">Load More News</button>
                 </div>
             </section>
-            <section class="content-section features-section reveal-on-scroll">
-                <h2 class="section-title">Why Join Us?</h2>
-                <p class="section-subtitle">A platform designed for sharing knowledge and fostering discussion.</p>
+
+            <section class="features-section reveal-on-scroll">
+                <h2 class="section-title" style="text-align:center;">Why Join Us?</h2>
+                <p class="section-subtitle" style="text-align:center;">A platform designed for sharing knowledge and fostering discussion.</p>
                 <div class="features-grid">
                     <div class="feature-item">
-                        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
+                        <div class="feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        </div>
                         <h3>Share Your Voice</h3>
                         <p>Easily post your articles, research, and opinions for a global audience.</p>
                     </div>
                     <div class="feature-item">
-                        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+                        <div class="feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
                         <h3>Engage with Peers</h3>
                         <p>Connect with a community of experts and enthusiasts in various fields.</p>
                     </div>
                     <div class="feature-item">
-                        <div class="feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.5 12.5"/><path d="M2 12.5a10 10 0 0 0 18.5-1"/></svg></div>
+                        <div class="feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2v6h6M21.5 22v-6h-6"/><path d="M22 11.5A10 10 0 0 0 3.5 12.5"/><path d="M2 12.5a10 10 0 0 0 18.5-1"/></svg>
+                        </div>
                         <h3>Stay Updated</h3>
                         <p>Follow the latest trends and discussions with our curated news section.</p>
                     </div>
                 </div>
             </section>
         </div>
+
         <section class="cta-section">
             <div class="cta-content reveal-on-scroll">
                 <h1>Share Your Knowledge</h1>
@@ -372,8 +634,155 @@ if (latestPost) {
         </section>
     </main>
 
-    <script is:inline>
-        document.addEventListener('turbo:load', () => {
+    <script is:inline define:vars={{ latestId: latestPost ? latestPost.id : '' }}>
+    (function() {
+        function initHomePage() {
+            const grid = document.getElementById('home-articles-grid');
+            if (!grid || grid._homePageInitialized) return;
+            grid._homePageInitialized = true;
+
+            const loader = document.getElementById('home-loader');
+            const noResults = document.getElementById('home-no-results');
+            const loadMoreContainer = document.getElementById('home-load-more-container');
+            const loadMoreBtn = document.getElementById('home-load-more-btn');
+            const filterBar = document.getElementById('category-filter-bar');
+            
+            const CACHE_KEY = 'tmp_news_hub_v4';
+            const BATCH_SIZE = 6; 
+            
+            let allArticles = [];
+            let currentFiltered = [];
+            let currentRenderedCount = 0;
+            let activeTag = 'all';
+
+            function formatTag(tag) {
+                if (tag === 'art-culture') return 'Art & Culture';
+                return tag.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+
+            function buildArticleCardsHTML(articles, shouldAnimate) {
+                return articles.map(post => {
+                    const image = post.image || 'https://placehold.co/600x400/e2e8f0/64748b?text=No+Image';
+                    const alt = post.image_description || 'Article image';
+                    const category = post.tags ? post.tags.split(',')[0].trim() : 'general';
+                    const displayTag = formatTag(category);
+                    const animClass = shouldAnimate ? 'fade-in' : '';
+                    
+                    return `
+                    <a href="${post.url}" class="article-card ${animClass}">
+                        <div class="article-card-image-wrapper">
+                            <span class="article-card-tag">${displayTag}</span>
+                            <img src="${image}" alt="${alt}" class="article-card-image" loading="lazy">
+                        </div>
+                        <div class="article-card-content">
+                            <h3 class="article-card-title">${post.title}</h3>
+                            <p class="article-card-excerpt">${post.subheadline || 'Click to read full article...'}</p>
+                            <div class="article-card-meta">
+                                <span>By TMP Staff</span>
+                                <span>${post.date}</span>
+                            </div>
+                        </div>
+                    </a>`;
+                }).join('');
+            }
+
+            function renderGrid(animate = false) {
+                // 1. Exclude the top story (latestPost) to avoid duplicate listing
+                let filtered = allArticles;
+                if (latestId) {
+                    filtered = allArticles.filter(post => !post.url.endsWith(latestId));
+                }
+                
+                // 2. Filter by tag if selected
+                if (activeTag !== 'all') {
+                    filtered = filtered.filter(post => {
+                        const postTags = post.tags ? post.tags.split(',').map(t => t.trim().toLowerCase()) : [];
+                        return postTags.includes(activeTag.toLowerCase());
+                    });
+                }
+                
+                currentFiltered = filtered;
+                
+                if (currentFiltered.length === 0) {
+                    grid.innerHTML = '';
+                    noResults.textContent = activeTag !== 'all' ? `No articles found for "${formatTag(activeTag)}".` : "No articles found.";
+                    noResults.style.display = 'block';
+                    loadMoreContainer.style.display = 'none';
+                    return;
+                }
+                
+                noResults.style.display = 'none';
+                currentRenderedCount = Math.min(BATCH_SIZE, currentFiltered.length);
+                grid.innerHTML = buildArticleCardsHTML(currentFiltered.slice(0, currentRenderedCount), animate);
+                
+                if (loadMoreContainer) {
+                    loadMoreContainer.style.display = currentFiltered.length > currentRenderedCount ? 'block' : 'none';
+                }
+            }
+
+            // Setup Load More
+            if (loadMoreBtn && !loadMoreBtn._listenerAttached) {
+                loadMoreBtn.addEventListener('click', () => {
+                    const nextCount = Math.min(currentRenderedCount + BATCH_SIZE, currentFiltered.length);
+                    const newHTML = buildArticleCardsHTML(currentFiltered.slice(currentRenderedCount, nextCount), true);
+                    grid.insertAdjacentHTML('beforeend', newHTML);
+                    currentRenderedCount = nextCount;
+                    if (currentRenderedCount >= currentFiltered.length) {
+                        loadMoreContainer.style.display = 'none';
+                    }
+                });
+                loadMoreBtn._listenerAttached = true;
+            }
+
+            // Setup Filter Pills Click Events
+            if (filterBar && !filterBar._listenerAttached) {
+                filterBar.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.filter-btn');
+                    if (!btn) return;
+                    
+                    filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    activeTag = btn.getAttribute('data-tag');
+                    renderGrid(true);
+                });
+                filterBar._listenerAttached = true;
+            }
+
+            // Load articles from cache first
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            if (cachedData) {
+                try {
+                    allArticles = JSON.parse(cachedData);
+                    renderGrid(false);
+                } catch (e) {
+                    localStorage.removeItem(CACHE_KEY);
+                }
+            } else {
+                if (loader) loader.classList.add('visible');
+            }
+
+            // Fetch fresh articles from API
+            setTimeout(async () => {
+                try {
+                    const response = await fetch('/search.json');
+                    if (!response.ok) throw new Error('Network error');
+                    
+                    const freshArticles = await response.json();
+                    allArticles = freshArticles;
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(freshArticles));
+                    renderGrid(true);
+                } catch (error) {
+                    if (grid.childElementCount === 0) {
+                        noResults.textContent = "Could not load coverage.";
+                        noResults.style.display = 'block';
+                    }
+                } finally {
+                    if (loader) loader.classList.remove('visible');
+                }
+            }, 50);
+
+            // Re-apply "Get Started" cta link check
             const getStartedBtn = document.getElementById('cta-get-started');
             if (getStartedBtn) {
                 const cachedUser = localStorage.getItem('cachedUser');
@@ -381,8 +790,8 @@ if (latestPost) {
                     getStartedBtn.href = "/auth.html";
                 }
             }
-        });
-        document.addEventListener('turbo:load', () => {
+            
+            // Re-apply reveal observer
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -394,6 +803,14 @@ if (latestPost) {
             document.querySelectorAll('.reveal-on-scroll').forEach(element => {
                 observer.observe(element);
             });
-        });
+        }
+
+        document.addEventListener('turbo:load', initHomePage);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initHomePage();
+        } else {
+            document.addEventListener('DOMContentLoaded', initHomePage);
+        }
+    })();
     </script>
 </Layout>

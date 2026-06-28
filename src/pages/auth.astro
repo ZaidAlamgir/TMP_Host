@@ -353,13 +353,26 @@ import StandaloneLayout from '../layouts/StandaloneLayout.astro';
             document.getElementById('googleSignIn')?.addEventListener('click', handleGoogleSignIn);
 
             document.getElementById('auth-form-container')?.addEventListener('click', (e) => {
-                if (e.target.classList.contains('toggle-password')) {
-                    const icon = e.target;
+                const icon = e.target.closest('.toggle-password');
+                if (icon) {
                     const passwordField = icon.previousElementSibling;
                     if (passwordField) {
-                        passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
-                        icon.classList.toggle('fa-eye');
-                        icon.classList.toggle('fa-eye-slash');
+                        const isPassword = passwordField.type === 'password';
+                        passwordField.type = isPassword ? 'text' : 'password';
+                        
+                        // Handle FontAwesome JS SVG replacement or standard CSS webfonts
+                        const svgEl = icon.tagName === 'svg' ? icon : icon.querySelector('svg');
+                        if (svgEl && svgEl.hasAttribute('data-icon')) {
+                            const currentIcon = svgEl.getAttribute('data-icon');
+                            if (currentIcon === 'eye-slash') {
+                                svgEl.setAttribute('data-icon', 'eye');
+                            } else {
+                                svgEl.setAttribute('data-icon', 'eye-slash');
+                            }
+                        } else {
+                            icon.classList.toggle('fa-eye');
+                            icon.classList.toggle('fa-eye-slash');
+                        }
                     }
                 }
             });
@@ -397,13 +410,27 @@ import StandaloneLayout from '../layouts/StandaloneLayout.astro';
                 const role = session.user.user_metadata?.role || 'user';
                 const metadataJson = JSON.stringify(session.user.user_metadata || {});
                 
-                window.AndroidInterface.updateSupabaseSession(
-                    session.access_token || "", 
-                    session.user.id || "", 
-                    session.user.email || "", 
-                    role, 
-                    metadataJson
-                );
+                try {
+                    // Try the 6-argument version with refresh token first
+                    window.AndroidInterface.updateSupabaseSession(
+                        session.access_token || "", 
+                        session.refresh_token || null,
+                        session.user.id || "", 
+                        session.user.email || "", 
+                        role, 
+                        metadataJson
+                    );
+                } catch(err) {
+                    console.warn("Retrying with 5-argument signature:", err);
+                    // Fall back to 5-argument version if 6-argument is not supported by the current app version
+                    window.AndroidInterface.updateSupabaseSession(
+                        session.access_token || "", 
+                        session.user.id || "", 
+                        session.user.email || "", 
+                        role, 
+                        metadataJson
+                    );
+                }
                 
                 window.AndroidInterface.openNativeProfile();
             } catch(e) {

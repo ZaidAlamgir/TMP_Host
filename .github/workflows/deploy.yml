@@ -274,6 +274,17 @@ jobs:
           echo "--- Verification: Files in src/content/news ---"
           ls -R ./main_site/src/content/news
       
+      - name: 29b. Cache Astro Content and Vite Assets
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./main_site/.astro
+            ./main_site/node_modules/.vite
+          key: ${{ runner.os }}-astro-${{ hashFiles('./main_site/package-lock.json') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-astro-${{ hashFiles('./main_site/package-lock.json') }}-
+            ${{ runner.os }}-astro-
+
       - name: 30. Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -293,6 +304,7 @@ jobs:
           echo "Setting up AssetLinks Rewrite..."
           mkdir -p dist/.well-known
           cp public/.well-known/assetlinks.json dist/.well-known/assetlinks.json || true
+          cp public/.well-known/assetlinks.json dist/assetlinks.json || true
           echo "/.well-known/assetlinks.json /assetlinks.json 200" >> dist/_redirects
           echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site

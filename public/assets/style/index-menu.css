@@ -22,7 +22,7 @@
     width: 100%;
     height: 100%;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    stroke: #1c1e21; /* Default dark color */
+    stroke: #000000; /* Default dark color */
 }
 
 #index-close-icon {
@@ -347,4 +347,10 @@ body.dark-mode .menu-home-logo {
 .index-main-nav .app-settings-link svg {
   stroke: currentColor; /* Use the link's current text color for the icon */
   fill: none; /* Make sure SVG isn't filled if it shouldn't be */
+}
+
+/* Prevent background page scrolling when menu overlay is open */
+body.menu-open {
+    overflow: hidden !important;
+    height: 100vh !important;
 }
