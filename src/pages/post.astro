@@ -10,23 +10,26 @@ import Layout from '../layouts/Layout.astro';
         .feed-card { 
             display: flex; gap: 20px; background: white; border: 1px solid #e5e7eb; 
             border-radius: 12px; padding: 20px; margin-bottom: 20px; transition: box-shadow 0.2s;
+            position: relative;
         }
         .feed-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .feed-card:hover .card-title { color: #2563eb; }
         
-        .card-image { width: 160px; height: 110px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #f3f4f6; }
+        .card-image { width: 160px; height: 110px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #f3f4f6; position: relative; z-index: 2; }
         .card-image img { width: 100%; height: 100%; object-fit: cover; }
         
         .card-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .card-tags { margin-bottom: 8px; }
+        .card-tags { margin-bottom: 8px; position: relative; z-index: 2; }
         .card-tag { font-size: 0.7rem; font-weight: 700; color: #dc2626; text-transform: uppercase; background: #fee2e2; padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
         
         .card-title { font-family: 'Merriweather', serif; font-size: 1.25rem; font-weight: 700; line-height: 1.3; color: #111; margin-bottom: 6px; text-decoration: none; }
+        .card-title::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 1; }
         .card-title:hover { color: #2563eb; }
         
         .card-excerpt { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #6b7280; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
         .card-meta { margin-top: 12px; font-size: 0.8rem; color: #9ca3af; display: flex; align-items: center; gap: 10px; }
-        .author-link { color: #4b5563; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px;}
+        .author-link { color: #4b5563; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px; position: relative; z-index: 2; }
         .author-link:hover { text-decoration: underline; }
         .author-avatar-small { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
 
@@ -88,8 +91,7 @@ import Layout from '../layouts/Layout.astro';
                 
                 const authorSlug = cleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
                 
-                const titleSlug = post.slug ? post.slug : (post.title ? post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article');
-                const postLink = `/opinion/${authorSlug}/${titleSlug}`;
+                const postLink = `/postopen/?id=${post.id}`;
                 
                 const dateStr = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 

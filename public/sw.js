@@ -1,6 +1,6 @@
-const CORE_CACHE = 'tmp-core-v20';
-const ARTICLE_CACHE = 'tmp-articles-v20';
-const ASSET_CACHE = 'tmp-assets-v20';
+const CORE_CACHE = 'tmp-core-v21';
+const ARTICLE_CACHE = 'tmp-articles-v21';
+const ASSET_CACHE = 'tmp-assets-v21';
 const CORE_ASSETS = [
     '/',                      
     '/index.html',            
