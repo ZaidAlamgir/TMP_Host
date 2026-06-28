@@ -29,6 +29,7 @@ export async function GET() {
     }
 
     return {
+      id: post.id,
       title: post.data.title || '',
       url: `/news/${categoryFolder}/${post.id}`,
       // Converts Date object to string (e.g., "Oct 04, 2025")

@@ -43,26 +43,43 @@ import Layout from '../layouts/Layout.astro';
 
         if (!postId) { showError("No Article ID provided."); return; }
 
-        const sources = ['/api/feed', '/opinions/feed.json', '/feed.json', '/search.json'];
         let post = null;
 
         try {
-            for (const source of sources) {
-                try {
-                    const response = await fetch(source);
-                    if (!response.ok) continue;
-                    const contentType = response.headers.get("content-type");
-                    if (contentType && !contentType.includes("application/json")) continue;
+            // 1. Try to fetch the single article dynamically from the database API
+            try {
+                const response = await fetch(`/api/feed?id=${postId}`);
+                if (response.ok) {
                     const data = await response.json();
-                    let postsArray = [];
-                    if (Array.isArray(data)) { postsArray = data; }
-                    else if (data.posts && Array.isArray(data.posts)) { postsArray = data.posts; }
-                    const found = postsArray.find(p => String(p.id) === String(postId));
-                    if (found) { post = found; break; }
-                } catch (err) { console.warn(`Skipping source ${source}:`, err); }
+                    if (data && !data.error) {
+                        post = data;
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed to fetch single article from database:", err);
             }
 
-            if (!post) { throw new Error("Article not found in any feed."); }
+            // 2. If not found, check search.json fallback (static articles)
+            if (!post) {
+                try {
+                    const response = await fetch('/search.json');
+                    if (response.ok) {
+                        const searchData = await response.json();
+                        const found = searchData.find(p => String(p.id) === String(postId) || String(p.url).includes(String(postId)));
+                        if (found) {
+                            // If it's a static article, redirect to the actual static URL directly!
+                            window.location.href = found.url;
+                            return; 
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Failed to check fallback search.json:", err);
+                }
+            }
+
+            if (!post) { 
+                throw new Error("Article not found in any feed."); 
+            }
 
             const title = post.title || "Untitled Article";
             const author = post.author || "Staff Writer";
