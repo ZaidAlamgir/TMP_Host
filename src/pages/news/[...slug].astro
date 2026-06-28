@@ -1,5 +1,5 @@
 ---
-// src/pages/news/[slug].astro
+// src/pages/news/[...slug].astro
 import { getCollection, render } from 'astro:content';
 import PostLayout from '../../layouts/PostLayout.astro';
 
@@ -11,7 +11,7 @@ export async function getStaticPaths() {
     const filename = entry.id.split('/').pop() || entry.id;
     const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
 
-    // 1. Map by raw entry.id (e.g. /news/2025-10-31-indias-muslims-trapped-in-systemic-exclusion)
+    // 1. Map by raw entry.id (e.g. /news/2025/11/2025-11-20-french-nuclear-waste...)
     if (!pathMap.has(entry.id)) {
       pathMap.set(entry.id, { params: { slug: entry.id }, props: { entry } });
     }
@@ -21,7 +21,7 @@ export async function getStaticPaths() {
       pathMap.set(filename, { params: { slug: filename }, props: { entry } });
     }
 
-    // 3. Map by clean slug (e.g. /news/indias-muslims-trapped-in-systemic-exclusion)
+    // 3. Map by clean slug (e.g. /news/french-nuclear-waste...)
     if (!pathMap.has(cleanSlug)) {
       pathMap.set(cleanSlug, { params: { slug: cleanSlug }, props: { entry } });
     }
