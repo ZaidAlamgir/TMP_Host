@@ -575,16 +575,31 @@ if (latestPost) {
                 <div class="category-filter-container">
                     <div class="category-filter-scroll" id="category-filter-bar">
                         <button class="filter-btn active" data-tag="all">All Latest</button>
-                        <button class="filter-btn" data-tag="world-politics">World Politics</button>
-                        <button class="filter-btn" data-tag="indian-politics">Indian Politics</button>
-                        <button class="filter-btn" data-tag="muslim-world">Muslim World</button>
-                        <button class="filter-btn" data-tag="technology">Technology</button>
-                        <button class="filter-btn" data-tag="global-economy">Global Economy</button>
+                        <button class="filter-btn" data-tag="indian-muslims">Indian Muslims</button>
+                        <button class="filter-btn" data-tag="india">India & Nation</button>
+                        <button class="filter-btn" data-tag="international">International</button>
                         <button class="filter-btn" data-tag="middle-east">Middle East</button>
+                        <button class="filter-btn" data-tag="muslim-world">Muslim World</button>
+                        <button class="filter-btn" data-tag="world-politics">World Politics</button>
+                        <button class="filter-btn" data-tag="technology">Technology</button>
                         <button class="filter-btn" data-tag="climate">Climate</button>
+                        <button class="filter-btn" data-tag="indian-politics">Indian Politics</button>
+                        <button class="filter-btn" data-tag="south-asia">South Asia</button>
                         <button class="filter-btn" data-tag="defense">Defense</button>
                         <button class="filter-btn" data-tag="sports">Sports</button>
+                        <button class="filter-btn" data-tag="global-economy">Global Economy</button>
+                        <button class="filter-btn" data-tag="medical-science">Medical Science</button>
                         <button class="filter-btn" data-tag="art-culture">Art & Culture</button>
+                        <button class="filter-btn" data-tag="history">History</button>
+                        <button class="filter-btn" data-tag="africa">Africa</button>
+                        <button class="filter-btn" data-tag="europe">Europe</button>
+                        <button class="filter-btn" data-tag="central-asia">Central Asia</button>
+                        <button class="filter-btn" data-tag="south-east-asia">South East Asia</button>
+                        <button class="filter-btn" data-tag="east-asia">East Asia</button>
+                        <button class="filter-btn" data-tag="north-america">North America</button>
+                        <button class="filter-btn" data-tag="south-america">South America</button>
+                        <button class="filter-btn" data-tag="weather">Weather</button>
+                        <button class="filter-btn" data-tag="crime-alert">Crime Alert</button>
                     </div>
                 </div>
                 
@@ -659,9 +674,75 @@ if (latestPost) {
             let currentRenderedCount = 0;
             let activeTag = 'all';
 
+            const categoryNames = {
+                'indian-muslims': 'Indian Muslims',
+                'india': 'India & Nation',
+                'international': 'International',
+                'middle-east': 'Middle East',
+                'muslim-world': 'Muslim World',
+                'world-politics': 'World Politics',
+                'technology': 'Technology',
+                'climate': 'Climate',
+                'indian-politics': 'Indian Politics',
+                'south-asia': 'South Asia',
+                'defense': 'Defense',
+                'sports': 'Sports',
+                'global-economy': 'Global Economy',
+                'medical-science': 'Medical Science',
+                'art-culture': 'Art & Culture',
+                'history': 'History',
+                'africa': 'Africa',
+                'europe': 'Europe',
+                'central-asia': 'Central Asia',
+                'south-east-asia': 'South East Asia',
+                'east-asia': 'East Asia',
+                'north-america': 'North America',
+                'south-america': 'South America',
+                'weather': 'Weather',
+                'crime-alert': 'Crime Alert'
+            };
+
+            const categoryTagsMap = {
+                'all': [],
+                'indian-muslims': ['indian-muslims'],
+                'india': ['national-news', 'indian-politics', 'south-asia', 'indian-muslims'],
+                'international': ['international-news', 'world-politics', 'europe', 'asia', 'africa', 'central-asia', 'south-east-asia', 'east-asia', 'north-america', 'south-america'],
+                'middle-east': ['middle-east'],
+                'muslim-world': ['muslim-world'],
+                'world-politics': ['world-politics'],
+                'technology': ['technology'],
+                'climate': ['climate'],
+                'indian-politics': ['indian-politics'],
+                'south-asia': ['south-asia'],
+                'defense': ['defense'],
+                'sports': ['sports'],
+                'global-economy': ['global-economy'],
+                'medical-science': ['medical-science'],
+                'art-culture': ['art-culture'],
+                'history': ['history'],
+                'africa': ['africa'],
+                'europe': ['europe'],
+                'central-asia': ['central-asia'],
+                'south-east-asia': ['south-east-asia'],
+                'east-asia': ['east-asia'],
+                'north-america': ['north-america'],
+                'south-america': ['south-america'],
+                'weather': ['weather'],
+                'crime-alert': ['crime-alert']
+            };
+
             function formatTag(tag) {
-                if (tag === 'art-culture') return 'Art & Culture';
-                return tag.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                return categoryNames[tag] || tag.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            }
+
+            function getFilteredArticles(articles, categoryKey) {
+                if (categoryKey === 'all') return articles;
+                const mappedTags = categoryTagsMap[categoryKey] || [categoryKey];
+                return articles.filter(post => {
+                    if (!post.tags) return false;
+                    const postTagsList = post.tags.split(',').map(t => t.trim().toLowerCase());
+                    return mappedTags.some(mappedTag => postTagsList.includes(mappedTag.toLowerCase()));
+                });
             }
 
             function buildArticleCardsHTML(articles, shouldAnimate) {
@@ -699,10 +780,7 @@ if (latestPost) {
                 
                 // 2. Filter by tag if selected
                 if (activeTag !== 'all') {
-                    filtered = filtered.filter(post => {
-                        const postTags = post.tags ? post.tags.split(',').map(t => t.trim().toLowerCase()) : [];
-                        return postTags.includes(activeTag.toLowerCase());
-                    });
+                    filtered = getFilteredArticles(filtered, activeTag);
                 }
                 
                 currentFiltered = filtered;

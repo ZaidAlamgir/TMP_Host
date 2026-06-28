@@ -1,0 +1,48 @@
+---
+// src/pages/news/[slug].astro
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const allNews = await getCollection('news');
+  const pathMap = new Map();
+
+  for (const entry of allNews) {
+    const filename = entry.id.split('/').pop() || entry.id;
+    const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+
+    // 1. Map by raw entry.id (e.g. /news/2025-10-31-indias-muslims-trapped-in-systemic-exclusion)
+    if (!pathMap.has(entry.id)) {
+      pathMap.set(entry.id, { params: { slug: entry.id }, props: { entry } });
+    }
+
+    // 2. Map by filename
+    if (!pathMap.has(filename)) {
+      pathMap.set(filename, { params: { slug: filename }, props: { entry } });
+    }
+
+    // 3. Map by clean slug (e.g. /news/indias-muslims-trapped-in-systemic-exclusion)
+    if (!pathMap.has(cleanSlug)) {
+      pathMap.set(cleanSlug, { params: { slug: cleanSlug }, props: { entry } });
+    }
+  }
+
+  return Array.from(pathMap.values());
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<PostLayout 
+    title={entry.data.title}
+    subheadline={entry.data.subheadline}
+    date={entry.data.date}
+    image={entry.data.image}
+    image_description={entry.data.image_description}
+    tags={entry.data.tags}
+    author={entry.data.author}
+    writer={entry.data.writer}
+>
+    <Content />
+</PostLayout>

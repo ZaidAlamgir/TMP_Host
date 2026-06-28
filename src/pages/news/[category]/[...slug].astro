@@ -25,9 +25,22 @@ export async function getStaticPaths() {
       'national-news'
     ]);
     
-    // Also add the article's own tags (lowercased and hyphenated)
+    // Also add the article's own tags and parent aliases (lowercased and hyphenated)
     tags.forEach(t => {
-      if (t) targetCategories.add(t.toLowerCase().replace(/\s+/g, '-'));
+      if (t) {
+        const cleanTag = t.toLowerCase().replace(/\s+/g, '-');
+        targetCategories.add(cleanTag);
+        
+        // Map to 'india' category if matching tag
+        if (['national-news', 'indian-politics', 'south-asia', 'indian-muslims'].includes(cleanTag)) {
+          targetCategories.add('india');
+        }
+        
+        // Map to 'international' category if matching tag
+        if (['international-news', 'world-politics', 'europe', 'asia', 'africa', 'central-asia', 'south-east-asia', 'east-asia', 'north-america', 'south-america'].includes(cleanTag)) {
+          targetCategories.add('international');
+        }
+      }
     });
 
     for (const cat of targetCategories) {
