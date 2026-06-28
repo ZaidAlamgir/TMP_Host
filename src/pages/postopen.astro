@@ -43,7 +43,7 @@ import Layout from '../layouts/Layout.astro';
 
         if (!postId) { showError("No Article ID provided."); return; }
 
-        const sources = ['/feed', '/opinions/feed.json', '/feed.json'];
+        const sources = ['/api/feed', '/opinions/feed.json', '/feed.json', '/search.json'];
         let post = null;
 
         try {
