@@ -1,7 +1,7 @@
 name: Submit Sitemap to IndexNow
 on:
   workflow_run:
-    workflows: ["Build and Deploy to Cloudflare Pages"] 
+    workflows: ["Deploy Jekyll site to Pages"] 
     types: [completed]
 
 jobs:

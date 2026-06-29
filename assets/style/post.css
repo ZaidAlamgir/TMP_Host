@@ -1,0 +1,265 @@
+/* Scoped Post Page Styles */
+
+/* Only apply styles inside the post container */
+.post-container { 
+    max-width: 680px; 
+    margin: 20px auto; 
+    background-color: #ffffff; 
+    border-radius: 8px; /* Sharper corners */
+    border: 1px solid #e0e0e0; 
+    box-shadow: none; /* Removed heavy shadow for decent look */
+    padding: 30px; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Headings */
+.post-container h1, 
+.post-container h2 { 
+    text-align: center; 
+    color: #202124; 
+    margin-bottom: 25px; 
+    font-weight: 700; 
+    letter-spacing: -0.5px;
+}
+
+/* =========================================
+   PROFESSIONAL TABS (Decent Style)
+   ========================================= */
+.post-container .feed-tabs-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ebebeb; 
+    padding-bottom: 20px;
+}
+
+.post-container .feed-tabs { 
+    display: inline-flex; 
+    background-color: #f8f9fa; /* Light gray bg */
+    padding: 4px; 
+    border-radius: 6px; 
+    border: 1px solid #dadce0;
+}
+
+.post-container .feed-tab { 
+    padding: 8px 24px; 
+    cursor: pointer; 
+    font-weight: 500; 
+    color: #5f6368; 
+    font-size: 14px;
+    border-radius: 4px; 
+    transition: all 0.2s ease; 
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+}
+
+.post-container .feed-tab i {
+    font-size: 13px;
+}
+
+/* Hover State */
+.post-container .feed-tab:not(.active):hover {
+    color: #202124;
+    background-color: #e8eaed;
+}
+
+/* Active State */
+.post-container .feed-tab.active { 
+    background-color: #ffffff; 
+    color: #1a73e8; /* Professional Blue */
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+    border: 1px solid rgba(0,0,0,0.05); 
+}
+
+/* =========================================
+   SEARCH BAR
+   ========================================= */
+.post-container #search-container { padding: 0; margin-bottom: 25px; }
+.post-container #search-container input { 
+    width: 100%; 
+    padding: 12px 16px; 
+    border: 1px solid #dadce0; 
+    border-radius: 6px; 
+    font-size: 15px; 
+    box-sizing: border-box; 
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+.post-container #search-container input:focus { 
+    border-color: #1a73e8; 
+    background-color: #fff; 
+    outline: none; 
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.1);
+}
+
+/* =========================================
+   POST CARD DESIGN
+   ========================================= */
+.post-container .user-post { 
+    position: relative;
+    background-color: #fff; 
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px; 
+    padding: 24px; 
+    margin-bottom: 20px; 
+    transition: border-color 0.2s ease;
+    cursor: pointer; 
+    overflow: hidden;
+}
+
+/* Hover Effect: Only border darkens */
+.post-container .user-post:hover { 
+    border-color: #1a73e8;
+}
+
+/* Post Headline */
+.post-container .post-headline { 
+    font-size: 19px; 
+    font-weight: 600; 
+    color: #202124; 
+    margin: 0 0 12px 0; 
+    line-height: 1.5;
+}
+
+/* Image Preview */
+.post-container .post-image-preview {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    background-color: #f1f3f4;
+    border: 1px solid #ebebeb;
+}
+
+/* =========================================
+   FIXED FOOTER LAYOUT
+   ========================================= */
+.post-container .post-footer { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-top: 16px; 
+    padding-top: 16px; 
+    border-top: 1px solid #f1f3f4;
+}
+
+.post-container .post-info {
+    font-size: 13px;
+    color: #5f6368;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.post-container .post-info .author {
+    font-weight: 500;
+    color: #202124;
+}
+
+.post-container .post-info .separator {
+    color: #dadce0;
+}
+
+.post-container .read-full-action {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a73e8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+    white-space: nowrap; 
+}
+
+.post-container .user-post:hover .read-full-action {
+    color: #1557b0;
+    text-decoration: underline;
+}
+
+.post-container .read-full-action i {
+    font-size: 11px;
+}
+
+.post-container .loader { 
+    display: none; 
+    margin: 30px auto; 
+    border: 3px solid #f3f3f3; 
+    border-top: 3px solid #1a73e8; 
+    border-radius: 50%; 
+    width: 30px; 
+    height: 30px; 
+    animation: spin 0.8s linear infinite; 
+}
+.post-container #endOfFeedMessage { text-align: center; color: #5f6368; padding: 20px; display: none; font-size: 14px; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Transitions */
+#forYouFeed, #recentPostsContainer {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .post-container { margin: 0; border: none; border-radius: 0; padding: 20px; }
+    .post-container .post-headline { font-size: 18px; }
+    .post-container .post-image-preview { height: 180px; }
+}
+
+/* =========================================
+   TELEGRAM & EMBED WIDGET FIXES
+   ========================================= */
+
+/* 1. Remove flexbox from the main wrapper to prevent squashing */
+.post-container .embed-container,
+.embed-container {
+    display: block !important; 
+    text-align: center; /* Centers the content without using flex */
+    margin: 2rem auto;
+    width: 100%;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* 2. Make the placeholder a simple, full-width block */
+.post-container .telegram-embed-placeholder,
+.telegram-embed-placeholder {
+    display: block !important;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* 3. CRITICAL: Let Telegram control the height! 
+   We only force the width and remove borders. We do NOT use 'height' here. */
+.post-container .telegram-embed-placeholder iframe,
+.telegram-embed-placeholder iframe {
+    display: block !important;
+    width: 100% !important;
+    max-height: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    /* Added a minimum height so it doesn't collapse while loading */
+    min-height: 250px; 
+}
+
+/* 4. Keep the caption styled correctly */
+.embed-caption {
+    display: block;
+    margin: 10px auto 0 auto; 
+    padding: 12px; 
+    background: #f9fafb; 
+    border-left: 4px solid #1d4ed8; 
+    color: #374151; 
+    font-size: 0.95rem; 
+    width: 100%; 
+    max-width: 500px; 
+    text-align: left; 
+    border-radius: 4px; 
+    box-sizing: border-box;
+}

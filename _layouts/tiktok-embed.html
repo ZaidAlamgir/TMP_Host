@@ -1,0 +1,10 @@
+<div class="embed-container">
+<blockquote 
+  class="tiktok-embed" 
+  cite="https://www.tiktok.com/@{{ include.username }}/video/{{ include.id }}" 
+  data-video-id="{{ include.id }}" 
+  style="max-width: 605px; min-width: 325px;">
+  <section><a target="_blank" href="https://www.tiktok.com/@{{ include.username }}/video/{{ include.id }}"></a></section>
+</blockquote>
+{% if include.caption %}<div class="embed-caption">{{ include.caption }}</div>{% endif %}
+</div>

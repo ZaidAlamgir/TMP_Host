@@ -11,7 +11,7 @@ export async function onRequest(context) {
     if (jsonRes.ok) {
       const writers = await jsonRes.json();
       writerProfile = writers.find(w => {
-         // Create slug from JSON name: "TMPnews"
+         // Create slug from JSON name: "Dr. Farhan Qureshi" -> "dr-farhan-qureshi"
          const wSlug = w.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
          return wSlug === writer;
       });
@@ -151,7 +151,7 @@ export async function onRequest(context) {
 
   // 6. FETCH SHELL & INJECT
   try {
-    const templateRes = await fetch(`${siteBase}/dynamic-template/index.html`);
+    const templateRes = await fetch(`${siteBase}/dynamic-template.html`);
     if (templateRes.ok) {
         let templateHtml = await templateRes.text();
         templateHtml = templateHtml.replace('REPLACE_ME_CONTENT', profileHtml);

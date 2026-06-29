@@ -29,7 +29,7 @@ export async function onRequest(context) {
   // --- 2. PREPARE DATA PROMISES (PARALLEL EXECUTION) ---
   const postPromise = db.prepare("SELECT * FROM articles WHERE slug = ?").bind(article_id).first();
   const writersPromise = fetchWithCache(`${siteBase}/assets/data/writers_db.json`, context);
-  const templatePromise = fetchWithCache(`${siteBase}/dynamic-template/index.html`, context);
+  const templatePromise = fetchWithCache(`${siteBase}/dynamic-template.html`, context);
 
   // --- 3. AWAIT ALL DATA ---
   const [post, writersData, templateHtmlRaw] = await Promise.all([postPromise, writersPromise, templatePromise]);

@@ -1,0 +1,247 @@
+---
+layout: default
+title: Article
+---
+
+<style>
+    .article-wrapper {
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 15px;
+    }
+
+    /* Card Design */
+    .article-container {
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 2.5rem;
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typography */
+    .article-title {
+        font-family: 'Merriweather', serif; 
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1c1e21;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Meta (Author/Date) */
+    .article-meta {
+        display: flex;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .author-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0073e6, #005bb5);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+
+    .author-details .author-name { font-weight: 600; color: #1c1e21; }
+    .author-details .author-qual { font-size: 0.85rem; color: #606770; }
+    .article-date { font-size: 0.85rem; color: #606770; margin-left: auto; }
+
+    /* Content Body */
+    .article-body {
+        margin-top: 2rem;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #292929;
+        font-family: 'Georgia', serif;
+    }
+    .article-body p { margin-bottom: 1.5em; }
+    .article-body img { max-width: 100%; border-radius: 8px; margin: 1.5rem 0; display: block; }
+    .article-body h2, .article-body h3 { margin-top: 2rem; margin-bottom: 1rem; color: #111; font-weight: 700; }
+    .article-body blockquote { border-left: 4px solid #0073e6; padding-left: 1rem; color: #555; font-style: italic; }
+
+    /* Footer */
+    .article-footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f0f2f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .read-more-btn {
+        display: inline-block;
+        margin-top: 20px;
+        color: #0073e6;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* Loader */
+    .loader-container { text-align: center; padding: 50px; }
+    .spinner {
+        border: 4px solid #f3f3f3; border-top: 4px solid #0073e6;
+        border-radius: 50%; width: 40px; height: 40px;
+        animation: spin 1s linear infinite; margin: 0 auto 15px auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+        .article-container { padding: 1.5rem; }
+        .article-title { font-size: 1.8rem; }
+    }
+</style>
+
+<div class="article-wrapper">
+    <div id="article-content">
+        <div class="loader-container">
+            <div class="spinner"></div>
+            <p>Loading article...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+    const container = document.getElementById('article-content');
+
+    if (!postId) {
+        showError("No Article ID provided.");
+        return;
+    }
+
+    // --- SMART SOURCE CHECKER ---
+    // We check multiple places where the post might exist:
+    // 1. The Production API (/feed) - For "Recent" posts
+    // 2. The Opinions JSON (/opinions/feed.json) - For "For You" posts
+    // 3. The Local Fallback (/feed.json) - For localhost testing
+    const sources = [
+        '/feed',               
+        '/opinions/feed.json', 
+        '/feed.json'           
+    ];
+
+    let post = null;
+
+    try {
+        for (const source of sources) {
+            try {
+                // Fetch with a simple timeout so we don't hang forever on bad links
+                const response = await fetch(source);
+                
+                // If 404 or error, skip to next source
+                if (!response.ok) continue;
+
+                // If it returns HTML (like a 404 page), skip it
+                const contentType = response.headers.get("content-type");
+                if (contentType && !contentType.includes("application/json")) continue;
+
+                const data = await response.json();
+
+                // Handle different data structures (Array vs Object with .posts)
+                let postsArray = [];
+                if (Array.isArray(data)) {
+                    postsArray = data;
+                } else if (data.posts && Array.isArray(data.posts)) {
+                    postsArray = data.posts;
+                }
+
+                // Try to find the post
+                const found = postsArray.find(p => String(p.id) === String(postId));
+                
+                if (found) {
+                    post = found;
+                    break; // Stop looking, we found it!
+                }
+            } catch (err) {
+                console.warn(`Skipping source ${source}:`, err);
+            }
+        }
+
+        if (!post) {
+            throw new Error("Article not found in any feed.");
+        }
+
+        // --- RENDER POST ---
+        const title = post.title || "Untitled Article";
+        const author = post.author || "Staff Writer";
+        const qual = post.qual || "Contributor"; // Handles both qualification fields
+        const date = post.date ? new Date(post.date).toLocaleDateString() : "Recently";
+        const imageHtml = post.image ? `<img src="${post.image}" alt="${title}">` : '';
+        
+        // Smart Body Formatter
+        let bodyContent = post.content || post.preview || "No content available.";
+        
+        // Convert Markdown-style image/quote/headlines to HTML if strictly plain text
+        if (!bodyContent.includes('<p>') && !bodyContent.includes('<div>')) {
+             // Basic Markdown replacements
+             bodyContent = bodyContent
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
+                .replace(/\!\[(.*?)\]\((.*?)\)/gim, "<img src='$2' alt='$1'>")
+                .split('\n').map(para => {
+                    const clean = para.trim();
+                    return clean ? `<p>${clean}</p>` : '';
+                }).join('');
+        }
+
+        container.innerHTML = `
+            <div class="article-container">
+                <header>
+                    <h1 class="article-title">${title}</h1>
+                    <div class="article-meta">
+                        <div class="author-avatar">${author.charAt(0)}</div>
+                        <div class="author-details">
+                            <div class="author-name">${author}</div>
+                            <div class="author-qual">${qual}</div>
+                        </div>
+                        <div class="article-date">${date}</div>
+                    </div>
+                </header>
+
+                <div class="article-body">
+                    ${imageHtml}
+                    ${bodyContent}
+                </div>
+
+                <div class="article-footer">
+                    <a href="/post" class="read-more-btn">&larr; Back to Feed</a>
+                </div>
+            </div>
+        `;
+        document.title = `${title} - The Muslim Post`;
+
+    } catch (error) {
+        console.error(error);
+        showError("Unable to load article. It may have been deleted or moved.");
+    }
+
+    function showError(msg) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:40px; color:#666;">
+                <h3>${msg}</h3>
+                <br>
+                <a href="/post" class="read-more-btn">Return to Feed</a>
+            </div>
+        `;
+    }
+});
+</script>

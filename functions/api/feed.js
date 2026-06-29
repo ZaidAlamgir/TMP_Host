@@ -8,38 +8,6 @@ export async function onRequest(context) {
   const CACHE_TIME_MS = 3 * 60 * 1000; 
 
   const url = new URL(request.url);
-  const singleId = url.searchParams.get("id");
-  if (singleId) {
-    try {
-      let query;
-      let result;
-      if (/^\d+$/.test(singleId)) {
-        query = `SELECT * FROM articles WHERE id = ?`;
-        result = await db.prepare(query).bind(parseInt(singleId)).first();
-      } else {
-        query = `SELECT * FROM articles WHERE slug = ?`;
-        result = await db.prepare(query).bind(singleId).first();
-      }
-      if (!result) {
-        return new Response(JSON.stringify({ error: "Article not found" }), { 
-          status: 404, 
-          headers: { "Content-Type": "application/json" } 
-        });
-      }
-      return new Response(JSON.stringify(result), {
-        headers: { 
-          "Content-Type": "application/json", 
-          "Cache-Control": "public, max-age=60" 
-        }
-      });
-    } catch(err) {
-      return new Response(JSON.stringify({ error: err.message }), { 
-        status: 500, 
-        headers: { "Content-Type": "application/json" } 
-      });
-    }
-  }
-
   const page = parseInt(url.searchParams.get("page")) || 1;
   const offset = (page - 1) * POSTS_PER_PAGE;
 

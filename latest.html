@@ -1,0 +1,23 @@
+---
+layout: default
+title: Loading Latest Article...
+permalink: /latest.html
+---
+
+{% assign latest = site.posts.first %}
+
+<script>
+    (function() {
+        // Jekyll automatically injects the real URL of your newest article here
+        const latestUrl = "{{ latest.url | relative_url }}";
+        
+        // Execute the redirect seamlessly using Hotwire Turbo
+        if (typeof Turbo !== 'undefined') {
+            // Trigger instantly (no delay needed since there is no middle UI to render)
+            Turbo.visit(latestUrl, { action: "replace" });
+        } else {
+            // Fallback for browsers with JavaScript issues
+            window.location.replace(latestUrl);
+        }
+    })();
+</script>

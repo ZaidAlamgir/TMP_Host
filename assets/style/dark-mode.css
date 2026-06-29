@@ -1,0 +1,503 @@
+/* ---
+==========================================================================
+   A powerful, unified dark mode stylesheet for The Muslim Post.
+   This file overrides light-mode defaults and Tailwind classes
+   when 'html.dark-mode' is active.
+==========================================================================
+--- */
+
+/* --- 1. Root Color Variables --- */
+:root {
+    --dark-bg-primary: #111827;      /* Deep navy - Main background (Tailwind gray-900) */
+    --dark-bg-secondary: #1f2937;    /* Dark gray - Cards, headers (Tailwind gray-800) */
+    --dark-bg-tertiary: #374151;     /* Lighter gray - Hover states (Tailwind gray-700) */
+    --dark-border-color: #4b5563;    /* Muted border (Tailwind gray-600) */
+    --dark-text-primary: #f9fafb;    /* Off-white - Headlines (Tailwind gray-50) */
+    --dark-text-secondary: #d1d5db;  /* Light gray - Body text (Tailwind gray-300) */
+    --dark-text-muted: #9ca3af;     /* Muted gray - Meta text (Tailwind gray-400) */
+    --dark-accent-primary: #60a5fa;  /* Bright blue - Links (Tailwind blue-400) */
+    --dark-accent-yellow: #facc15;   /* Vibrant yellow (Tailwind yellow-400) */
+}
+
+/* --- 2. Global Overrides (To fight Tailwind) --- */
+
+html.dark-mode body {
+    background-color: var(--dark-bg-primary);
+    color: var(--dark-text-secondary);
+}
+
+/* Override common Tailwind light-mode classes */
+html.dark-mode .bg-white,
+html.dark-mode .bg-slate-100 {
+    background-color: var(--dark-bg-secondary) !important;
+}
+
+html.dark-mode .bg-gray-100,
+html.dark-mode .bg-slate-50,
+html.dark-mode .bg-f8f9fa,  /* from home.css */
+html.dark-mode .bg-f9fafb,  /* from post.html */
+html.dark-mode .bg-f0f2f5 {  /* from style.css */
+    background-color: var(--dark-bg-primary) !important;
+}
+
+/* Text Colors */
+html.dark-mode h1, html.dark-mode h2, html.dark-mode h3, html.dark-mode h4,
+html.dark-mode .logo,
+html.dark-mode .font-bold,
+html.dark-mode .font-semibold,
+html.dark-mode .text-gray-800,
+html.dark-mode .text-gray-900,
+html.dark-mode .text-slate-800,
+html.dark-mode .text-slate-900,
+html.dark-mode .text-1c1e21, /* from style.css */
+html.dark-mode [class*="color: #111827"],
+html.dark-mode [class*="color: #1c1e21"] {
+    color: var(--dark-text-primary) !important;
+}
+
+html.dark-mode p,
+html.dark-mode .text-gray-600,
+html.dark-mode .text-gray-700,
+html.dark-mode .text-slate-600,
+html.dark-mode .text-606770, /* from post.html */
+html.dark-mode .color-4b5563, /* from post.html */
+html.dark-mode .color-374151, /* from post.html */
+html.dark-mode .article-body p,
+html.dark-mode .article-subheadline,
+html.dark-mode .top-story-subheadline,
+html.dark-mode .subtitle {
+    color: var(--dark-text-secondary) !important;
+}
+
+html.dark-mode .text-gray-500,
+html.dark-mode .text-slate-500,
+html.dark-mode .text-6b7280, /* from post.html */
+html.dark-mode .text-8a8d91,
+html.dark-mode .publish-date,
+html.dark-mode .article-image-caption,
+html.dark-mode .post-stats,
+html.dark-mode .stat-item {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Links and Accents */
+html.dark-mode a {
+    color: var(--dark-accent-primary);
+}
+html.dark-mode a:hover {
+    color: #93c5fd; /* Lighter blue on hover */
+}
+html.dark-mode .tag-highlight { /* from news-hub.html */
+    color: var(--dark-accent-primary) !important;
+}
+
+/* Borders */
+html.dark-mode .border-gray-200,
+html.dark-mode .border-slate-200,
+html.dark-mode .border-slate-300,
+html.dark-mode .border-e5e7eb, /* from post.html */
+html.dark-mode .border-dddfe2, /* from post.html */
+html.dark-mode .border-d1d5db,
+html.dark-mode .border-t, html.dark-mode .border-b, html.dark-mode .border,
+html.dark-mode .article-meta,
+html.dark-mode .article-footer,
+html.dark-mode .post-footer,
+html.dark-mode .feed-tabs, /* from post.html */
+html.dark-mode hr {
+    border-color: var(--dark-border-color) !important;
+}
+
+html.dark-mode .divider::before,
+html.dark-mode .divider::after {
+    border-bottom-color: var(--dark-border-color) !important;
+}
+
+/* Shadows */
+html.dark-mode .shadow-lg,
+html.dark-mode .shadow-xl,
+html.dark-mode .shadow,
+html.dark-mode .box-shadow {
+    /* Replace light shadow with a subtle border */
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+
+/* Blockquotes */
+html.dark-mode blockquote,
+html.dark-mode .article-body blockquote {
+    border-left-color: var(--dark-accent-primary) !important;
+    background-color: rgba(96, 165, 250, 0.05) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
+/* --- 3. Component-Specific Overrides --- */
+
+/* --- Header, Footer, Navs (style.css, index-menu.css, site-footer.html) --- */
+html.dark-mode .header {
+    background-color: var(--dark-bg-secondary);
+    border-bottom-color: var(--dark-border-color);
+}
+html.dark-mode .header.header-solid { /* For about.css */
+    background-color: var(--dark-bg-secondary) !important;
+    border-bottom-color: var(--dark-border-color) !important;
+}
+html.dark-mode .header .logo,
+html.dark-mode .header .index-menu-button svg,
+html.dark-mode .header.header-solid .logo,
+html.dark-mode .header.header-solid .index-menu-button svg,
+html.dark-mode #login-icon-svg svg {
+    color: var(--dark-text-primary) !important;
+    stroke: var(--dark-text-primary) !important;
+}
+
+html.dark-mode .index-menu-overlay {
+    background-color: rgba(17, 24, 39, 0.95); /* Dark with blur */
+}
+html.dark-mode .index-search-box {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .search-icon {
+    color: var(--dark-text-muted);
+}
+html.dark-mode .index-main-nav {
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .index-main-nav > div,
+html.dark-mode .index-main-nav > a {
+    color: var(--dark-text-primary);
+    border-bottom-color: var(--dark-border-color);
+}
+html.dark-mode .index-main-nav > div:hover,
+html.dark-mode .index-main-nav > a:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-accent-primary);
+}
+html.dark-mode .categories-dropdown {
+    background-color: var(--dark-bg-primary);
+}
+html.dark-mode .categories-dropdown li a {
+    color: var(--dark-text-secondary);
+}
+html.dark-mode .categories-dropdown li a:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-accent-primary);
+}
+html.dark-mode #index-results-list li a {
+    color: var(--dark-text-secondary);
+    border-bottom-color: var(--dark-border-color);
+}
+html.dark-mode #index-results-list li a:hover {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-accent-primary);
+}
+html.dark-mode .menu-home-logo .tmp-text {
+    fill: var(--dark-text-primary);
+}
+
+html.dark-mode .bottom-nav {
+    background-color: var(--dark-bg-secondary);
+    border-top: 1px solid var(--dark-border-color);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+}
+html.dark-mode .bottom-nav-link {
+    color: var(--dark-text-muted);
+}
+html.dark-mode .bottom-nav-link.active {
+    color: var(--dark-accent-primary);
+}
+html.dark-mode .bottom-nav-link.active svg {
+    stroke: var(--dark-accent-primary);
+}
+html.dark-mode .nav-glider {
+    background-color: rgba(96, 165, 250, 0.15); /* Faint blue glow */
+}
+
+html.dark-mode .bg-gray-800 { /* Footer */
+    background-color: var(--dark-bg-primary) !important;
+}
+html.dark-mode .text-gray-300 { /* Footer text */
+    color: var(--dark-text-secondary) !important;
+}
+html.dark-mode .text-gray-400 { /* Footer meta text */
+    color: var(--dark-text-muted) !important;
+}
+html.dark-mode .border-gray-700 { /* Footer border */
+    border-color: var(--dark-border-color) !important;
+}
+
+/* --- Homepage (home.css, index.md) --- */
+
+/* === UPDATED FIX for Support Banner === */
+html.dark-mode .support-cta-banner {
+    /* User Request: black background, white text */
+    background-color: var(--dark-bg-primary) !important; /* This is #111827 (near black) */
+    color: var(--dark-text-primary) !important; /* This is #f9fafb (near white) */
+}
+html.dark-mode .support-cta-button {
+    /* User Request: white button, (assumed) black text for contrast */
+    background-color: var(--dark-text-primary) !important; /* This is #f9fafb (near white) */
+    color: var(--dark-bg-primary) !important; /* This is #111827 (near black) */
+}
+/* === END FIX === */
+
+html.dark-mode .top-story-card {
+    background-color: var(--dark-bg-secondary) !important;
+}
+html.dark-mode .top-story-kicker {
+    color: var(--dark-accent-primary);
+}
+html.dark-mode .news-card {
+    background-color: var(--dark-bg-secondary) !important;
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+html.dark-mode .news-card-image-wrapper {
+    background-color: var(--dark-bg-tertiary);
+}
+html.dark-mode .feature-item .feature-icon {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-accent-primary);
+}
+html.dark-mode .cta-section {
+    background-color: var(--dark-bg-secondary) !important;
+}
+/* --- home screen banner fix --- */
+
+/* --- Post Feeds (post.html, live.md, postopen.html) --- */
+html.dark-mode .post-container,
+html.dark-mode .live-post,
+html.dark-mode .article-container,
+html.dark-mode .user-post {
+    background-color: var(--dark-bg-secondary);
+    border-color: var(--dark-border-color);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+
+/* === FIX for post.html === */
+html.dark-mode .form-group label,
+html.dark-mode .suggestions-container label {
+    color: var(--dark-text-primary);
+}
+html.dark-mode .add-block-controls {
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .add-block-controls button {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+}
+html.dark-mode .add-block-controls button:hover {
+    background-color: var(--dark-border-color);
+}
+html.dark-mode .dynamic-block {
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .dynamic-block h3 {
+    color: var(--dark-text-muted);
+}
+html.dark-mode .btn-secondary,
+html.dark-mode .btn-cancel {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+}
+html.dark-mode .btn-secondary:hover,
+html.dark-mode .btn-cancel:hover {
+    background-color: var(--dark-border-color);
+}
+html.dark-mode .feed-tab {
+    color: var(--dark-text-muted);
+}
+html.dark-mode .feed-tab.active {
+    color: var(--dark-accent-primary);
+    border-bottom-color: var(--dark-accent-primary);
+}
+/* === END FIX === */
+
+html.dark-mode input,
+html.dark-mode textarea,
+html.dark-mode select {
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border-color) !important;
+}
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+html.dark-mode input:focus,
+html.dark-mode textarea:focus,
+html.dark-mode select:focus {
+    border-color: var(--dark-accent-primary) !important;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3) !important;
+}
+html.dark-mode .suggestion-chip,
+html.dark-mode .post-tag,
+html.dark-mode .tag {
+    background-color: rgba(96, 165, 250, 0.15);
+    color: var(--dark-accent-primary);
+}
+html.dark-mode .suggestion-chip:hover,
+html.dark-mode .post-tag:hover {
+    background-color: rgba(96, 165, 250, 0.25);
+}
+html.dark-mode .tag-badge { /* from live.md */
+    background-color: #3730a3; /* Dark indigo */
+    color: #e0e7ff;
+}
+html.dark-mode .pinned-badge { /* from live.md */
+    background-color: #78350f; /* Dark orange */
+    color: #fef3c7;
+}
+html.dark-mode .share-btn {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-secondary);
+}
+html.dark-mode .share-btn:hover {
+    background-color: var(--dark-border-color);
+}
+html.dark-mode .author-avatar { /* from postopen.html */
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+
+/* --- Auth & Profile (auth.md, profile.css, profile.md) --- */
+html.dark-mode .auth-container {
+    background-color: var(--dark-bg-secondary);
+}
+html.dark-mode .btn-google {
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border-color) !important;
+}
+html.dark-mode .btn-google:hover {
+    background-color: var(--dark-bg-tertiary) !important;
+}
+html.dark-mode .profile-layout {
+    background-color: var(--dark-bg-secondary);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+html.dark-mode .profile-nav {
+    border-right-color: var(--dark-border-color);
+}
+html.dark-mode .profile-nav li a {
+    color: var(--dark-text-secondary);
+}
+html.dark-mode .profile-nav li a:hover {
+    background-color: var(--dark-bg-tertiary);
+}
+html.dark-mode .profile-nav li a.active {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+    font-weight: bold;
+}
+html.dark-mode .btn-primary {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+html.dark-mode .btn-primary:hover {
+    background-color: #93c5fd;
+}
+html.dark-mode .user-post-item { /* from profile.md */
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .message.success {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #a7f3d0;
+    border-color: #059669;
+}
+html.dark-mode .message.error {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    border-color: #b91c1c;
+}
+html.dark-mode .message.info {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #93c5fd;
+    border-color: #2563eb;
+}
+
+/* --- Legal Pages (legal.css) --- */
+html.dark-mode .legal-container {
+    background-color: var(--dark-bg-secondary);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+
+/* --- Support & Payment (support.css, payment-selection.css) --- */
+html.dark-mode .subscription-card,
+html.dark-mode .selection-card {
+    background-color: var(--dark-bg-secondary);
+    border-color: var(--dark-border-color);
+    box-shadow: 0 0 0 1px var(--dark-border-color) !important;
+}
+html.dark-mode .subscription-card:hover {
+     box-shadow: 0 0 0 1px var(--dark-accent-primary), 0 8px 20px rgba(96, 165, 250, 0.1) !important;
+}
+html.dark-mode .subscription-card.popular {
+    border-color: var(--dark-accent-primary) !important;
+}
+html.dark-mode .popular-badge {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+    font-weight: bold;
+}
+html.dark-mode .card-button {
+    background-color: var(--dark-accent-primary);
+    color: var(--dark-bg-primary);
+}
+html.dark-mode .card-button:hover {
+    background-color: #93c5fd;
+}
+html.dark-mode .subscription-card.membership .card-button {
+    background: linear-gradient(90deg, #10B981, #059669);
+    color: var(--dark-text-primary);
+}
+html.dark-mode .features-list .fa-check-circle {
+    color: #34d399; /* Green check */
+}
+html.dark-mode .features-list .fa-times-circle {
+    color: var(--dark-text-muted); /* Muted 'x' */
+}
+html.dark-mode .quick-amount-btn {
+    background-color: var(--dark-bg-tertiary);
+    border-color: var(--dark-border-color);
+    color: var(--dark-text-secondary);
+}
+html.dark-mode .quick-amount-btn.selected {
+    border-color: var(--dark-accent-primary);
+    background-color: rgba(96, 165, 250, 0.1);
+    color: var(--dark-accent-primary);
+}
+html.dark-mode .plan-summary {
+    background-color: var(--dark-bg-primary);
+    border-color: var(--dark-border-color);
+}
+html.dark-mode .method-card {
+    border-color: var(--dark-border-color);
+}
+/* Make PayPal/Paytm logos visible on dark background */
+html.dark-mode .paypal-logo path[fill="#003087"],
+html.dark-mode .paypal-logo path[fill="#012169"] {
+    fill: #009CDE;
+}
+html.dark-mode .paytm-logo path[fill="#00b2ef"] {
+    fill: #00b2ef;
+}
+
+/* --- Fix for Author Text Colors --- */
+html.dark-mode .top-story-author,
+html.dark-mode .author-name,
+html.dark-mode .live-post-author
+html.dark-mode .plan-summary {
+    color: var(--dark-text-primary) !important;
+}
+
+html.dark-mode li {
+    color: var(--dark-text-primary) !important;
+}
+ 
+html.dark-mode .plan-price,
+html.dark-mode .plan-name {
+    color: var(--dark-text-primary) !important;
+}

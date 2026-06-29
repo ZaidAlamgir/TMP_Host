@@ -30,6 +30,7 @@ dist/
 node_modules/
 npm-debug.log
 yarn-error.log
+package-lock.json
 yarn.lock
 
 # --- OS Junk Files ---
@@ -42,11 +43,3 @@ Desktop.ini
 .idea/
 *.swp
 *.swo
-
-# --- Astro Defaults ---
-.astro/
-
-# --- CLI Tooling ---
-.antigravitycli/
-plan.md
-astro-build-30.md
