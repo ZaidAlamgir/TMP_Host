@@ -194,6 +194,9 @@ jobs:
           # This downloads the site to a folder named '_site' in the current directory
           path: ./_site
           
+      - name: Remove wrangler.toml to avoid configuration conflict
+        run: rm -f wrangler.toml
+          
       # 3. Deploy
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
