@@ -1,11 +1,8 @@
 ---
 // src/pages/news/[category]/[...slug].astro
 import { getCollection, render } from 'astro:content';
-
-// Import your detailed article layout
 import PostLayout from '../../../layouts/PostLayout.astro';
 
-// 1. Generate the dynamic URLs based on the markdown files
 export async function getStaticPaths() {
   const allNews = await getCollection('news');
   const pathMap = new Map();
@@ -20,29 +17,24 @@ export async function getStaticPaths() {
     const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
     const cleanNestedSlug = subfolders ? `${subfolders}/${cleanSlug}` : cleanSlug;
 
-    // List of categories to map this article to
+    // Compute primary category folder
+    const rawTags = entry.data.tags || [];
+    const rawCategories = entry.data.categories || [];
+    const combinedTags = [...new Set([...rawTags, ...rawCategories])].map(t => t.toLowerCase());
+    const categoryFolder = combinedTags.length > 0 ? combinedTags[0].replace(/\s+/g, '-') : 'general';
+
+    const canonicalPath = `${categoryFolder}/${cleanNestedSlug}`;
+    const canonicalUrl = `/news/${canonicalPath}/`;
+
+    // Map the article to 'general' and its own tags
     const targetCategories = new Set([
-      'general',
-      'breaking-news',
-      'international-news',
-      'national-news'
+      'general'
     ]);
     
-    // Also add the article's own tags and parent aliases (lowercased and hyphenated)
     tags.forEach(t => {
       if (t) {
         const cleanTag = t.toLowerCase().replace(/\s+/g, '-');
         targetCategories.add(cleanTag);
-        
-        // Map to 'india' category if matching tag
-        if (['national-news', 'indian-politics', 'south-asia', 'indian-muslims'].includes(cleanTag)) {
-          targetCategories.add('india');
-        }
-        
-        // Map to 'international' category if matching tag
-        if (['international-news', 'world-politics', 'europe', 'asia', 'africa', 'central-asia', 'south-east-asia', 'east-asia', 'north-america', 'south-america'].includes(cleanTag)) {
-          targetCategories.add('international');
-        }
       }
     });
 
@@ -50,25 +42,29 @@ export async function getStaticPaths() {
       // 1. Canonical nested ID: /news/category/2026/06/filename
       const key1 = `${cat}/${entry.id}`;
       if (!pathMap.has(key1)) {
-        pathMap.set(key1, { params: { category: cat, slug: entry.id }, props: { entry } });
+        const isCanonical = (key1 === canonicalPath);
+        pathMap.set(key1, { params: { category: cat, slug: entry.id }, props: { entry, isCanonical, canonicalUrl } });
       }
 
       // 2. Canonical flat ID: /news/category/filename
       const key2 = `${cat}/${filename}`;
       if (!pathMap.has(key2)) {
-        pathMap.set(key2, { params: { category: cat, slug: filename }, props: { entry } });
+        const isCanonical = (key2 === canonicalPath);
+        pathMap.set(key2, { params: { category: cat, slug: filename }, props: { entry, isCanonical, canonicalUrl } });
       }
 
       // 3. Clean flat slug (without date prefix): /news/category/clean-slug
       const key3 = `${cat}/${cleanSlug}`;
       if (!pathMap.has(key3)) {
-        pathMap.set(key3, { params: { category: cat, slug: cleanSlug }, props: { entry } });
+        const isCanonical = (key3 === canonicalPath);
+        pathMap.set(key3, { params: { category: cat, slug: cleanSlug }, props: { entry, isCanonical, canonicalUrl } });
       }
 
       // 4. Clean nested slug (with subfolders but without date prefix): /news/category/subfolders/clean-slug
       const key4 = `${cat}/${cleanNestedSlug}`;
       if (!pathMap.has(key4)) {
-        pathMap.set(key4, { params: { category: cat, slug: cleanNestedSlug }, props: { entry } });
+        const isCanonical = (key4 === canonicalPath);
+        pathMap.set(key4, { params: { category: cat, slug: cleanNestedSlug }, props: { entry, isCanonical, canonicalUrl } });
       }
     }
   }
@@ -76,23 +72,14 @@ export async function getStaticPaths() {
   return Array.from(pathMap.values());
 }
 
-// 2. Fetch the specific article data and render the Markdown
-const { entry } = Astro.props;
+const { entry, isCanonical, canonicalUrl } = Astro.props;
+
+// If it's not the canonical URL, redirect immediately
+if (!isCanonical) {
+  return Astro.redirect(canonicalUrl);
+}
+
 const { Content } = await render(entry);
-
-// Compute the canonical URL (standard category folder + clean nested slug)
-const rawTags = entry.data.tags || [];
-const rawCategories = entry.data.categories || [];
-const combinedTags = [...new Set([...rawTags, ...rawCategories])].map(t => t.toLowerCase());
-const categoryFolder = combinedTags.length > 0 ? combinedTags[0].replace(/\s+/g, '-') : 'general';
-
-const parts = entry.id.split('/');
-const filename = parts.pop() || entry.id;
-const subfolders = parts.join('/');
-const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
-const cleanNestedSlug = subfolders ? `${subfolders}/${cleanSlug}` : cleanSlug;
-
-const canonicalUrl = `https://www.tmpnews.com/news/${categoryFolder}/${cleanNestedSlug}/`;
 ---
 
 <PostLayout 

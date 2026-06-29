@@ -1,71 +1,49 @@
 ---
 // src/pages/news/[...slug].astro
-import { getCollection, render } from 'astro:content';
-import PostLayout from '../../layouts/PostLayout.astro';
+import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const allNews = await getCollection('news');
   const pathMap = new Map();
 
   for (const entry of allNews) {
+    const rawTags = entry.data.tags || [];
+    const rawCategories = entry.data.categories || [];
+    const combinedTags = [...new Set([...rawTags, ...rawCategories])].map(t => t.toLowerCase());
+    const categoryFolder = combinedTags.length > 0 ? combinedTags[0].replace(/\s+/g, '-') : 'general';
+
     const parts = entry.id.split('/');
     const filename = parts.pop() || entry.id;
     const subfolders = parts.join('/');
     const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
     const cleanNestedSlug = subfolders ? `${subfolders}/${cleanSlug}` : cleanSlug;
 
-    // 1. Map by raw entry.id (e.g. /news/2025/11/2025-11-20-french-nuclear-waste...)
+    const canonicalUrl = `/news/${categoryFolder}/${cleanNestedSlug}/`;
+
+    // 1. Map by raw entry.id (redirect to canonical)
     if (!pathMap.has(entry.id)) {
-      pathMap.set(entry.id, { params: { slug: entry.id }, props: { entry } });
+      pathMap.set(entry.id, { params: { slug: entry.id }, props: { canonicalUrl } });
     }
 
-    // 2. Map by filename
+    // 2. Map by filename (redirect to canonical)
     if (!pathMap.has(filename)) {
-      pathMap.set(filename, { params: { slug: filename }, props: { entry } });
+      pathMap.set(filename, { params: { slug: filename }, props: { canonicalUrl } });
     }
 
-    // 3. Map by clean slug (e.g. /news/french-nuclear-waste...)
+    // 3. Map by clean slug (redirect to canonical)
     if (!pathMap.has(cleanSlug)) {
-      pathMap.set(cleanSlug, { params: { slug: cleanSlug }, props: { entry } });
+      pathMap.set(cleanSlug, { params: { slug: cleanSlug }, props: { canonicalUrl } });
     }
 
-    // 4. Map by clean nested slug
+    // 4. Map by clean nested slug (redirect to canonical)
     if (!pathMap.has(cleanNestedSlug)) {
-      pathMap.set(cleanNestedSlug, { params: { slug: cleanNestedSlug }, props: { entry } });
+      pathMap.set(cleanNestedSlug, { params: { slug: cleanNestedSlug }, props: { canonicalUrl } });
     }
   }
 
   return Array.from(pathMap.values());
 }
 
-const { entry } = Astro.props;
-const { Content } = await render(entry);
-
-// Compute the canonical URL (standard category folder + clean nested slug)
-const rawTags = entry.data.tags || [];
-const rawCategories = entry.data.categories || [];
-const combinedTags = [...new Set([...rawTags, ...rawCategories])].map(t => t.toLowerCase());
-const categoryFolder = combinedTags.length > 0 ? combinedTags[0].replace(/\s+/g, '-') : 'general';
-
-const parts = entry.id.split('/');
-const filename = parts.pop() || entry.id;
-const subfolders = parts.join('/');
-const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
-const cleanNestedSlug = subfolders ? `${subfolders}/${cleanSlug}` : cleanSlug;
-
-const canonicalUrl = `https://www.tmpnews.com/news/${categoryFolder}/${cleanNestedSlug}/`;
+const { canonicalUrl } = Astro.props;
+return Astro.redirect(canonicalUrl);
 ---
-
-<PostLayout 
-    title={entry.data.title}
-    subheadline={entry.data.subheadline}
-    date={entry.data.date}
-    image={entry.data.image}
-    image_description={entry.data.image_description}
-    tags={entry.data.tags}
-    author={entry.data.author}
-    writer={entry.data.writer}
-    canonicalUrl={canonicalUrl}
->
-    <Content />
-</PostLayout>
