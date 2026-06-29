@@ -19,63 +19,6 @@ title: Home - The Muslim Post
 }
 </script>
 <style>
-.top-story-image-wrapper { position: relative; overflow: hidden; }
-.dark-gradient::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 50%; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%); pointer-events: none; }
-.mobile-meta-overlay { position: absolute; bottom: 12px; left: 0; right: 0; padding: 0 1rem; z-index: 2; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; text-align: center; }
-.mobile-meta-overlay .highlight { color: #b80000; }
-.desktop-kicker { display: none; }
-.desktop-meta { display: none; }
-.top-story-text { padding: 0.75rem 1.5rem 1.5rem 1.5rem; display: flex; flex-direction: column; height: 100%; }
-.top-story-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 1.15rem !important; color: #111827; margin: 0 0 0.5rem 0 !important; line-height: 1.3; letter-spacing: -0.01em; }
-.top-story-subheadline-container { 
-    position: relative; 
-    margin-bottom: 0; 
-}
-.top-story-subheadline { 
-    font-family: 'Inter', sans-serif; 
-    font-weight: 400; 
-    font-size: 1rem; 
-    color: #4b5563; 
-    line-height: 24px; 
-    margin: 0; 
-    height: 72px; 
-    overflow: hidden; 
-}
-.top-story-subheadline-container::after { 
-    content: ''; 
-    position: absolute; 
-    bottom: -30px;
-    left: -3rem; 
-    right: -3rem; 
-    height: 70px;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.85) 60%, #ffffff 100%); 
-    pointer-events: none; 
-    z-index: 1;
-}
-html.dark-mode .top-story-subheadline-container::after { 
-    background: linear-gradient(to bottom, rgba(17, 24, 39, 0) 0%, rgba(17, 24, 39, 0.85) 60%, #111827 100%); 
-}
-.top-story-read-more { 
-    position: relative; 
-    z-index: 2; 
-    margin-top: -10px;
-    font-family: 'Inter', sans-serif; 
-    font-size: 0.9rem; 
-    font-weight: 800; 
-    color: #000; 
-    text-transform: uppercase; 
-    display: inline-block; 
-}
-@media (min-width: 768px) {
-    .dark-gradient::after { display: none !important; }
-    .mobile-meta-overlay { display: none !important; } 
-    .top-story-read-more { display: none !important; } 
-    .desktop-kicker { display: block; font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 800; color: #b80000; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.5rem 0; }
-    .desktop-meta { display: flex; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: #6b7280; margin-top: auto; padding-top: 1.25rem; border-top: 1px solid #e5e7eb; align-items: center; justify-content: space-between; }
-    .top-story-text { padding: 2rem; }
-    .top-story-headline { font-size: 2rem !important; margin-bottom: 0.75rem !important; }
-    .top-story-subheadline-container { margin-bottom: 1.5rem; }
-}
 .support-cta-banner{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:1rem;background-color:#000 !important;border-bottom:none !important;padding:0.35rem 1.5rem !important;margin:0 auto 1.5rem auto;max-width:fit-content;border-radius:50px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)}
 .support-cta-banner p{margin:0 !important;font-family:'Inter',sans-serif;font-size:0.85rem !important;color:#fff !important;font-weight:500}
 .support-cta-button{background-color:#facc15 !important;color:#000 !important;padding:0.25rem 0.75rem !important;border-radius:20px !important;font-family:'Inter',sans-serif;font-size:0.75rem !important;font-weight:800 !important;text-decoration:none !important;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:none !important;transition:opacity 0.2s}
@@ -247,6 +190,12 @@ html.dark-mode .filter-btn.active {
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* Dark mode fixes for subheadline container */
+.subheadline-container {
+    position: relative;
+    max-height: 36px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
 .subheadline-container::after {
     content: '';
     position: absolute;
@@ -254,6 +203,7 @@ html.dark-mode .filter-btn.active {
     height: 24px;
     background: linear-gradient(to bottom, rgba(255,255,255,0), #ffffff);
     pointer-events: none;
+    z-index: 1;
 }
 html.dark-mode .subheadline-container::after {
     background: linear-gradient(to bottom, rgba(31,41,55,0), #1f2937);
@@ -267,26 +217,17 @@ html.dark-mode .subheadline-container::after {
 <main class="home-main" style="flex-grow: 1;">
     {% if latest_post %}
     <section class="top-story-section">
-        <a href="{{ latest_post.url | relative_url }}" class="top-story-card">
-            <div class="top-story-image-wrapper dark-gradient">
-                <img src="{{ latest_post.image | default: 'https://placehold.co/1200x800/e2e8f0/64748b?text=Image+Not+Available' }}" alt="{{ latest_post.image_description | default: 'Top story image' | escape }}">
-                <div class="mobile-meta-overlay">
-                    <span class="highlight">Latest Report</span> &bull; 
-                    <span>By {{ latest_post.author | default: "TMP Staff" }}</span> &bull; 
-                    <span>{{ latest_post.date | date: "%B %d, %Y" }}</span>
-                </div>
+        <a href="{{ latest_post.url | relative_url }}" class="news-card">
+            <div class="news-card-image-wrapper">
+                <img src="{{ latest_post.image | default: 'https://placehold.co/1200x800/e2e8f0/64748b?text=Image+Not+Available' }}" alt="{{ latest_post.image_description | default: 'Top story image' | escape }}" class="news-card-image" loading="eager">
+                <p class="news-card-date">{{ latest_post.date | date: "%B %d, %Y" }}</p>
             </div>
-            <div class="top-story-text">
-                <p class="desktop-kicker">Latest Report</p>
-                <h1 class="top-story-headline">{{ latest_post.title }}</h1>
-                <div class="top-story-subheadline-container">
-                    <p class="top-story-subheadline">{{ latest_post.subheadline | default: post.content | strip_html | truncatewords: 35 }}</p>
+            <div class="news-card-text">
+                <h3 class="news-card-headline" style="font-family:'Merriweather',serif;font-weight:900;font-size:1.35rem;margin-bottom:0.5rem;line-height:1.35;">{{ latest_post.title }}</h3>
+                <div class="subheadline-container">
+                    <p class="news-card-subheadline">{{ latest_post.subheadline | default: post.content | strip_html | truncatewords: 35 }}</p>
                 </div>
-                <span class="top-story-read-more">Read More &#8594;</span>
-                <div class="desktop-meta">
-                    <span class="top-story-author">By {{ latest_post.author | default: "TMP Staff" }} &bull; {{ latest_post.date | date: "%B %d, %Y" }}</span>
-                    <span class="read-more" style="color:#000;font-weight:800;text-transform:uppercase;">Read More &#8594;</span>
-                </div>
+                <span class="read-more-text">Read More &rarr;</span>
             </div>
         </a>
     </section>
@@ -437,11 +378,11 @@ html.dark-mode .subheadline-container::after {
                 <a href="${post.url}" class="news-card fade-in">
                     <div class="news-card-image-wrapper">
                         <img src="${image}" alt="${alt}" class="news-card-image" loading="lazy">
-                        ${formattedDate ? `<p class="news-card-date" style="position:absolute;bottom:12px;left:16px;color:#fff;font-size:0.75rem;font-weight:700;margin:0;z-index:2;text-transform:uppercase;letter-spacing:0.05em;">${formattedDate}</p>` : ''}
+                        ${formattedDate ? `<p class="news-card-date">${formattedDate}</p>` : ''}
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline" style="font-family:'Merriweather',serif;font-weight:900;font-size:1.15rem;margin-bottom:0.5rem;">${post.title}</h3>
-                        <div class="subheadline-container" style="max-height:44px;overflow:hidden;margin-bottom:0.75rem;position:relative;">
+                        <div class="subheadline-container">
                             <p class="news-card-subheadline" style="font-size:0.95rem;color:#606770;line-height:1.5;margin:0;">${subheadline}</p>
                         </div>
                         <span class="read-more-text" style="font-size:0.85rem;font-weight:800;color:#0073e6;text-transform:uppercase;margin-top:auto;">Read More &#8594;</span>

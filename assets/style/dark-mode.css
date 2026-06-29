@@ -241,12 +241,7 @@ html.dark-mode .support-cta-button {
 }
 /* === END FIX === */
 
-html.dark-mode .top-story-card {
-    background-color: var(--dark-bg-secondary) !important;
-}
-html.dark-mode .top-story-kicker {
-    color: var(--dark-accent-primary);
-}
+
 html.dark-mode .news-card {
     background-color: var(--dark-bg-secondary) !important;
     box-shadow: 0 0 0 1px var(--dark-border-color) !important;
