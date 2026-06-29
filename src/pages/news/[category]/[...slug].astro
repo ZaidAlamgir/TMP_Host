@@ -13,9 +13,12 @@ export async function getStaticPaths() {
   for (const entry of allNews) {
     const tags = entry.data.tags || [];
     
-    // Extract filename and clean slug (e.g. removing '2026-06-28-' prefix)
-    const filename = entry.id.split('/').pop() || entry.id;
+    // Extract filename, subfolders, and clean slug
+    const parts = entry.id.split('/');
+    const filename = parts.pop() || entry.id;
+    const subfolders = parts.join('/');
     const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+    const cleanNestedSlug = subfolders ? `${subfolders}/${cleanSlug}` : cleanSlug;
 
     // List of categories to map this article to
     const targetCategories = new Set([
@@ -61,6 +64,12 @@ export async function getStaticPaths() {
       if (!pathMap.has(key3)) {
         pathMap.set(key3, { params: { category: cat, slug: cleanSlug }, props: { entry } });
       }
+
+      // 4. Clean nested slug (with subfolders but without date prefix): /news/category/subfolders/clean-slug
+      const key4 = `${cat}/${cleanNestedSlug}`;
+      if (!pathMap.has(key4)) {
+        pathMap.set(key4, { params: { category: cat, slug: cleanNestedSlug }, props: { entry } });
+      }
     }
   }
 
@@ -70,6 +79,20 @@ export async function getStaticPaths() {
 // 2. Fetch the specific article data and render the Markdown
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+
+// Compute the canonical URL (standard category folder + clean nested slug)
+const rawTags = entry.data.tags || [];
+const rawCategories = entry.data.categories || [];
+const combinedTags = [...new Set([...rawTags, ...rawCategories])].map(t => t.toLowerCase());
+const categoryFolder = combinedTags.length > 0 ? combinedTags[0].replace(/\s+/g, '-') : 'general';
+
+const parts = entry.id.split('/');
+const filename = parts.pop() || entry.id;
+const subfolders = parts.join('/');
+const cleanSlug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+const cleanNestedSlug = subfolders ? `${subfolders}/${cleanSlug}` : cleanSlug;
+
+const canonicalUrl = `https://www.tmpnews.com/news/${categoryFolder}/${cleanNestedSlug}/`;
 ---
 
 <PostLayout 
@@ -81,6 +104,7 @@ const { Content } = await render(entry);
     tags={entry.data.tags}
     author={entry.data.author}
     writer={entry.data.writer}
+    canonicalUrl={canonicalUrl}
 >
     <Content />
 </PostLayout>

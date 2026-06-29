@@ -32,7 +32,7 @@ if (latestPost) {
     const category = (latestPost.data.tags && latestPost.data.tags.length > 0) ? latestPost.data.tags[0] : 'general';
     latestUrl = `/news/${category}/${latestPost.id}`;
 }
-const canonicalUrl = new URL(Astro.url.pathname, 'https://www.tmpnews.com').toString();
+const canonicalUrl = Astro.props.canonicalUrl || new URL(Astro.url.pathname, 'https://www.tmpnews.com').toString();
 ---
 
 <!DOCTYPE html>

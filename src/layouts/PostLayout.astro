@@ -11,7 +11,8 @@ const {
     image_description, 
     tags = [], 
     author, 
-    writer 
+    writer,
+    canonicalUrl
 } = Astro.props;
 
 // 2. Format the dates using standard JavaScript
@@ -32,7 +33,7 @@ const relatedPosts = allNews
 const currentUrl = Astro.url.href;
 ---
 
-<Layout title={title} subheadline={subheadline} image={image} tags={tags}>
+<Layout title={title} subheadline={subheadline} image={image} tags={tags} canonicalUrl={canonicalUrl}>
     
     <script is:inline type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
