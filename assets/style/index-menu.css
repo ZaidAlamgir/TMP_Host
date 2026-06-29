@@ -5,7 +5,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    z-index: 1001;
+    z-index: 10001 !important; /* Always above header content */
     transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     padding: 5px;
     backface-visibility: hidden;
@@ -22,7 +22,7 @@
     width: 100%;
     height: 100%;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    stroke: #1c1e21; /* Default dark color */
+    stroke: #111827; /* Default dark color */
 }
 
 #index-close-icon {
@@ -30,10 +30,6 @@
     transform: rotate(-90deg) scale(0.7);
 }
 
-/* 2. The Rotation Animation and Icon Switch */
-.index-menu-button.active {
-    /* transform: rotate(90deg); */
-}
 .index-menu-button.active #index-open-icon {
     opacity: 0;
     transform: rotate(90deg) scale(0.7);
@@ -41,6 +37,14 @@
 .index-menu-button.active #index-close-icon {
     opacity: 1;
     transform: rotate(0deg) scale(1);
+    stroke: #111827 !important;
+}
+
+/* Body & HTML Scroll Lock when Menu is open */
+body.menu-open,
+html.menu-open {
+    overflow: hidden !important;
+    height: 100vh !important;
 }
 
 /* 3. The Full-Screen Menu Overlay */
@@ -50,17 +54,17 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 9998 !important; /* Kept under the header (9999) so close button is clickable */
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s ease-in-out;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding-top: 10vh;
+    padding-top: 70px; /* Shifted up: directly below the header bar */
     overflow-y: auto;
 }
 
@@ -71,14 +75,14 @@
 
 /* 4. The Content Inside the Menu */
 .index-menu-content {
-    max-width: 650px;
+    max-width: 500px;
     width: 90%;
-    padding: 0;
+    padding: 1.5rem 0;
     opacity: 0;
-    transform: translateY(15px);
-    transition: opacity 0.3s ease-out 0.1s, transform 0.3s ease-out 0.1s;
+    transform: translateY(20px);
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.05s, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.05s;
     display: flex;
-    flex-direction: column; /* Keep column layout */
+    flex-direction: column;
 }
 
 .index-menu-overlay.active .index-menu-content {
@@ -86,265 +90,302 @@
     transform: translateY(0);
 }
 
-/* --- NEW: Search Box Container --- */
+/* Search Box Container */
 .search-box-container {
-    position: relative; /* For positioning the icon */
-    margin-bottom: 2.5rem; /* Space below search */
+    position: relative;
+    margin-bottom: 2rem;
     width: 100%;
 }
 
-/* 5. The Search Box Input */
+/* Search Box Input */
 .index-search-box {
     width: 100%;
-    font-size: 1.1rem; /* Adjusted size */
-    font-weight: 400; /* Regular weight */
-    padding: 0.8rem 2.5rem 0.8rem 1rem; /* Left, Top/Bottom, Right */
-    border: 2px solid #d1d5db; /* <<< CHANGED border-width (implicitly via border shorthand) */
-    background-color: #fff; /* White background */
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    padding: 12px 16px 12px 42px;
+    border: 1px solid #e5e7eb;
+    background-color: #f9fafb;
     outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    color: #1c1e21;
-    border-radius: 8px; /* Rounded corners */
-    box-sizing: border-box; /* Include padding/border in width */
+    transition: all 0.2s ease;
+    color: #111827;
+    border-radius: 12px;
+    box-sizing: border-box;
 }
 .index-search-box::placeholder {
     color: #9ca3af;
 }
 .index-search-box:focus {
     border-color: #0073e6;
-    box-shadow: 0 0 0 2px rgba(0, 115, 230, 0.2); /* Focus ring */
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(0, 115, 230, 0.1);
 }
 
-/* --- NEW: Search Icon Styling --- */
+/* Search Icon Styling */
 .search-icon {
     position: absolute;
     top: 50%;
-    right: 1rem; /* Position inside the right padding */
+    left: 14px;
     transform: translateY(-50%);
-    color: #9ca3af; /* Icon color */
-    pointer-events: none; /* Make icon non-interactive */
+    color: #9ca3af;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
 }
 .search-icon svg {
      width: 18px;
      height: 18px;
 }
 
-
-/* 6. The Main Navigation Links Section (Placed below search) */
+/* 6. Main Navigation Links (Table-Like Box Layout with Borders) */
 .index-main-nav {
     display: flex;
     flex-direction: column;
-    gap: 0; /* Remove gap, border handles spacing */
+    gap: 0;
     padding: 0;
-    margin-bottom: 2rem;
-    border: 2px solid #e5e7eb; /* <<< CHANGED border-width */
-    border-radius: 8px; /* Rounded corners for the box */
-    overflow: hidden; /* Clip borders within rounding */
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #ffffff;
 }
 
-/* Styling for main nav items (links or dropdown toggles) */
-.index-main-nav > div, /* For dropdown container */
-.index-main-nav > a {  /* For direct links */
+.index-main-nav > div,
+.index-main-nav > a {
     text-decoration: none;
-    color: #1f2937;
-    font-weight: bold; /* --- MADE TEXT BOLD --- */
+    color: #374151;
+    font-weight: 700;
     font-size: 1.1rem;
-    padding: 0.9rem 1rem;
-    position: relative;
-    transition: color 0.2s, background-color 0.2s;
-    border-bottom: 1px solid #e5e7eb; /* Keep separator thin */
-    cursor: pointer; /* Add pointer for dropdown */
-    display: flex; /* Use flex for alignment */
-    justify-content: space-between; /* Space for dropdown arrow */
+    font-family: 'Inter', sans-serif;
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
+
 .index-main-nav > div:last-child,
 .index-main-nav > a:last-child {
     border-bottom: none;
 }
+
 .index-main-nav > div:hover,
 .index-main-nav > a:hover {
     color: #0073e6;
     background-color: #f9fafb;
 }
 
-/* --- Dropdown Specific Styles --- */
-.nav-item-dropdown {
-    /* Inherits styles from .index-main-nav > div */
+/* Dropdown Specific Styles */
+.dropdown-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-.dropdown-toggle::after { /* Simple arrow indicator */
+.dropdown-toggle::after {
     content: '▼';
-    font-size: 0.7em;
+    font-size: 0.65em;
     margin-left: 0.5rem;
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
+    color: #9ca3af;
 }
 .nav-item-dropdown.open .dropdown-toggle::after {
     transform: rotate(180deg);
+    color: #0073e6;
 }
+
 .categories-dropdown {
     list-style: none;
     padding: 0;
     margin: 0;
-    background-color: #f9fafb; /* Light background for dropdown */
-    max-height: 0; /* Hidden by default */
+    background-color: transparent;
+    max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-out; /* Smooth transition */
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
 }
 .nav-item-dropdown.open .categories-dropdown {
-    max-height: 500px; /* Adjust as needed to fit all categories */
-    padding-top: 0.5rem; /* Space above first item */
-    padding-bottom: 0.5rem; /* Space below last item */
+    max-height: 450px;
+    overflow-y: auto;
+    margin-top: 0;
+    border-left: none;
+    margin-left: 0;
+    border-top: 1px solid #e5e7eb;
+    background-color: #f9fafb;
+}
+.categories-dropdown li {
+    border-bottom: 1px solid #f3f4f6;
+}
+.categories-dropdown li:last-child {
+    border-bottom: none;
 }
 .categories-dropdown li a {
     display: block;
-    padding: 0.6rem 1rem 0.6rem 2rem; /* Indent category links */
+    padding: 12px 18px 12px 32px;
     text-decoration: none;
-    color: #374151; /* Subtler color */
-    font-size: 1rem;
-    font-weight: 500; /* Regular weight */
-    transition: background-color 0.2s, color 0.2s;
+    color: #4b5563;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+    border-radius: 0;
 }
 .categories-dropdown li a:hover {
-    background-color: #f0f2f5;
+    background-color: rgba(0, 115, 230, 0.06);
     color: #0073e6;
 }
-/* --- End Dropdown Styles --- */
 
-
-/* 7. The Results List (Placed below main nav) */
+/* 7. Results List (Search Results) */
 #index-results-list {
     list-style: none;
     padding: 0;
-    margin: 0; /* Remove margin if search results appear below nav */
-    max-height: 40vh;
+    margin: 0;
+    max-height: 35vh;
     overflow-y: auto;
+    transition: all 0.2s ease;
+}
+#index-results-list.has-results {
+    border-bottom: 1px dashed #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 #index-results-list li a {
     display: block;
-    padding: 0.8rem 0.5rem;
+    padding: 10px 14px;
     text-decoration: none;
-    color: #374151;
-    font-size: 1rem;
-    font-weight: 500;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background-color 0.2s, color 0.2s;
-    border-radius: 4px;
+    color: #4b5563;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    border-bottom: none;
+    margin-bottom: 2px;
 }
-#index-results-list li:last-child a { border-bottom: none; }
 #index-results-list li a:hover {
-    background-color: #f9fafb;
+    background-color: rgba(0, 115, 230, 0.06);
     color: #0073e6;
 }
 
-/* --- Style the home link specifically to align text and logo --- */
+/* Home Link SVG Animation in Drawer */
 .home-link-with-logo {
-    display: flex; /* Use flexbox */
-    justify-content: space-between; /* Push logo to the right */
-    align-items: center; /* Vertically align items */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* Style the SVG logo inside the menu */
 .menu-home-logo {
-    width: 20px; /* <<< ADJUSTED SIZE */
-    height: 20px; /* <<< ADJUSTED SIZE */
-    margin-left: 1rem; /* Space between "Home" text and logo */
-    color: #3498db; /* Match header logo color */
-    flex-shrink: 0; /* Prevent logo from shrinking */
+    width: 20px;
+    height: 20px;
+    margin-left: 1rem;
+    color: #3498db;
+    flex-shrink: 0;
 }
 
-/* Styles needed for the logo animation within the menu */
 .menu-home-logo .tmp-text {
-    font-family: 'Merriweather', serif; /* <<< ADDED FONT FAMILY */
+    font-family: 'Merriweather', serif;
     font-size: 80px;
     font-weight: bold;
-    fill: #000000; /* <<< CHANGED FILL TO BLACK */
+    fill: #000000;
 }
 
 .menu-home-logo .square {
-    fill: currentColor; /* Use the color set on .menu-home-logo */
+    fill: currentColor;
 }
 
 .menu-home-logo .rotating-circle {
     transform-origin: center;
     animation: rotate 10s linear infinite;
-    stroke: currentColor; /* Use the color set on .menu-home-logo */
-    stroke-width: 4; /* Match stroke-width used in JS */
+    stroke: currentColor;
+    stroke-width: 4;
 }
 
-/* Make sure the rotate animation is defined (it might already be) */
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
 
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
-    .index-menu-overlay { padding-top: 8vh; }
-    .index-search-box { font-size: 1rem; padding: 0.7rem 2.5rem 0.7rem 1rem; }
-    .index-main-nav > div, .index-main-nav > a { font-size: 1rem; padding: 0.8rem 1rem; }
-    .categories-dropdown li a { font-size: 0.95rem; padding: 0.5rem 1rem 0.5rem 1.8rem; }
-    #index-results-list li a { font-size: 0.95rem; }
+    .index-menu-overlay { padding-top: 60px; } /* Pushed up on mobile */
+    .index-search-box { font-size: 0.95rem; }
+    .index-main-nav > div, .index-main-nav > a { font-size: 1rem; padding: 12px 16px; }
 }
 
-/* --- Dark Mode Specific Styles --- */
-body.dark-mode .index-menu-overlay { background-color: rgba(17, 24, 39, 0.95); }
-body.dark-mode .index-menu-button svg { stroke: var(--dark-text-primary); }
-body.dark-mode .search-box-container { /* No change needed */ }
-body.dark-mode .index-search-box {
-    background-color: var(--dark-bg-secondary);
+/* --- Dark Mode Specific Styles (Fully fixed to html.dark-mode!) --- */
+html.dark-mode .index-menu-overlay { 
+    background-color: rgba(17, 24, 39, 0.97); 
+}
+html.dark-mode .index-menu-button svg { 
+    stroke: var(--dark-text-primary); 
+}
+html.dark-mode .index-menu-button.active #index-close-icon {
+    stroke: var(--dark-text-primary) !important;
+}
+html.dark-mode .index-search-box {
+    background-color: #1f2937;
     color: var(--dark-text-primary);
-    border-color: var(--dark-bg-tertiary);
-    border-width: 2px; /* <<< Ensure bold border in dark mode */
+    border-color: #374151;
 }
-body.dark-mode .index-search-box::placeholder { color: var(--dark-text-secondary); }
-body.dark-mode .index-search-box:focus {
+html.dark-mode .index-search-box::placeholder { 
+    color: var(--dark-text-secondary); 
+}
+html.dark-mode .index-search-box:focus {
     border-color: var(--dark-accent-primary);
-    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+    background-color: #111827;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
 }
-body.dark-mode .search-icon { color: var(--dark-text-secondary); }
-
-body.dark-mode .index-main-nav {
-    border-color: var(--dark-bg-tertiary);
-    border-width: 2px; /* <<< Ensure bold border in dark mode */
-}
-body.dark-mode .index-main-nav > div, body.dark-mode .index-main-nav > a {
-    color: var(--dark-text-primary); /* Bold text should be primary color */
-    border-bottom-color: var(--dark-bg-tertiary); /* Separator color */
-    border-bottom-width: 1px; /* Keep separator thin */
-}
-/* Ensure last item doesn't have a bottom border */
-body.dark-mode .index-main-nav > div:last-child,
-body.dark-mode .index-main-nav > a:last-child {
-    border-bottom: none;
-}
-body.dark-mode .index-main-nav > div:hover, body.dark-mode .index-main-nav > a:hover {
-    color: var(--dark-accent-primary);
-    background-color: var(--dark-bg-secondary);
-}
-body.dark-mode .categories-dropdown { background-color: var(--dark-bg-secondary); }
-body.dark-mode .categories-dropdown li a { color: var(--dark-text-secondary); }
-body.dark-mode .categories-dropdown li a:hover {
-    background-color: var(--dark-bg-tertiary);
-    color: var(--dark-accent-primary);
+html.dark-mode .search-icon { 
+    color: var(--dark-text-secondary); 
 }
 
-body.dark-mode #index-results-list li a {
+/* Dark Mode Navigation Borders */
+html.dark-mode .index-main-nav {
+    border-color: #374151;
+    background-color: #1f2937;
+}
+
+html.dark-mode .index-main-nav > div, 
+html.dark-mode .index-main-nav > a {
+    color: var(--dark-text-primary);
+    border-bottom-color: #374151;
+}
+
+html.dark-mode .index-main-nav > div:hover, 
+html.dark-mode .index-main-nav > a:hover {
+    color: var(--dark-accent-primary);
+    background-color: #111827;
+}
+html.dark-mode .categories-dropdown {
+    background-color: #111827;
+}
+html.dark-mode .categories-dropdown li {
+    border-bottom-color: #1f2937;
+}
+html.dark-mode .categories-dropdown li a { 
+    color: var(--dark-text-secondary); 
+}
+html.dark-mode .categories-dropdown li a:hover {
+    background-color: rgba(96, 165, 250, 0.08);
+    color: var(--dark-accent-primary);
+}
+
+html.dark-mode #index-results-list.has-results {
+    border-bottom-color: #374151;
+}
+html.dark-mode #index-results-list li a {
     color: var(--dark-text-secondary);
-    border-bottom-color: var(--dark-bg-tertiary);
 }
-body.dark-mode #index-results-list li a:hover {
-    background-color: var(--dark-bg-secondary);
+html.dark-mode #index-results-list li a:hover {
+    background-color: rgba(96, 165, 250, 0.08);
     color: var(--dark-accent-primary);
 }
 
-/* Adjust dark mode if needed */
-body.dark-mode .menu-home-logo {
-   color: #60a5fa; /* Example: Use dark mode accent color */
+html.dark-mode .menu-home-logo {
+   color: #60a5fa;
 }
-
-/* Ensure the settings icon color matches the link text color */
-.index-main-nav .app-settings-link svg {
-  stroke: currentColor; /* Use the link's current text color for the icon */
-  fill: none; /* Make sure SVG isn't filled if it shouldn't be */
+html.dark-mode .menu-home-logo .tmp-text {
+    fill: #ffffff;
 }

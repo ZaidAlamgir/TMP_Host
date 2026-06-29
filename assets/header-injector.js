@@ -194,6 +194,7 @@
                         <input type="text" id="index-search-box" class="index-search-box" placeholder="Search by tags to find articles">
                         <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
                     </div>
+                    <ul id="index-results-list"></ul>
                     <div class="index-main-nav">
                         <a href="${PATHS.ROOT}" class="home-link-with-logo">
                             <span>Home</span>
@@ -210,7 +211,6 @@
                         <a href="${PATHS.TERMS}">Terms & Conditions</a>
                          ${settingsMenuItemHTML}
                     </div>
-                    <ul id="index-results-list"></ul>
                 </div>
             </div>
         `;
@@ -273,6 +273,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         </span>
                     </div>
+                    <ul id="index-results-list"></ul>
                     <div class="index-main-nav">
                         <a href="${PATHS.ROOT}" class="home-link-with-logo">
                             <span>Home</span>
@@ -289,7 +290,6 @@
                         <a href="${PATHS.TERMS}">Terms & Conditions</a>
                         ${settingsMenuItemHTML}
                     </div>
-                    <ul id="index-results-list"></ul>
                 </div>
             </div>
         `;
@@ -336,8 +336,10 @@
             resultsList.innerHTML = '';
             if (posts.length === 0) {
                 resultsList.innerHTML = '<li><a href="#">No results found.</a></li>';
+                resultsList.classList.add('has-results');
                 return;
             }
+            resultsList.classList.add('has-results');
             posts.slice(0, 10).forEach(post => {
                 const listItem = document.createElement('li');
                 let safeUrl = post.url;
@@ -353,13 +355,16 @@
             if(indexMenuBtn) indexMenuBtn.classList.add('active');
             if(indexMenuOverlay) indexMenuOverlay.classList.add('active');
             document.body.classList.add('menu-open');
+            document.documentElement.classList.add('menu-open');
         }
 
         function closeMenu() {
             if(indexMenuBtn) indexMenuBtn.classList.remove('active');
             if(indexMenuOverlay) indexMenuOverlay.classList.remove('active');
             if (dropdownContainer) dropdownContainer.classList.remove('open');
+            if (resultsList) resultsList.classList.remove('has-results');
             document.body.classList.remove('menu-open');
+            document.documentElement.classList.remove('menu-open');
         }
 
         if (indexMenuBtn) {

@@ -278,8 +278,6 @@ permalink: /auth.html
   </main>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
-
 <script>
 { // Block Scope Start
 
@@ -455,11 +453,13 @@ permalink: /auth.html
 
         // Password Toggle Logic
         document.getElementById('auth-form-container')?.addEventListener('click', (e) => {
-            if (e.target.classList.contains('toggle-password')) {
-                const icon = e.target;
-                const passwordField = icon.previousElementSibling;
+            const icon = e.target.closest('.toggle-password');
+            if (icon) {
+                const wrapper = icon.closest('.password-wrapper');
+                const passwordField = wrapper ? wrapper.querySelector('input') : null;
                 if (passwordField) {
-                    passwordField.type = passwordField.type === 'password' ? 'text' : 'password';
+                    const isPassword = passwordField.type === 'password';
+                    passwordField.type = isPassword ? 'text' : 'password';
                     icon.classList.toggle('fa-eye');
                     icon.classList.toggle('fa-eye-slash');
                 }

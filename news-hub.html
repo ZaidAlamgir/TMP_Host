@@ -11,10 +11,100 @@ permalink: /news/hub/
         margin: 0 auto; 
         min-height: 80vh; 
     }
-    .page-header { text-align: center; margin-bottom: 2.5rem; }
+    .page-header { text-align: center; margin-bottom: 1.5rem; }
     .page-header h1 { font-family: 'Merriweather', serif; font-weight: 900; font-size: 2.5rem; color: #1c1e21; }
     .page-header .tag-highlight { color: #0073e6; }
     .page-header p { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 1.1rem; color: #606770; margin-top: 0.5rem; }
+    
+    /* Category Filter Tab Bar Styling */
+    .category-filters-container {
+        width: 100%;
+        margin-bottom: 2.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+    }
+    
+    /* Hide scrollbar on mobile devices, keep on desktop */
+    @media (max-width: 767px) {
+        .category-filters-container::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        .category-filters-container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+    }
+    @media (min-width: 768px) {
+        .category-filters-container::-webkit-scrollbar {
+            height: 5px;
+        }
+        .category-filters-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .category-filters-container::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        html.dark-mode .category-filters-container::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+    }
+    
+    .category-filters {
+        display: flex;
+        gap: 1.5rem;
+        padding: 0 4px 8px 4px;
+        white-space: nowrap;
+        width: max-content;
+        position: relative;
+    }
+    
+    .filter-btn {
+        background: transparent !important;
+        border: none;
+        outline: none;
+        padding: 6px 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #4b5563;
+        cursor: pointer;
+        transition: color 0.2s ease;
+        border-radius: 0;
+    }
+    .filter-btn:hover {
+        color: #111827;
+    }
+    .filter-btn.active {
+        color: #0073e6;
+    }
+    html.dark-mode .filter-btn {
+        color: #9ca3af;
+    }
+    html.dark-mode .filter-btn:hover {
+        color: #ffffff;
+    }
+    html.dark-mode .filter-btn.active {
+        color: #0073e6;
+    }
+
+    /* Sliding Active Indicator Line */
+    .filter-indicator {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background-color: #0073e6;
+        border-radius: 3px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        z-index: 1;
+        width: 0;
+    }
+
     .news-grid-full { 
         display: grid; 
         grid-template-columns: 1fr; 
@@ -59,7 +149,7 @@ permalink: /news/hub/
         transition: opacity 0.3s ease;
     }
     .news-card-text { 
-        padding: 1rem 1.5rem; 
+        padding: 1.25rem 1.5rem; 
         display: flex; 
         flex-direction: column; 
     }
@@ -78,9 +168,9 @@ permalink: /news/hub/
     }
     .news-card-headline {
         font-family: 'Merriweather', serif; font-weight: 900;
-        font-size: 1.15rem; 
+        font-size: 1.2rem; 
         color: #1c1e21;
-        margin-bottom: 0.4rem; line-height: 1.35;
+        margin-bottom: 0.5rem; line-height: 1.35;
     }
     .subheadline-container {
         position: relative;
@@ -96,16 +186,27 @@ permalink: /news/hub/
         background: linear-gradient(to bottom, rgba(255,255,255,0), #ffffff);
         pointer-events: none;
     }
+    html.dark-mode .subheadline-container::after {
+        background: linear-gradient(to bottom, rgba(31,41,55,0), #1f2937);
+    }
     .news-card-subheadline {
         font-family: 'Inter', sans-serif; font-weight: 400;
         font-size: 0.95rem; color: #606770; line-height: 1.5;
         margin: 0;
     }
+    html.dark-mode .news-card {
+        background-color: #1f2937;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        color: #f3f4f6;
+    }
+    html.dark-mode .news-card-headline { color: #ffffff; }
+    html.dark-mode .news-card-subheadline { color: #9ca3af; }
+    
     .read-more-text {
         font-family: 'Inter', sans-serif;
         font-size: 0.85rem;
         font-weight: 800;
-        color: #000000; 
+        color: #0073e6; 
         text-transform: uppercase;
         margin-top: auto;
     }
@@ -143,7 +244,7 @@ permalink: /news/hub/
         .news-card { flex-direction: row; }
         .news-card .news-card-image-wrapper { width: 300px; height: auto; flex-shrink: 0; }
         .news-card-text { display: flex; flex-direction: column; justify-content: center; }
-        .news-card-headline { font-size: 1.3rem; }
+        .news-card-headline { font-size: 1.35rem; }
     }
 </style>
 <main>
@@ -151,6 +252,40 @@ permalink: /news/hub/
         <h1 id="page-title">News Hub</h1>
         <p id="page-subtitle">The latest trends, research, and important discussions from around the world.</p>
     </div>
+
+    <!-- Category Filter Buttons -->
+    <div class="category-filters-container">
+        <div class="category-filters" id="filters-bar">
+            <div class="filter-indicator" id="filter-indicator"></div>
+            <button class="filter-btn active" data-tag="">All</button>
+            <button class="filter-btn" data-tag="world-politics">World Politics</button>
+            <button class="filter-btn" data-tag="indian-politics">Indian Politics</button>
+            <button class="filter-btn" data-tag="muslim-world">Muslim World</button>
+            <button class="filter-btn" data-tag="technology">Technology</button>
+            <button class="filter-btn" data-tag="medical-science">Medical Science</button>
+            <button class="filter-btn" data-tag="global-economy">Global Economy</button>
+            <button class="filter-btn" data-tag="art-culture">Art & Culture</button>
+            <button class="filter-btn" data-tag="weather">Weather</button>
+            <button class="filter-btn" data-tag="sports">Sports</button>
+            <button class="filter-btn" data-tag="national-news">National News</button>
+            <button class="filter-btn" data-tag="international-news">International News</button>
+            <button class="filter-btn" data-tag="history">History</button>
+            <button class="filter-btn" data-tag="indian-muslims">Indian Muslims</button>
+            <button class="filter-btn" data-tag="middle-east">Middle East</button>
+            <button class="filter-btn" data-tag="climate">Climate</button>
+            <button class="filter-btn" data-tag="defense">Defense</button>
+            <button class="filter-btn" data-tag="south-asia">South Asia</button>
+            <button class="filter-btn" data-tag="africa">Africa</button>
+            <button class="filter-btn" data-tag="europe">Europe</button>
+            <button class="filter-btn" data-tag="central-asia">Central Asia</button>
+            <button class="filter-btn" data-tag="crime-alert">Crime Alert</button>
+            <button class="filter-btn" data-tag="south-east-asia">Southeast Asia</button>
+            <button class="filter-btn" data-tag="east-asia">East Asia</button>
+            <button class="filter-btn" data-tag="north-america">North America</button>
+            <button class="filter-btn" data-tag="south-america">South America</button>
+        </div>
+    </div>
+
     <div class="news-grid-full" id="articles-grid"></div>
     <div id="loader" class="loader"></div>
     <p id="no-results-message" class="no-results-message"></p>
@@ -175,6 +310,7 @@ permalink: /news/hub/
         const BATCH_SIZE = 50; 
         let currentFilteredArticles = [];
         let currentRenderedCount = 0;
+        
         grid.addEventListener('click', (e) => {
             if (e.target.closest('.news-card')) {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -185,10 +321,12 @@ permalink: /news/hub/
                 }));
             }
         });
+        
         function formatTag(tag) {
             if (tag === 'art-culture') return 'Art & Culture';
             return tag.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
+        
         function filterArticles(articles, tag) {
             if (!tag) return articles;
             return articles.filter(post => {
@@ -196,6 +334,7 @@ permalink: /news/hub/
                 return postTags.includes(tag);
             });
         }
+        
         function buildCardsHTML(articlesToRender, shouldAnimate) {
             if (!articlesToRender || articlesToRender.length === 0) return '';
             
@@ -218,7 +357,6 @@ permalink: /news/hub/
                     </div>
                     <div class="news-card-text">
                         <h3 class="news-card-headline">${post.title}</h3>
-                        
                         <div class="subheadline-container">
                             <p class="news-card-subheadline">${subheadline}</p>
                         </div>
@@ -227,9 +365,46 @@ permalink: /news/hub/
                 </a>`;
             }).join('');
         }
+        
+        function updateIndicator(activeBtn) {
+            const indicator = document.getElementById('filter-indicator');
+            if (!indicator || !activeBtn) return;
+            const rect = activeBtn.getBoundingClientRect();
+            const leftOffset = activeBtn.offsetLeft;
+            indicator.style.width = `${rect.width}px`;
+            indicator.style.transform = `translateX(${leftOffset}px)`;
+        }
+
+        function syncActiveFilterButton() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tagFilter = urlParams.get('tag') || '';
+            const filtersBar = document.getElementById('filters-bar');
+            if (filtersBar) {
+                let activeBtn = null;
+                filtersBar.querySelectorAll('.filter-btn').forEach(btn => {
+                    if (btn.getAttribute('data-tag') === tagFilter) {
+                        btn.classList.add('active');
+                        activeBtn = btn;
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                if (activeBtn) {
+                    // Position indicator and scroll tab into view if overflowed
+                    setTimeout(() => {
+                        updateIndicator(activeBtn);
+                        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }, 50);
+                }
+            }
+        }
+
         function updateUI(articles, animate = false) {
             const urlParams = new URLSearchParams(window.location.search);
             const tagFilter = urlParams.get('tag');
+            
+            syncActiveFilterButton();
+
             if (tagFilter) {
                 pageTitle.innerHTML = `News in <span class="tag-highlight">${formatTag(tagFilter)}</span>`;
                 if(pageSubtitle) pageSubtitle.style.display = 'none';
@@ -237,7 +412,9 @@ permalink: /news/hub/
                 pageTitle.innerHTML = 'News Hub';
                 if(pageSubtitle) pageSubtitle.style.display = 'block';
             }
+            
             currentFilteredArticles = filterArticles(articles, tagFilter);
+            
             if (currentFilteredArticles.length === 0) {
                 grid.innerHTML = '';
                 noResultsMsg.textContent = tagFilter ? `No articles found for "${formatTag(tagFilter)}".` : "No articles found.";
@@ -245,6 +422,7 @@ permalink: /news/hub/
                 if(loadMoreContainer) loadMoreContainer.style.display = 'none';
                 return;
             }
+            
             noResultsMsg.style.display = 'none';
             let stateToRestore = null;
             const savedStateRaw = sessionStorage.getItem(SESSION_KEY);
@@ -256,6 +434,7 @@ permalink: /news/hub/
                     }
                 } catch(e) {}
             }
+            
             if (stateToRestore && stateToRestore.count > currentRenderedCount) {
                 currentRenderedCount = Math.min(stateToRestore.count, currentFilteredArticles.length);
             } else if (currentRenderedCount === 0) {
@@ -263,9 +442,10 @@ permalink: /news/hub/
             } else {
                 currentRenderedCount = Math.min(currentRenderedCount, currentFilteredArticles.length);
             }
-
+            
             const initialBatch = currentFilteredArticles.slice(0, currentRenderedCount);
             grid.innerHTML = buildCardsHTML(initialBatch, animate);
+            
             if (stateToRestore && stateToRestore.scrollY !== undefined) {
                 setTimeout(() => {
                     window.scrollTo(0, stateToRestore.scrollY);
@@ -274,6 +454,7 @@ permalink: /news/hub/
                     sessionStorage.removeItem(SESSION_KEY);
                 }, 1000);
             }
+            
             if (loadMoreContainer) {
                 if (currentFilteredArticles.length > currentRenderedCount) {
                     loadMoreContainer.style.display = 'block';
@@ -282,6 +463,52 @@ permalink: /news/hub/
                 }
             }
         }
+        
+        // Setup filter button listeners
+        const filtersBar = document.getElementById('filters-bar');
+        if (filtersBar && !filtersBar._listenerAttached) {
+            filtersBar.addEventListener('click', (e) => {
+                const btn = e.target.closest('.filter-btn');
+                if (!btn) return;
+                
+                // Update URL
+                const tag = btn.getAttribute('data-tag');
+                const url = new URL(window.location.href);
+                if (tag) {
+                    url.searchParams.set('tag', tag);
+                } else {
+                    url.searchParams.delete('tag');
+                }
+                history.pushState(null, '', url.toString());
+                
+                // Filter and update UI
+                currentRenderedCount = 0; 
+                const cachedData = localStorage.getItem(CACHE_KEY);
+                if (cachedData) {
+                    updateUI(JSON.parse(cachedData), true);
+                }
+            });
+            filtersBar._listenerAttached = true;
+        }
+
+        // Listen for browser Back/Forward clicks
+        if (!window._popstateListenerAttached) {
+            window.addEventListener('popstate', () => {
+                currentRenderedCount = 0;
+                const cachedData = localStorage.getItem(CACHE_KEY);
+                if (cachedData) {
+                    updateUI(JSON.parse(cachedData), false);
+                }
+            });
+            window._popstateListenerAttached = true;
+        }
+
+        // Listen for window resize to adjust indicator positioning
+        window.addEventListener('resize', () => {
+            const activeBtn = filtersBar ? filtersBar.querySelector('.filter-btn.active') : null;
+            if (activeBtn) updateIndicator(activeBtn);
+        });
+
         if (loadMoreBtn && !loadMoreBtn._listenerAttached) {
             loadMoreBtn.addEventListener('click', () => {
                 const nextCount = Math.min(currentRenderedCount + BATCH_SIZE, currentFilteredArticles.length);
@@ -295,6 +522,7 @@ permalink: /news/hub/
             });
             loadMoreBtn._listenerAttached = true;
         }
+        
         const cachedData = localStorage.getItem(CACHE_KEY);
         if (cachedData) {
             try {
@@ -306,6 +534,7 @@ permalink: /news/hub/
         } else {
             if(loader) loader.classList.add('visible');
         }
+        
         setTimeout(async () => {
             if (!document.getElementById('articles-grid')) return;
             try {
@@ -318,11 +547,9 @@ permalink: /news/hub/
                                      freshArticles.length !== cachedArticles.length || 
                                      (freshArticles[0] && cachedArticles[0] && freshArticles[0].url !== cachedArticles[0].url);
                 if (isNewContent) {
-                    console.log("New content detected. Updating...");
                     localStorage.setItem(CACHE_KEY, JSON.stringify(freshArticles));
                     updateUI(freshArticles, true);
                 } else if (grid.childElementCount === 0) {
-                    // Safety Net
                     updateUI(freshArticles, false);
                 }
             } catch (error) {
