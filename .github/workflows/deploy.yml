@@ -35,44 +35,57 @@ jobs:
           mkdir -p ./main_site/src/content/news
           mkdir -p ./_article_repos
         
+      - name: Cache Article Repositories
+        uses: actions/cache@v4
+        with:
+          path: ./_article_repos
+          key: ${{ runner.os }}-article-repos-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-article-repos-
+
       # --- CHECKOUT STEPS ---
       - name: 3-28. Clone All Article Repositories in Parallel
         run: |
           mkdir -p ./_article_repos
           
-          clone_repo() {
+          clone_or_pull_repo() {
             local repo="TheMuslimPost/$1"
             local path="./_article_repos/$2"
-            echo "Cloning $repo in parallel..."
-            git clone --depth 1 "https://${{ secrets.GH_PAT_FOR_CHECKOUT }}@github.com/${repo}.git" "$path" > /dev/null 2>&1 &
+            if [ -d "$path/.git" ]; then
+              echo "Pulling latest updates for $repo in parallel..."
+              (cd "$path" && git fetch --depth 1 && git reset --hard origin/main) > /dev/null 2>&1 &
+            else
+              echo "Cloning $repo in parallel..."
+              git clone --depth 1 "https://${{ secrets.GH_PAT_FOR_CHECKOUT }}@github.com/${repo}.git" "$path" > /dev/null 2>&1 &
+            fi
           }
 
-          clone_repo "tmp-articles-world-politics" "world-politics"
-          clone_repo "tmp-articles-indian-politics" "indian-politics"
-          clone_repo "tmp-articles-muslim-world" "muslim-world"
-          clone_repo "tmp-articles-technology" "technology"
-          clone_repo "tmp-articles-medical-science" "medical-science"
-          clone_repo "tmp-articles-global-economy" "global-economy"
-          clone_repo "tmp-articles-art-culture" "art-culture"
-          clone_repo "tmp-articles-weather" "weather"
-          clone_repo "tmp-articles-sports" "sports"
-          clone_repo "tmp-articles-national-news" "national-news"
-          clone_repo "tmp-articles-international-news" "international-news"
-          clone_repo "tmp-user-archives" "user-archives"
-          clone_repo "tmp-articles-history" "history"
-          clone_repo "tmp-articles-indian-muslims" "indian-muslims"
-          clone_repo "tmp-articles-middle-east" "middle-east"
-          clone_repo "tmp-articles-climate" "climate"
-          clone_repo "tmp-articles-defense" "defense"
-          clone_repo "tmp-articles-south-asia" "south-asia"
-          clone_repo "tmp-articles-africa" "africa"
-          clone_repo "tmp-articles-europe" "europe"
-          clone_repo "tmp-articles-central-asia" "central-asia"
-          clone_repo "tmp-articles-crime-alert" "crime-alert"
-          clone_repo "tmp-articles-south-east-asia" "south-east-asia"
-          clone_repo "tmp-articles-east-asia" "east-asia"
-          clone_repo "tmp-articles-north-america" "north-america"
-          clone_repo "tmp-articles-south-america" "south-america"
+          clone_or_pull_repo "tmp-articles-world-politics" "world-politics"
+          clone_or_pull_repo "tmp-articles-indian-politics" "indian-politics"
+          clone_or_pull_repo "tmp-articles-muslim-world" "muslim-world"
+          clone_or_pull_repo "tmp-articles-technology" "technology"
+          clone_or_pull_repo "tmp-articles-medical-science" "medical-science"
+          clone_or_pull_repo "tmp-articles-global-economy" "global-economy"
+          clone_or_pull_repo "tmp-articles-art-culture" "art-culture"
+          clone_or_pull_repo "tmp-articles-weather" "weather"
+          clone_or_pull_repo "tmp-articles-sports" "sports"
+          clone_or_pull_repo "tmp-articles-national-news" "national-news"
+          clone_or_pull_repo "tmp-articles-international-news" "international-news"
+          clone_or_pull_repo "tmp-user-archives" "user-archives"
+          clone_or_pull_repo "tmp-articles-history" "history"
+          clone_or_pull_repo "tmp-articles-indian-muslims" "indian-muslims"
+          clone_or_pull_repo "tmp-articles-middle-east" "middle-east"
+          clone_or_pull_repo "tmp-articles-climate" "climate"
+          clone_or_pull_repo "tmp-articles-defense" "defense"
+          clone_or_pull_repo "tmp-articles-south-asia" "south-asia"
+          clone_or_pull_repo "tmp-articles-africa" "africa"
+          clone_or_pull_repo "tmp-articles-europe" "europe"
+          clone_or_pull_repo "tmp-articles-central-asia" "central-asia"
+          clone_or_pull_repo "tmp-articles-crime-alert" "crime-alert"
+          clone_or_pull_repo "tmp-articles-south-east-asia" "south-east-asia"
+          clone_or_pull_repo "tmp-articles-east-asia" "east-asia"
+          clone_or_pull_repo "tmp-articles-north-america" "north-america"
+          clone_or_pull_repo "tmp-articles-south-america" "south-america"
 
           echo "Waiting for all concurrent clones to complete..."
           wait
@@ -139,8 +152,9 @@ jobs:
           path: |
             ./main_site/node_modules
             ./main_site/.astro
-          key: ${{ runner.os }}-astro-node-cache-${{ hashFiles('./main_site/package-lock.json') }}
+          key: ${{ runner.os }}-astro-node-cache-${{ hashFiles('./main_site/package-lock.json') }}-${{ github.run_id }}
           restore-keys: |
+            ${{ runner.os }}-astro-node-cache-${{ hashFiles('./main_site/package-lock.json') }}-
             ${{ runner.os }}-astro-node-cache-
 
       - name: 30. Setup Node.js
@@ -191,11 +205,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: astro-site
-          # This downloads the site to a folder named '_site' in the current directory
-          path: ./_site
-          
-      - name: Remove wrangler.toml to avoid configuration conflict
-        run: rm -f wrangler.toml
+          # Download to the 'dist' directory as expected by wrangler.toml
+          path: ./dist
           
       # 3. Deploy
       - name: Deploy to Cloudflare Pages
@@ -205,6 +216,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }} 
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} 
-          # Wrangler will automatically find the 'functions' folder in the root
-          # and deploy it alongside the './_site' static assets
-          command: pages deploy ./_site --project-name=tmp-host
+          # Deploy './dist' alongside the 'functions' folder
+          command: pages deploy ./dist --project-name=tmp-host
