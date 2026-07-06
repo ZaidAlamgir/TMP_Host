@@ -1,0 +1,25 @@
+---
+layout: null
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  {% assign current_time = site.time | date: "%s" | plus: 0 %}
+  {% for post in site.posts %}
+    {% assign post_time = post.date | date: "%s" | plus: 0 %}
+    {% assign age_seconds = current_time | minus: post_time %}
+    {% comment %} 172800 seconds = 48 hours {% endcomment %}
+    {% if age_seconds < 172800 and age_seconds >= 0 %}
+      <url>
+        <loc>{{ post.url | absolute_url }}</loc>
+        <news:news>
+          <news:publication>
+            <news:name>The Muslim Post</news:name>
+            <news:language>en</news:language>
+          </news:publication>
+          <news:publication_date>{{ post.date | date_to_xmlschema }}</news:publication_date>
+          <news:title>{{ post.title | xml_escape }}</news:title>
+        </news:news>
+      </url>
+    {% endif %}
+  {% endfor %}
+</urlset>

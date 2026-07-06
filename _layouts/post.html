@@ -1,6 +1,21 @@
 ---
 layout: default
 ---
+{% comment %} Pre-calculate author profile URL for EEAT validation {% endcomment %}
+{% if page.writer %}
+  {% assign writer_slug = page.writer | slugify %}
+  {% assign author_url = '/writer/?id=' | append: writer_slug | append: '&source=writer_db' | absolute_url %}
+{% else %}
+  {% assign author_name = page.author | default: 'TMP Staff' %}
+  {% assign author_slug = author_name | slugify %}
+  {% assign static_author = site.authors | where: "slug", author_slug | first %}
+  {% if static_author %}
+    {% assign author_url = static_author.url | absolute_url %}
+  {% else %}
+    {% assign author_url = '/about.html' | absolute_url %}
+  {% endif %}
+{% endif %}
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -11,23 +26,24 @@ layout: default
   },
   "headline": "{{ page.title | strip_html | escape }}",
   "image": [
-    "{{ page.image | absolute_url }}"
-   ],
+    "{% if page.image and page.image != "" %}{{ page.image | absolute_url }}{% else %}{{ '/android-chrome-512x512.png' | absolute_url }}{% endif %}"
+  ],
   "datePublished": "{{ page.date | date_to_xmlschema }}",
-  "dateModified": "{{ page.date | date_to_xmlschema }}",
+  "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}",
   "author": {
     "@type": "Person",
-    "name": "{{ page.writer | default: page.author | default: 'TMP Staff' | escape }}"
+    "name": "{{ page.writer | default: page.author | default: 'TMP Staff' | escape }}",
+    "url": "{{ author_url }}"
   },
   "publisher": {
-    "@type": "Organization",
+    "@type": "NewsMediaOrganization",
     "name": "The Muslim Post",
     "logo": {
       "@type": "ImageObject",
       "url": "{{ '/android-chrome-512x512.png' | absolute_url }}"
     }
   },
-  "description": "{{ page.subheadline | default: page.content | strip_html | truncatewords: 50 | escape }}"
+  "description": "{{ page.subheadline | default: page.excerpt | default: page.content | strip_html | truncatewords: 50 | strip_newlines | escape }}"
 }
 </script>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -299,7 +315,7 @@ layout: default
                             {% endif %}
                         {% endif %}
                         </div>
-                    <div class="publish-date">{{ page.date | date: "%B %d, %Y" }}</div>
+                    <time class="publish-date" datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %d, %Y" }}</time>
                 </div>
                 <div>
                     <button id="native-share-button" class="share-btn" title="Share article"><i class="fas fa-share-alt"></i></button>

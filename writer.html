@@ -90,24 +90,42 @@ permalink: /writer/
             document.title = article.title + " - The Muslim Post";
             document.getElementById('d-headline').innerHTML = article.title; // innerHTML for rich text
             
+            // Dynamically update/create SEO meta tags
+            updateMetaTag('meta[property="og:title"]', article.title);
+            updateMetaTag('meta[name="twitter:title"]', article.title);
+            
             if (article.subheadline) {
                 document.getElementById('d-subheadline').innerHTML = article.subheadline;
+                const cleanSubheadline = article.subheadline.replace(/<[^>]*>/g, '');
+                updateMetaTag('meta[name="description"]', cleanSubheadline);
+                updateMetaTag('meta[property="og:description"]', cleanSubheadline);
+                updateMetaTag('meta[name="twitter:description"]', cleanSubheadline);
             }
-
-            document.getElementById('d-author').textContent = article.author || "TMP Staff";
             
-            // Format Date
-            const dateObj = new Date(article.date);
-            document.getElementById('d-date').textContent = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
-            // Handle Image
             if (article.image) {
                 document.getElementById('d-figure').classList.remove('hidden');
                 document.getElementById('d-image').src = article.image;
                 if (article.image_description) {
                     document.getElementById('d-caption').innerHTML = article.image_description;
                 }
+                const absoluteImage = article.image.startsWith('http') ? article.image : window.location.origin + article.image;
+                updateMetaTag('meta[property="og:image"]', absoluteImage);
+                updateMetaTag('meta[name="twitter:image"]', absoluteImage);
+            } else {
+                const defaultImage = window.location.origin + '/android-chrome-512x512.png';
+                updateMetaTag('meta[property="og:image"]', defaultImage);
+                updateMetaTag('meta[name="twitter:image"]', defaultImage);
             }
+
+            const canonicalUrl = window.location.href;
+            updateMetaTag('link[rel="canonical"]', canonicalUrl, 'href');
+            updateMetaTag('meta[property="og:url"]', canonicalUrl);
+
+            document.getElementById('d-author').textContent = article.author || "TMP Staff";
+            
+            // Format Date
+            const dateObj = new Date(article.date);
+            document.getElementById('d-date').textContent = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
             // Handle Tags
             if (article.tags) {
@@ -128,6 +146,9 @@ permalink: /writer/
             // If it's pure HTML (which your CMS sends), just inject it.
             document.getElementById('d-body').innerHTML = article.content;
 
+            // Inject dynamic NewsArticle JSON-LD schema
+            injectDynamicJSONLD(article, canonicalUrl);
+
             // 4. Show Page
             document.getElementById('loading-spinner').classList.add('hidden');
             document.getElementById('article-content').classList.remove('hidden');
@@ -140,6 +161,68 @@ permalink: /writer/
             document.getElementById('loading-spinner').classList.add('hidden');
             document.getElementById('error-message').classList.remove('hidden');
         }
+    }
+
+    function updateMetaTag(selector, value, attribute = 'content') {
+        let element = document.querySelector(selector);
+        if (!element) {
+            if (selector.startsWith('meta')) {
+                element = document.createElement('meta');
+                const nameOrProp = selector.includes('property') ? 'property' : 'name';
+                const nameVal = selector.match(/["'](.*?)["']/)[1];
+                element.setAttribute(nameOrProp, nameVal);
+                document.head.appendChild(element);
+            } else if (selector.startsWith('link')) {
+                element = document.createElement('link');
+                element.setAttribute('rel', 'canonical');
+                document.head.appendChild(element);
+            }
+        }
+        if (element) {
+            element.setAttribute(attribute, value);
+        }
+    }
+
+    function injectDynamicJSONLD(article, url) {
+        const oldScript = document.getElementById('dynamic-article-jsonld');
+        if (oldScript) oldScript.remove();
+        
+        const absoluteImage = article.image ? (article.image.startsWith('http') ? article.image : window.location.origin + article.image) : window.location.origin + '/android-chrome-512x512.png';
+        const authorSlug = (article.author || 'TMP Staff').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const authorUrl = window.location.origin + '/writer/?id=' + authorSlug + '&source=writer_db';
+        
+        const schema = {
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": url
+            },
+            "headline": article.title,
+            "image": [absoluteImage],
+            "datePublished": article.date,
+            "dateModified": article.last_modified_at || article.date,
+            "author": {
+                "@type": "Person",
+                "name": article.author || "TMP Staff",
+                "url": authorUrl
+            },
+            "publisher": {
+                "@type": "NewsMediaOrganization",
+                "name": "The Muslim Post",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": window.location.origin + "/android-chrome-512x512.png"
+                }
+            },
+            "description": (article.subheadline || article.content || "").replace(/<[^>]*>/g, '').substring(0, 160)
+        };
+        
+        const script = document.createElement('script');
+        script.id = 'dynamic-article-jsonld';
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify(schema);
+        document.head.appendChild(script);
     }
 
     document.addEventListener('DOMContentLoaded', loadArticle);

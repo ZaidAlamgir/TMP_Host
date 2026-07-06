@@ -217,15 +217,16 @@ html.dark-mode .subheadline-container::after {
 <main class="home-main" style="flex-grow: 1;">
     {% if latest_post %}
     <section class="top-story-section">
-        <a href="{{ latest_post.url | relative_url }}" class="news-card">
-            <div class="news-card-image-wrapper">
+        <a href="{{ latest_post.url | relative_url }}" class="news-card hero-news-card">
+            <div class="news-card-image-wrapper hero-news-card-image-wrapper">
                 <img src="{{ latest_post.image | default: 'https://placehold.co/1200x800/e2e8f0/64748b?text=Image+Not+Available' }}" alt="{{ latest_post.image_description | default: 'Top story image' | escape }}" class="news-card-image" loading="eager">
                 <p class="news-card-date">{{ latest_post.date | date: "%B %d, %Y" }}</p>
             </div>
-            <div class="news-card-text">
-                <h3 class="news-card-headline" style="font-family:'Merriweather',serif;font-weight:900;font-size:1.35rem;margin-bottom:0.5rem;line-height:1.35;">{{ latest_post.title }}</h3>
-                <div class="subheadline-container">
-                    <p class="news-card-subheadline">{{ latest_post.subheadline | default: post.content | strip_html | truncatewords: 35 }}</p>
+            <div class="news-card-text hero-news-card-text">
+                <span class="hero-kicker">Lead Story</span>
+                <h3 class="news-card-headline hero-headline" style="font-family:'Merriweather',serif;font-weight:900;margin-bottom:0.5rem;">{{ latest_post.title }}</h3>
+                <div class="subheadline-container hero-subheadline-container">
+                    <p class="news-card-subheadline">{{ latest_post.subheadline | default: latest_post.content | strip_html | truncatewords: 35 }}</p>
                 </div>
                 <span class="read-more-text">Read More &rarr;</span>
             </div>
