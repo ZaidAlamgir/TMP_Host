@@ -20,34 +20,56 @@ layout: default
 {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
+  "@id": "{{ page.url | absolute_url }}#article",
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": "{{ page.url | absolute_url }}"
   },
   "headline": "{{ page.title | strip_html | escape }}",
-  "image": [
-    "{% if page.image and page.image != "" %}{{ page.image | absolute_url }}{% else %}{{ '/android-chrome-512x512.png' | absolute_url }}{% endif %}"
-  ],
+  "image": "{% if page.image and page.image != "" %}{{ page.image | absolute_url }}{% else %}{{ '/android-chrome-512x512.png' | absolute_url }}{% endif %}",
   "datePublished": "{{ page.date | date_to_xmlschema }}",
   "dateModified": "{{ page.last_modified_at | default: page.date | date_to_xmlschema }}",
   "author": {
     "@type": "Person",
+    "@id": "{{ author_url }}#identity",
     "name": "{{ page.writer | default: page.author | default: 'TMP Staff' | escape }}",
     "url": "{{ author_url }}"
   },
   "publisher": {
     "@type": "NewsMediaOrganization",
+    "@id": "{{ '/' | absolute_url }}#publisher",
     "name": "The Muslim Post",
     "logo": {
       "@type": "ImageObject",
       "url": "{{ '/android-chrome-512x512.png' | absolute_url }}"
     }
   },
-  "description": "{{ page.subheadline | default: page.excerpt | default: page.content | strip_html | truncatewords: 50 | strip_newlines | escape }}"
+  "description": "{{ page.subheadline | default: page.excerpt | default: page.content | strip_html | truncatewords: 50 | strip_newlines | escape }}",
+  "articleBody": "{{ page.content | strip_html | truncatewords: 200 | strip_newlines | escape }}",
+  "isAccessibleForFree": true
 }
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
-
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ '/' | absolute_url }}"
+    }{% if page.categories and page.categories.size > 0 %},
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ page.categories.first | replace: '-', ' ' | capitalize }}",
+      "item": "{{ '/news/' | append: page.categories.first | append: '/' | absolute_url }}"
+    }
+    {% endif %}
+  ]
+}
+</script>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
 
@@ -117,7 +139,7 @@ layout: default
     /* Links in Body */
     .article-body a { 
         color: #1d4ed8; text-decoration: underline; text-decoration-thickness: 1px;
-        text-underline-offset: 2px; word-break: break-all; overflow-wrap: anywhere; cursor: pointer;
+        text-underline-offset: 2px; word-break: break-word; overflow-wrap: break-word; cursor: pointer;
     }
     .article-body a:hover { color: #1e40af; text-decoration-thickness: 2px; }
 
@@ -297,7 +319,7 @@ layout: default
                         By 
                         {% if page.writer %}
                             {% assign writer_slug = page.writer | slugify %}
-                            <a href="/writer/?id={{ writer_slug }}&source=writer_db" class="hover:text-indigo-600 hover:underline transition-colors text-gray-800">
+                            <a href="/writer/?id={{ writer_slug }}&source=writer_db" rel="author" class="hover:text-indigo-600 hover:underline transition-colors text-gray-800">
                                 {{ page.writer }}
                             </a>
 
@@ -307,7 +329,7 @@ layout: default
                             {% assign static_author = site.authors | where: "slug", author_slug | first %}
                             
                             {% if static_author %}
-                                <a href="{{ static_author.url }}" class="hover:text-indigo-600 hover:underline transition-colors font-bold text-gray-900">
+                                <a href="{{ static_author.url }}" rel="author" class="hover:text-indigo-600 hover:underline transition-colors font-bold text-gray-900">
                                     {{ author_name }} <i class="fas fa-check-circle text-yellow-500 text-xs ml-1" title="Staff Writer"></i>
                                 </a>
                             {% else %}

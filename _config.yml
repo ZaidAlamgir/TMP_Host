@@ -8,6 +8,7 @@ keywords: ["The Muslim Post", "TMP News", "Muslim post", "World Politics", "Indi
 # Add this section to explicitly enable the sitemap plugin
 plugins:
   - jekyll-sitemap
+  - jekyll-feed
 
 baseurl: "" 
 url: "https://www.tmpnews.com"

@@ -29,6 +29,28 @@ layout: default
   {% when 'doctor-black' %}{% assign border_color = "border-gray-900" %}{% assign tick_color = "text-gray-900" %}
 {% endcase %}
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "@id": "{{ page.url | absolute_url }}",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "{{ page.title | escape }}",
+    "description": "{{ page.content | strip_html | strip_newlines | truncatewords: 50 | escape }}",
+    "url": "{{ page.url | absolute_url }}"
+    {% if page.image %}
+    ,"image": "{{ page.image | absolute_url }}"
+    {% endif %}
+    {% if page.x or page.upscrolled %}
+    ,"sameAs": [
+      {% if page.x %}"{{ page.x }}"{% endif %}{% if page.x and page.upscrolled %},{% endif %}
+      {% if page.upscrolled %}"{{ page.upscrolled }}"{% endif %}
+    ]
+    {% endif %}
+  }
+}
+</script>
 <div class="article-container py-12">
     
     <div class="flex flex-col items-center text-center mb-16 w-full">

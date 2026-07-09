@@ -1,8 +1,11 @@
 ---
-layout: null
+layout: none
+permalink: /news-sitemap.xml
 ---
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+{% if jekyll.environment == "production" %}
   {% assign current_time = site.time | date: "%s" | plus: 0 %}
   {% for post in site.posts %}
     {% assign post_time = post.date | date: "%s" | plus: 0 %}
@@ -17,9 +20,26 @@ layout: null
             <news:language>en</news:language>
           </news:publication>
           <news:publication_date>{{ post.date | date_to_xmlschema }}</news:publication_date>
-          <news:title>{{ post.title | xml_escape }}</news:title>
+          <news:title>{{ post.title | strip_html | escape }}</news:title>
+          {% if post.tags %}<news:keywords>{{ post.tags | join: ', ' }}</news:keywords>{% endif %}
         </news:news>
       </url>
     {% endif %}
   {% endfor %}
+{% else %}
+  {% for post in site.posts limit: 10 %}
+    <url>
+      <loc>{{ post.url | absolute_url }}</loc>
+      <news:news>
+        <news:publication>
+          <news:name>The Muslim Post</news:name>
+          <news:language>en</news:language>
+        </news:publication>
+        <news:publication_date>{{ post.date | date_to_xmlschema }}</news:publication_date>
+        <news:title>{{ post.title | strip_html | escape }}</news:title>
+        {% if post.tags %}<news:keywords>{{ post.tags | join: ', ' }}</news:keywords>{% endif %}
+      </news:news>
+    </url>
+  {% endfor %}
+{% endif %}
 </urlset>

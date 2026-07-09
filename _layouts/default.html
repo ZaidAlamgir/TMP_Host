@@ -11,6 +11,7 @@
     {
       "@context": "https://schema.org",
       "@type": "NewsMediaOrganization",
+      "@id": "{{ '/' | absolute_url }}#publisher",
       "name": "The Muslim Post",
       "url": "{{ site.url }}",
       "logo": {
@@ -21,10 +22,30 @@
         "https://x.com/TMPnewsAgency",
         "https://youtube.com/@themuslimpostofficial",
         "https://t.me/themuslimpost"
-      ]
+      ],
+      "ethicsPolicy": "{{ '/ethics/' | absolute_url }}",
+      "correctionsPolicy": "{{ '/editorial-guidelines.html' | absolute_url }}",
+      "masthead": "{{ '/about.html' | absolute_url }}",
+      "foundingDate": "2023"
     }
     </script>
     {% endif %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "The Muslim Post | TMP News",
+      "url": "{{ site.url }}",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "{{ '/search/?q=' | absolute_url }}{search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7/dist/turbo.es2017-umd.js" defer></script>
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     <script async src="//www.instagram.com/embed.js"></script>
@@ -33,14 +54,18 @@
     {% assign meta_keywords = page.tags | default: site.keywords %}
     <meta name="keywords" content="{{ meta_keywords | join: ', ' }}">
     <link rel="canonical" href="{{ page.url | absolute_url }}">
+    <link rel="alternate" type="application/atom+xml" title="The Muslim Post | TMP News" href="{{ '/feed.xml' | absolute_url }}">
     <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
     <meta property="og:url" content="{{ page.url | absolute_url }}">
     <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
     <meta property="og:description" content="{{ page.subheadline | default: site.description | strip_html }}">
-    <meta property="og:image" content="{{ page.image | absolute_url | default: '/android-chrome-512x512.png' | absolute_url }}">
+    <meta property="og:image" content="{% if page.image and page.image != '' %}{{ page.image | absolute_url }}{% else %}{{ '/android-chrome-512x512.png' | absolute_url }}{% endif %}">
     {% if page.layout == 'post' %}
     <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
     <meta property="article:modified_time" content="{{ page.last_modified_at | default: page.date | date_to_xmlschema }}">
+    {% if page.categories and page.categories.size > 0 %}
+    <meta property="article:section" content="{{ page.categories.first | replace: '-', ' ' | capitalize }}">
+    {% endif %}
     {% if page.writer %}
       {% assign writer_slug = page.writer | slugify %}
       <meta property="article:author" content="{{ '/writer/?id=' | append: writer_slug | append: '&source=writer_db' | absolute_url }}">
@@ -60,7 +85,7 @@
     <meta name="twitter:url" content="{{ page.url | absolute_url }}">
     <meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
     <meta name="twitter:description" content="{{ page.subheadline | default: site.description | strip_html }}">
-    <meta name="twitter:image" content="{{ page.image | absolute_url | default: '/android-chrome-512x512.png' | absolute_url }}">
+    <meta name="twitter:image" content="{% if page.image and page.image != '' %}{{ page.image | absolute_url }}{% else %}{{ '/android-chrome-512x512.png' | absolute_url }}{% endif %}">
     <script>
         (function() {
             try {
