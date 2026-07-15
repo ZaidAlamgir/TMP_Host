@@ -1,7 +1,8 @@
-name: Submit Sitemap to IndexNow
+name: Submit to IndexNow
+
 on:
   workflow_run:
-    workflows: ["Deploy Jekyll site to Pages"] 
+    workflows: ["Build and Deploy to Cloudflare Pages"]
     types: [completed]
 
 jobs:
@@ -9,8 +10,19 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - name: 🚀 Submit sitemap URLs to IndexNow
+      - name: 🚀 Submit sitemap URLs to IndexNow (Bing + Yandex + others)
         uses: bojieyang/indexnow-action@v2
         with:
           sitemap-location: 'https://www.tmpnews.com/sitemap.xml'
           key: ${{ secrets.INDEXNOW_KEY }}
+
+      - name: 🔔 Ping Google Sitemap
+        run: |
+          curl -s "https://www.google.com/ping?sitemap=https://www.tmpnews.com/sitemap.xml"
+          curl -s "https://www.google.com/ping?sitemap=https://www.tmpnews.com/news-sitemap.xml"
+          echo "Google sitemap ping sent."
+
+      - name: 🔔 Ping Bing Sitemap
+        run: |
+          curl -s "https://www.bing.com/ping?sitemap=https://www.tmpnews.com/sitemap.xml"
+          echo "Bing sitemap ping sent."
