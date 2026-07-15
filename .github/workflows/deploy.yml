@@ -282,7 +282,7 @@ jobs:
           working-directory: ./main_site 
           
       - name: 31. Build with Jekyll
-        run: bundle exec jekyll build --trace
+        run: JEKYLL_ENV=production bundle exec jekyll build --trace
         working-directory: ./main_site 
 
       # --- ASSET LINKS FIX ---
