@@ -129,6 +129,20 @@ html.dark-mode .article-body blockquote {
     color: var(--dark-text-secondary) !important;
 }
 
+/* Speech Boxes */
+html.dark-mode .speech-box {
+    background-color: var(--dark-bg-secondary) !important;
+    border-color: var(--dark-border-color) !important;
+    border-left-color: var(--dark-accent-primary) !important;
+    color: var(--dark-text-primary) !important;
+}
+html.dark-mode .speech-header {
+    color: var(--dark-accent-primary) !important;
+}
+html.dark-mode .speech-body {
+    color: var(--dark-text-primary) !important;
+}
+
 /* --- 3. Component-Specific Overrides --- */
 
 /* --- Header, Footer, Navs (style.css, index-menu.css, site-footer.html) --- */
