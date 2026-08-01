@@ -1,6 +1,6 @@
-const CORE_CACHE = 'tmp-core-v21';
-const ARTICLE_CACHE = 'tmp-articles-v21';
-const ASSET_CACHE = 'tmp-assets-v21';
+const CORE_CACHE = 'tmp-core-v22';
+const ARTICLE_CACHE = 'tmp-articles-v22';
+const ASSET_CACHE = 'tmp-assets-v22';
 const CORE_ASSETS = [
     '/',                      
     '/index.html',            
@@ -37,7 +37,7 @@ self.addEventListener('install', (event) => {
     self.skipWaiting(); 
     event.waitUntil(
         caches.open(CORE_CACHE).then(async (cache) => {
-            console.log('SW: Caching Core App Shell v20');
+            console.log('SW: Caching Core App Shell v22');
             for (let asset of CORE_ASSETS) {
                 try {
                     const response = await fetch(asset);
