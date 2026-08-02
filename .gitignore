@@ -42,6 +42,7 @@ Desktop.ini
 # --- Editor Settings ---
 .vscode/
 .idea/
+.antigravitycli/
 *.swp
 *.swo
 
