@@ -219,8 +219,50 @@ jobs:
           token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
           path: ./_article_repos/south-america
 
+      - name: 29. Checkout War
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-war
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/war
+
+      - name: 30. Checkout Natural Disaster
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-natural-disaster
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/natural-disaster
+
+      - name: 31. Checkout Palestine
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-palestine
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/palestine
+
+      - name: 32. Checkout Strategic Deals
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-strategic-deals
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/strategic-deals
+
+      - name: 33. Checkout Speeches & Press Conference
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-speeches-press-conference
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/speeches-press-conference
+
+      - name: 34. Checkout Business & Economics
+        uses: actions/checkout@v4
+        with:
+          repository: TheMuslimPost/tmp-articles-business-economics
+          token: ${{ secrets.GH_PAT_FOR_CHECKOUT }}
+          path: ./_article_repos/business-economics
+
       # --- CONSOLIDATION ---
-      - name: 29. Consolidate All Posts
+      - name: 35. Consolidate All Posts
         run: |
           echo "--- Starting Consolidation ---"
           mkdir -p ./main_site/_posts
@@ -261,6 +303,12 @@ jobs:
           copy_posts "east-asia"
           copy_posts "north-america"
           copy_posts "south-america"
+          copy_posts "war"
+          copy_posts "natural-disaster"
+          copy_posts "palestine"
+          copy_posts "strategic-deals"
+          copy_posts "speeches-press-conference"
+          copy_posts "business-economics"
           
           # --- SPECIAL COPY FOR USER ARCHIVES ---
           # (This repo uses '_posts' instead of 'posts')
@@ -274,19 +322,19 @@ jobs:
           echo "--- Verification: Files in _posts ---"
           ls -R ./main_site/_posts
       
-      - name: 30. Setup Ruby
+      - name: 36. Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: ./main_site 
           
-      - name: 31. Build with Jekyll
+      - name: 37. Build with Jekyll
         run: JEKYLL_ENV=production bundle exec jekyll build --trace
         working-directory: ./main_site 
 
       # --- ASSET LINKS FIX ---
-      - name: 31b. Setup AssetLinks Rewrite for Cloudflare
+      - name: 37b. Setup AssetLinks Rewrite for Cloudflare
         run: |
           echo "Setting up AssetLinks Rewrite..."
           cp .well-known/assetlinks.json _site/assetlinks.json
@@ -296,7 +344,7 @@ jobs:
           echo "AssetLinks rewrite setup complete."
         working-directory: ./main_site
         
-      - name: 32. Upload artifact for deployment
+      - name: 38. Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: jekyll-site
