@@ -519,7 +519,7 @@ function setupArticleInteractions() {
         
         shareBtn.addEventListener('click', async () => {
             const shareTitle = document.title;
-            const shareText = "Read this article on The Muslim Post";
+            const shareText = "Read this article on TMPnews";
             const shareUrl = window.location.href;
             if (window.AndroidInterface && window.AndroidInterface.share) {
                 window.AndroidInterface.share(shareTitle, shareText, shareUrl);
