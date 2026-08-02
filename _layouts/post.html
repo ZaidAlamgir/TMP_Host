@@ -578,6 +578,25 @@ function setupArticleInteractions() {
         });
     });
 
+    // Format quote boxes and speech boxes to preserve paragraph breaks
+    document.querySelectorAll('.quote-box, .speech-box').forEach(box => {
+        if (box.querySelector('p')) return;
+        let contentNode = box;
+        if (box.classList.contains('speech-box')) {
+            contentNode = box.querySelector('.speech-body');
+            if (!contentNode) return;
+        }
+        const rawHtml = contentNode.innerHTML.trim();
+        const paras = rawHtml.split(/\n{2,}/)
+                             .map(p => p.trim())
+                             .filter(Boolean)
+                             .map(p => `<p>${p}</p>`)
+                             .join('\n');
+        if (paras) {
+            contentNode.innerHTML = paras;
+        }
+    });
+
     renderTelegramEmbeds();
 }
 
