@@ -375,7 +375,7 @@ layout: default
         <div class="article-body">
             {% if page.image %}
             <figure class="article-figure">
-                <img src="{{ page.image }}" alt="{{ page.image_description | strip_html | default: 'Article main image' }}">
+                <img src="{{ page.image }}" alt="{{ page.image_description | strip_html | default: 'Article main image' }}" fetchpriority="high" decoding="async">
                 {% if page.image_description %}
                     <figcaption class="article-image-caption">{{ page.image_description }}</figcaption>
                 {% endif %}

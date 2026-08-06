@@ -6,6 +6,16 @@
     <meta name="theme-color" content="#ffffff" id="theme-color-meta">
     <title>{% if page.title %}{{ page.title }} - The Muslim Post{% else %}{{ site.title }}{% endif %}</title>
     
+    <!-- Preload Critical LCP Images for Mobile Speed Boost -->
+    {% if page.layout == 'post' and page.image %}
+      <link rel="preload" href="{{ page.image }}" as="image" fetchpriority="high">
+    {% elsif page.url == "/" or page.url == "/index.html" %}
+      {% assign latest_post = site.posts.first %}
+      {% if latest_post and latest_post.image %}
+        <link rel="preload" href="{{ latest_post.image }}" as="image" fetchpriority="high">
+      {% endif %}
+    {% endif %}
+    
     <!-- Google AdSense Verification & Ads -->
     <meta name="google-adsense-account" content="ca-pub-4850323427784993">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4850323427784993"
@@ -127,9 +137,10 @@
     <link rel="stylesheet" href="{{ '/assets/style/index-menu.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/home.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/dark-mode.css' | relative_url }}">   
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="{{ '/assets/style/tailwind.css' | relative_url }}">
+    <!-- Load FontAwesome and Supabase asynchronously/deferred to prevent render blocking -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <style>
         html {
             background-color: #ffffff !important; 
