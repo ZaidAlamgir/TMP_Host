@@ -20,7 +20,8 @@ layout: null
         "image": {{ post.image | relative_url | jsonify }},
       {% endif %}
       
-      "image_description": {{ post.image_description | jsonify }}
+      "image_description": {{ post.image_description | jsonify }},
+      "countries": {{ post.countries | jsonify }}
     }
     {% unless forloop.last %},{% endunless %}
   {% endfor %}
