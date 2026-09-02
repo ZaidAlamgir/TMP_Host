@@ -315,32 +315,57 @@ html.dark-mode .subheadline-container::after {
 </main>
 
 <script>
-    document.addEventListener('turbo:load', () => {
-        const getStartedBtn = document.getElementById('cta-get-started');
-        if (getStartedBtn) {
-            let cachedUser = null;
-            try {
-                cachedUser = localStorage.getItem('cachedUser');
-            } catch (e) {
-                console.warn("localStorage is disabled or not accessible:", e);
+    (function() {
+        function initHomePage() {
+            // Check authentication state for CTA button
+            const getStartedBtn = document.getElementById('cta-get-started');
+            if (getStartedBtn) {
+                let cachedUser = null;
+                try {
+                    cachedUser = localStorage.getItem('cachedUser');
+                } catch (e) {
+                    console.warn("localStorage is disabled or not accessible:", e);
+                }
+                if (!cachedUser) {
+                    getStartedBtn.href = "{{ 'auth.html' | relative_url }}";
+                }
             }
-            if (!cachedUser) {
-                getStartedBtn.href = "{{ 'auth.html' | relative_url }}";
+            
+            // Initialize IntersectionObserver for scroll-reveal animations
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            if (revealElements.length > 0) {
+                if ('IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('is-visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.05, rootMargin: "0px 0px 50px 0px" });
+                    
+                    revealElements.forEach(element => {
+                        if (!element.classList.contains('is-visible')) {
+                            observer.observe(element);
+                        }
+                    });
+                } else {
+                    // Fallback for browsers without IntersectionObserver
+                    revealElements.forEach(element => {
+                        element.classList.add('is-visible');
+                    });
+                }
             }
         }
-    });
-    
-    document.addEventListener('turbo:load', () => {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-        document.querySelectorAll('.reveal-on-scroll').forEach(element => {
-            observer.observe(element);
-        });
-    });
+
+        // Trigger on Turbo navigations
+        document.addEventListener('turbo:load', initHomePage);
+
+        // Trigger immediately or on DOMContentLoaded for initial page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initHomePage);
+        } else {
+            initHomePage();
+        }
+    })();
 </script>
