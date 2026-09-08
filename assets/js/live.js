@@ -471,12 +471,52 @@ function renderTelegramEmbeds() {
                 .then(() => console.log(`View logged for ${postId}`))
                 .catch(error => { console.error("View log failed:", error); viewedPosts.delete(postId); sessionStorage.setItem('viewedLivePosts', JSON.stringify(Array.from(viewedPosts))); });
         }
+        function extractLangContent(raw, lang) {
+            if (!raw) return '';
+            const tagMap = {
+                'en': ['english', 'en'],
+                'hi': ['hindi', 'hi'],
+                'ur': ['urdu', 'ur']
+            };
+            const tags = tagMap[lang] || [lang];
+
+            // 1. Try XML-style tags like <hindi>...</hindi> or <hi>...</hi>
+            for (const t of tags) {
+                const tagRegex = new RegExp(`(?:<${t}>)([\\s\\S]*?)(?:<\\/${t}>)`, 'i');
+                const match = raw.match(tagRegex);
+                if (match && match[1].trim()) return match[1].trim();
+            }
+
+            // 2. Try HTML comments like <!--hi-->...<!--/hi-->
+            for (const t of tags) {
+                const commentRegex = new RegExp(`<!--${t}-->([\\s\\S]*?)<!--\\/${t}-->`, 'i');
+                const match = raw.match(commentRegex);
+                if (match && match[1].trim()) return match[1].trim();
+            }
+
+            // 3. For English: strip out all <hindi>, <urdu>, <!--hi-->, <!--ur--> blocks
+            if (lang === 'en') {
+                let clean = raw;
+                clean = clean.replace(/<(?:hindi|hi)>[\s\S]*?<\/(?:hindi|hi)>/gi, '');
+                clean = clean.replace(/<(?:urdu|ur)>[\s\S]*?<\/(?:urdu|ur)>/gi, '');
+                clean = clean.replace(/<!--(?:hindi|hi)-->[\s\S]*?<!--\/(?:hindi|hi)-->/gi, '');
+                clean = clean.replace(/<!--(?:urdu|ur)-->[\s\S]*?<!--\/(?:urdu|ur)-->/gi, '');
+                clean = clean.replace(/<\/?(?:english|en)>/gi, '');
+                clean = clean.replace(/<!--\/?(?:english|en)-->/gi, '');
+                return clean.trim();
+            }
+
+            return '';
+        }
+
         function renderPost(postData, container, insertAtTop = false) {
             const postElement = document.createElement('div');
             postElement.className = 'live-post';
             postElement.id = `post-${postData.id}`; 
             if (insertAtTop) postElement.classList.add('new-post-animation');
             if (postData.is_pinned) postElement.classList.add('is-pinned');
+            const postHeadline = extractLangContent(postData.headline, 'en');
+            const postContent = extractLangContent(postData.content, 'en');
             let tagsHTML = postData.tags?.length > 0 ? '<div class="tags-container">' + postData.tags.map(tag => `<a href="#" class="tag-badge">#${tag}</a>`).join('') + '</div>' : '';
             let pinnedBadgeHTML = postData.is_pinned ? `<span class="pinned-badge"><i class="fas fa-thumbtack fa-xs"></i><span class="ml-1.5">PINNED</span></span>` : '';
             const logoSVG = `<svg class="post-author-logo" viewBox="0 0 200 200" aria-hidden="true"><rect x="50" y="50" width="100" height="100" class="square"/><circle cx="100" cy="100" r="80" fill="none" stroke-width="8" class="static-circle"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" class="tmp-text">TMP</text></svg>`;
@@ -492,8 +532,8 @@ function renderTelegramEmbeds() {
                     <div class="live-post-author-group">${logoSVG}<span class="live-post-author">${postData.author_name}</span></div>
                     <span class="live-post-time">${formattedDate}</span>${pinnedBadgeHTML}
                 </div>
-                <h2 class="live-post-headline">${postData.headline || ''}</h2>
-                <div class="post-body">${parseContent(postData.content)}</div>
+                <h2 class="live-post-headline">${postHeadline || ''}</h2>
+                <div class="post-body">${parseContent(postContent)}</div>
                 ${tagsHTML}${progressBarHTML}${translationButtonsHTML}
                 <div class="post-footer">
                     <div class="post-stats" data-post-id="${postData.id}">
@@ -503,7 +543,7 @@ function renderTelegramEmbeds() {
                         <span id="like-count-${postData.id}" class="like-count" style="margin-left:0.5rem;">${initialLikeCount}</span>
                         <div class="stat-item" style="margin-left: 1rem;"><i class="fas fa-eye" style="color:var(--text-muted);"></i><span id="view-count-${postData.id}" style="margin-left:0.5rem;">${initialViewCount}</span></div>
                     </div>
-                    <button class="share-btn" data-post-id="${postData.id}" data-post-headline="${postData.headline || 'Live Update'}"><i class="fas fa-share-alt mr-2"></i>Share</button>
+                    <button class="share-btn" data-post-id="${postData.id}" data-post-headline="${postHeadline || 'Live Update'}"><i class="fas fa-share-alt mr-2"></i>Share</button>
                 </div>
             </div>`;
             if (insertAtTop) { container.prepend(postElement); } else { container.appendChild(postElement); }
