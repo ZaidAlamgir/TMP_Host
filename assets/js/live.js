@@ -226,21 +226,25 @@
         if (typeof supabase !== 'undefined') {
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
-        const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json';
+        const LIVE_FEED_URL = 'https://data.tmpnews.com/feed.json?lang=en';
         const archiveBtn = document.getElementById('archive-btn');
         const noMorePostsMsg = document.getElementById('no-more-posts-msg');
         const INITIAL_LOAD_COUNT = 80; 
         const SUBSEQUENT_LOAD_COUNT = 80;
-        const CACHE_KEY = 'cachedLiveFeed_en_v4';
-        const PREFETCH_KEY = 'prefetchedLiveFeed_en_v4';
-        const PREFETCH_TIMESTAMP_KEY = 'prefetchedLiveFeedTimestamp_en_v4';
+        const CACHE_KEY = 'cachedLiveFeed_en_v6';
+        const PREFETCH_KEY = 'prefetchedLiveFeed_en_v6';
+        const PREFETCH_TIMESTAMP_KEY = 'prefetchedLiveFeedTimestamp_en_v6';
         // Clean legacy cache keys if present
         sessionStorage.removeItem('cachedLiveFeed');
         sessionStorage.removeItem('cachedLiveFeed_en_v2');
         sessionStorage.removeItem('cachedLiveFeed_en_v3');
+        sessionStorage.removeItem('cachedLiveFeed_en_v4');
+        sessionStorage.removeItem('cachedLiveFeed_en_v5');
         localStorage.removeItem('prefetchedLiveFeed');
         localStorage.removeItem('prefetchedLiveFeed_en_v2');
         localStorage.removeItem('prefetchedLiveFeed_en_v3');
+        localStorage.removeItem('prefetchedLiveFeed_en_v4');
+        localStorage.removeItem('prefetchedLiveFeed_en_v5');
         localStorage.removeItem('prefetchedLiveFeedTimestamp');
         let allPosts = []; 
         let loadedPostsCount = 0;
@@ -568,6 +572,10 @@
 
         function hasEnglishContent(postData) {
             if (!postData) return false;
+            // Exclude separate Hindi and Urdu entries or child translation entries
+            if (postData.lang && postData.lang !== 'en') return false;
+            if (postData.parent_id) return false;
+
             const enHeadline = extractLangContent(postData.headline, 'en');
             const enContent = extractLangContent(postData.content, 'en');
 
@@ -594,7 +602,7 @@
                 return false;
             }
 
-            return Boolean(hasLatinHeadline || hasLatinContent || (hasMedia && !devanagari.test(textOnly) && !arabicUrdu.test(textOnly)));
+            return Boolean(hasLatinHeadline || hasLatinContent || hasMedia || postData.lang === 'en');
         }
 
         function renderPost(postData, container, insertAtTop = false) {
@@ -766,12 +774,21 @@
             loadMorePosts(false);
         };
         
+        if (window._activeLiveChannel && supabaseClient) {
+            try { supabaseClient.removeChannel(window._activeLiveChannel); } catch(e) {}
+        }
         if (typeof supabase !== 'undefined' && supabaseClient) {
-            supabaseClient.channel('live_updates_listener')
+            window._activeLiveChannel = supabaseClient.channel('live_updates_listener_' + Date.now())
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'live_posts' }, (payload) => {
+                    const newPostData = payload.new;
+                    
+                    // Strictly ignore non-English posts (Hindi/Urdu rows)
+                    if (newPostData && ((newPostData.lang && newPostData.lang !== 'en') || newPostData.parent_id)) {
+                        return;
+                    }
+
                     sessionStorage.removeItem(CACHE_KEY); 
                     localStorage.removeItem(PREFETCH_KEY); 
-                    const newPostData = payload.new;
                     
                     if (payload.eventType === 'INSERT') {
                         if (hasEnglishContent(newPostData)) {
@@ -779,9 +796,7 @@
                                 renderPost(newPostData, liveFeed, true); 
                                 allPosts.unshift(newPostData);
                                 loadedPostsCount++;
-                                
                                 setTimeout(loadSocialScripts, 200); 
-                                
                             } else { 
                                 loadMorePosts(true); 
                             }
@@ -789,23 +804,40 @@
                     } 
                     else if (payload.eventType === 'UPDATE') {
                         const existingElement = document.getElementById(`post-${newPostData.id}`);
-                        if (!hasEnglishContent(newPostData)) {
-                            if (existingElement) existingElement.remove();
-                            allPosts = allPosts.filter(p => p.id !== newPostData.id);
+                        if (!existingElement) {
+                            if (hasEnglishContent(newPostData)) {
+                                if (newPostData.is_pinned) {
+                                    loadMorePosts(true);
+                                } else {
+                                    renderPost(newPostData, liveFeed, true);
+                                    allPosts.unshift(newPostData);
+                                    loadedPostsCount++;
+                                    setTimeout(loadSocialScripts, 200);
+                                }
+                            }
                         } else {
-                            const currentIsPinned = existingElement ? existingElement.classList.contains('is-pinned') : false;
+                            const currentIsPinned = existingElement.classList.contains('is-pinned');
                             const newIsPinned = newPostData.is_pinned;
 
-                            if (!existingElement || (newIsPinned !== currentIsPinned)) { 
+                            if (newIsPinned !== currentIsPinned) { 
                                 loadMorePosts(true); 
                             }
-                            else if (existingElement) {
+                            else {
                                 const hlEl = existingElement.querySelector('.live-post-headline');
                                 const bodyEl = existingElement.querySelector('.post-body');
                                 const newHl = extractLangContent(newPostData.headline, 'en');
                                 const newCnt = extractLangContent(newPostData.content, 'en');
-                                if (hlEl) hlEl.textContent = newHl || '';
-                                if (bodyEl) bodyEl.innerHTML = parseContent(newCnt || '');
+                                
+                                if (hlEl && newHl) {
+                                    hlEl.textContent = newHl;
+                                }
+                                if (bodyEl && newCnt) {
+                                    const parsedCnt = parseContent(newCnt);
+                                    if (parsedCnt) {
+                                        bodyEl.innerHTML = parsedCnt;
+                                        renderTelegramEmbeds();
+                                    }
+                                }
 
                                 const likeCountSpan = existingElement.querySelector(`#like-count-${newPostData.id}`);
                                 const viewCountSpan = existingElement.querySelector(`#view-count-${newPostData.id}`);
