@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Home - The Muslim Post
+description: "The Muslim Post (TMP News) delivers independent news, deep geopolitical analysis, and expert perspectives on World Politics, Indian Politics, and Global Affairs."
 ---
 <script type="application/ld+json">
 {
