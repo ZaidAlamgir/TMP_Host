@@ -7,6 +7,16 @@ binding = "DB_1"
 database_name = "TMPnews_wr_db_1"
 database_id = "2d6cae9f-7ad3-49af-8c99-bf20da848e21"
 
+[[d1_databases]]
+binding = "DB_ARCHIVE"
+database_name = "tmpnews_en_archive"
+database_id = "4f7db06b-6924-4566-96dd-1bc42ec9cb32"
+
+[[d1_databases]]
+binding = "DB_EN"
+database_name = "tmpnews_en_archive"
+database_id = "4f7db06b-6924-4566-96dd-1bc42ec9cb32"
+
 [[kv_namespaces]]
 binding = "FEED_CACHE"
 id = "dd89c65043be49a1be126f3bd843a58b"
