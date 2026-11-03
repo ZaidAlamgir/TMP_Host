@@ -73,7 +73,20 @@ layout: default
 }
 </script>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
+    /* Local Merriweather Variable Webfont - Preloaded for 0ms Instant Bold Render (No FOUT/Slim Glitch) */
+    @font-face {
+        font-family: 'Merriweather';
+        src: local('Merriweather'),
+             local('Merriweather-Regular'),
+             local('Merriweather Bold'),
+             local('Merriweather-Bold'),
+             local('Merriweather Black'),
+             local('Merriweather-Black'),
+             url("{{ '/assets/fonts/merriweather.woff2' | relative_url }}") format('woff2');
+        font-weight: 300 900;
+        font-style: normal;
+        font-display: swap;
+    }
 
     /* Guardian Sans Cond Webfont */
     @font-face {
@@ -110,7 +123,17 @@ layout: default
     .article-container { max-width: 1000px; margin: 0 auto; padding: 0.5rem 1rem 2rem 1rem; color: #111827; flex-grow: 1; }
     
     /* --- HEADLINE & SUBHEADLINE STYLES --- */
-    .article-headline { font-family: 'Merriweather', serif; font-weight: 900; font-size: 56px; line-height: 1.2; margin-bottom: 0.75rem; word-wrap: break-word; }
+    .article-headline { 
+        font-family: 'Merriweather', Georgia, 'Times New Roman', serif; 
+        font-weight: 900; 
+        font-size: 56px; 
+        line-height: 1.2; 
+        margin-bottom: 0.75rem; 
+        word-wrap: break-word; 
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
     /* UPDATED: Reduced margin-bottom from 1.5rem to 0.5rem */
     .article-subheadline { font-family: 'Inter', sans-serif; font-size: 18px; color: #4b5563; line-height: 1.6; margin-top: 0; margin-bottom: 0.5rem; font-weight: 400; }
 
@@ -444,15 +467,47 @@ layout: default
     .article-figure img { max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 8px; }
     .article-body > p > img:only-child, .article-body > img { max-width: 100%; height: auto; display: block; margin: 2rem auto; border-radius: 8px; }
     
+    /* Featured Image & Media Caption (Editorial Style with Theme Blue Accent) */
     .article-image-caption { 
-        font-family: 'Inter', sans-serif; 
-        font-size: 14px; 
-        color: #6b7280; 
-        margin-top: 0.5rem; 
-        margin-bottom: 0.75rem !important; 
-        text-align: center; 
-        display: block; 
-        line-height: 1.25 !important; 
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        font-size: 0.82rem; 
+        font-weight: 600; 
+        line-height: 1.4; 
+        color: #475569; 
+        background: #f1f5f9; 
+        border-left: 3.5px solid #2563eb; 
+        padding: 5px 12px; 
+        border-radius: 0 6px 6px 0; 
+        margin: 8px 0 16px 0 !important; 
+        text-align: left; 
+        display: inline-block; 
+        max-width: 100%; 
+        box-sizing: border-box; 
+        letter-spacing: 0.01em; 
+    }
+
+    .article-image-caption::before {
+        content: "\f030";
+        font-family: "Font Awesome 6 Free", "Font Awesome 5 Free";
+        font-weight: 900;
+        margin-right: 7px;
+        color: #2563eb;
+        font-size: 0.76rem;
+        opacity: 0.95;
+    }
+
+    .article-image-caption:empty {
+        display: none !important;
+    }
+
+    html.dark-mode .article-image-caption {
+        background: #1e293b !important;
+        color: #94a3b8 !important;
+        border-left-color: #38bdf8 !important;
+    }
+
+    html.dark-mode .article-image-caption::before {
+        color: #38bdf8 !important;
     }
 
     /* ========================================================

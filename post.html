@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Community Feed
+permalink: /post.html
 ---
 
 <style>
@@ -45,24 +46,55 @@ title: Community Feed
     <div class="feed-container">
         <h1 class="page-title">Community Opinions</h1>
         
-        <div id="feed-list">
-            <div class="loader">
-                <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading latest opinions...
-            </div>
-        </div>
+        <div id="feed-list"></div>
     </div>
 </main>
 
 <script>
+function getPostSkeletonHTML(count = 3) {
+    let html = '<div class="skeleton-fade-wrapper" id="feed-skeleton-wrapper">';
+    for (let i = 0; i < count; i++) {
+        html += `
+        <div class="skeleton-feed-card">
+            <div class="skeleton-shimmer-box skeleton-card-img"></div>
+            <div class="skeleton-card-body">
+                <div>
+                    <div class="skeleton-shimmer-box skeleton-pill-sm" style="width: 60px; height: 16px; margin-bottom: 8px;"></div>
+                    <div class="skeleton-shimmer-box skeleton-line-title" style="width: 85%; height: 20px; margin-bottom: 8px;"></div>
+                    <div class="skeleton-shimmer-box skeleton-line-desc" style="width: 95%;"></div>
+                    <div class="skeleton-shimmer-box skeleton-line-desc-short" style="width: 75%;"></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                    <div class="skeleton-shimmer-box" style="width: 20px; height: 20px; border-radius: 50%;"></div>
+                    <div class="skeleton-shimmer-box" style="width: 80px; height: 12px; border-radius: 3px;"></div>
+                </div>
+            </div>
+        </div>`;
+    }
+    html += '</div>';
+    return html;
+}
+
+(function preRenderPostCache() {
+    try {
+        const feedList = document.getElementById('feed-list');
+        if (!feedList) return;
+        const localCache = localStorage.getItem('tmp_feed_cache');
+        if (localCache) {
+            feedList.innerHTML = localCache;
+        } else {
+            feedList.innerHTML = getPostSkeletonHTML(3);
+        }
+    } catch(e) {}
+})();
+
 window.loadCommunityFeed = async () => {
     const feedList = document.getElementById('feed-list');
     if (!feedList) return; 
 
     const localCache = localStorage.getItem('tmp_feed_cache');
-    if (localCache) {
-        feedList.innerHTML = localCache; 
-    } else {
-        feedList.innerHTML = '<div class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Loading latest opinions...</div>';
+    if (!localCache && !document.getElementById('feed-skeleton-wrapper')) {
+        feedList.innerHTML = getPostSkeletonHTML(3);
     }
 
     try {
@@ -84,20 +116,12 @@ window.loadCommunityFeed = async () => {
         }
 
         const newHtml = posts.map(post => {
-            // 1. FIX WRITER NAME (Remove "By ")
             const cleanAuthor = post.author ? post.author.replace(/^By\s+/i, '').trim() : 'Staff';
             const writerInfo = writers.find(w => w.name === cleanAuthor) || {};
-            
-            // 2. FIX IMAGE KEY
             const avatarUrl = writerInfo.image || '/assets/img/default-avatar.png';
-            
-            // 3. FIX PROFILE SLUG
             const authorSlug = cleanAuthor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-            
-            // 4. FIX SEO HEADLINE URL
             const titleSlug = post.slug ? post.slug : (post.title ? post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'article');
             const postLink = `/opinion/${authorSlug}/${titleSlug}`;
-            
             const dateStr = new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
             let tagsHtml = '';
@@ -107,7 +131,7 @@ window.loadCommunityFeed = async () => {
             } catch(e) {}
 
             return `
-            <article class="feed-card">
+            <article class="feed-card content-fade-in">
                 ${post.image ? `
                 <a href="${postLink}" class="card-image">
                     <img src="${post.image}" alt="${post.title}" loading="lazy">
@@ -132,17 +156,31 @@ window.loadCommunityFeed = async () => {
             `;
         }).join('');
         
-        feedList.innerHTML = newHtml;
-        localStorage.setItem('tmp_feed_cache', newHtml); 
+        const skeletonWrapper = document.getElementById('feed-skeleton-wrapper');
+        if (skeletonWrapper) {
+            skeletonWrapper.classList.add('fade-out');
+            setTimeout(() => {
+                feedList.innerHTML = newHtml;
+                localStorage.setItem('tmp_feed_cache', newHtml);
+            }, 180);
+        } else {
+            if (feedList.innerHTML !== newHtml) {
+                feedList.innerHTML = newHtml;
+            }
+            localStorage.setItem('tmp_feed_cache', newHtml);
+        }
         
     } catch (err) {
         console.error(err);
-        if (!localCache) {
-            feedList.innerHTML = `<div class="text-center py-10 text-red-500">Unable to load feed. Please try again later.</div>`;
+        if (!localCache && !document.querySelector('.feed-card')) {
+            feedList.innerHTML = `<div class="text-center py-10 text-gray-500">No opinions found. Check back soon!</div>`;
         }
     }
 };
 
 document.addEventListener("DOMContentLoaded", window.loadCommunityFeed);
 document.addEventListener("turbo:load", window.loadCommunityFeed);
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    window.loadCommunityFeed();
+}
 </script>
