@@ -1,9 +1,7 @@
-const CORE_CACHE = 'tmp-core-v38';
-const ARTICLE_CACHE = 'tmp-articles-v38';
-const ASSET_CACHE = 'tmp-assets-v38';
+const CORE_CACHE = 'tmp-core-v39';
+const ARTICLE_CACHE = 'tmp-articles-v39';
+const ASSET_CACHE = 'tmp-assets-v39';
 const CORE_ASSETS = [
-    '/',                      
-    '/index.html',            
     '/offline.html',  
     'https://author.tmpnews.com/profile/tmpnews.webp',     
     '/assets/style/style.css',
@@ -58,10 +56,10 @@ self.addEventListener('install', (event) => {
     self.skipWaiting(); 
     event.waitUntil(
         caches.open(CORE_CACHE).then(async (cache) => {
-            console.log('SW: Caching Core App Shell v38');
+            console.log('SW: Caching Core App Shell v39');
             for (let asset of CORE_ASSETS) {
                 try {
-                    const response = await fetch(asset);
+                    const response = await fetch(asset, { cache: 'reload' });
                     if (response.ok) {
                         await cache.put(asset, response);
                     }
@@ -97,7 +95,7 @@ self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
 
-    // Hard refresh or forced refresh detection: let browser bypass SW completely
+    // Hard refresh or forced refresh detection: force fresh network fetch and update cache
     const hasForcedBypass = request.cache === 'reload' ||
                            request.headers.get('Cache-Control')?.includes('no-cache') ||
                            request.headers.get('Pragma')?.includes('no-cache') ||
@@ -116,8 +114,7 @@ self.addEventListener('fetch', (event) => {
         url.pathname.startsWith('/functions/') ||     
         url.pathname.endsWith('.json') ||             
         request.method !== 'GET' ||                   
-        request.headers.get('accept')?.includes('application/json') ||
-        hasForcedBypass
+        request.headers.get('accept')?.includes('application/json')
     ) {
         return; 
     }
@@ -128,8 +125,9 @@ self.addEventListener('fetch', (event) => {
         url.pathname.includes('/assets/bottom-nav.js') ||
         url.pathname.includes('/assets/style/live.css')
     ) {
+        const fetchOpts = hasForcedBypass ? { cache: 'reload' } : { cache: 'no-cache' };
         event.respondWith(
-            fetch(request).then((networkResponse) => {
+            fetch(request, fetchOpts).then((networkResponse) => {
                 if (networkResponse && networkResponse.ok) {
                     const responseClone = networkResponse.clone();
                     caches.open(CORE_CACHE).then((cache) => cache.put(request, responseClone));
@@ -145,10 +143,11 @@ self.addEventListener('fetch', (event) => {
         const isHomePage = (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '');
         const isLivePage = (url.pathname === '/live' || url.pathname === '/live/' || url.pathname === '/live.html' || url.pathname.startsWith('/live/'));
 
-        // Both Homepage and Live page use Network-First to guarantee real-time updates
+        // Both Homepage and Live page use Network-First to guarantee real-time updates and respect force refresh
         if (isHomePage || isLivePage) {
+            const fetchOpts = hasForcedBypass ? { cache: 'reload' } : { cache: 'no-cache' };
             event.respondWith(
-                fetch(request).then((networkResponse) => {
+                fetch(request, fetchOpts).then((networkResponse) => {
                     if (networkResponse && networkResponse.ok) {
                         const responseClone = networkResponse.clone();
                         caches.open(CORE_CACHE).then((cache) => cache.put(request, responseClone));

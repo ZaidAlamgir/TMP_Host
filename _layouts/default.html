@@ -210,8 +210,8 @@
     <link rel="stylesheet" href="{{ '/assets/style/home.css' | relative_url }}">
     <link rel="stylesheet" href="{{ '/assets/style/dark-mode.css' | relative_url }}">   
     <link rel="stylesheet" href="{{ '/assets/style/tailwind.css' | relative_url }}">
-    <!-- Load FontAwesome and Supabase asynchronously/deferred to prevent render blocking -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" media="print" onload="this.media='all'">
+    <!-- Load FontAwesome directly so icons and star buttons always render immediately on mobile & PWA -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <style>
         html {
@@ -415,13 +415,14 @@
           if (!isRefreshing) {
             isRefreshing = true;
             console.log('[SW] New Service Worker active! Reloading page to apply updates...');
-            // Invalidate stale localStorage caches
+            // Invalidate stale localStorage and sessionStorage caches
             try {
               Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('postsCache_') || key.startsWith('tmp_feed_')) {
+                if (key.startsWith('postsCache_') || key.startsWith('tmp_feed_') || key.startsWith('cachedLiveFeed_') || key.startsWith('prefetchedLiveFeed_')) {
                   localStorage.removeItem(key);
                 }
               });
+              sessionStorage.clear();
             } catch (e) {}
             window.location.reload();
           }
@@ -433,10 +434,11 @@
             console.log('[SW] Cache updated to version:', event.data.version);
             try {
               Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('postsCache_')) {
+                if (key.startsWith('postsCache_') || key.startsWith('cachedLiveFeed_') || key.startsWith('prefetchedLiveFeed_')) {
                   localStorage.removeItem(key);
                 }
               });
+              sessionStorage.clear();
             } catch (e) {}
           }
         });
