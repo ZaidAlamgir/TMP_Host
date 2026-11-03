@@ -1,6 +1,6 @@
-const CORE_CACHE = 'tmp-core-v37';
-const ARTICLE_CACHE = 'tmp-articles-v37';
-const ASSET_CACHE = 'tmp-assets-v37';
+const CORE_CACHE = 'tmp-core-v38';
+const ARTICLE_CACHE = 'tmp-articles-v38';
+const ASSET_CACHE = 'tmp-assets-v38';
 const CORE_ASSETS = [
     '/',                      
     '/index.html',            
@@ -33,11 +33,32 @@ const limitCacheSize = (name, size) => {
         });
     });
 };
+// Listen for messages from clients to skip waiting or clear caches immediately
+self.addEventListener('message', (event) => {
+    if (event.data && (event.data.type === 'SKIP_WAITING' || event.data.action === 'skipWaiting' || event.data === 'skipWaiting')) {
+        self.skipWaiting();
+    }
+    if (event.data && (event.data.type === 'CLEAR_OLD_CACHES' || event.data.action === 'clearCache')) {
+        event.waitUntil(
+            caches.keys().then((keys) => {
+                return Promise.all(
+                    keys.map((k) => {
+                        if (k !== CORE_CACHE && k !== ARTICLE_CACHE && k !== ASSET_CACHE) {
+                            console.log('SW: Explicitly deleting cache ->', k);
+                            return caches.delete(k);
+                        }
+                    })
+                );
+            })
+        );
+    }
+});
+
 self.addEventListener('install', (event) => {
     self.skipWaiting(); 
     event.waitUntil(
         caches.open(CORE_CACHE).then(async (cache) => {
-            console.log('SW: Caching Core App Shell v36');
+            console.log('SW: Caching Core App Shell v38');
             for (let asset of CORE_ASSETS) {
                 try {
                     const response = await fetch(asset);
@@ -62,6 +83,12 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
+        }).then(() => {
+            return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+                clients.forEach((client) => {
+                    client.postMessage({ type: 'SW_ACTIVATED', version: CORE_CACHE });
+                });
+            });
         })
     );
     return self.clients.claim(); 
