@@ -17,6 +17,11 @@ binding = "DB_EN"
 database_name = "tmpnews_en_archive"
 database_id = "4f7db06b-6924-4566-96dd-1bc42ec9cb32"
 
+[[d1_databases]]
+binding = "DB_INFOLENS"
+database_name = "tmp-infolens-d1"
+database_id = "819279bf-9e00-44b6-a01f-e8e9814e1208"
+
 [[kv_namespaces]]
 binding = "FEED_CACHE"
 id = "dd89c65043be49a1be126f3bd843a58b"

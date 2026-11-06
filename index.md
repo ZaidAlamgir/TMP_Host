@@ -219,6 +219,8 @@ html.dark-mode .subheadline-container::after {
 }
 </style>
 
+{% include live-top-widget.html %}
+
 <div class="support-cta-banner">
     <p>Independent journalism is more important than ever. Please consider supporting The Muslim Post today.</p>
     <a href="{{ '/support/' | relative_url }}" class="support-cta-button">Support TMP</a>

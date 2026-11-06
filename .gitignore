@@ -51,5 +51,12 @@ Desktop.ini
 SEO-verification.md
 SEO-optimization.md
 
+# --- Article Staging ---
+_article_repos/
+_infolens/
+
 # --- Upgrade Plans ---
 upgrade-plans/
+
+__pycache__/
+*.pyc
