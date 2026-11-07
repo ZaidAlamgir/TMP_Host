@@ -3,7 +3,13 @@
    ======================================================== */
 
 html {
-    scrollbar-gutter: stable;
+    scrollbar-gutter: auto;
+}
+
+@media (min-width: 1024px) {
+    html {
+        scrollbar-gutter: stable;
+    }
 }
 
 .infolens-page {
@@ -11,6 +17,8 @@ html {
     min-height: 85vh;
     padding-bottom: 90px;
     background-color: #f8fafc;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 html.dark-mode .infolens-page {
@@ -1006,8 +1014,32 @@ html.dark-mode .infolens-suggested-title i {
 @media (max-width: 680px) {
     /* Topbar on mobile: badge & search sit seamlessly together */
     .infolens-topbar {
-        padding: 0.75rem 0.75rem 0.4rem 0.75rem;
+        padding: 0.75rem 0.5rem 0.4rem 0.5rem;
         gap: 8px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .infolens-categories-nav {
+        padding: 0 0.5rem;
+        margin-bottom: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .infolens-grid-wrapper {
+        padding: 0 6px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .infolens-masonry-grid {
+        column-gap: 8px;
+        width: 100%;
+    }
+
+    .infolens-card {
+        margin-bottom: 8px;
     }
 
     .infolens-pill-badge {
