@@ -708,15 +708,30 @@
         }, { passive: false });
     }
 
-    // --- DEDUPLICATION ENGINE ---
-    // Guarantees zero duplicate cards (collapses art-svg- and standalone duplicates by core ID, slug & title)
+    // --- DATE PARSER & DEDUPLICATION ENGINE ---
+    function parseInfolensDate(dateStr) {
+        if (!dateStr) return 0;
+        const str = String(dateStr).trim();
+        const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (isoMatch) {
+            return new Date(parseInt(isoMatch[1], 10), parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10)).getTime();
+        }
+        const t = new Date(str).getTime();
+        return isNaN(t) ? 0 : t;
+    }
+
+    // Guarantees zero duplicate cards & orders by most recent publication date first
     function deduplicateInfolensItems(items) {
         if (!Array.isArray(items)) return [];
         const seenKeys = new Set();
         const deduplicated = [];
 
-        // Standalone infographics take priority over extracted article SVGs
+        // Sort descending by date (most recent first), with standalone priority over article SVGs for same-date items
         const sorted = [...items].sort((a, b) => {
+            const timeA = parseInfolensDate(a.date);
+            const timeB = parseInfolensDate(b.date);
+            if (timeA !== timeB) return timeB - timeA;
+
             const aIsArt = String(a.id || '').startsWith('art-svg-');
             const bIsArt = String(b.id || '').startsWith('art-svg-');
             if (aIsArt && !bIsArt) return 1;
@@ -749,8 +764,10 @@
         const grid = document.getElementById('infolens-grid');
         if (!grid) return;
 
-        // Filter items
+        // Filter and strictly sort items descending by date (latest first)
         const deduplicated = deduplicateInfolensItems(INFOLENS_DATA);
+        deduplicated.sort((a, b) => parseInfolensDate(b.date) - parseInfolensDate(a.date));
+
         const filtered = deduplicated.filter(item => {
             const matchesCategory = (currentCategory === 'all') || (item.category === currentCategory);
             const textToSearch = (item.title + ' ' + (item.description || '') + ' ' + (item.tags || []).join(' ')).toLowerCase();
@@ -1010,7 +1027,7 @@
                     isFetchingFeed = false;
                     if (data && Array.isArray(data.items) && data.items.length > 0) {
                         const beforeLen = INFOLENS_DATA.length;
-                        INFOLENS_DATA = deduplicateInfolensItems(INFOLENS_DATA.concat(data.items));
+                        INFOLENS_DATA = deduplicateInfolensItems(data.items.concat(INFOLENS_DATA));
                         if (INFOLENS_DATA.length !== beforeLen) {
                             renderGrid();
                             if (currentActivePin) {
